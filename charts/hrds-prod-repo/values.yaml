@@ -72,7 +72,7 @@ service:
   name: hrds-prod-repo
 deployment:
   # 管理端口
-  managementPort: 	7145
+  managementPort: 7145
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
