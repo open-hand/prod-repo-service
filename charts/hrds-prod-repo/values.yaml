@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.choerodon.com.cn/hzero-hzero/rducm
+  repository: registry.choerodon.com.cn/hzero-hzero/hrds-prod-repo
   pullPolicy: Always
 
 preJob:
