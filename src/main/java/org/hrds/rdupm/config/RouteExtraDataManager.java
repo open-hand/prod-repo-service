@@ -1,4 +1,4 @@
-package ord.hrds.rdupm.config;
+package org.hrds.rdupm.config;
 
 import io.choerodon.core.swagger.ChoerodonRouteData;
 import io.choerodon.swagger.annotation.ChoerodonExtraData;

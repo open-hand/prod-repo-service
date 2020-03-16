@@ -1,4 +1,4 @@
-package ord.hrds.rdupm.config;
+package org.hrds.rdupm.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
