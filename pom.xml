@@ -8,7 +8,7 @@
         <artifactId>hzero-parent</artifactId>
         <version>1.2.0.RELEASE</version>
     </parent>
-    <groupId>ord.hrds.rdupm</groupId>
+    <groupId>org.hrds.rdupm</groupId>
     <artifactId>rdupm</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>rdupm</name>
@@ -28,10 +28,10 @@
             <groupId>org.hzero.starter</groupId>
             <artifactId>hzero-starter-mybatis-mapper</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.hzero.starter</groupId>
-            <artifactId>hzero-starter-dynamic-route</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.hzero.starter</groupId>-->
+            <!--<artifactId>hzero-starter-dynamic-route</artifactId>-->
+        <!--</dependency>-->
 
         <!-- hzero boot -->
         <dependency>
