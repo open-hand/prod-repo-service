@@ -26,4 +26,13 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		String response = responseEntity.getBody();
 		return JSONObject.parseArray(response, NexusRepository.class);
 	}
+
+	@Override
+	public String deleteRepository(String repositoryName) {
+		String url = NexusUrlConstants.Repository.DELETE_REPOSITORY + repositoryName;
+		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.DELETE, null, null);
+		System.out.println(responseEntity.getStatusCode());
+		System.out.println(responseEntity.getBody());
+		return responseEntity.getBody();
+	}
 }

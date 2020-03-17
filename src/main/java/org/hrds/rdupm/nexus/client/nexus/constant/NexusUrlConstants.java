@@ -14,5 +14,10 @@ public interface NexusUrlConstants {
 		 * 仓库信息查询
 		 */
 		String GET_REPOSITORY_LIST = "/service/rest/v1/repositories";
+
+		/**
+		 * 删除仓库
+		 */
+		String DELETE_REPOSITORY = "/service/rest/beta/repositories/";
 	}
 }

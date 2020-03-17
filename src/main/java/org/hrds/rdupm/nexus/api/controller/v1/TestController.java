@@ -39,4 +39,17 @@ public class TestController {
 		List<NexusRepository> repositoryList =  nexusClient.getRepositoryApi().getRepository();
 		return Results.success(repositoryList);
 	}
+
+	@ApiOperation(value = "test")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@DeleteMapping("/rep/delete")
+	public ResponseEntity<String> list(@RequestParam("username") String username,
+									   @RequestParam("password") String password,
+									   @RequestParam("ip") String ip,
+									   @RequestParam("repositoryName") String repositoryName) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		String repose = nexusClient.getRepositoryApi().deleteRepository(repositoryName);
+		return Results.success(repose);
+	}
 }

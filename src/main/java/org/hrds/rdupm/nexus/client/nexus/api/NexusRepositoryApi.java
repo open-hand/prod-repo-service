@@ -15,5 +15,11 @@ public interface NexusRepositoryApi {
 	 * @return List<NexusRepository>
 	 */
 	List<NexusRepository> getRepository();
+
+	/**
+	 * 删除仓库信息
+	 * @param repositoryName 仓库名称
+	 */
+	String deleteRepository(String repositoryName);
 	
 }
