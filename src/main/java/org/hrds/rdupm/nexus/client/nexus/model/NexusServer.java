@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
 /**
+ * nexus服务信息
  * @author weisen.yang@hand-china.com 2020/3/16
  */
 public class NexusServer {

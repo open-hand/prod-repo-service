@@ -1,6 +1,9 @@
 package org.hrds.rdupm.nexus.client.nexus;
 
+import org.hrds.rdupm.nexus.client.nexus.api.NexusBlobStoreApi;
+import org.hrds.rdupm.nexus.client.nexus.api.NexusPrivilegeApi;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
+import org.hrds.rdupm.nexus.client.nexus.api.impl.NexusComponentsHttpApi;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 
 /**
@@ -19,4 +22,22 @@ public interface NexusClient {
 	 * @return NexusRepositoryApi
 	 */
 	NexusRepositoryApi getRepositoryApi();
+
+	/**
+	 * 获取组件API类
+	 * @return NexusComponentsHttpApi
+	 */
+	NexusComponentsHttpApi getComponentsHttpApi();
+
+	/**
+	 * 获取组件API类
+	 * @return NexusComponentsHttpApi
+	 */
+	NexusPrivilegeApi getPrivilegeApi();
+
+	/**
+	 * 获取存储API类
+	 * @return NexusBlobStoreApi
+	 */
+	NexusBlobStoreApi getBlobStoreApi();
 }
