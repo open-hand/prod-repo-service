@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 @Component
 public class NexusPrivilegeHttpApi implements NexusPrivilegeApi{
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 	@Override
 	public List<NexusPrivilege> getPrivileges() {
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.Privileges.GET_PRIVILEGES_LIST, HttpMethod.GET, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Privileges.GET_PRIVILEGES_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
 		return JSONObject.parseArray(response, NexusPrivilege.class);
 	}

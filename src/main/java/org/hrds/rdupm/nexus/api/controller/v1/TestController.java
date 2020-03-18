@@ -223,6 +223,7 @@ public class TestController {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		List<NexusUser> nexusUserList =  nexusClient.getNexusUserApi().getUsers(userId);
+		nexusClient.removeNexusServerInfo();
 		return Results.success(nexusUserList);
 	}
 

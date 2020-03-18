@@ -24,12 +24,17 @@ public class NexusHttpClient implements NexusClient {
 	@Autowired
 	private NexusUserApi nexusUserApi;
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 
 	@Override
 	public void setNexusServerInfo(NexusServer nexusServer) {
-		nexusUtils.setNexusServerInfo(nexusServer);
+		nexusRequest.setNexusServerInfo(nexusServer);
+	}
+
+	@Override
+	public void removeNexusServerInfo() {
+		nexusRequest.removeNexusServerInfo();
 	}
 
 	@Override

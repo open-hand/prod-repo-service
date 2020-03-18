@@ -27,13 +27,13 @@ import java.util.Map;
 @Component
 public class NexusComponentsHttpApi implements NexusComponentsApi {
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 	@Override
 	public List<NexusComponent> getComponents(String repositoryName) {
 		Map<String, Object> paramMap = new HashMap<>(2);
 		paramMap.put("repository", repositoryName);
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.Components.GET_COMPONENTS_LIST, HttpMethod.GET, paramMap, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Components.GET_COMPONENTS_LIST, HttpMethod.GET, paramMap, null);
 		String response = responseEntity.getBody();
 		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
 		List<NexusComponent> componentList = componentResponse.getItems();
@@ -74,7 +74,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	@Override
 	public void deleteComponent(String componentId) {
 		String url = NexusUrlConstants.Components.DELETE_COMPONENTS + componentId;
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.DELETE, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("待删除组件不存在");

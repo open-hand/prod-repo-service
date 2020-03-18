@@ -16,6 +16,11 @@ public interface NexusClient {
 	void setNexusServerInfo(NexusServer nexusServer);
 
 	/**
+	 * 删除nexus服务信息, NexusClient使用后需要调用
+	 */
+	void removeNexusServerInfo();
+
+	/**
 	 * 获取仓库API类
 	 * @return NexusRepositoryApi
 	 */

@@ -23,11 +23,11 @@ import java.util.List;
 @Component
 public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 	@Override
 	public List<NexusRepository> getRepository() {
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.Repository.GET_REPOSITORY_MANAGE_LIST, HttpMethod.GET, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.GET_REPOSITORY_MANAGE_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
 		return JSONObject.parseArray(response, NexusRepository.class);
 	}
@@ -35,7 +35,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	@Override
 	public void deleteRepository(String repositoryName) {
 		String url = NexusUrlConstants.Repository.DELETE_REPOSITORY + repositoryName;
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.DELETE, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("待删除仓库不存在");
@@ -49,11 +49,11 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		ResponseEntity<String> responseEntity = null;
 		if (NexusConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库
-			responseEntity = nexusUtils.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_HOSTED_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
+			responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_HOSTED_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
 
 		} else if (NexusConstants.RepositoryType.PROXY.equals(repositoryRequest.getType())) {
 			// 创建代理仓库
-			responseEntity = nexusUtils.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_PROXY_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
+			responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_PROXY_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
 		} else {
 			throw new CommonException("仓库类型错误");
 		}
@@ -68,11 +68,11 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		if (NexusConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库
 			String url = NexusUrlConstants.Repository.UPDATE_MAVEN_HOSTED_REPOSITORY + repositoryRequest.getName();
-			responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, repositoryRequest);
+			responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, repositoryRequest);
 		} else if (NexusConstants.RepositoryType.PROXY.equals(repositoryRequest.getType())) {
 			// 创建代理仓库
 			String url = NexusUrlConstants.Repository.UPDATE_MAVEN_PROXY_REPOSITORY + repositoryRequest.getName();
-			responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, repositoryRequest);
+			responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, repositoryRequest);
 		} else {
 			throw new CommonException("仓库类型错误");
 		}

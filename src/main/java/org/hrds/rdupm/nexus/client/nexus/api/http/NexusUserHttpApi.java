@@ -25,7 +25,7 @@ import java.util.Map;
 @Component
 public class NexusUserHttpApi implements NexusUserApi{
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 	@Override
 	public List<NexusUser> getUsers(String userId) {
@@ -34,7 +34,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 			paramMap = new HashMap<>(2);
 			paramMap.put("userId", userId);
 		}
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.User.GET_USER_LIST, HttpMethod.GET, paramMap, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.GET_USER_LIST, HttpMethod.GET, paramMap, null);
 		String response = responseEntity.getBody();
 		return JSONObject.parseArray(response, NexusUser.class);
 	}
@@ -42,7 +42,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	@Override
 	public void deleteUser(String userId) {
 		String url = NexusUrlConstants.User.DELETE_USER + userId;
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.DELETE, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("待删除用户不存在");
@@ -56,7 +56,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 		if (CollectionUtils.isNotEmpty(nexusUserList)) {
 			throw new CommonException("用户ID对应用户已存在");
 		}
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.User.CREATE_USER, HttpMethod.POST, null, nexusUser);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.CREATE_USER, HttpMethod.POST, null, nexusUser);
 		if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
 			// TODO 异常信息定义
 			throw new CommonException("信息");
@@ -67,7 +67,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	@Override
 	public void updateUser(NexusUser nexusUser) {
 		String url = NexusUrlConstants.User.UPDATE_USER + nexusUser.getUserId();
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, nexusUser);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusUser);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("待更新用户不存在");
@@ -79,7 +79,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	public void changePassword(String userId, String newPassword, String oldPassword) {
 		//  TODO 旧密码校验
 		String url = NexusUrlConstants.User.CHANGE_PASWORD.replace("{userId}", userId);
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, newPassword, MediaType.TEXT_PLAIN_VALUE);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, newPassword, MediaType.TEXT_PLAIN_VALUE);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("对应用户已不存在");

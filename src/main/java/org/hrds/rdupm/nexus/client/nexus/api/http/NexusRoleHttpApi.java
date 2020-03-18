@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * nexus 角色API
@@ -23,11 +22,11 @@ import java.util.stream.Collectors;
 @Component
 public class NexusRoleHttpApi implements NexusRoleApi{
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 	@Override
 	public List<NexusRole> getRoles() {
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.Role.GET_ROLE_LIST, HttpMethod.GET, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Role.GET_ROLE_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
 		return JSONObject.parseArray(response, NexusRole.class);
 	}
@@ -35,7 +34,7 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	@Override
 	public NexusRole getRoleById(String roleId) {
 		String url = NexusUrlConstants.Role.GET_ROLE_BY_ID + roleId;
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.GET, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.GET, null, null);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("对应角色不存在");
@@ -47,7 +46,7 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	@Override
 	public void deleteRole(String roleId) {
 		String url = NexusUrlConstants.Role.DELETE_ROLE + roleId;
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.DELETE, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("待删除角色不存在");
@@ -61,7 +60,7 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 		if (existRole != null) {
 			throw new CommonException("角色ID对应角色已存在");
 		}
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.Role.CREATE_ROLE, HttpMethod.POST, null, nexusRole);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Role.CREATE_ROLE, HttpMethod.POST, null, nexusRole);
 		if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
 			// TODO 异常信息定义
 			throw new CommonException("信息");
@@ -72,7 +71,7 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	@Override
 	public void updateRole(NexusRole nexusRole) {
 		String url = NexusUrlConstants.Role.UPDATE_ROLE + nexusRole.getId();
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, nexusRole);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusRole);
 		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
 			// TODO 异常信息定义
 			throw new CommonException("待更新角色不存在");

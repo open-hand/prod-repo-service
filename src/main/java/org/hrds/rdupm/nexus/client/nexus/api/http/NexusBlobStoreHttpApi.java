@@ -18,11 +18,11 @@ import java.util.List;
 @Component
 public class NexusBlobStoreHttpApi implements NexusBlobStoreApi{
 	@Autowired
-	private NexusRequest nexusUtils;
+	private NexusRequest nexusRequest;
 
 	@Override
 	public List<NexusBlobStore> getBlobStore() {
-		ResponseEntity<String> responseEntity = nexusUtils.exchange(NexusUrlConstants.BlobStore.GET_BLOB_STORE_LIST, HttpMethod.GET, null, null);
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.BlobStore.GET_BLOB_STORE_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
 		return JSONObject.parseArray(response, NexusBlobStore.class);
 	}

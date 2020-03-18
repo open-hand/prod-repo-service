@@ -1,14 +1,12 @@
 package org.hrds.rdupm.nexus.client.nexus;
 
 import io.choerodon.core.exception.CommonException;
-import org.apache.poi.ss.formula.functions.T;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hzero.core.util.AssertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -21,8 +19,7 @@ public class NexusRequest {
 	@Autowired
 	@Qualifier("hrdsNexusRestTemplate")
 	private RestTemplate restTemplate;
-	// TODO 调用remove
-	private static ThreadLocal<NexusServer> nexusServerLocal = new ThreadLocal<NexusServer>();
+	private static ThreadLocal<NexusServer> NEXUS_SERVER_LOCAL = new ThreadLocal<>();
 
 
 	private static final String AUTH_PRE = "Basic ";
@@ -33,15 +30,15 @@ public class NexusRequest {
 
 
 	private NexusServer getNexusServer(){
-		if (nexusServerLocal.get() == null) {
+		if (NEXUS_SERVER_LOCAL.get() == null) {
 			// todo
 			throw new CommonException("nexus server info is null");
 		}
-		return nexusServerLocal.get();
+		return NEXUS_SERVER_LOCAL.get();
 	}
 
 	private String getToken(){
-		NexusServer nexusServer = nexusServerLocal.get();
+		NexusServer nexusServer = NEXUS_SERVER_LOCAL.get();
 		String basicInfo = nexusServer.getUsername() + ":" + nexusServer.getPassword();
 		return  AUTH_PRE + Base64.getEncoder().encodeToString(basicInfo.getBytes());
 	}
@@ -75,9 +72,14 @@ public class NexusRequest {
 		AssertUtils.notNull(nexusServer.getUsername(), "nexus username cannot null");
 		AssertUtils.notNull(nexusServer.getPassword(), "nexus password cannot null");
 		AssertUtils.notNull(nexusServer.getBaseUrl(), "nexus baseUrl cannot null");
-		if (nexusServerLocal.get() == null) {
-			nexusServerLocal.set(nexusServer);
-		}
+		NEXUS_SERVER_LOCAL.set(nexusServer);
+	}
+
+	/**
+	 * 取消nexus服务信息
+	 */
+	public void removeNexusServerInfo(){
+		NEXUS_SERVER_LOCAL.remove();
 	}
 
 	/**
