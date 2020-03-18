@@ -1,11 +1,7 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
 import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.enums.ResourceType;
-import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.swagger.annotations.ApiOperation;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
@@ -13,7 +9,6 @@ import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -58,7 +53,7 @@ public class TestController {
 	public ResponseEntity<?> repCreate(@RequestParam("username") String username,
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
-									   @RequestBody RepositoryRequest repositoryRequest) {
+									   @RequestBody RepositoryMavenRequest repositoryRequest) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getRepositoryApi().createMavenRepository(repositoryRequest);
@@ -71,7 +66,7 @@ public class TestController {
 	public ResponseEntity<?> repUpdate(@RequestParam("username") String username,
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
-									   @RequestBody RepositoryRequest repositoryRequest) {
+									   @RequestBody RepositoryMavenRequest repositoryRequest) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getRepositoryApi().updateMavenRepository(repositoryRequest);

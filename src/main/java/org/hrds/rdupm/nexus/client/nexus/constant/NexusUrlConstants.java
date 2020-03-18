@@ -24,13 +24,22 @@ public interface NexusUrlConstants {
 		 */
 		String DELETE_REPOSITORY = "/service/rest/beta/repositories/";
 		/**
-		 * 创建maven仓库
+		 * 创建maven hosted仓库
 		 */
 		String CREATE_MAVEN_HOSTED_REPOSITORY = "/service/rest/beta/repositories/maven/hosted";
 		/**
-		 * 更新maven仓库
+		 * 更新maven hosted仓库
 		 */
 		String UPDATE_MAVEN_HOSTED_REPOSITORY = "/service/rest/beta/repositories/maven/hosted/";
+
+		/**
+		 * 创建maven proxy仓库
+		 */
+		String CREATE_MAVEN_PROXY_REPOSITORY = "/service/rest/beta/repositories/maven/proxy";
+		/**
+		 * 更新maven proxy仓库
+		 */
+		String UPDATE_MAVEN_PROXY_REPOSITORY = "/service/rest/beta/repositories/maven/proxy/";
 	}
 
 	/**

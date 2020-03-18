@@ -7,7 +7,7 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusRepository;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
-import org.hrds.rdupm.nexus.client.nexus.model.RepositoryRequest;
+import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	}
 
 	@Override
-	public void createMavenRepository(RepositoryRequest repositoryRequest) {
+	public void createMavenRepository(RepositoryMavenRequest repositoryRequest) {
 		ResponseEntity<String> responseEntity = null;
 		if (NexusConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库
@@ -53,29 +53,30 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 		} else if (NexusConstants.RepositoryType.PROXY.equals(repositoryRequest.getType())) {
 			// 创建代理仓库
-			// TODO
+			responseEntity = nexusUtils.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_PROXY_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
 		} else {
 			throw new CommonException("仓库类型错误");
 		}
+		// TODO 400
 		System.out.println(responseEntity.getStatusCode());
 
 	}
 
 	@Override
-	public void updateMavenRepository(RepositoryRequest repositoryRequest) {
+	public void updateMavenRepository(RepositoryMavenRequest repositoryRequest) {
 		ResponseEntity<String> responseEntity = null;
-		String url = NexusUrlConstants.Repository.UPDATE_MAVEN_HOSTED_REPOSITORY + repositoryRequest.getName();
-
 		if (NexusConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库
+			String url = NexusUrlConstants.Repository.UPDATE_MAVEN_HOSTED_REPOSITORY + repositoryRequest.getName();
 			responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, repositoryRequest);
-
 		} else if (NexusConstants.RepositoryType.PROXY.equals(repositoryRequest.getType())) {
 			// 创建代理仓库
-			// TODO
+			String url = NexusUrlConstants.Repository.UPDATE_MAVEN_PROXY_REPOSITORY + repositoryRequest.getName();
+			responseEntity = nexusUtils.exchange(url, HttpMethod.PUT, null, repositoryRequest);
 		} else {
 			throw new CommonException("仓库类型错误");
 		}
+		// TODO 400
 		System.out.println(responseEntity.getStatusCode());
 	}
 }
