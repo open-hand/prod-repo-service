@@ -1,9 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus;
 
-import org.hrds.rdupm.nexus.client.nexus.api.NexusBlobStoreApi;
-import org.hrds.rdupm.nexus.client.nexus.api.NexusPrivilegeApi;
-import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
-import org.hrds.rdupm.nexus.client.nexus.api.impl.NexusComponentsHttpApi;
+import org.hrds.rdupm.nexus.client.nexus.api.*;
+import org.hrds.rdupm.nexus.client.nexus.api.http.NexusComponentsHttpApi;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +19,10 @@ public class NexusHttpClient implements NexusClient {
 	private NexusPrivilegeApi nexusPrivilegeApi;
 	@Autowired
 	private NexusBlobStoreApi nexusBlobStoreApi;
+	@Autowired
+	private NexusRoleApi nexusRoleApi;
+	@Autowired
+	private NexusUserApi nexusUserApi;
 	@Autowired
 	private NexusRequest nexusUtils;
 
@@ -48,5 +50,15 @@ public class NexusHttpClient implements NexusClient {
 	@Override
 	public NexusBlobStoreApi getBlobStoreApi() {
 		return nexusBlobStoreApi;
+	}
+
+	@Override
+	public NexusRoleApi getNexusRoleApi() {
+		return nexusRoleApi;
+	}
+
+	@Override
+	public NexusUserApi getNexusUserApi() {
+		return nexusUserApi;
 	}
 }

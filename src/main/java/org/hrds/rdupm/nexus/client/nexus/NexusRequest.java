@@ -27,9 +27,9 @@ public class NexusRequest {
 
 	private static final String AUTH_PRE = "Basic ";
 	private static final String AUTH_HEADER= "Authorization";
-	private static final String MEDIA_TYPE= "application/json";
 	private static final String AND = "&";
 	private static final String EQ = "=";
+	private static final String QM = "?";
 
 
 	private NexusServer getNexusServer(){
@@ -50,15 +50,27 @@ public class NexusRequest {
 			return url;
 		}
 		StringBuilder newUrl = new StringBuilder();
-		newUrl.append(url).append("?");
+		newUrl.append(url).append(QM);
 		for (String key : paramMap.keySet()) {
-			newUrl.append(key).append("=").append(paramMap.get(key)).append("&");
+			newUrl.append(key).append(EQ).append(paramMap.get(key)).append(AND);
 		}
-		return newUrl.toString().substring(0, newUrl.length() - "&".length());
+		return newUrl.toString().substring(0, newUrl.length() - AND.length());
+	}
+	private void handleResponseStatus(ResponseEntity<String> responseEntity){
+		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+			throw new CommonException("请检查用户或密码是否正确");
+		} else if (responseEntity.getStatusCode() == HttpStatus.FORBIDDEN) {
+			throw new CommonException("nexus角色权限未分配");
+		} else if (responseEntity.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
+			throw new CommonException("nexus服务错误");
+		}
 	}
 
 
-
+	/**
+	 * 设置nexus服务信息
+	 * @param nexusServer nexus服务信息
+	 */
 	public void setNexusServerInfo(NexusServer nexusServer){
 		AssertUtils.notNull(nexusServer.getUsername(), "nexus username cannot null");
 		AssertUtils.notNull(nexusServer.getPassword(), "nexus password cannot null");
@@ -68,12 +80,21 @@ public class NexusRequest {
 		}
 	}
 
+	/**
+	 * 请求
+	 * @param urlFix 请求地址(截掉IP与端口号后的)
+	 * @param method 请求方式
+	 * @param paramMap url ?后面接的参数
+	 * @param body body的参数
+	 *  mediaType 默认：application/json
+	 * @return ResponseEntity<String>
+	 */
 	public ResponseEntity<String> exchange(String urlFix, HttpMethod method, Map<String, Object> paramMap, Object body){
 		NexusServer nexusServer = this.getNexusServer();
 		 String url = nexusServer.getBaseUrl() + urlFix;
 
 		HttpHeaders headers = new HttpHeaders();
-		MediaType type = MediaType.parseMediaType(MEDIA_TYPE);
+		MediaType type = MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE);
 		headers.setContentType(type);
 		headers.add(AUTH_HEADER, this.getToken());
 		HttpEntity<Object> entity = new HttpEntity<>(body, headers);
@@ -86,14 +107,36 @@ public class NexusRequest {
 		return responseEntity;
 	}
 
-	public void handleResponseStatus(ResponseEntity<String> responseEntity){
-		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			throw new CommonException("请检查用户或密码是否正确");
-		} else if (responseEntity.getStatusCode() == HttpStatus.FORBIDDEN) {
-			throw new CommonException("nexus角色权限未分配");
+	/**
+	 * 请求
+	 * @param urlFix 请求地址(截掉IP与端口号后的)
+	 * @param method 请求方式
+	 * @param paramMap url后面接的参数
+	 * @param body body的参数
+	 * @param mediaType 没传，默认：application/json
+	 * @return ResponseEntity<String>
+	 */
+	public ResponseEntity<String> exchange(String urlFix, HttpMethod method, Map<String, Object> paramMap, Object body, String mediaType){
+		NexusServer nexusServer = this.getNexusServer();
+		String url = nexusServer.getBaseUrl() + urlFix;
+
+		HttpHeaders headers = new HttpHeaders();
+		MediaType type = null;
+		if (mediaType != null) {
+			type = MediaType.parseMediaType(mediaType);
+		} else {
+			type = MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE);
 		}
-
-
+		headers.setContentType(type);
+		headers.add(AUTH_HEADER, this.getToken());
+		HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+		if (paramMap == null) {
+			paramMap = new HashMap<>(2);
+		}
+		url = this.setParam(url, paramMap);
+		ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		this.handleResponseStatus(responseEntity);
+		return responseEntity;
 	}
 
 

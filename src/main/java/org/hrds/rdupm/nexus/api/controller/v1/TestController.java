@@ -150,4 +150,138 @@ public class TestController {
 		List<NexusBlobStore> blobStoreList = nexusClient.getBlobStoreApi().getBlobStore();
 		return Results.success(blobStoreList);
 	}
+
+
+
+	@ApiOperation(value = "test role")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@GetMapping("/role/getList")
+	public ResponseEntity<List<NexusRole>> roleList(@RequestParam("username") String username,
+													@RequestParam("password") String password,
+													@RequestParam("ip") String ip) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		List<NexusRole> nexusRoleList =  nexusClient.getNexusRoleApi().getRoles();
+		return Results.success(nexusRoleList);
+	}
+	@ApiOperation(value = "test role")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@GetMapping("/role/get")
+	public ResponseEntity<NexusRole> roleGet(@RequestParam("username") String username,
+											 @RequestParam("password") String password,
+											 @RequestParam("ip") String ip,
+											 @RequestParam("roleId") String roleId) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		NexusRole nexusRole =  nexusClient.getNexusRoleApi().getRoleById(roleId);
+		return Results.success(nexusRole);
+	}
+
+	@ApiOperation(value = "role delete")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@DeleteMapping("/role/delete")
+	public ResponseEntity<?> roleDelete(@RequestParam("username") String username,
+									    @RequestParam("password") String password,
+									    @RequestParam("ip") String ip,
+										@RequestParam("roleId") String roleId) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusRoleApi().deleteRole(roleId);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "role delete")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/role/create")
+	public ResponseEntity<?> roleCreate(@RequestParam("username") String username,
+										@RequestParam("password") String password,
+									    @RequestParam("ip") String ip,
+									    @RequestBody NexusRole nexusRole) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusRoleApi().createRole(nexusRole);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "role delete")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PutMapping("/role/update")
+	public ResponseEntity<?> roleUpdate(@RequestParam("username") String username,
+									    @RequestParam("password") String password,
+									    @RequestParam("ip") String ip,
+										@RequestBody NexusRole nexusRole) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusRoleApi().updateRole(nexusRole);
+		return Results.success();
+	}
+
+
+
+	@ApiOperation(value = "test user")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@GetMapping("/user/getList")
+	public ResponseEntity<List<NexusUser>> userList(@RequestParam("username") String username,
+													@RequestParam("password") String password,
+													@RequestParam("ip") String ip,
+													@RequestParam(name = "userId", required = false) String userId) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		List<NexusUser> nexusUserList =  nexusClient.getNexusUserApi().getUsers(userId);
+		return Results.success(nexusUserList);
+	}
+
+	@ApiOperation(value = "user delete")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@DeleteMapping("/user/delete")
+	public ResponseEntity<?> userDelete(@RequestParam("username") String username,
+										@RequestParam("password") String password,
+										@RequestParam("ip") String ip,
+										@RequestParam("userId") String userId) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusUserApi().deleteUser(userId);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "user delete")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/user/create")
+	public ResponseEntity<?> userCreate(@RequestParam("username") String username,
+										@RequestParam("password") String password,
+										@RequestParam("ip") String ip,
+										@RequestBody NexusUser nexusUser) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusUserApi().createUser(nexusUser);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "user user")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PutMapping("/user/update")
+	public ResponseEntity<?> userUpdate(@RequestParam("username") String username,
+										@RequestParam("password") String password,
+										@RequestParam("ip") String ip,
+										@RequestBody NexusUser nexusUser) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusUserApi().updateUser(nexusUser);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "user user")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PutMapping("/user/changePassword")
+	public ResponseEntity<?> changePassword(@RequestParam("username") String username,
+											@RequestParam("password") String password,
+											@RequestParam("ip") String ip,
+											@RequestParam("userId") String userId,
+											@RequestParam("newPassword") String newPassword,
+											@RequestParam("oldPassword") String oldPassword) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusUserApi().changePassword(userId, newPassword, oldPassword);
+		return Results.success();
+	}
 }

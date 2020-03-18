@@ -1,4 +1,4 @@
-package org.hrds.rdupm.nexus.client.nexus.api.impl;
+package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;

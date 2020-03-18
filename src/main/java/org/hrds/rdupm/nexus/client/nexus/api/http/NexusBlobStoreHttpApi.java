@@ -1,11 +1,10 @@
-package org.hrds.rdupm.nexus.client.nexus.api.impl;
+package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSONObject;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusBlobStoreApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusBlobStore;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusPrivilege;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;

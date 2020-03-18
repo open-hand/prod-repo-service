@@ -67,4 +67,58 @@ public interface NexusUrlConstants {
 		 */
 		String GET_BLOB_STORE_LIST = "/service/rest/beta/blobstores";
 	}
+
+	/**
+	 * 角色相关API
+	 */
+	interface Role {
+		/**
+		 * 列表查询
+		 */
+		String GET_ROLE_LIST = "/service/rest/beta/security/roles";
+
+		/**
+		 * 信息查询
+		 */
+		String GET_ROLE_BY_ID = "/service/rest/beta/security/roles/";
+		/**
+		 * 删除角色
+		 */
+		String DELETE_ROLE = "/service/rest/beta/security/roles/";
+		/**
+		 * 创建角色
+		 */
+		String CREATE_ROLE = "/service/rest/beta/security/roles";
+		/**
+		 * 更新角色
+		 */
+		String UPDATE_ROLE = "/service/rest/beta/security/roles/";
+	}
+
+	/**
+	 * 用户相关API
+	 */
+	interface User {
+		/**
+		 * 列表查询
+		 */
+		String GET_USER_LIST = "/service/rest/beta/security/users";
+		/**
+		 * 删除用户
+		 */
+		String DELETE_USER = "/service/rest/beta/security/users/";
+		/**
+		 * 创建用户
+		 */
+		String CREATE_USER = "/service/rest/beta/security/users";
+		/**
+		 * 更新用户
+		 */
+		String UPDATE_USER = "/service/rest/beta/security/users/";
+		/**
+		 * 密码更改
+		 */
+		String CHANGE_PASWORD = "/service/rest/beta/security/users/{userId}/change-password";
+
+	}
 }
