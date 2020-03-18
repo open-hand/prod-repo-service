@@ -6,6 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.springframework.beans.BeanUtils;
@@ -75,13 +76,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	public void deleteComponent(String componentId) {
 		String url = NexusUrlConstants.Components.DELETE_COMPONENTS + componentId;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("待删除组件不存在");
-		}
 		if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
-			// TODO 异常信息定义
-			throw new CommonException("组件Id错误");
+			throw new CommonException(NexusConstants.ErrorMessage.COMPONENT_ID_ERROR);
 		}
 	}
 }

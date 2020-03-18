@@ -6,6 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusUserApi;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,6 @@ public class NexusUserHttpApi implements NexusUserApi{
 	public void deleteUser(String userId) {
 		String url = NexusUrlConstants.User.DELETE_USER + userId;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("待删除用户不存在");
-		}
 	}
 
 	@Override
@@ -54,25 +51,15 @@ public class NexusUserHttpApi implements NexusUserApi{
 		// 唯一性校验
 		List<NexusUser> nexusUserList = this.getUsers(nexusUser.getUserId());
 		if (CollectionUtils.isNotEmpty(nexusUserList)) {
-			throw new CommonException("用户ID对应用户已存在");
+			throw new CommonException(NexusConstants.ErrorMessage.USER_EXIST);
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.CREATE_USER, HttpMethod.POST, null, nexusUser);
-		if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
-			// TODO 异常信息定义
-			throw new CommonException("信息");
-		}
-		// TODO 400
 	}
 
 	@Override
 	public void updateUser(NexusUser nexusUser) {
 		String url = NexusUrlConstants.User.UPDATE_USER + nexusUser.getUserId();
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusUser);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("待更新用户不存在");
-		}
-		// TODO 404、400
 	}
 
 	@Override
@@ -80,10 +67,5 @@ public class NexusUserHttpApi implements NexusUserApi{
 		//  TODO 旧密码校验
 		String url = NexusUrlConstants.User.CHANGE_PASWORD.replace("{userId}", userId);
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, newPassword, MediaType.TEXT_PLAIN_VALUE);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("对应用户已不存在");
-		}
-
 	}
 }

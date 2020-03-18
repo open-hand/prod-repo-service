@@ -1,5 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 
@@ -12,17 +14,17 @@ import java.io.InputStreamReader;
  * @author weisen.yang@hand-china.com 2020/3/17
  */
 public class NexusCustomErrorHandler implements ResponseErrorHandler {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusCustomErrorHandler.class);
+
 	@Override
 	public boolean hasError(ClientHttpResponse response) throws IOException {
-		System.out.println(response);
 		return true;
 	}
 	@Override
 	public void handleError(ClientHttpResponse response) throws IOException {
-//		System.out.println(response.getStatusText());
-//		System.out.println(response);
-//		String message = convertStreamToString(response.getBody());
-//		System.out.println(message);
+		LOGGER.error("nexus api status info : {}", response.getStatusCode());
+		LOGGER.error("nexus api error info : {}", response.getStatusText());
 	}
 
 	private String convertStreamToString(InputStream is) {

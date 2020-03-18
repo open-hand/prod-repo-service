@@ -5,6 +5,7 @@ import io.choerodon.core.enums.ResourceType;
 import io.swagger.annotations.ApiOperation;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @RestController("TestController.v1")
 @RequestMapping("/v1/test/")
-public class TestController {
+public class TestController extends BaseController{
 
 	@Autowired
 	private NexusClient nexusClient;

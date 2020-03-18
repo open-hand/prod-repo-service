@@ -22,4 +22,46 @@ public interface NexusConstants {
 		 */
 		String GROUP = "group";
 	}
+
+
+	interface ErrorMessage {
+		/**
+		 * 组件Id错误
+		 */
+		String COMPONENT_ID_ERROR = "error.nexus.client.component";
+		/**
+		 * 仓库类型错误
+		 */
+		String REPO_TYPE_ERROR = "error.nexus.client.repo.type";
+		/**
+		 * 角色ID对应角色已存在
+		 */
+		String ROLE_EXIST = "error.nexus.client.role.exist";
+		/**
+		 * 用户ID对应用户已存在
+		 */
+		String USER_EXIST = "error.nexus.client.user.exist";
+		/**
+		 * nexus服务信息未配置
+		 */
+		String NEXUS_INFO_NOT_CONF = "error.nexus.client.nexus.not.conf";
+
+		/**
+		 * nexus用户名或密码错误
+		 */
+		String NEXUS_USER_PASS_ERROR = "error.nexus.client.nexus.user.pass.failed";
+		/**
+		 * nexus角色对应操作权限未分配
+		 */
+		String NEXUS_ROLE_PRI_NOT_ASSIGNED = "error.nexus.client.nexus.role.pri.not.assigned";
+		/**
+		 * nexus服务不可用，请检查服务
+		 */
+		String NEXUS_SERVER_ERROR = "error.nexus.client.nexus.server.failed";
+
+		/**
+		 * 对应资源已不存在
+		 */
+		String RESOURCE_NOT_EXIST = "error.nexus.client.resource.not.exist";
+	}
 }

@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus;
 
 import io.choerodon.core.exception.CommonException;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hzero.core.util.AssertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,7 @@ public class NexusRequest {
 
 	private NexusServer getNexusServer(){
 		if (NEXUS_SERVER_LOCAL.get() == null) {
-			// todo
-			throw new CommonException("nexus server info is null");
+			throw new CommonException(NexusConstants.ErrorMessage.NEXUS_INFO_NOT_CONF);
 		}
 		return NEXUS_SERVER_LOCAL.get();
 	}
@@ -55,11 +55,15 @@ public class NexusRequest {
 	}
 	private void handleResponseStatus(ResponseEntity<String> responseEntity){
 		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			throw new CommonException("请检查用户或密码是否正确");
+			throw new CommonException(NexusConstants.ErrorMessage.NEXUS_USER_PASS_ERROR);
 		} else if (responseEntity.getStatusCode() == HttpStatus.FORBIDDEN) {
-			throw new CommonException("nexus角色权限未分配");
+			throw new CommonException(NexusConstants.ErrorMessage.NEXUS_ROLE_PRI_NOT_ASSIGNED);
 		} else if (responseEntity.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
-			throw new CommonException("nexus服务错误");
+			throw new CommonException(NexusConstants.ErrorMessage.NEXUS_SERVER_ERROR);
+		} else if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
+			throw new CommonException(responseEntity.getBody());
+		} else if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
+			throw new CommonException(NexusConstants.ErrorMessage.RESOURCE_NOT_EXIST);
 		}
 	}
 

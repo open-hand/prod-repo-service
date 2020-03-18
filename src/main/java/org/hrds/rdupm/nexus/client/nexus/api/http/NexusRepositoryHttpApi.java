@@ -36,12 +36,6 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	public void deleteRepository(String repositoryName) {
 		String url = NexusUrlConstants.Repository.DELETE_REPOSITORY + repositoryName;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("待删除仓库不存在");
-		}
-		System.out.println(responseEntity.getStatusCode());
-		System.out.println(responseEntity.getBody());
 	}
 
 	@Override
@@ -50,16 +44,13 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		if (NexusConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库
 			responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_HOSTED_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
-
 		} else if (NexusConstants.RepositoryType.PROXY.equals(repositoryRequest.getType())) {
 			// 创建代理仓库
+			// TODO authentication 创建失败
 			responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_PROXY_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
 		} else {
-			throw new CommonException("仓库类型错误");
+			throw new CommonException(NexusConstants.ErrorMessage.REPO_TYPE_ERROR);
 		}
-		// TODO 400
-		System.out.println(responseEntity.getStatusCode());
-
 	}
 
 	@Override
@@ -71,12 +62,11 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 			responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, repositoryRequest);
 		} else if (NexusConstants.RepositoryType.PROXY.equals(repositoryRequest.getType())) {
 			// 创建代理仓库
+			// TODO authentication 更新失败
 			String url = NexusUrlConstants.Repository.UPDATE_MAVEN_PROXY_REPOSITORY + repositoryRequest.getName();
 			responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, repositoryRequest);
 		} else {
-			throw new CommonException("仓库类型错误");
+			throw new CommonException(NexusConstants.ErrorMessage.REPO_TYPE_ERROR);
 		}
-		// TODO 400
-		System.out.println(responseEntity.getStatusCode());
 	}
 }

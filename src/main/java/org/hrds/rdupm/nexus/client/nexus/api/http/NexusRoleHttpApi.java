@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRoleApi;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +36,6 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	public NexusRole getRoleById(String roleId) {
 		String url = NexusUrlConstants.Role.GET_ROLE_BY_ID + roleId;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.GET, null, null);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("对应角色不存在");
-		}
 		String response = responseEntity.getBody();
 		return JSON.parseObject(response, NexusRole.class);
 	}
@@ -47,10 +44,6 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	public void deleteRole(String roleId) {
 		String url = NexusUrlConstants.Role.DELETE_ROLE + roleId;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("待删除角色不存在");
-		}
 	}
 
 	@Override
@@ -58,25 +51,14 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 		// 唯一性校验
 		NexusRole existRole = this.getRoleById(nexusRole.getId());
 		if (existRole != null) {
-			throw new CommonException("角色ID对应角色已存在");
+			throw new CommonException(NexusConstants.ErrorMessage.ROLE_EXIST);
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Role.CREATE_ROLE, HttpMethod.POST, null, nexusRole);
-		if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
-			// TODO 异常信息定义
-			throw new CommonException("信息");
-		}
-		// TODO 400
 	}
 
 	@Override
 	public void updateRole(NexusRole nexusRole) {
 		String url = NexusUrlConstants.Role.UPDATE_ROLE + nexusRole.getId();
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusRole);
-		if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			// TODO 异常信息定义
-			throw new CommonException("待更新角色不存在");
-		}
-		// TODO 404、400
-
 	}
 }

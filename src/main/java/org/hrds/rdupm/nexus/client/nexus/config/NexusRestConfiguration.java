@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class NexusRestConfiguration {
 
     @Bean(name = "hrdsNexusRestTemplate")
-    public RestTemplate yhRestTemplate(){
+    public RestTemplate hrdsRestTemplate(){
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         //60s
         requestFactory.setConnectTimeout(601000);
