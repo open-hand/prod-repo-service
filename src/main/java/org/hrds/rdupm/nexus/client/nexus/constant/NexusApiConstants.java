@@ -3,7 +3,7 @@ package org.hrds.rdupm.nexus.client.nexus.constant;
 /**
  * @author weisen.yang@hand-china.com 2020/3/17
  */
-public interface NexusConstants {
+public interface NexusApiConstants {
 
 	/**
 	 * 仓库类型

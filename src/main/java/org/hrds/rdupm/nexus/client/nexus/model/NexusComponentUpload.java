@@ -14,6 +14,9 @@ public class NexusComponentUpload {
 	public static final String VERSION = "maven2.version";
 	public static final String ASSET_FILE = "maven2.asset{num}";
 	public static final String ASSET_EXTENSION = "maven2.asset{num}.extension";
+	/**
+	 * 是否自动创建pom文件
+	 */
 	public static final String GENERATE_POM = "maven2.generate-pom";
 
 

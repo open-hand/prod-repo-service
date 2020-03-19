@@ -6,7 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
-import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.springframework.beans.BeanUtils;
@@ -79,7 +79,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		String url = NexusUrlConstants.Components.DELETE_COMPONENTS + componentId;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
 		if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
-			throw new CommonException(NexusConstants.ErrorMessage.COMPONENT_ID_ERROR);
+			throw new CommonException(NexusApiConstants.ErrorMessage.COMPONENT_ID_ERROR);
 		}
 	}
 
@@ -92,12 +92,22 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		body.add(NexusComponentUpload.GROUP_ID, componentUpload.getGroupId());
 		body.add(NexusComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
 		body.add(NexusComponentUpload.VERSION, componentUpload.getVersion());
-		body.add(NexusComponentUpload.GENERATE_POM, true);
+
+		// 上传文件类型
+		List<String> extensionList = new ArrayList<>();
 		for (int i = 0; i < componentUpload.getAssetUploads().size(); i++) {
 			NexusAssetUpload assetUpload = componentUpload.getAssetUploads().get(i);
 			body.add(NexusComponentUpload.ASSET_FILE.replace("{num}", String.valueOf(i+1)), assetUpload.getAssetName());
 			body.add(NexusComponentUpload.ASSET_EXTENSION.replace("{num}", String.valueOf(i+1)), assetUpload.getExtension());
+			extensionList.add(assetUpload.getExtension());
 		}
+		if (extensionList.contains(NexusAssetUpload.JAR)
+				&& !extensionList.contains(NexusAssetUpload.POM)) {
+			body.add(NexusComponentUpload.GENERATE_POM, true);
+		} else {
+			body.add(NexusComponentUpload.GENERATE_POM, false);
+		}
+
 		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
 
 	}

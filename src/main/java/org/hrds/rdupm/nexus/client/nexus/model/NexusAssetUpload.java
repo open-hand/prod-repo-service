@@ -8,6 +8,9 @@ import org.springframework.core.io.InputStreamResource;
  */
 public class NexusAssetUpload {
 	public static final String JAR = "jar";
+	public static final String POM = "pom";
+
+	public static final String XML = "xml";
 
 	private InputStreamResource assetName;
 	/**

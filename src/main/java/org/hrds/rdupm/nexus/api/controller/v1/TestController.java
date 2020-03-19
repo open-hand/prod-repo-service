@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.IOUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,27 +128,48 @@ public class TestController extends BaseController{
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
 									   NexusComponentUpload componentUpload,
-									   @RequestParam("assetFile") MultipartFile assetFile) {
+									   @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
+									   @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusAssetUpload> assetUploadList = new ArrayList<>();
-		NexusAssetUpload assetUpload = new NexusAssetUpload();
-
-		String name = assetFile.getOriginalFilename();
-		String type = name.substring(name.lastIndexOf(".")+1);
-		if (!"jar".equals(type)) {
-			throw new CommonException("文件类型不是jar");
+		if (assetJar == null && assetPom == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
 		}
-		try (InputStream inputStream = assetFile.getInputStream()) {
-			assetUpload.setAssetName(new InputStreamResource(inputStream));
-			assetUpload.setExtension(NexusAssetUpload.JAR);
-			assetUploadList.add(assetUpload);
+		this.validateFileType(assetJar, NexusAssetUpload.JAR);
+		this.validateFileType(assetPom, NexusAssetUpload.XML);
+		try (
+				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
+				InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
+		) {
+			List<NexusAssetUpload> assetUploadList = new ArrayList<>();
+			if (assetJarStream != null) {
+				NexusAssetUpload assetUpload = new NexusAssetUpload();
+				assetUpload.setAssetName(new InputStreamResource(assetJarStream));
+				assetUpload.setExtension(NexusAssetUpload.JAR);
+				assetUploadList.add(assetUpload);
+			}
+			if (assetPomStream != null) {
+				NexusAssetUpload assetUpload = new NexusAssetUpload();
+				assetUpload.setAssetName(new InputStreamResource(assetPomStream));
+				assetUpload.setExtension(NexusAssetUpload.POM);
+				assetUploadList.add(assetUpload);
+			}
 			componentUpload.setAssetUploads(assetUploadList);
 			nexusClient.getComponentsHttpApi().createMavenComponent(componentUpload);
 		} catch (IOException e) {
 			throw new CommonException(e.getMessage());
 		}
 		return Results.success();
+	}
+
+	private void validateFileType(MultipartFile file, String type){
+		if (file != null) {
+			String name = file.getOriginalFilename();
+			String sourceType = name.substring(name.lastIndexOf(".")+1);
+			if (!type.equals(sourceType)) {
+				throw new CommonException(NexusMessageConstants.NEXUS_FILE_TYPE_ERROR);
+			}
+		}
 	}
 
 	@ApiOperation(value = "com/get")

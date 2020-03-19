@@ -6,7 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusUserApi;
-import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 		// 唯一性校验
 		List<NexusUser> nexusUserList = this.getUsers(nexusUser.getUserId());
 		if (CollectionUtils.isNotEmpty(nexusUserList)) {
-			throw new CommonException(NexusConstants.ErrorMessage.USER_EXIST);
+			throw new CommonException(NexusApiConstants.ErrorMessage.USER_EXIST);
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.CREATE_USER, HttpMethod.POST, null, nexusUser);
 	}

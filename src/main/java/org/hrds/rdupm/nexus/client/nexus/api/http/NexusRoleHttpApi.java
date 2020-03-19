@@ -5,12 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRoleApi;
-import org.hrds.rdupm.nexus.client.nexus.constant.NexusConstants;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +50,7 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 		// 唯一性校验
 		NexusRole existRole = this.getRoleById(nexusRole.getId());
 		if (existRole != null) {
-			throw new CommonException(NexusConstants.ErrorMessage.ROLE_EXIST);
+			throw new CommonException(NexusApiConstants.ErrorMessage.ROLE_EXIST);
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Role.CREATE_ROLE, HttpMethod.POST, null, nexusRole);
 	}
