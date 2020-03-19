@@ -2,6 +2,7 @@ package org.hrds.rdupm.nexus.client.nexus.api;
 
 import org.hrds.rdupm.nexus.client.nexus.model.NexusComponent;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentInfo;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentUpload;
 
 import java.util.List;
 
@@ -30,4 +31,10 @@ public interface NexusComponentsApi {
 	 * @param componentId 组件Id
 	 */
 	void deleteComponent(String componentId);
+
+	/**
+	 * 组件jar包上传， 只支持maven release类型
+	 * @param componentUpload 上传信息
+	 */
+	void createMavenComponent(NexusComponentUpload componentUpload);
 }

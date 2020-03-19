@@ -2,15 +2,23 @@ package org.hrds.rdupm.nexus.api.controller.v1;
 
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.exception.CommonException;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -109,6 +117,36 @@ public class TestController extends BaseController{
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getComponentsHttpApi().deleteComponent(componentId);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "pro upload")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/com/upload")
+	public ResponseEntity<?> comUpload(@RequestParam("username") String username,
+									   @RequestParam("password") String password,
+									   @RequestParam("ip") String ip,
+									   NexusComponentUpload componentUpload,
+									   @RequestParam("assetFile") MultipartFile assetFile) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		List<NexusAssetUpload> assetUploadList = new ArrayList<>();
+		NexusAssetUpload assetUpload = new NexusAssetUpload();
+
+		String name = assetFile.getOriginalFilename();
+		String type = name.substring(name.lastIndexOf(".")+1);
+		if (!"jar".equals(type)) {
+			throw new CommonException("文件类型不是jar");
+		}
+		try (InputStream inputStream = assetFile.getInputStream()) {
+			assetUpload.setAssetName(new InputStreamResource(inputStream));
+			assetUpload.setExtension(NexusAssetUpload.JAR);
+			assetUploadList.add(assetUpload);
+			componentUpload.setAssetUploads(assetUploadList);
+			nexusClient.getComponentsHttpApi().createMavenComponent(componentUpload);
+		} catch (IOException e) {
+			throw new CommonException(e.getMessage());
+		}
 		return Results.success();
 	}
 

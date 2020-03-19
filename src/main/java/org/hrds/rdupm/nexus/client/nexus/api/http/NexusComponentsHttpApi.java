@@ -15,6 +15,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,5 +81,24 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
 			throw new CommonException(NexusConstants.ErrorMessage.COMPONENT_ID_ERROR);
 		}
+	}
+
+	@Override
+	public void createMavenComponent(NexusComponentUpload componentUpload) {
+		Map<String, Object> paramMap = new HashMap<>(2);
+		paramMap.put(NexusComponentUpload.REPOSITORY_NAME, componentUpload.getRepositoryName());
+
+		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+		body.add(NexusComponentUpload.GROUP_ID, componentUpload.getGroupId());
+		body.add(NexusComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
+		body.add(NexusComponentUpload.VERSION, componentUpload.getVersion());
+		body.add(NexusComponentUpload.GENERATE_POM, true);
+		for (int i = 0; i < componentUpload.getAssetUploads().size(); i++) {
+			NexusAssetUpload assetUpload = componentUpload.getAssetUploads().get(i);
+			body.add(NexusComponentUpload.ASSET_FILE.replace("{num}", String.valueOf(i+1)), assetUpload.getAssetName());
+			body.add(NexusComponentUpload.ASSET_EXTENSION.replace("{num}", String.valueOf(i+1)), assetUpload.getExtension());
+		}
+		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
+
 	}
 }

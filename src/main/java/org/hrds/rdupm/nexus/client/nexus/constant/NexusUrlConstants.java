@@ -55,6 +55,11 @@ public interface NexusUrlConstants {
 		 * 删除组件
 		 */
 		String DELETE_COMPONENTS = "/service/rest/v1/components/";
+
+		/**
+		 * 上传组件
+		 */
+		String UPLOAD_COMPONENTS = "/service/rest/v1/components";
 	}
 
 	/**
@@ -127,7 +132,7 @@ public interface NexusUrlConstants {
 		/**
 		 * 密码更改
 		 */
-		String CHANGE_PASWORD = "/service/rest/beta/security/users/{userId}/change-password";
+		String CHANGE_PASSWORD = "/service/rest/beta/security/users/{userId}/change-password";
 
 	}
 }

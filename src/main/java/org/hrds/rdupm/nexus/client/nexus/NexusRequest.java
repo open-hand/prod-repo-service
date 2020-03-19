@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -136,6 +137,34 @@ public class NexusRequest {
 		headers.setContentType(type);
 		headers.add(AUTH_HEADER, this.getToken());
 		HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+		if (paramMap == null) {
+			paramMap = new HashMap<>(2);
+		}
+		url = this.setParam(url, paramMap);
+		ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		this.handleResponseStatus(responseEntity);
+		return responseEntity;
+	}
+
+	/**
+	 * 请求
+	 * @param urlFix 请求地址(截掉IP与端口号后的)
+	 * @param method 请求方式
+	 * @param paramMap url后面接的参数
+	 * @param body body的参数
+	 *  默认：application/json
+	 * @return ResponseEntity<String>
+	 */
+	public ResponseEntity<String> exchangeFormData(String urlFix, HttpMethod method, Map<String, Object> paramMap, MultiValueMap<String, Object> body){
+		NexusServer nexusServer = this.getNexusServer();
+		String url = nexusServer.getBaseUrl() + urlFix;
+
+		HttpHeaders headers = new HttpHeaders();
+		MediaType type = MediaType.parseMediaType(MediaType.MULTIPART_FORM_DATA_VALUE);
+
+		headers.setContentType(type);
+		headers.add(AUTH_HEADER, this.getToken());
+		HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
 		if (paramMap == null) {
 			paramMap = new HashMap<>(2);
 		}
