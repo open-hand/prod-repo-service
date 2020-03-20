@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
+import org.hrds.rdupm.nexus.client.nexus.model.NexusMavenGroup;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusRepository;
 import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenRequest;
 
@@ -48,4 +49,10 @@ public interface NexusRepositoryApi {
 	 * @param repositoryRequest 更新信息
 	 */
 	void updateMavenRepository(RepositoryMavenRequest repositoryRequest);
+
+	/**
+	 * maven仓库组创建
+	 * @param nexusMavenGroup 创建信息
+	 */
+	void createMavenGroup(NexusMavenGroup nexusMavenGroup);
 }

@@ -55,4 +55,10 @@ public interface NexusClient {
 	 * @return NexusUserApi
 	 */
 	NexusUserApi getNexusUserApi();
+
+	/**
+	 * 获取脚本API类
+	 * @return NexusScriptApi
+	 */
+	NexusScriptApi getNexusScriptApi();
 }

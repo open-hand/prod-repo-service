@@ -24,6 +24,8 @@ public class NexusHttpClient implements NexusClient {
 	@Autowired
 	private NexusUserApi nexusUserApi;
 	@Autowired
+	private NexusScriptApi nexusScriptApi;
+	@Autowired
 	private NexusRequest nexusRequest;
 
 
@@ -65,5 +67,10 @@ public class NexusHttpClient implements NexusClient {
 	@Override
 	public NexusUserApi getNexusUserApi() {
 		return nexusUserApi;
+	}
+
+	@Override
+	public NexusScriptApi getNexusScriptApi() {
+		return nexusScriptApi;
 	}
 }

@@ -135,4 +135,26 @@ public interface NexusUrlConstants {
 		String CHANGE_PASSWORD = "/service/rest/beta/security/users/{userId}/change-password";
 
 	}
+
+	/**
+	 * 脚本相关API
+	 */
+	interface Script {
+		/**
+		 * 脚本上传
+		 */
+		String UPLOAD_SCRIPT = "/service/rest/v1/script";
+		/**
+		 * 脚本更新
+		 */
+		String UPDATE_SCRIPT = "/service/rest/v1/script/{scriptName}";
+		/**
+		 * 脚本执行
+		 */
+		String RUN_SCRIPT = "/service/rest/v1/script/{scriptName}/run";
+		/**
+		 * 脚本删除
+		 */
+		String DELETE_SCRIPT = "/service/rest/v1/script/{scriptName}";
+	}
 }

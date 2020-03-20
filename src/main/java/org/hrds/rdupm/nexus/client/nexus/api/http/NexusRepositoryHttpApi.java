@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
+import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusMavenGroup;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusRepository;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenRequest;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	@Autowired
 	private NexusRequest nexusRequest;
+	@Autowired
+	private NexusScriptApi nexusScriptApi;
 
 	@Override
 	public List<NexusRepository> getRepository() {
@@ -98,5 +102,15 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		} else {
 			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_TYPE_ERROR);
 		}
+	}
+
+	@Override
+	public void createMavenGroup(NexusMavenGroup nexusMavenGroup) {
+		// 唯一性校验
+		if (this.repositoryExists(nexusMavenGroup.getGroupName())){
+			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
+		}
+		String param = JSONObject.toJSONString(nexusMavenGroup);
+		nexusScriptApi.runScript(NexusMavenGroup.SCRIPT_CREATE_NAME, param);
 	}
 }

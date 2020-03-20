@@ -83,6 +83,19 @@ public class TestController extends BaseController{
 		return Results.success();
 	}
 
+	@ApiOperation(value = "pro group")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/rep/group")
+	public ResponseEntity<?> repGroup(@RequestParam("username") String username,
+									   @RequestParam("password") String password,
+									   @RequestParam("ip") String ip,
+									   @RequestBody NexusMavenGroup nexusMavenGroup) {
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getRepositoryApi().createMavenGroup(nexusMavenGroup);
+		return Results.success();
+	}
+
 	@ApiOperation(value = "com/get")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/com/get")
@@ -339,6 +352,46 @@ public class TestController extends BaseController{
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusUserApi().changePassword(userId, newPassword, oldPassword);
+		return Results.success();
+	}
+
+
+	@ApiOperation(value = "script upload")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/script/upload")
+	public ResponseEntity<?> scriptUpload(@RequestParam("username") String username,
+										  @RequestParam("password") String password,
+										  @RequestParam("ip") String ip,
+										  @RequestBody NexusScript nexusScript){
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusScriptApi().uploadScript(nexusScript);
+		return Results.success();
+	}
+
+
+	@ApiOperation(value = "script upload")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/script/update")
+	public ResponseEntity<?> scriptUpdate(@RequestParam("username") String username,
+										  @RequestParam("password") String password,
+										  @RequestParam("ip") String ip,
+										  @RequestBody NexusScript nexusScript){
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusScriptApi().updateScript(nexusScript.getName(), nexusScript);
+		return Results.success();
+	}
+	@ApiOperation(value = "script upload")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@DeleteMapping("/script/delete")
+	public ResponseEntity<?> scriptDelete(@RequestParam("username") String username,
+										  @RequestParam("password") String password,
+										  @RequestParam("ip") String ip,
+										  @RequestParam("scriptName") String scriptName){
+		NexusServer nexusServer = new NexusServer(ip, username, password);
+		nexusClient.setNexusServerInfo(nexusServer);
+		nexusClient.getNexusScriptApi().deleteScript(scriptName);
 		return Results.success();
 	}
 }
