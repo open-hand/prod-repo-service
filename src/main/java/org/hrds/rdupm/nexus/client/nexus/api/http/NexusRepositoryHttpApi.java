@@ -2,6 +2,7 @@ package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 仓库API
@@ -32,6 +34,27 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	}
 
 	@Override
+	public NexusRepository getRepositoryByName(String repositoryName) {
+		List<NexusRepository> repositoryList = this.getRepository();
+		List<NexusRepository> queryList = repositoryList.stream().filter(nexusRepository -> nexusRepository.getName().equals(repositoryName)).collect(Collectors.toList());
+		if (CollectionUtils.isNotEmpty(queryList)) {
+			return queryList.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public Boolean repositoryExists(String repositoryName) {
+		NexusRepository nexusRepository = this.getRepositoryByName(repositoryName);
+		if (nexusRepository != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	public void deleteRepository(String repositoryName) {
 		String url = NexusUrlConstants.Repository.DELETE_REPOSITORY + repositoryName;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
@@ -39,6 +62,10 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 	@Override
 	public void createMavenRepository(RepositoryMavenRequest repositoryRequest) {
+		// 唯一性校验
+		if (this.repositoryExists(repositoryRequest.getName())){
+			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
+		}
 		ResponseEntity<String> responseEntity = null;
 		if (NexusApiConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库
@@ -54,6 +81,10 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 	@Override
 	public void updateMavenRepository(RepositoryMavenRequest repositoryRequest) {
+		// 唯一性校验
+		if (this.repositoryExists(repositoryRequest.getName())){
+			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
+		}
 		ResponseEntity<String> responseEntity = null;
 		if (NexusApiConstants.RepositoryType.HOSTED.equals(repositoryRequest.getType())) {
 			// 创建本地仓库

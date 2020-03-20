@@ -34,6 +34,11 @@ public interface NexusApiConstants {
 		 */
 		String REPO_TYPE_ERROR = "error.nexus.client.repo.type";
 		/**
+		 * 仓库名，对应仓库已存在
+		 */
+		String REPO_NAME_EXIST = "error.nexus.client.repo.name.exist";
+
+		/**
 		 * 角色ID对应角色已存在
 		 */
 		String ROLE_EXIST = "error.nexus.client.role.exist";

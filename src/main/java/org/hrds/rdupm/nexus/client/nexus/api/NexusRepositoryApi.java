@@ -18,6 +18,20 @@ public interface NexusRepositoryApi {
 	List<NexusRepository> getRepository();
 
 	/**
+	 * 获取仓库信息，通过名称
+	 * @param repositoryName 仓库名称
+	 * @return NexusRepository
+	 */
+	NexusRepository getRepositoryByName(String repositoryName);
+
+	/**
+	 * 仓库是否存在
+	 * @param repositoryName 仓库名称
+	 * @return Boolean   true：存在   false：不存在
+	 */
+	Boolean repositoryExists(String repositoryName);
+
+	/**
 	 * 删除仓库信息
 	 * @param repositoryName 仓库名称
 	 */
