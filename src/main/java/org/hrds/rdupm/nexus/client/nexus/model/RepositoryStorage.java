@@ -8,7 +8,7 @@ public class RepositoryStorage {
 	private String blobStoreName;
 	private Boolean strictContentTypeValidation;
 	/**
-	 * hosted 类型仓库: allow_once
+	 * hosted 类型仓库: allow_once   DENY: 只读   ALLOW_ONCE：禁止覆盖   ALLOW：允许覆盖
 	 */
 	private String writePolicy;
 
