@@ -1,7 +1,8 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusMavenGroup;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusRepository;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerMavenGroup;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerMavenProxy;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenRequest;
 
 import java.util.List;
@@ -16,14 +17,14 @@ public interface NexusRepositoryApi {
 	 * 获取nexus服务,仓库信息
 	 * @return List<NexusRepository>
 	 */
-	List<NexusRepository> getRepository();
+	List<NexusServerRepository> getRepository();
 
 	/**
 	 * 获取仓库信息，通过名称
 	 * @param repositoryName 仓库名称
 	 * @return NexusRepository
 	 */
-	NexusRepository getRepositoryByName(String repositoryName);
+	NexusServerRepository getRepositoryByName(String repositoryName);
 
 	/**
 	 * 仓库是否存在
@@ -39,20 +40,26 @@ public interface NexusRepositoryApi {
 	void deleteRepository(String repositoryName);
 
 	/**
-	 * maven仓库创建
+	 * maven hosted仓库创建
 	 * @param repositoryRequest 创建信息
 	 */
 	void createMavenRepository(RepositoryMavenRequest repositoryRequest);
 
 	/**
-	 * maven仓库更新
+	 * maven hosted仓库更新
 	 * @param repositoryRequest 更新信息
 	 */
 	void updateMavenRepository(RepositoryMavenRequest repositoryRequest);
 
 	/**
-	 * maven仓库组创建
+	 * maven仓库组创建与更新
 	 * @param nexusMavenGroup 创建信息
 	 */
-	void createMavenGroup(NexusMavenGroup nexusMavenGroup);
+	void createAndUpdateMavenGroup(NexusServerMavenGroup nexusMavenGroup);
+
+	/**
+	 * maven代理仓库创建与更新
+	 * @param nexusMavenProxy 创建信息
+	 */
+	void createAndUpdateMavenProxy(NexusServerMavenProxy nexusMavenProxy);
 }

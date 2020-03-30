@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusRole;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 
 import java.util.List;
 
@@ -13,14 +13,14 @@ public interface NexusRoleApi {
 	 * 获取nexus服务,角色信息
 	 * @return List<NexusRole>
 	 */
-	List<NexusRole> getRoles();
+	List<NexusServerRole> getRoles();
 
 	/**
 	 * 获取nexus服务,角色信息
 	 * @param roleId 角色Id
 	 * @return NexusRole
 	 */
-	NexusRole getRoleById(String roleId);
+	NexusServerRole getRoleById(String roleId);
 
 	/**
 	 * 删除角色信息
@@ -32,11 +32,11 @@ public interface NexusRoleApi {
 	 * 角色创建
 	 * @param nexusRole 创建信息
 	 */
-	void createRole(NexusRole nexusRole);
+	void createRole(NexusServerRole nexusRole);
 
 	/**
 	 * 角色更新
 	 * @param nexusRole 更新信息
 	 */
-	void updateRole(NexusRole nexusRole);
+	void updateRole(NexusServerRole nexusRole);
 }

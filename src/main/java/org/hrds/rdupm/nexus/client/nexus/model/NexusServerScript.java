@@ -3,7 +3,7 @@ package org.hrds.rdupm.nexus.client.nexus.model;
 /**
  * @author weisen.yang@hand-china.com 2020/3/20
  */
-public class NexusScript {
+public class NexusServerScript {
 	private String name;
 	private String content;
 	private String type;
@@ -12,7 +12,7 @@ public class NexusScript {
 		return name;
 	}
 
-	public NexusScript setName(String name) {
+	public NexusServerScript setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -21,7 +21,7 @@ public class NexusScript {
 		return content;
 	}
 
-	public NexusScript setContent(String content) {
+	public NexusServerScript setContent(String content) {
 		this.content = content;
 		return this;
 	}
@@ -30,7 +30,7 @@ public class NexusScript {
 		return type;
 	}
 
-	public NexusScript setType(String type) {
+	public NexusServerScript setType(String type) {
 		this.type = type;
 		return this;
 	}

@@ -5,20 +5,20 @@ import java.util.List;
 /**
  * @author weisen.yang@hand-china.com 2020/3/17
  */
-public class NexusComponentInfo {
+public class NexusServerComponentInfo {
 	private String path;
 	private String repository;
 	private String format;
 	private String group;
 	private String name;
 	private String useVersion;
-	private List<NexusComponent> components;
+	private List<NexusServerComponent> components;
 
 	public String getRepository() {
 		return repository;
 	}
 
-	public NexusComponentInfo setRepository(String repository) {
+	public NexusServerComponentInfo setRepository(String repository) {
 		this.repository = repository;
 		return this;
 	}
@@ -27,7 +27,7 @@ public class NexusComponentInfo {
 		return format;
 	}
 
-	public NexusComponentInfo setFormat(String format) {
+	public NexusServerComponentInfo setFormat(String format) {
 		this.format = format;
 		return this;
 	}
@@ -36,7 +36,7 @@ public class NexusComponentInfo {
 		return group;
 	}
 
-	public NexusComponentInfo setGroup(String group) {
+	public NexusServerComponentInfo setGroup(String group) {
 		this.group = group;
 		return this;
 	}
@@ -45,7 +45,7 @@ public class NexusComponentInfo {
 		return name;
 	}
 
-	public NexusComponentInfo setName(String name) {
+	public NexusServerComponentInfo setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -54,16 +54,16 @@ public class NexusComponentInfo {
 		return useVersion;
 	}
 
-	public NexusComponentInfo setUseVersion(String useVersion) {
+	public NexusServerComponentInfo setUseVersion(String useVersion) {
 		this.useVersion = useVersion;
 		return this;
 	}
 
-	public List<NexusComponent> getComponents() {
+	public List<NexusServerComponent> getComponents() {
 		return components;
 	}
 
-	public NexusComponentInfo setComponents(List<NexusComponent> components) {
+	public NexusServerComponentInfo setComponents(List<NexusServerComponent> components) {
 		this.components = components;
 		return this;
 	}
@@ -72,7 +72,7 @@ public class NexusComponentInfo {
 		return path;
 	}
 
-	public NexusComponentInfo setPath(String path) {
+	public NexusServerComponentInfo setPath(String path) {
 		this.path = path;
 		return this;
 	}

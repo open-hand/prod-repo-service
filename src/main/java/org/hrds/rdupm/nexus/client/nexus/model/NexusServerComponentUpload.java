@@ -6,7 +6,7 @@ import java.util.List;
  * 组件提交jar请求
  * @author weisen.yang@hand-china.com 2020/3/19
  */
-public class NexusComponentUpload {
+public class NexusServerComponentUpload {
 
 	public static final String REPOSITORY_NAME = "repository";
 	public static final String GROUP_ID = "maven2.groupId";
@@ -24,13 +24,13 @@ public class NexusComponentUpload {
 	private String groupId;
 	private String artifactId;
 	private String version;
-	private List<NexusAssetUpload> assetUploads;
+	private List<NexusServerAssetUpload> assetUploads;
 
 	public String getRepositoryName() {
 		return repositoryName;
 	}
 
-	public NexusComponentUpload setRepositoryName(String repositoryName) {
+	public NexusServerComponentUpload setRepositoryName(String repositoryName) {
 		this.repositoryName = repositoryName;
 		return this;
 	}
@@ -39,7 +39,7 @@ public class NexusComponentUpload {
 		return groupId;
 	}
 
-	public NexusComponentUpload setGroupId(String groupId) {
+	public NexusServerComponentUpload setGroupId(String groupId) {
 		this.groupId = groupId;
 		return this;
 	}
@@ -48,7 +48,7 @@ public class NexusComponentUpload {
 		return artifactId;
 	}
 
-	public NexusComponentUpload setArtifactId(String artifactId) {
+	public NexusServerComponentUpload setArtifactId(String artifactId) {
 		this.artifactId = artifactId;
 		return this;
 	}
@@ -57,16 +57,16 @@ public class NexusComponentUpload {
 		return version;
 	}
 
-	public NexusComponentUpload setVersion(String version) {
+	public NexusServerComponentUpload setVersion(String version) {
 		this.version = version;
 		return this;
 	}
 
-	public List<NexusAssetUpload> getAssetUploads() {
+	public List<NexusServerAssetUpload> getAssetUploads() {
 		return assetUploads;
 	}
 
-	public NexusComponentUpload setAssetUploads(List<NexusAssetUpload> assetUploads) {
+	public NexusServerComponentUpload setAssetUploads(List<NexusServerAssetUpload> assetUploads) {
 		this.assetUploads = assetUploads;
 		return this;
 	}

@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusPrivilege;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerPrivilege;
 
 import java.util.List;
 
@@ -14,12 +14,12 @@ public interface NexusPrivilegeApi {
 	 * 查询权限列表
 	 * @return List<NexusPrivilege>
 	 */
-	List<NexusPrivilege> getPrivileges();
+	List<NexusServerPrivilege> getPrivileges();
 
 	/**
 	 * 查询权限列表
 	 * @param name 权限名称
 	 * @return List<NexusPrivilege>
 	 */
-	List<NexusPrivilege> getPrivileges(String name);
+	List<NexusServerPrivilege> getPrivileges(String name);
 }

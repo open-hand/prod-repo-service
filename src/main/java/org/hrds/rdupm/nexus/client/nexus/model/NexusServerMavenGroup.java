@@ -3,22 +3,21 @@ package org.hrds.rdupm.nexus.client.nexus.model;
 import java.util.List;
 
 /**
+ * 创建仓库组请求参数
  * @author weisen.yang@hand-china.com 2020/3/20
  */
-public class NexusMavenGroup {
-	public static final String SCRIPT_CREATE_NAME = "hrds.create_maven_group";
+public class NexusServerMavenGroup {
 
-
-	private String groupName;
+	private String name;
 	private String blobStoreName;
 	private List<String> members;
 
-	public String getGroupName() {
-		return groupName;
+	public String getName() {
+		return name;
 	}
 
-	public NexusMavenGroup setGroupName(String groupName) {
-		this.groupName = groupName;
+	public NexusServerMavenGroup setName(String name) {
+		this.name = name;
 		return this;
 	}
 
@@ -26,7 +25,7 @@ public class NexusMavenGroup {
 		return blobStoreName;
 	}
 
-	public NexusMavenGroup setBlobStoreName(String blobStoreName) {
+	public NexusServerMavenGroup setBlobStoreName(String blobStoreName) {
 		this.blobStoreName = blobStoreName;
 		return this;
 	}
@@ -35,7 +34,7 @@ public class NexusMavenGroup {
 		return members;
 	}
 
-	public NexusMavenGroup setMembers(List<String> members) {
+	public NexusServerMavenGroup setMembers(List<String> members) {
 		this.members = members;
 		return this;
 	}

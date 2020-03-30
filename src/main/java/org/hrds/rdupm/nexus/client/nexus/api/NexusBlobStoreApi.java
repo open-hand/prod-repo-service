@@ -1,7 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusBlobStore;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ public interface NexusBlobStoreApi {
 	 * 查询列表
 	 * @return List<NexusBlobStore>
 	 */
-	List<NexusBlobStore> getBlobStore();
+	List<NexusServerBlobStore> getBlobStore();
 }

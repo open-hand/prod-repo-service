@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusPrivilegeApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusPrivilege;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerPrivilege;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +23,15 @@ public class NexusPrivilegeHttpApi implements NexusPrivilegeApi{
 	private NexusRequest nexusRequest;
 
 	@Override
-	public List<NexusPrivilege> getPrivileges() {
+	public List<NexusServerPrivilege> getPrivileges() {
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Privileges.GET_PRIVILEGES_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
-		return JSONObject.parseArray(response, NexusPrivilege.class);
+		return JSONObject.parseArray(response, NexusServerPrivilege.class);
 	}
 
 	@Override
-	public List<NexusPrivilege> getPrivileges(String name) {
-		List<NexusPrivilege> privilegeList = this.getPrivileges();
+	public List<NexusServerPrivilege> getPrivileges(String name) {
+		List<NexusServerPrivilege> privilegeList = this.getPrivileges();
 		return privilegeList.stream().filter(nexusPrivilege -> nexusPrivilege.getName().contains(name)).collect(Collectors.toList());
 	}
 }

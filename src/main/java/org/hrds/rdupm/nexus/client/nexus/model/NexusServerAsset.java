@@ -4,7 +4,7 @@ package org.hrds.rdupm.nexus.client.nexus.model;
  * 资产信息
  * @author weisen.yang@hand-china.com 2020/3/17
  */
-public class NexusAsset {
+public class NexusServerAsset {
 	private String id;
 	private String downloadUrl;
 	private String path;
@@ -15,7 +15,7 @@ public class NexusAsset {
 		return id;
 	}
 
-	public NexusAsset setId(String id) {
+	public NexusServerAsset setId(String id) {
 		this.id = id;
 		return this;
 	}
@@ -24,7 +24,7 @@ public class NexusAsset {
 		return downloadUrl;
 	}
 
-	public NexusAsset setDownloadUrl(String downloadUrl) {
+	public NexusServerAsset setDownloadUrl(String downloadUrl) {
 		this.downloadUrl = downloadUrl;
 		return this;
 	}
@@ -33,7 +33,7 @@ public class NexusAsset {
 		return path;
 	}
 
-	public NexusAsset setPath(String path) {
+	public NexusServerAsset setPath(String path) {
 		this.path = path;
 		return this;
 	}
@@ -42,7 +42,7 @@ public class NexusAsset {
 		return repository;
 	}
 
-	public NexusAsset setRepository(String repository) {
+	public NexusServerAsset setRepository(String repository) {
 		this.repository = repository;
 		return this;
 	}
@@ -51,7 +51,7 @@ public class NexusAsset {
 		return format;
 	}
 
-	public NexusAsset setFormat(String format) {
+	public NexusServerAsset setFormat(String format) {
 		this.format = format;
 		return this;
 	}

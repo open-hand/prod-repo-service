@@ -8,7 +8,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusUserApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusUser;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -28,7 +28,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	private NexusRequest nexusRequest;
 
 	@Override
-	public List<NexusUser> getUsers(String userId) {
+	public List<NexusServerUser> getUsers(String userId) {
 		Map<String, Object> paramMap = null;
 		if (StringUtils.isNotEmpty(userId)) {
 			paramMap = new HashMap<>(2);
@@ -36,7 +36,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.GET_USER_LIST, HttpMethod.GET, paramMap, null);
 		String response = responseEntity.getBody();
-		return JSONObject.parseArray(response, NexusUser.class);
+		return JSONObject.parseArray(response, NexusServerUser.class);
 	}
 
 	@Override
@@ -46,9 +46,9 @@ public class NexusUserHttpApi implements NexusUserApi{
 	}
 
 	@Override
-	public void createUser(NexusUser nexusUser) {
+	public void createUser(NexusServerUser nexusUser) {
 		// 唯一性校验
-		List<NexusUser> nexusUserList = this.getUsers(nexusUser.getUserId());
+		List<NexusServerUser> nexusUserList = this.getUsers(nexusUser.getUserId());
 		if (CollectionUtils.isNotEmpty(nexusUserList)) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.USER_EXIST);
 		}
@@ -56,7 +56,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	}
 
 	@Override
-	public void updateUser(NexusUser nexusUser) {
+	public void updateUser(NexusServerUser nexusUser) {
 		String url = NexusUrlConstants.User.UPDATE_USER + nexusUser.getUserId();
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusUser);
 	}

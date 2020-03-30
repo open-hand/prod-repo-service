@@ -22,7 +22,28 @@ public interface NexusApiConstants {
 		 */
 		String GROUP = "group";
 	}
+	/**
+	 * 仓库策略
+	 */
+	interface VersionPolicy {
+		String MIXED = "MIXED";
+		String SNAPSHOT = "SNAPSHOT";
+		String RELEASE = "RELEASE";
+	}
 
+	/**
+	 * script脚本列表
+	 */
+	interface ScriptName {
+		/**
+		 * 创建maven仓库组
+		 */
+		String CREATE_MAVEN_GROUP = "hrds.create_maven_group";
+		/**
+		 * 创建maven代理仓库
+		 */
+		String CREATE_MAVEN_PROXY = "hrds.create_maven_proxy";
+	}
 
 	interface ErrorMessage {
 		/**

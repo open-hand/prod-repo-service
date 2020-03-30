@@ -4,7 +4,7 @@ package org.hrds.rdupm.nexus.client.nexus.model;
  * 存储信息
  * @author weisen.yang@hand-china.com 2020/3/17
  */
-public class NexusBlobStore {
+public class NexusServerBlobStore {
 	private String name;
 	private String type;
 	private String blobCount;
@@ -15,7 +15,7 @@ public class NexusBlobStore {
 		return name;
 	}
 
-	public NexusBlobStore setName(String name) {
+	public NexusServerBlobStore setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -24,7 +24,7 @@ public class NexusBlobStore {
 		return type;
 	}
 
-	public NexusBlobStore setType(String type) {
+	public NexusServerBlobStore setType(String type) {
 		this.type = type;
 		return this;
 	}
@@ -33,7 +33,7 @@ public class NexusBlobStore {
 		return blobCount;
 	}
 
-	public NexusBlobStore setBlobCount(String blobCount) {
+	public NexusServerBlobStore setBlobCount(String blobCount) {
 		this.blobCount = blobCount;
 		return this;
 	}
@@ -42,7 +42,7 @@ public class NexusBlobStore {
 		return totalSizeInBytes;
 	}
 
-	public NexusBlobStore setTotalSizeInBytes(String totalSizeInBytes) {
+	public NexusServerBlobStore setTotalSizeInBytes(String totalSizeInBytes) {
 		this.totalSizeInBytes = totalSizeInBytes;
 		return this;
 	}
@@ -51,7 +51,7 @@ public class NexusBlobStore {
 		return availableSpaceInBytes;
 	}
 
-	public NexusBlobStore setAvailableSpaceInBytes(String availableSpaceInBytes) {
+	public NexusServerBlobStore setAvailableSpaceInBytes(String availableSpaceInBytes) {
 		this.availableSpaceInBytes = availableSpaceInBytes;
 		return this;
 	}

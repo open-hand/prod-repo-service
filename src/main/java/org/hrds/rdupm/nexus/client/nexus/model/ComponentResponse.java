@@ -7,14 +7,14 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/3/17
  */
 public class ComponentResponse {
-	private List<NexusComponent> items;
+	private List<NexusServerComponent> items;
 	private String continuationToken;
 
-	public List<NexusComponent> getItems() {
+	public List<NexusServerComponent> getItems() {
 		return items;
 	}
 
-	public ComponentResponse setItems(List<NexusComponent> items) {
+	public ComponentResponse setItems(List<NexusServerComponent> items) {
 		this.items = items;
 		return this;
 	}

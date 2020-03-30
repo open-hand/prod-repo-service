@@ -3,7 +3,7 @@ package org.hrds.rdupm.nexus.client.nexus.api.http;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusScript;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerScript;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -20,12 +20,12 @@ public class NexusScriptHttpApi implements NexusScriptApi {
 	private NexusRequest nexusRequest;
 
 	@Override
-	public void uploadScript(NexusScript nexusScript) {
+	public void uploadScript(NexusServerScript nexusScript) {
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Script.UPLOAD_SCRIPT, HttpMethod.POST, null, nexusScript);
 	}
 
 	@Override
-	public void updateScript(String scriptName, NexusScript nexusScript) {
+	public void updateScript(String scriptName, NexusServerScript nexusScript) {
 		String url = NexusUrlConstants.Script.UPDATE_SCRIPT.replace("{scriptName}", scriptName);
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusScript);
 

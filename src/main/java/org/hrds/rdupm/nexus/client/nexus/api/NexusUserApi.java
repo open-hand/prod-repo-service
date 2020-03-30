@@ -1,7 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusRole;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusUser;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ public interface NexusUserApi {
 	 * @param userId 用户ID 不必传
 	 * @return List<NexusUser>
 	 */
-	List<NexusUser> getUsers(String userId);
+	List<NexusServerUser> getUsers(String userId);
 
 	/**
 	 * 删除用户信息
@@ -27,13 +26,13 @@ public interface NexusUserApi {
 	 * 用户创建
 	 * @param nexusUser 创建信息
 	 */
-	void createUser(NexusUser nexusUser);
+	void createUser(NexusServerUser nexusUser);
 
 	/**
 	 * 用户更新
 	 * @param nexusUser 更新信息
 	 */
-	void updateUser(NexusUser nexusUser);
+	void updateUser(NexusServerUser nexusUser);
 
 	/**
 	 * 用户更新角色密码

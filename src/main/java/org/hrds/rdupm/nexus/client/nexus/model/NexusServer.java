@@ -10,11 +10,10 @@ public class NexusServer {
 	private String baseUrl;
 	private String serverIp;
 
-	public NexusServer(String serverIp, String username, String password) {
+	public NexusServer(String baseUrl, String username, String password) {
 		this.password = password;
 		this.username = username;
-		this.serverIp = serverIp;
-		this.baseUrl = "http://" + serverIp;
+		this.baseUrl = baseUrl;
 
 	}
 

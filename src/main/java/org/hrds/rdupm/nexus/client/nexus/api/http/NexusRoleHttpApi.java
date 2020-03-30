@@ -7,7 +7,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRoleApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusRole;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -25,18 +25,18 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	private NexusRequest nexusRequest;
 
 	@Override
-	public List<NexusRole> getRoles() {
+	public List<NexusServerRole> getRoles() {
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Role.GET_ROLE_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
-		return JSONObject.parseArray(response, NexusRole.class);
+		return JSONObject.parseArray(response, NexusServerRole.class);
 	}
 
 	@Override
-	public NexusRole getRoleById(String roleId) {
+	public NexusServerRole getRoleById(String roleId) {
 		String url = NexusUrlConstants.Role.GET_ROLE_BY_ID + roleId;
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
-		return JSON.parseObject(response, NexusRole.class);
+		return JSON.parseObject(response, NexusServerRole.class);
 	}
 
 	@Override
@@ -46,9 +46,9 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	}
 
 	@Override
-	public void createRole(NexusRole nexusRole) {
+	public void createRole(NexusServerRole nexusRole) {
 		// 唯一性校验
-		NexusRole existRole = this.getRoleById(nexusRole.getId());
+		NexusServerRole existRole = this.getRoleById(nexusRole.getId());
 		if (existRole != null) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.ROLE_EXIST);
 		}
@@ -56,7 +56,7 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	}
 
 	@Override
-	public void updateRole(NexusRole nexusRole) {
+	public void updateRole(NexusServerRole nexusRole) {
 		String url = NexusUrlConstants.Role.UPDATE_ROLE + nexusRole.getId();
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, nexusRole);
 	}

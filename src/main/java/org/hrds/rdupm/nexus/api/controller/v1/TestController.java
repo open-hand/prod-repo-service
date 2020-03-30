@@ -4,14 +4,12 @@ import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
 import io.choerodon.core.exception.CommonException;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.io.IOUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,12 +33,12 @@ public class TestController extends BaseController{
 	@ApiOperation(value = "test pro")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/getString")
-	public ResponseEntity<List<NexusRepository>> list(@RequestParam("username") String username,
-													  @RequestParam("password") String password,
-													  @RequestParam("ip") String ip) {
+	public ResponseEntity<List<NexusServerRepository>> list(@RequestParam("username") String username,
+															@RequestParam("password") String password,
+															@RequestParam("ip") String ip) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusRepository> repositoryList =  nexusClient.getRepositoryApi().getRepository();
+		List<NexusServerRepository> repositoryList =  nexusClient.getRepositoryApi().getRepository();
 		return Results.success(repositoryList);
 	}
 
@@ -89,35 +87,35 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> repGroup(@RequestParam("username") String username,
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
-									   @RequestBody NexusMavenGroup nexusMavenGroup) {
+									   @RequestBody NexusServerMavenGroup nexusMavenGroup) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		nexusClient.getRepositoryApi().createMavenGroup(nexusMavenGroup);
+		nexusClient.getRepositoryApi().createAndUpdateMavenGroup(nexusMavenGroup);
 		return Results.success();
 	}
 
 	@ApiOperation(value = "com/get")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/com/get")
-	public ResponseEntity<List<NexusComponent>> comGet(@RequestParam("username") String username,
-													   @RequestParam("password") String password,
-													   @RequestParam("ip") String ip,
-													   @RequestParam("repositoryName") String repositoryName) {
+	public ResponseEntity<List<NexusServerComponent>> comGet(@RequestParam("username") String username,
+															 @RequestParam("password") String password,
+															 @RequestParam("ip") String ip,
+															 @RequestParam("repositoryName") String repositoryName) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusComponent> componentList = nexusClient.getComponentsHttpApi().getComponents(repositoryName);
+		List<NexusServerComponent> componentList = nexusClient.getComponentsHttpApi().getComponents(repositoryName);
 		return Results.success(componentList);
 	}
 
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/com/getInfo")
-	public ResponseEntity<List<NexusComponentInfo>> comGetInfo(@RequestParam("username") String username,
-															   @RequestParam("password") String password,
-															   @RequestParam("ip") String ip,
-															   @RequestParam("repositoryName") String repositoryName) {
+	public ResponseEntity<List<NexusServerComponentInfo>> comGetInfo(@RequestParam("username") String username,
+																	 @RequestParam("password") String password,
+																	 @RequestParam("ip") String ip,
+																	 @RequestParam("repositoryName") String repositoryName) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusComponentInfo> componentInfoList = nexusClient.getComponentsHttpApi().getComponentInfo(repositoryName);
+		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsHttpApi().getComponentInfo(repositoryName);
 		return Results.success(componentInfoList);
 	}
 
@@ -140,7 +138,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> comUpload(@RequestParam("username") String username,
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
-									   NexusComponentUpload componentUpload,
+									   NexusServerComponentUpload componentUpload,
 									   @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
 									   @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
@@ -148,23 +146,23 @@ public class TestController extends BaseController{
 		if (assetJar == null && assetPom == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
 		}
-		this.validateFileType(assetJar, NexusAssetUpload.JAR);
-		this.validateFileType(assetPom, NexusAssetUpload.XML);
+		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
+		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
 		try (
 				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
 				InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
 		) {
-			List<NexusAssetUpload> assetUploadList = new ArrayList<>();
+			List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
 			if (assetJarStream != null) {
-				NexusAssetUpload assetUpload = new NexusAssetUpload();
+				NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
 				assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-				assetUpload.setExtension(NexusAssetUpload.JAR);
+				assetUpload.setExtension(NexusServerAssetUpload.JAR);
 				assetUploadList.add(assetUpload);
 			}
 			if (assetPomStream != null) {
-				NexusAssetUpload assetUpload = new NexusAssetUpload();
+				NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
 				assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-				assetUpload.setExtension(NexusAssetUpload.POM);
+				assetUpload.setExtension(NexusServerAssetUpload.POM);
 				assetUploadList.add(assetUpload);
 			}
 			componentUpload.setAssetUploads(assetUploadList);
@@ -188,35 +186,35 @@ public class TestController extends BaseController{
 	@ApiOperation(value = "com/get")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/pri/get")
-	public ResponseEntity<List<NexusPrivilege>> priGet(@RequestParam("username") String username,
-													   @RequestParam("password") String password,
-													   @RequestParam("ip") String ip) {
+	public ResponseEntity<List<NexusServerPrivilege>> priGet(@RequestParam("username") String username,
+															 @RequestParam("password") String password,
+															 @RequestParam("ip") String ip) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusPrivilege> privilegeList = nexusClient.getPrivilegeApi().getPrivileges();
+		List<NexusServerPrivilege> privilegeList = nexusClient.getPrivilegeApi().getPrivileges();
 		return Results.success(privilegeList);
 	}
 
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/pri/getInfo")
-	public ResponseEntity<List<NexusPrivilege>> priGetInfo(@RequestParam("username") String username,
-															   @RequestParam("password") String password,
-															   @RequestParam("ip") String ip,
-															   @RequestParam("name") String name) {
+	public ResponseEntity<List<NexusServerPrivilege>> priGetInfo(@RequestParam("username") String username,
+																 @RequestParam("password") String password,
+																 @RequestParam("ip") String ip,
+																 @RequestParam("name") String name) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusPrivilege> privilegeList = nexusClient.getPrivilegeApi().getPrivileges(name);
+		List<NexusServerPrivilege> privilegeList = nexusClient.getPrivilegeApi().getPrivileges(name);
 		return Results.success(privilegeList);
 	}
 
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/blo/get")
-	public ResponseEntity<List<NexusBlobStore>> priGetInfo(@RequestParam("username") String username,
-														   @RequestParam("password") String password,
-														   @RequestParam("ip") String ip) {
+	public ResponseEntity<List<NexusServerBlobStore>> priGetInfo(@RequestParam("username") String username,
+																 @RequestParam("password") String password,
+																 @RequestParam("ip") String ip) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusBlobStore> blobStoreList = nexusClient.getBlobStoreApi().getBlobStore();
+		List<NexusServerBlobStore> blobStoreList = nexusClient.getBlobStoreApi().getBlobStore();
 		return Results.success(blobStoreList);
 	}
 
@@ -225,24 +223,24 @@ public class TestController extends BaseController{
 	@ApiOperation(value = "test role")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/role/getList")
-	public ResponseEntity<List<NexusRole>> roleList(@RequestParam("username") String username,
-													@RequestParam("password") String password,
-													@RequestParam("ip") String ip) {
+	public ResponseEntity<List<NexusServerRole>> roleList(@RequestParam("username") String username,
+														  @RequestParam("password") String password,
+														  @RequestParam("ip") String ip) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusRole> nexusRoleList =  nexusClient.getNexusRoleApi().getRoles();
+		List<NexusServerRole> nexusRoleList =  nexusClient.getNexusRoleApi().getRoles();
 		return Results.success(nexusRoleList);
 	}
 	@ApiOperation(value = "test role")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/role/get")
-	public ResponseEntity<NexusRole> roleGet(@RequestParam("username") String username,
-											 @RequestParam("password") String password,
-											 @RequestParam("ip") String ip,
-											 @RequestParam("roleId") String roleId) {
+	public ResponseEntity<NexusServerRole> roleGet(@RequestParam("username") String username,
+												   @RequestParam("password") String password,
+												   @RequestParam("ip") String ip,
+												   @RequestParam("roleId") String roleId) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		NexusRole nexusRole =  nexusClient.getNexusRoleApi().getRoleById(roleId);
+		NexusServerRole nexusRole =  nexusClient.getNexusRoleApi().getRoleById(roleId);
 		return Results.success(nexusRole);
 	}
 
@@ -265,7 +263,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> roleCreate(@RequestParam("username") String username,
 										@RequestParam("password") String password,
 									    @RequestParam("ip") String ip,
-									    @RequestBody NexusRole nexusRole) {
+									    @RequestBody NexusServerRole nexusRole) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusRoleApi().createRole(nexusRole);
@@ -278,7 +276,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> roleUpdate(@RequestParam("username") String username,
 									    @RequestParam("password") String password,
 									    @RequestParam("ip") String ip,
-										@RequestBody NexusRole nexusRole) {
+										@RequestBody NexusServerRole nexusRole) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusRoleApi().updateRole(nexusRole);
@@ -290,13 +288,13 @@ public class TestController extends BaseController{
 	@ApiOperation(value = "test user")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping("/user/getList")
-	public ResponseEntity<List<NexusUser>> userList(@RequestParam("username") String username,
-													@RequestParam("password") String password,
-													@RequestParam("ip") String ip,
-													@RequestParam(name = "userId", required = false) String userId) {
+	public ResponseEntity<List<NexusServerUser>> userList(@RequestParam("username") String username,
+														  @RequestParam("password") String password,
+														  @RequestParam("ip") String ip,
+														  @RequestParam(name = "userId", required = false) String userId) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusUser> nexusUserList =  nexusClient.getNexusUserApi().getUsers(userId);
+		List<NexusServerUser> nexusUserList =  nexusClient.getNexusUserApi().getUsers(userId);
 		nexusClient.removeNexusServerInfo();
 		return Results.success(nexusUserList);
 	}
@@ -320,7 +318,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> userCreate(@RequestParam("username") String username,
 										@RequestParam("password") String password,
 										@RequestParam("ip") String ip,
-										@RequestBody NexusUser nexusUser) {
+										@RequestBody NexusServerUser nexusUser) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusUserApi().createUser(nexusUser);
@@ -333,7 +331,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> userUpdate(@RequestParam("username") String username,
 										@RequestParam("password") String password,
 										@RequestParam("ip") String ip,
-										@RequestBody NexusUser nexusUser) {
+										@RequestBody NexusServerUser nexusUser) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusUserApi().updateUser(nexusUser);
@@ -362,7 +360,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> scriptUpload(@RequestParam("username") String username,
 										  @RequestParam("password") String password,
 										  @RequestParam("ip") String ip,
-										  @RequestBody NexusScript nexusScript){
+										  @RequestBody NexusServerScript nexusScript){
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusScriptApi().uploadScript(nexusScript);
@@ -376,7 +374,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> scriptUpdate(@RequestParam("username") String username,
 										  @RequestParam("password") String password,
 										  @RequestParam("ip") String ip,
-										  @RequestBody NexusScript nexusScript){
+										  @RequestBody NexusServerScript nexusScript){
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getNexusScriptApi().updateScript(nexusScript.getName(), nexusScript);

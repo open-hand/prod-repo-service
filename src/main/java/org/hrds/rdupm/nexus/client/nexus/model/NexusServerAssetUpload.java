@@ -1,12 +1,11 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 
 /**
  * @author weisen.yang@hand-china.com 2020/3/19
  */
-public class NexusAssetUpload {
+public class NexusServerAssetUpload {
 	public static final String JAR = "jar";
 	public static final String POM = "pom";
 
@@ -22,7 +21,7 @@ public class NexusAssetUpload {
 		return assetName;
 	}
 
-	public NexusAssetUpload setAssetName(InputStreamResource assetName) {
+	public NexusServerAssetUpload setAssetName(InputStreamResource assetName) {
 		this.assetName = assetName;
 		return this;
 	}
@@ -31,7 +30,7 @@ public class NexusAssetUpload {
 		return extension;
 	}
 
-	public NexusAssetUpload setExtension(String extension) {
+	public NexusServerAssetUpload setExtension(String extension) {
 		this.extension = extension;
 		return this;
 	}

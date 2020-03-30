@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusScript;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerScript;
 
 /**
  * nexus 脚本相关api
@@ -12,14 +12,14 @@ public interface NexusScriptApi {
 	 * 脚本上传
 	 * @param nexusScript 脚本信息
 	 */
-	void uploadScript(NexusScript nexusScript);
+	void uploadScript(NexusServerScript nexusScript);
 
 	/**
 	 * 脚本更新
 	 * @param scriptName 脚本名称
 	 * @param nexusScript 脚本信息
 	 */
-	void updateScript(String scriptName, NexusScript nexusScript);
+	void updateScript(String scriptName, NexusServerScript nexusScript);
 
 	/**
 	 * 脚本执行

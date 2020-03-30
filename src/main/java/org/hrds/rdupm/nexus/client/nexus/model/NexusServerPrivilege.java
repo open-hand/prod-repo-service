@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @author weisen.yang@hand-china.com 2020/3/17
  */
-public class NexusPrivilege {
+public class NexusServerPrivilege {
 	private String type;
 	private String name;
 	private String description;
@@ -19,7 +19,7 @@ public class NexusPrivilege {
 		return type;
 	}
 
-	public NexusPrivilege setType(String type) {
+	public NexusServerPrivilege setType(String type) {
 		this.type = type;
 		return this;
 	}
@@ -28,7 +28,7 @@ public class NexusPrivilege {
 		return name;
 	}
 
-	public NexusPrivilege setName(String name) {
+	public NexusServerPrivilege setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -37,7 +37,7 @@ public class NexusPrivilege {
 		return description;
 	}
 
-	public NexusPrivilege setDescription(String description) {
+	public NexusServerPrivilege setDescription(String description) {
 		this.description = description;
 		return this;
 	}
@@ -46,7 +46,7 @@ public class NexusPrivilege {
 		return readOnly;
 	}
 
-	public NexusPrivilege setReadOnly(Boolean readOnly) {
+	public NexusServerPrivilege setReadOnly(Boolean readOnly) {
 		this.readOnly = readOnly;
 		return this;
 	}
@@ -55,7 +55,7 @@ public class NexusPrivilege {
 		return domain;
 	}
 
-	public NexusPrivilege setDomain(String domain) {
+	public NexusServerPrivilege setDomain(String domain) {
 		this.domain = domain;
 		return this;
 	}
@@ -64,7 +64,7 @@ public class NexusPrivilege {
 		return actions;
 	}
 
-	public NexusPrivilege setActions(List<String> actions) {
+	public NexusServerPrivilege setActions(List<String> actions) {
 		this.actions = actions;
 		return this;
 	}
@@ -73,7 +73,7 @@ public class NexusPrivilege {
 		return format;
 	}
 
-	public NexusPrivilege setFormat(String format) {
+	public NexusServerPrivilege setFormat(String format) {
 		this.format = format;
 		return this;
 	}
@@ -82,7 +82,7 @@ public class NexusPrivilege {
 		return repository;
 	}
 
-	public NexusPrivilege setRepository(String repository) {
+	public NexusServerPrivilege setRepository(String repository) {
 		this.repository = repository;
 		return this;
 	}

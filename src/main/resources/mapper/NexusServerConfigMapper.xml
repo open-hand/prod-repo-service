@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hrds.rdupm.nexus.domain.entity.NexusServerConfig">
+        <result column="config_id" property="configId" jdbcType="DECIMAL"/>
+        <result column="server_name" property="serverName" jdbcType="VARCHAR"/>
+        <result column="server_url" property="serverUrl" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="remotePassword" property="remotePassword" jdbcType="VARCHAR"/>
+        <result column="anonymous" property="anonymous" jdbcType="VARCHAR"/>
+        <result column="enabled" property="enabled" jdbcType="DECIMAL"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+</mapper>

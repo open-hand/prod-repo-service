@@ -1,12 +1,10 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
-import java.util.List;
-
 /**
  * 仓库信息
  * @author weisen.yang@hand-china.com 2020/3/16
  */
-public class NexusRepository {
+public class NexusServerRepository {
 	private String name;
 	private String format;
 	private String url;
@@ -18,7 +16,7 @@ public class NexusRepository {
 		return name;
 	}
 
-	public NexusRepository setName(String name) {
+	public NexusServerRepository setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -27,7 +25,7 @@ public class NexusRepository {
 		return format;
 	}
 
-	public NexusRepository setFormat(String format) {
+	public NexusServerRepository setFormat(String format) {
 		this.format = format;
 		return this;
 	}
@@ -36,7 +34,7 @@ public class NexusRepository {
 		return url;
 	}
 
-	public NexusRepository setUrl(String url) {
+	public NexusServerRepository setUrl(String url) {
 		this.url = url;
 		return this;
 	}
@@ -45,7 +43,7 @@ public class NexusRepository {
 		return online;
 	}
 
-	public NexusRepository setOnline(String online) {
+	public NexusServerRepository setOnline(String online) {
 		this.online = online;
 		return this;
 	}
@@ -54,7 +52,7 @@ public class NexusRepository {
 		return type;
 	}
 
-	public NexusRepository setType(String type) {
+	public NexusServerRepository setType(String type) {
 		this.type = type;
 		return this;
 	}

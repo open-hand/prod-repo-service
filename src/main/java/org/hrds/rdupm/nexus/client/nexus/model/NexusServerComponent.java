@@ -6,14 +6,14 @@ import java.util.List;
  * 组件信息
  * @author weisen.yang@hand-china.com 2020/3/17
  */
-public class NexusComponent {
+public class NexusServerComponent {
 	private String id;
 	private String repository;
 	private String format;
 	private String group;
 	private String name;
 	private String version;
-	private List<NexusAsset> assets;
+	private List<NexusServerAsset> assets;
 
 	/**
 	 * 使用时，版本号
@@ -24,7 +24,7 @@ public class NexusComponent {
 		return id;
 	}
 
-	public NexusComponent setId(String id) {
+	public NexusServerComponent setId(String id) {
 		this.id = id;
 		return this;
 	}
@@ -33,7 +33,7 @@ public class NexusComponent {
 		return repository;
 	}
 
-	public NexusComponent setRepository(String repository) {
+	public NexusServerComponent setRepository(String repository) {
 		this.repository = repository;
 		return this;
 	}
@@ -42,7 +42,7 @@ public class NexusComponent {
 		return format;
 	}
 
-	public NexusComponent setFormat(String format) {
+	public NexusServerComponent setFormat(String format) {
 		this.format = format;
 		return this;
 	}
@@ -51,7 +51,7 @@ public class NexusComponent {
 		return group;
 	}
 
-	public NexusComponent setGroup(String group) {
+	public NexusServerComponent setGroup(String group) {
 		this.group = group;
 		return this;
 	}
@@ -60,7 +60,7 @@ public class NexusComponent {
 		return name;
 	}
 
-	public NexusComponent setName(String name) {
+	public NexusServerComponent setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -69,16 +69,16 @@ public class NexusComponent {
 		return version;
 	}
 
-	public NexusComponent setVersion(String version) {
+	public NexusServerComponent setVersion(String version) {
 		this.version = version;
 		return this;
 	}
 
-	public List<NexusAsset> getAssets() {
+	public List<NexusServerAsset> getAssets() {
 		return assets;
 	}
 
-	public NexusComponent setAssets(List<NexusAsset> assets) {
+	public NexusServerComponent setAssets(List<NexusServerAsset> assets) {
 		this.assets = assets;
 		return this;
 	}
@@ -87,7 +87,7 @@ public class NexusComponent {
 		return useVersion;
 	}
 
-	public NexusComponent setUseVersion(String useVersion) {
+	public NexusServerComponent setUseVersion(String useVersion) {
 		this.useVersion = useVersion;
 		return this;
 	}
