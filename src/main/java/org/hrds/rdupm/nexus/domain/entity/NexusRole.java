@@ -44,9 +44,12 @@ public class NexusRole extends AuditDomain {
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
     private Long repositoryId;
-    @ApiModelProperty(value = "nexus角色Id",required = true)
-    @NotBlank
+    @ApiModelProperty(value = "nexus 发布角色Id",required = true)
+    //@NotBlank
     private String neRoleId;
+	@ApiModelProperty(value = "nexus 拉取角色Id",required = true)
+	//@NotBlank
+	private String nePullRoleId;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
 
@@ -99,4 +102,12 @@ public class NexusRole extends AuditDomain {
 		this.tenantId = tenantId;
 	}
 
+	public String getNePullRoleId() {
+		return nePullRoleId;
+	}
+
+	public NexusRole setNePullRoleId(String nePullRoleId) {
+		this.nePullRoleId = nePullRoleId;
+		return this;
+	}
 }

@@ -58,6 +58,9 @@ public class NexusRepository extends AuditDomain {
     @ApiModelProperty(value = "是否允许匿名。1 允许；0 不允许",required = true)
     @NotNull
     private Integer allowAnonymous;
+	@ApiModelProperty(value = "是否是关联仓库引入的。1 是；0 不是",required = true)
+	@NotNull
+	private Integer isRelated;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
 
@@ -140,4 +143,12 @@ public class NexusRepository extends AuditDomain {
 		this.tenantId = tenantId;
 	}
 
+	public Integer getIsRelated() {
+		return isRelated;
+	}
+
+	public NexusRepository setIsRelated(Integer isRelated) {
+		this.isRelated = isRelated;
+		return this;
+	}
 }

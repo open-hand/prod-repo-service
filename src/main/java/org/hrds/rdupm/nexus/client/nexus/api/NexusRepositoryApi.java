@@ -3,7 +3,7 @@ package org.hrds.rdupm.nexus.client.nexus.api;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerMavenGroup;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerMavenProxy;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
-import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenRequest;
+import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenInfo;
 
 import java.util.List;
 
@@ -43,13 +43,13 @@ public interface NexusRepositoryApi {
 	 * maven hosted仓库创建
 	 * @param repositoryRequest 创建信息
 	 */
-	void createMavenRepository(RepositoryMavenRequest repositoryRequest);
+	void createMavenRepository(RepositoryMavenInfo repositoryRequest);
 
 	/**
 	 * maven hosted仓库更新
 	 * @param repositoryRequest 更新信息
 	 */
-	void updateMavenRepository(RepositoryMavenRequest repositoryRequest);
+	void updateMavenRepository(RepositoryMavenInfo repositoryRequest);
 
 	/**
 	 * maven仓库组创建与更新

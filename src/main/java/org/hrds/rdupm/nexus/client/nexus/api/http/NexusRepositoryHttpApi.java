@@ -7,16 +7,14 @@ import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerMavenGroup;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerMavenProxy;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
+import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
-import org.hrds.rdupm.nexus.client.nexus.model.RepositoryMavenRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +33,15 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	public List<NexusServerRepository> getRepository() {
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.GET_REPOSITORY_MANAGE_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
-		return JSONObject.parseArray(response, NexusServerRepository.class);
+		List<RepositoryMavenInfo> repositoryMavenInfoList = JSONObject.parseArray(response, RepositoryMavenInfo.class);
+
+		List<NexusServerRepository> nexusServerRepositoryList = new ArrayList<>();
+		repositoryMavenInfoList.forEach(repositoryMavenInfo -> {
+			NexusServerRepository nexusServerRepository = repositoryMavenInfo.covertNexusServerRepository();
+			nexusServerRepositoryList.add(nexusServerRepository);
+
+		});
+		return nexusServerRepositoryList;
 	}
 
 	@Override
@@ -66,7 +72,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	}
 
 	@Override
-	public void createMavenRepository(RepositoryMavenRequest repositoryRequest) {
+	public void createMavenRepository(RepositoryMavenInfo repositoryRequest) {
 		// 唯一性校验
 		if (this.repositoryExists(repositoryRequest.getName())){
 			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
@@ -76,11 +82,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	}
 
 	@Override
-	public void updateMavenRepository(RepositoryMavenRequest repositoryRequest) {
-		// 唯一性校验
-		if (this.repositoryExists(repositoryRequest.getName())){
-			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
-		}
+	public void updateMavenRepository(RepositoryMavenInfo repositoryRequest) {
 		// 创建本地仓库
 		String url = NexusUrlConstants.Repository.UPDATE_MAVEN_HOSTED_REPOSITORY + repositoryRequest.getName();
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, repositoryRequest);
@@ -89,20 +91,12 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 	@Override
 	public void createAndUpdateMavenGroup(NexusServerMavenGroup nexusMavenGroup) {
-		// 唯一性校验
-		if (this.repositoryExists(nexusMavenGroup.getName())){
-			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
-		}
 		String param = JSONObject.toJSONString(nexusMavenGroup);
 		nexusScriptApi.runScript(NexusApiConstants.ScriptName.CREATE_MAVEN_GROUP, param);
 	}
 
 	@Override
 	public void createAndUpdateMavenProxy(NexusServerMavenProxy nexusMavenProxy) {
-		// 唯一性校验
-		if (this.repositoryExists(nexusMavenProxy.getName())){
-			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
-		}
 		String param = JSONObject.toJSONString(nexusMavenProxy);
 		nexusScriptApi.runScript(NexusApiConstants.ScriptName.CREATE_MAVEN_PROXY, param);
 	}

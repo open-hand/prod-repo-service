@@ -14,8 +14,9 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_role.groovy') {
         createTable(tableName: "rdupm_nexus_role", remarks: "制品库_nexus仓库角色信息表") {
             column(name: "role_id", type: "bigint(20)", autoIncrement: true ,   remarks: "表ID，主键，供其他表做外键")  {constraints(primaryKey: true)} 
             column(name: "repository_id", type: "bigint(20)",  remarks: "rdupm_nexus_repository表主键")  {constraints(nullable:"false")}  
-            column(name: "ne_role_id", type: "varchar(" + 100 * weight + ")",  remarks: "nexus角色Id")  {constraints(nullable:"false")}  
-            column(name: "tenant_id", type: "bigint(20)",   defaultValue:"0",   remarks: "租户Id")   
+            column(name: "ne_role_id", type: "varchar(" + 100 * weight + ")",  remarks: "nexus 发布角色Id")
+            column(name: "ne_pull_role_id", type: "varchar(" + 100 * weight + ")",  remarks: "nexus 拉取角色Id")
+            column(name: "tenant_id", type: "bigint(20)",   defaultValue:"0",   remarks: "租户Id")
             column(name: "object_version_number", type: "bigint(20)",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "creation_date", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  
             column(name: "created_by", type: "bigint(20)",   defaultValue:"-1",   remarks: "")  {constraints(nullable:"false")}  

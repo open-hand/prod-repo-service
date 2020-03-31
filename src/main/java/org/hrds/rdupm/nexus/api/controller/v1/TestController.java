@@ -61,7 +61,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> repCreate(@RequestParam("username") String username,
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
-									   @RequestBody RepositoryMavenRequest repositoryRequest) {
+									   @RequestBody RepositoryMavenInfo repositoryRequest) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getRepositoryApi().createMavenRepository(repositoryRequest);
@@ -74,7 +74,7 @@ public class TestController extends BaseController{
 	public ResponseEntity<?> repUpdate(@RequestParam("username") String username,
 									   @RequestParam("password") String password,
 									   @RequestParam("ip") String ip,
-									   @RequestBody RepositoryMavenRequest repositoryRequest) {
+									   @RequestBody RepositoryMavenInfo repositoryRequest) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		nexusClient.getRepositoryApi().updateMavenRepository(repositoryRequest);

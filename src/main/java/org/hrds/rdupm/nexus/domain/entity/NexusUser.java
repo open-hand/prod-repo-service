@@ -46,11 +46,15 @@ public class NexusUser extends AuditDomain {
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
     private Long repositoryId;
-    @ApiModelProperty(value = "nexus用户Id",required = true)
+    @ApiModelProperty(value = "nexus 发布用户Id",required = true)
     @NotBlank
     private String neUserId;
-    @ApiModelProperty(value = "nexus用户密码")
+    @ApiModelProperty(value = "nexus 发布用户密码")
     private String neUserPassword;
+	@ApiModelProperty(value = "nexus 拉取用户Id")
+	private String nePullUserId;
+	@ApiModelProperty(value = "nexus 拉取用户密码")
+	private String nePullUserPassword;
     @ApiModelProperty(value = "是否是该仓库默认管理用户",required = true)
     @NotNull
     private Integer isDefault;
@@ -126,4 +130,21 @@ public class NexusUser extends AuditDomain {
 		this.tenantId = tenantId;
 	}
 
+	public String getNePullUserId() {
+		return nePullUserId;
+	}
+
+	public NexusUser setNePullUserId(String nePullUserId) {
+		this.nePullUserId = nePullUserId;
+		return this;
+	}
+
+	public String getNePullUserPassword() {
+		return nePullUserPassword;
+	}
+
+	public NexusUser setNePullUserPassword(String nePullUserPassword) {
+		this.nePullUserPassword = nePullUserPassword;
+		return this;
+	}
 }

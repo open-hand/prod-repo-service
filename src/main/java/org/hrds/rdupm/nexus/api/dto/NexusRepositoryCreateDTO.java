@@ -6,9 +6,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
+import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * maven 仓库创建dto
@@ -17,9 +21,27 @@ import java.util.List;
 public class NexusRepositoryCreateDTO {
 
 	/**
-	 * 参数信息校验 TODO message定义
+	 * 参数信息校验
+	 * @param baseServiceFeignClient feign
+	 * @param validNameSufFlag 是否校验name后缀  true:校验  false:不校验
 	 */
-	public void validParam(){
+	public void validParam(BaseServiceFeignClient baseServiceFeignClient, Boolean validNameSufFlag){
+
+		// 仓库名后缀校验
+		if (validNameSufFlag) {
+			List<LookupVO> lookupVOList = baseServiceFeignClient.queryCodeValueByCode(NexusConstants.Lookup.REPO_NAME_SUFFIX);
+			Boolean nameSuffixFlag = true;
+			for (LookupVO lookupVO : lookupVOList) {
+				if (!this.getName().toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
+					nameSuffixFlag = false;
+				}
+			}
+			if (!nameSuffixFlag) {
+				String name = StringUtils.join(",", lookupVOList.stream().map(LookupVO::getValue).collect(Collectors.toList()));
+				throw new CommonException("仓库名后缀限制为以下数据：" + name);
+			}
+		}
+
 		if (this.allowAnonymous == null) {
 			throw new CommonException("是否允许匿名访问不能为空");
 		}
@@ -60,8 +82,8 @@ public class NexusRepositoryCreateDTO {
 	 * 创建hosted仓库，参数组织
 	 * @return RepositoryMavenRequest
 	 */
-	public RepositoryMavenRequest convertMavenHostedRequest(){
-		RepositoryMavenRequest request = new RepositoryMavenRequest();
+	public RepositoryMavenInfo convertMavenHostedRequest(){
+		RepositoryMavenInfo request = new RepositoryMavenInfo();
 		request.setName(this.name);
 		request.setOnline(Boolean.TRUE);
 
@@ -107,8 +129,6 @@ public class NexusRepositoryCreateDTO {
 		nexusMavenGroup.setMembers(this.getRepoMemberList());
 		return nexusMavenGroup;
 	}
-
-
 	/**
 	 * hosted，proxy，group
 	 */

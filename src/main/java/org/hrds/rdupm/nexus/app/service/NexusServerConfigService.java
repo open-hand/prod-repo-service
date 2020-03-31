@@ -12,9 +12,30 @@ public interface NexusServerConfigService {
 
 
 	/**
-	 * 设置并返回，当前nexus服务信息
+	 * 设置并返回当前nexus服务信息
 	 * @param nexusClient nexus服务client
 	 * @return NexusServerConfig
 	 */
 	NexusServerConfig setNexusInfo(NexusClient nexusClient);
+
+	/**
+	 * nexus服务配置信息创建
+	 * @param nexusServerConfig nexusServerConfig
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig createServerConfig(NexusServerConfig nexusServerConfig);
+
+	/**
+	 * nexus服务配置信息更新
+	 * @param nexusServerConfig nexusServerConfig
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig updateServerConfig(NexusServerConfig nexusServerConfig);
+
+	/**
+	 * 查询 nexus服务信息配置
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig queryServerConfig();
+
 }

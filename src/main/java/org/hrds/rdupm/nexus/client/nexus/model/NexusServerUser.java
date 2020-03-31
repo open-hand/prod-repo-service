@@ -6,19 +6,26 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 用户查询返回
+ * 用户信息
  * @author weisen.yang@hand-china.com 2020/3/18
  */
 public class NexusServerUser {
 
+	/**
+	 * 生成默认密码
+	 * @return 生成的密码
+	 */
+	private String createDefPassword(){
+		return UUIDUtils.generateUUID().substring(0, 8);
+	}
 
 	/**
-	 * 创建仓库默认用户
+	 * 创建仓库默认发布用户
 	 * @param repositoryName 仓库名称（Id）
 	 *  @param roleId 角色Id
 	 */
-	public void createDefUser(String repositoryName, String roleId){
-		this.setUserId(this.createDefUserId(repositoryName));
+	public void createDefPushUser(String repositoryName, String roleId){
+		this.setUserId(repositoryName + "-defUser");
 		this.setPassword(this.createDefPassword());
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());
@@ -28,21 +35,20 @@ public class NexusServerUser {
 	}
 
 	/**
-	 * 生成默认用户ID
+	 * 创建仓库默认拉取用户
 	 * @param repositoryName 仓库名称（Id）
-	 * @return 生成的Id
+	 *  @param roleId 角色Id
 	 */
-	private String createDefUserId(String repositoryName){
-		return repositoryName + "-defUser";
+	public void createDefPullUser(String repositoryName, String roleId){
+		this.setUserId(repositoryName + "-defPullUser");
+		this.setPassword(this.createDefPassword());
+		this.setFirstName(this.getUserId());
+		this.setLastName(this.getUserId());
+		this.setEmailAddress(this.getUserId() + "@default.com");
+		this.setStatus("active");
+		this.setRoles(Collections.singletonList(roleId));
 	}
 
-	/**
-	 * 生成默认密码
-	 * @return 生成的密码
-	 */
-	private String createDefPassword(){
-		return UUIDUtils.generateUUID().substring(0, 8);
-	}
 
 
 	private String userId;

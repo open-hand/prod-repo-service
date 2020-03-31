@@ -60,11 +60,12 @@ public class NexusServerConfig extends AuditDomain {
     @NotBlank
     private String password;
     @ApiModelProperty(value = "匿名访问，用户")
+	@NotBlank
     private String anonymous;
 	@ApiModelProperty(value = "匿名访问，用户对应角色")
+	@NotBlank
 	private String anonymousRole;
     @ApiModelProperty(value = "是否启用",required = true)
-    @NotNull
     private Integer enabled;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;

@@ -17,8 +17,9 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_repository.groovy') {
             column(name: "ne_repository_name", type: "varchar(" + 100 * weight + ")",  remarks: "nexus仓库名称")  {constraints(nullable:"false")}  
             column(name: "organization_id", type: "bigint(20)",  remarks: "组织Id")  {constraints(nullable:"false")}  
             column(name: "project_id", type: "bigint(20)",  remarks: "项目id")  {constraints(nullable:"false")}  
-            column(name: "allow_anonymous", type: "tinyint(1)",  remarks: "是否允许匿名。1 允许；0 不允许")  {constraints(nullable:"false")}  
-            column(name: "tenant_id", type: "bigint(20)",   defaultValue:"0",   remarks: "租户Id")   
+            column(name: "allow_anonymous", type: "tinyint(1)",  remarks: "是否允许匿名。1 允许；0 不允许")  {constraints(nullable:"false")}
+            column(name: "is_related", type: "tinyint(1)",  defaultValue:"0", remarks: "是否是关联仓库引入的。1 是；0 不是")  {constraints(nullable:"false")}
+            column(name: "tenant_id", type: "bigint(20)",   defaultValue:"0",   remarks: "租户Id")
             column(name: "object_version_number", type: "bigint(20)",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "creation_date", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  
             column(name: "created_by", type: "bigint(20)",   defaultValue:"-1",   remarks: "")  {constraints(nullable:"false")}  

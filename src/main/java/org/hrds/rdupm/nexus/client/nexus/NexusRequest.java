@@ -2,6 +2,7 @@ package org.hrds.rdupm.nexus.client.nexus;
 
 import io.choerodon.core.exception.CommonException;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
+import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hzero.core.util.AssertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,15 +57,15 @@ public class NexusRequest {
 	}
 	private void handleResponseStatus(ResponseEntity<String> responseEntity){
 		if (responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-			throw new CommonException(NexusApiConstants.ErrorMessage.NEXUS_USER_PASS_ERROR);
+			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_USER_PASS_ERROR);
 		} else if (responseEntity.getStatusCode() == HttpStatus.FORBIDDEN) {
-			throw new CommonException(NexusApiConstants.ErrorMessage.NEXUS_ROLE_PRI_NOT_ASSIGNED);
+			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_ROLE_PRI_NOT_ASSIGNED);
 		} else if (responseEntity.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
-			throw new CommonException(NexusApiConstants.ErrorMessage.NEXUS_SERVER_ERROR);
+			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_SERVER_ERROR);
 		} else if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
-			throw new CommonException(responseEntity.getBody());
+			throw new NexusResponseException(responseEntity.getStatusCode(), responseEntity.getBody());
 		} else if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			throw new CommonException(NexusApiConstants.ErrorMessage.RESOURCE_NOT_EXIST);
+			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.RESOURCE_NOT_EXIST);
 		}
 	}
 

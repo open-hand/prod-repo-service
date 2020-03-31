@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 
 import java.util.List;
@@ -41,4 +42,21 @@ public interface NexusUserApi {
 	 * @param oldPassword 旧密码
 	 */
 	void changePassword(String userId, String newPassword, String oldPassword);
+
+	/**
+	 * 校验改用户是否有仓库对应发布权限
+	 * @param repositoryList 仓库名列表
+	 * @param userName 用户名称（ID）
+	 * @return 返回repositoryList中该用户有发布权限的仓库
+	 */
+	List<String> validPush(List<String> repositoryList, String userName);
+
+	/**
+	 * 校验用户与用户名是否正确
+	 * @param userName 用户名
+	 * @param password 密码
+	 * @param currentNexusServer 当前服务配置
+	 * @return true:正确  false:错误
+	 */
+	Boolean validUserNameAndPassword(String userName, String password, NexusServer currentNexusServer);
 }

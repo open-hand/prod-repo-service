@@ -1,13 +1,19 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
 /**
  * 制品库_nexus服务信息配置表应用服务默认实现
  *
@@ -30,5 +36,45 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(), nexusServerConfig.getUserName(), nexusServerConfig.getPassword());
 		nexusClient.setNexusServerInfo(nexusServer);
 		return nexusServerConfig;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public NexusServerConfig createServerConfig(NexusServerConfig nexusServerConfig) {
+
+		NexusServerConfig exist = this.queryServerConfig();
+		if (exist != null) {
+			// TODO
+			throw new CommonException("已有nexus服务配置，不允许再新增，请编辑更新");
+		}
+		nexusServerConfig.setEnabled(1);
+		nexusServerConfigRepository.insertSelective(nexusServerConfig);
+		return nexusServerConfig;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public NexusServerConfig updateServerConfig(NexusServerConfig nexusServerConfig) {
+		NexusServerConfig exist = nexusServerConfigRepository.selectByPrimaryKey(nexusServerConfig);
+		if (exist == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		nexusServerConfigRepository.updateByPrimaryKeySelective(nexusServerConfig);
+		return nexusServerConfig;
+	}
+
+	@Override
+	public NexusServerConfig queryServerConfig() {
+		NexusServerConfig query = new NexusServerConfig();
+		query.setEnabled(1);
+		List<NexusServerConfig> nexusServerConfigList = nexusServerConfigRepository.select(query);
+		if (CollectionUtils.isEmpty(nexusServerConfigList)) {
+			return null;
+		} else if (nexusServerConfigList.size() >= 2){
+			// TODO
+			throw new CommonException("nexus服务生效的配置有多个，请联系管理员检查");
+		} else {
+			return nexusServerConfigList.get(0);
+		}
 	}
 }
