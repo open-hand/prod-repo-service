@@ -7,6 +7,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +31,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		queryConfig.setEnabled(1);
 		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
 		if (nexusServerConfig == null) {
-			// TODO
-			throw new CommonException("nexus服务信息未配置，请联系管理员配置");
+			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
 		}
 		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(), nexusServerConfig.getUserName(), nexusServerConfig.getPassword());
 		nexusClient.setNexusServerInfo(nexusServer);
@@ -44,7 +44,6 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 		NexusServerConfig exist = this.queryServerConfig();
 		if (exist != null) {
-			// TODO
 			throw new CommonException("已有nexus服务配置，不允许再新增，请编辑更新");
 		}
 		nexusServerConfig.setEnabled(1);
@@ -59,7 +58,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (exist == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-		nexusServerConfigRepository.updateByPrimaryKeySelective(nexusServerConfig);
+		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_SERVER_NAME,
+				NexusServerConfig.FIELD_SERVER_URL, NexusServerConfig.FIELD_USER_NAME, NexusServerConfig.FIELD_PASSWORD);
 		return nexusServerConfig;
 	}
 
@@ -71,8 +71,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (CollectionUtils.isEmpty(nexusServerConfigList)) {
 			return null;
 		} else if (nexusServerConfigList.size() >= 2){
-			// TODO
-			throw new CommonException("nexus服务生效的配置有多个，请联系管理员检查");
+			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_CONFIG_MUL);
 		} else {
 			return nexusServerConfigList.get(0);
 		}

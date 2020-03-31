@@ -73,10 +73,6 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 	@Override
 	public void createMavenRepository(RepositoryMavenInfo repositoryRequest) {
-		// 唯一性校验
-		if (this.repositoryExists(repositoryRequest.getName())){
-			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
-		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.CREATE_MAVEN_HOSTED_REPOSITORY, HttpMethod.POST, null, repositoryRequest);
 
 	}

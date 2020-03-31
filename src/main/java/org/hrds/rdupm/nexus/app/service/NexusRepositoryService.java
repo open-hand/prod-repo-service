@@ -6,6 +6,8 @@ import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryQueryDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryRelatedDTO;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
 import java.util.List;
@@ -78,5 +80,17 @@ public interface NexusRepositoryService {
 	 * @return PageInfo<NexusRepositoryDTO>
 	 */
 	PageInfo<NexusRepositoryDTO> listOtherMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
+
+	/**
+	 * 查询blob
+	 * @return List<NexusServerBlobStore>
+	 */
+	List<NexusServerBlobStore> listMavenRepoBlob();
+
+	/**
+	 * 创建仓库组时，仓库列表
+	 * @return List<NexusServerRepository>
+	 */
+	List<NexusServerRepository> groupRepo();
 
 }

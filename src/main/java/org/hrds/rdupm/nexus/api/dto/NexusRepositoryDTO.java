@@ -3,12 +3,16 @@ package org.hrds.rdupm.nexus.api.dto;
 import io.swagger.annotations.ApiModelProperty;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hzero.mybatis.domian.SecurityToken;
+
+import java.util.List;
 
 /**
  * 仓库信息
  * @author weisen.yang@hand-china.com 2020/3/30
  */
-public class NexusRepositoryDTO {
+public class NexusRepositoryDTO implements SecurityToken {
+	private String _token;
 
 	/**
 	 * 类转换
@@ -20,6 +24,7 @@ public class NexusRepositoryDTO {
 			this.repositoryId = nexusRepository.getRepositoryId();
 			this.name = nexusRepository.getNeRepositoryName();
 			this.allowAnonymous = nexusRepository.getAllowAnonymous();
+			this._token = nexusRepository.get_token();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -27,6 +32,11 @@ public class NexusRepositoryDTO {
 			this.versionPolicy = nexusServerRepository.getVersionPolicy();
 			this.online = nexusServerRepository.getOnline();
 			this.url = nexusServerRepository.getUrl();
+
+			this.blobStoreName = nexusServerRepository.getBlobStoreName();
+			this.repoMemberList = nexusServerRepository.getRepoMemberList();
+			this.remoteUrl = nexusServerRepository.getRemoteUrl();
+			this.remoteUsername = nexusServerRepository.getRemoteUsername();
 		}
 
 
@@ -46,6 +56,19 @@ public class NexusRepositoryDTO {
 	private String url;
 	@ApiModelProperty(value = "是否允许匿名访问")
 	private Integer allowAnonymous;
+
+	@ApiModelProperty(value = "存储器")
+	private String blobStoreName;
+
+	@ApiModelProperty(value = "创建仓库组（group）时，仓库成员")
+	private List<String> repoMemberList;
+
+	@ApiModelProperty(value = "远程仓库地址")
+	private String remoteUrl;
+	@ApiModelProperty(value = "远程仓库账号")
+	private String remoteUsername;
+	@ApiModelProperty(value = "远程仓库密码")
+	private String remotePassword;
 
 	public Long getRepositoryId() {
 		return repositoryId;
@@ -108,5 +131,65 @@ public class NexusRepositoryDTO {
 	public NexusRepositoryDTO setAllowAnonymous(Integer allowAnonymous) {
 		this.allowAnonymous = allowAnonymous;
 		return this;
+	}
+
+	public String getBlobStoreName() {
+		return blobStoreName;
+	}
+
+	public NexusRepositoryDTO setBlobStoreName(String blobStoreName) {
+		this.blobStoreName = blobStoreName;
+		return this;
+	}
+
+	public List<String> getRepoMemberList() {
+		return repoMemberList;
+	}
+
+	public NexusRepositoryDTO setRepoMemberList(List<String> repoMemberList) {
+		this.repoMemberList = repoMemberList;
+		return this;
+	}
+
+	public String getRemoteUrl() {
+		return remoteUrl;
+	}
+
+	public NexusRepositoryDTO setRemoteUrl(String remoteUrl) {
+		this.remoteUrl = remoteUrl;
+		return this;
+	}
+
+	public String getRemoteUsername() {
+		return remoteUsername;
+	}
+
+	public NexusRepositoryDTO setRemoteUsername(String remoteUsername) {
+		this.remoteUsername = remoteUsername;
+		return this;
+	}
+
+	public String getRemotePassword() {
+		return remotePassword;
+	}
+
+	public NexusRepositoryDTO setRemotePassword(String remotePassword) {
+		this.remotePassword = remotePassword;
+		return this;
+	}
+
+	@Override
+	public String get_token() {
+		return _token;
+	}
+
+	@Override
+	public void set_token(String _token) {
+		this._token = _token;
+	}
+
+	@Override
+	public Class<? extends SecurityToken> associateEntityClass() {
+		return NexusRepositoryDTO.class;
 	}
 }

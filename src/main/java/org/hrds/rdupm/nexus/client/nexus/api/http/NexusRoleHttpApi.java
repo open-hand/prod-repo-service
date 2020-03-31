@@ -48,10 +48,10 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	@Override
 	public void createRole(NexusServerRole nexusRole) {
 		// 唯一性校验
-		NexusServerRole existRole = this.getRoleById(nexusRole.getId());
+		/*NexusServerRole existRole = this.getRoleById(nexusRole.getId());
 		if (existRole != null) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.ROLE_EXIST);
-		}
+		}*/
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Role.CREATE_ROLE, HttpMethod.POST, null, nexusRole);
 	}
 

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
 
@@ -38,43 +39,44 @@ public class NexusRepositoryCreateDTO {
 			}
 			if (!nameSuffixFlag) {
 				String name = StringUtils.join(",", lookupVOList.stream().map(LookupVO::getValue).collect(Collectors.toList()));
-				throw new CommonException("仓库名后缀限制为以下数据：" + name);
+				// 仓库名后缀限制为以下数据：{0}
+				throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, name);
 			}
 		}
 
 		if (this.allowAnonymous == null) {
-			throw new CommonException("是否允许匿名访问不能为空");
+			throw new CommonException(NexusMessageConstants.NEXUS_ALLOW_ANONYMOUS_NOT_EMPTY);
 		}
 		switch (this.getType()) {
 			case NexusApiConstants.RepositoryType.HOSTED:
 				// 创建本地仓库
 				if (StringUtils.isBlank(this.versionPolicy)) {
-					throw new CommonException("仓库策略不能为空");
+					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.writePolicy)) {
-					throw new CommonException("版本策略不能为空");
+					throw new CommonException(NexusMessageConstants.NEXUS_WRITE_POLICY_NOT_EMPTY);
 				}
 				break;
 			case NexusApiConstants.RepositoryType.PROXY:
 				// 创建代理仓库
 				if (StringUtils.isBlank(this.versionPolicy)) {
-					throw new CommonException("仓库策略不能为空");
+					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.remoteUrl)) {
-					throw new CommonException("远程仓库地址不能为空");
+					throw new CommonException(NexusMessageConstants.NEXUS_REMOTE_URL_NOT_EMPTY);
 				}
 				if (StringUtils.isNotBlank(this.remoteUsername) && StringUtils.isBlank(this.remotePassword)) {
-					throw new CommonException("填写了远程仓库账号，必须填写账号密码");
+					throw new CommonException(NexusMessageConstants.NEXUS_REMOTE_USER_PASSWORD_NOT_EMPTY);
 				}
 				break;
 			case NexusApiConstants.RepositoryType.GROUP:
 				// 创建仓库组
 				if (CollectionUtils.isEmpty(repoMemberList)) {
-					throw new CommonException("仓库组成员不能为空");
+					throw new CommonException(NexusMessageConstants.NEXUS_REPO_MEMBER_NOT_EMPTY);
 				}
 				break;
 			default:
-				throw new CommonException("仓库类型错误");
+				throw new CommonException(NexusMessageConstants.NEXUS_MAVEN_REPO_TYPE_ERROR);
 		}
 	}
 

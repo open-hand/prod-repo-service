@@ -9,6 +9,8 @@ import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryQueryDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryRelatedDTO;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import io.choerodon.core.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.util.List;
 
 /**
  * 制品库_nexus仓库信息表 管理 API
@@ -97,5 +101,19 @@ public class NexusRepositoryController extends BaseController {
                                                                            @ApiIgnore PageRequest pageRequest) {
         queryDTO.setProjectId(projectId);
         return Results.success(nexusRepositoryService.listOtherMavenRepo(pageRequest, queryDTO));
+    }
+
+    @ApiOperation(value = "maven仓库列表，获取存储器")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/maven/repo/blob")
+    public ResponseEntity<List<NexusServerBlobStore>> listMavenRepoBlob() {
+        return Results.success(nexusRepositoryService.listMavenRepoBlob());
+    }
+
+    @ApiOperation(value = "maven仓库组创建，获取仓库列表")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/maven/repo/group")
+    public ResponseEntity<List<NexusServerRepository>> groupRepo() {
+        return Results.success(nexusRepositoryService.groupRepo());
     }
 }
