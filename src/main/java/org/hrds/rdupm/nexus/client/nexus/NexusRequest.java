@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -110,7 +111,12 @@ public class NexusRequest {
 			paramMap = new HashMap<>(2);
 		}
 		url = this.setParam(url, paramMap);
-		ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		} catch (RestClientException e) {
+			throw new CommonException(NexusApiConstants.ErrorMessage.NEXUS_SERVER_ERROR);
+		}
 		this.handleResponseStatus(responseEntity);
 		return responseEntity;
 	}
@@ -142,7 +148,12 @@ public class NexusRequest {
 			paramMap = new HashMap<>(2);
 		}
 		url = this.setParam(url, paramMap);
-		ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		} catch (RestClientException e) {
+			throw new CommonException(NexusApiConstants.ErrorMessage.NEXUS_SERVER_ERROR);
+		}
 		this.handleResponseStatus(responseEntity);
 		return responseEntity;
 	}
@@ -170,7 +181,12 @@ public class NexusRequest {
 			paramMap = new HashMap<>(2);
 		}
 		url = this.setParam(url, paramMap);
-		ResponseEntity<String> responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = restTemplate.exchange(url, method, entity, String.class, paramMap);
+		} catch (RestClientException e) {
+			throw new CommonException(NexusApiConstants.ErrorMessage.NEXUS_SERVER_ERROR);
+		}
 		this.handleResponseStatus(responseEntity);
 		return responseEntity;
 	}

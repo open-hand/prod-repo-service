@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * @author weisen.yang@hand-china.com 2020/3/27
  */
 public class NexusRepositoryCreateDTO {
+	public static Pattern URL_PATTERN = Pattern.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
 	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);
 
 	/**
@@ -34,17 +36,19 @@ public class NexusRepositoryCreateDTO {
 		// 仓库名后缀校验
 		if (validNameSufFlag) {
 			List<LookupVO> lookupVOList = baseServiceFeignClient.queryCodeValueByCode(NexusConstants.Lookup.REPO_NAME_SUFFIX);
-			Boolean nameSuffixFlag = false;
-			for (LookupVO lookupVO : lookupVOList) {
-				logger.info("suffix  value: " + lookupVO.getValue());
-				if (this.getName().toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
-					nameSuffixFlag = true;
+			if (CollectionUtils.isNotEmpty(lookupVOList)) {
+				Boolean nameSuffixFlag = false;
+				for (LookupVO lookupVO : lookupVOList) {
+					logger.info("suffix  value: " + lookupVO.getValue());
+					if (this.getName().toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
+						nameSuffixFlag = true;
+					}
 				}
-			}
-			if (!nameSuffixFlag) {
-				String name = StringUtils.join(",", lookupVOList.stream().map(LookupVO::getValue).collect(Collectors.toList()));
-				// 仓库名后缀限制为以下数据：{0}
-				throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, name);
+				if (!nameSuffixFlag) {
+					String name = StringUtils.join(",", lookupVOList.stream().map(LookupVO::getValue).collect(Collectors.toList()));
+					// 仓库名后缀限制为以下数据：{0}
+					throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, name);
+				}
 			}
 		}
 
@@ -67,8 +71,10 @@ public class NexusRepositoryCreateDTO {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.remoteUrl)) {
-					// TODO url校验
 					throw new CommonException(NexusMessageConstants.NEXUS_REMOTE_URL_NOT_EMPTY);
+				}
+				if (!URL_PATTERN.matcher(this.remoteUrl).matches()) {
+					throw new CommonException(NexusMessageConstants.NEXUS_URL_ERROR);
 				}
 				if (StringUtils.isNotBlank(this.remoteUsername) && StringUtils.isBlank(this.remotePassword)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_REMOTE_USER_PASSWORD_NOT_EMPTY);

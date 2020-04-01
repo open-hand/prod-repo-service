@@ -77,4 +77,8 @@ public interface NexusMessageConstants {
 	 * 仓库{0}已被关联，不能再关联
 	 */
 	String NEXUS_REPO_ALREADY_RELATED = "error.nexus.repo.already.related";
+	/**
+	 * 地址填写有误，如：http://www.example.com
+	 */
+	String NEXUS_URL_ERROR = "error.nexus.url.error";
 }
