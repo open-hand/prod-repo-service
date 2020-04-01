@@ -406,7 +406,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 
-		return PageConvertUtils.convert(pageRequest.getPage() + 1, pageRequest.getSize(), resultAll);
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 	}
 
 	@Override
@@ -449,7 +449,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 
-		return PageConvertUtils.convert(pageRequest.getPage() + 1, pageRequest.getSize(), resultAll);
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 	}
 
 	@Override

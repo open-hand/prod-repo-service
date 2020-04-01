@@ -50,15 +50,24 @@ public class PageConvertUtils {
      * @return PageInfo
      */
     public static <T> PageInfo<T> convert(int pageNum, int pageSize, List<T> allContent) {
+        if (pageNum == 0) {
+            // 没传的时候，hzero默认是0，第一页; Choerodon 第一页是1
+            pageNum = 1;
+        }
         com.github.pagehelper.Page<T> page = new com.github.pagehelper.Page<>(pageNum, pageSize);
-        int currentNum = (pageNum - 1) * pageSize;
-        int total = allContent.size();
-        page.addAll(allContent.stream().skip(currentNum).limit(pageSize).collect(Collectors.toList()));
-        page.setTotal(total);
-
         PageInfo<T> pageInfo = new PageInfo<>(page);
-        pageInfo.setTotal(total);
-
+        if (pageNum < 0) {
+            int total = allContent.size();
+            page.addAll(allContent);
+            page.setTotal(total);
+            pageInfo.setTotal(total);
+        } else {
+            int currentNum = (pageNum - 1) * pageSize;
+            int total = allContent.size();
+            page.addAll(allContent.stream().skip(currentNum).limit(pageSize).collect(Collectors.toList()));
+            page.setTotal(total);
+            pageInfo.setTotal(total);
+        }
         return pageInfo;
     }
 }
