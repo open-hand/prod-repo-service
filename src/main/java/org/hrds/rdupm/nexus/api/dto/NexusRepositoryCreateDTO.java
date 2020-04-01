@@ -67,6 +67,7 @@ public class NexusRepositoryCreateDTO {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.remoteUrl)) {
+					// TODO url校验
 					throw new CommonException(NexusMessageConstants.NEXUS_REMOTE_URL_NOT_EMPTY);
 				}
 				if (StringUtils.isNotBlank(this.remoteUsername) && StringUtils.isBlank(this.remotePassword)) {

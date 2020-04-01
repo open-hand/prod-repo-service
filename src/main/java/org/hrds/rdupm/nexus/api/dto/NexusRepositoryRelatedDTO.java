@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.api.dto;
 import io.choerodon.core.exception.CommonException;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -20,11 +21,10 @@ public class NexusRepositoryRelatedDTO {
 	 */
 	public void validParam(){
 		if (this.userName.equals(ADMIN)) {
-			// TODO 不能添加admin用户
-			throw new CommonException("请填写admin之外的用户");
+			throw new CommonException(NexusMessageConstants.NEXUS_RELATED_REPO_NOT_ADMIN);
 		}
 		if (CollectionUtils.isEmpty(repositoryList)) {
-			throw new CommonException("仓库列表不能为空");
+			throw new CommonException(NexusMessageConstants.NEXUS_REPO_LIST_NOT_EMPTY);
 		}
 	}
 

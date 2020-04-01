@@ -16,9 +16,8 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.*;
 import org.hrds.rdupm.nexus.domain.repository.*;
-import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
-import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
@@ -173,8 +172,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
 		if (!nexusRepository.getProjectId().equals(projectId)) {
-			// TODO
-			throw new CommonException("不能更改其它项目的仓库");
+			throw new CommonException(NexusMessageConstants.NEXUS_MAVEN_REPO_NOT_CHANGE_OTHER_PRO);
 		}
 		if (!nexusRepository.getAllowAnonymous().equals(nexusRepoCreateDTO.getAllowAnonymous())) {
 			nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
@@ -294,7 +292,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 				nexusRepositoryRelatedDTO.getUserName(), nexusRepositoryRelatedDTO.getPassword(),
 				new NexusServer(serverConfig.getServerUrl(), serverConfig.getUserName(), serverConfig.getPassword()));
 		if (!userFlag) {
-			throw new CommonException("用户名或密码错误");
+			throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
 		}
 
 		List<String> repositoryList = nexusRepositoryRelatedDTO.getRepositoryList();
@@ -304,7 +302,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			query.setNeRepositoryName(repositoryName);
 			NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
 			if (nexusRepository != null) {
-				throw new CommonException("仓库：" + repositoryName + "已被关联，不能再关联");
+				throw new CommonException(NexusMessageConstants.NEXUS_REPO_ALREADY_RELATED, repositoryName);
 			}
 		});
 
@@ -358,6 +356,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 创建拉取角色
 		nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
 
+		List<NexusServerUser> nexusServerUserList = nexusClient.getNexusUserApi().getUsers(nexusRepositoryRelatedDTO.getUserName());
+		if (CollectionUtils.isNotEmpty(nexusServerUserList)) {
+			NexusServerUser nexusServerUser = nexusServerUserList.get(0);
+			nexusServerUser.getRoles().add(pullNexusServerRole.getId());
+			nexusClient.getNexusUserApi().updateUser(nexusServerUser);
+		}
 		// 默认允许匿名
 		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(nexusServerConfig.getAnonymousRole());
 		anonymousRole.setPullPri(repositoryName, 1);
