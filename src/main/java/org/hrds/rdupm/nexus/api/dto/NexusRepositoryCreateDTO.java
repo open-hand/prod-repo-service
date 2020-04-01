@@ -10,6 +10,8 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
  * @author weisen.yang@hand-china.com 2020/3/27
  */
 public class NexusRepositoryCreateDTO {
+	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);
 
 	/**
 	 * 参数信息校验
@@ -31,10 +34,11 @@ public class NexusRepositoryCreateDTO {
 		// 仓库名后缀校验
 		if (validNameSufFlag) {
 			List<LookupVO> lookupVOList = baseServiceFeignClient.queryCodeValueByCode(NexusConstants.Lookup.REPO_NAME_SUFFIX);
-			Boolean nameSuffixFlag = true;
+			Boolean nameSuffixFlag = false;
 			for (LookupVO lookupVO : lookupVOList) {
-				if (!this.getName().toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
-					nameSuffixFlag = false;
+				logger.info("suffix  value: " + lookupVO.getValue());
+				if (this.getName().toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
+					nameSuffixFlag = true;
 				}
 			}
 			if (!nameSuffixFlag) {
