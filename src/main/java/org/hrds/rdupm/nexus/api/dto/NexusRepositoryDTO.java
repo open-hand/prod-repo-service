@@ -30,6 +30,7 @@ public class NexusRepositoryDTO implements SecurityToken {
 			this.name = nexusServerRepository.getName();
 			this.type = nexusServerRepository.getType();
 			this.versionPolicy = nexusServerRepository.getVersionPolicy();
+			this.writePolicy = nexusServerRepository.getWritePolicy();
 			this.online = nexusServerRepository.getOnline();
 			this.url = nexusServerRepository.getUrl();
 
@@ -50,6 +51,8 @@ public class NexusRepositoryDTO implements SecurityToken {
 	private String type;
 	@ApiModelProperty(value = "仓库策略")
 	private String versionPolicy;
+	@ApiModelProperty(value = "版本策略")
+	private String writePolicy;
 	@ApiModelProperty(value = "在线状态")
 	private Boolean online;
 	@ApiModelProperty(value = "访问url")
@@ -175,6 +178,15 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	public NexusRepositoryDTO setRemotePassword(String remotePassword) {
 		this.remotePassword = remotePassword;
+		return this;
+	}
+
+	public String getWritePolicy() {
+		return writePolicy;
+	}
+
+	public NexusRepositoryDTO setWritePolicy(String writePolicy) {
+		this.writePolicy = writePolicy;
 		return this;
 	}
 
