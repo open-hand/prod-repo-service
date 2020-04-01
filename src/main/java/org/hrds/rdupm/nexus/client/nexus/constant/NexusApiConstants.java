@@ -81,7 +81,7 @@ public interface NexusApiConstants {
 		 */
 		String NEXUS_ROLE_PRI_NOT_ASSIGNED = "error.nexus.client.nexus.role.pri.not.assigned";
 		/**
-		 * nexus服务不可用，请检查服务
+		 * 访问nexus服务失败，请检查服务是否正常
 		 */
 		String NEXUS_SERVER_ERROR = "error.nexus.client.nexus.server.failed";
 
