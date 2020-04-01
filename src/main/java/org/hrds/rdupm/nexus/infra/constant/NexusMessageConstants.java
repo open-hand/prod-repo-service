@@ -57,4 +57,24 @@ public interface NexusMessageConstants {
 	 * 仓库类型错误
 	 */
 	String NEXUS_MAVEN_REPO_TYPE_ERROR = "error.nexus.maven.repo.type.error";
+	/**
+	 * 不能更改其它项目的仓库
+	 */
+	String NEXUS_MAVEN_REPO_NOT_CHANGE_OTHER_PRO = "error.nexus.maven.repo.not.update.other.pro";
+	/**
+	 * 请填写管理员admin之外的用户
+	 */
+	String NEXUS_RELATED_REPO_NOT_ADMIN = "error.nexus.related.repo.not.admin";
+	/**
+	 * 仓库列表不能为空
+	 */
+	String NEXUS_REPO_LIST_NOT_EMPTY = "error.nexus.repo.list.not.empty";
+	/**
+	 * 用户名或密码错误
+	 */
+	String NEXUS_USER_AND_PASSWORD_ERROR = "error.nexus.user.and.password.error";
+	/**
+	 * 仓库{0}已被关联，不能再关联
+	 */
+	String NEXUS_REPO_ALREADY_RELATED = "error.nexus.repo.already.related";
 }
