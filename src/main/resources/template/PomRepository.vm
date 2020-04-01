@@ -1,0 +1,34 @@
+#if($versionPolicy == "RELEASE")
+<repository>
+    <id>${repositoryName}</id>
+    <name>${repositoryName} Repository</name>
+    <url>${url}</url>
+    <releases>
+        <enabled>true</enabled>
+    </releases>
+    <snapshots>
+        <enabled>false</enabled>
+    </snapshots>
+</repository>
+#end
+#if($versionPolicy == "SNAPSHOT")
+<repository>
+    <id>${repositoryName}</id>
+    <name>${repositoryName} Repository</name>
+    <url>${url}</url>
+    <releases>
+        <enabled>false</enabled>
+    </releases>
+    <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+    </snapshots>
+</repository>
+#end
+#if($versionPolicy == "MIXED" ||  $type == "group")
+<repository>
+    <id>${repositoryName}</id>
+    <name>${repositoryName} Repository</name>
+    <url>${url}</url>
+</repository>
+#end
