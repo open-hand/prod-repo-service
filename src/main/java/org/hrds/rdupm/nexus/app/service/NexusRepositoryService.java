@@ -2,10 +2,7 @@ package org.hrds.rdupm.nexus.app.service;
 
 import com.github.pagehelper.PageInfo;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryQueryDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryRelatedDTO;
+import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
@@ -92,5 +89,13 @@ public interface NexusRepositoryService {
 	 * @return List<NexusServerRepository>
 	 */
 	List<NexusServerRepository> groupRepo();
+
+	/**
+	 * 查询maven 仓库配置指引信息
+	 * @param repositoryName 仓库名称
+	 * @param showPushFlag 是否返回发布的配置信息  true:返回  false:不反回
+	 * @return NexusGuideDTO
+	 */
+	NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag);
 
 }
