@@ -5,10 +5,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryQueryDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryRelatedDTO;
+import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -19,6 +16,7 @@ import org.hrds.rdupm.nexus.domain.repository.*;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
+import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -483,5 +482,63 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusServerRepositoryList;
+	}
+
+	@Override
+	public NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		NexusRepository query = new NexusRepository();
+		query.setNeRepositoryName(repositoryName);
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
+		NexusUser nexusUser = null;
+		if (nexusRepository != null) {
+			NexusUser queryUser = new NexusUser();
+			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+			nexusUser = nexusUserRepository.selectOne(queryUser);
+		}
+
+
+
+		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(repositoryName);
+		if (nexusServerRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		Map<String, Object> map = new HashMap<>(16);
+		map.put("versionPolicy", nexusServerRepository.getVersionPolicy());
+		map.put("repositoryName", nexusServerRepository.getName());
+		map.put("url", nexusServerRepository.getUrl());
+		map.put("type", nexusServerRepository.getType());
+
+		NexusGuideDTO nexusGuideDTO = new NexusGuideDTO();
+
+		// 拉取信息
+		nexusGuideDTO.setPullServerFlag(nexusRepository != null && nexusRepository.getAllowAnonymous() != 1);
+		if (nexusGuideDTO.getPullServerFlag() && nexusUser != null) {
+			// 要显示的时候，返回数据
+			map.put("username", nexusUser.getNePullUserId());
+			nexusGuideDTO.setPullServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
+			nexusGuideDTO.setPullPassword(nexusUser.getNePullUserPassword());
+		}
+		// pom 仓库配置
+		nexusGuideDTO.setPullPomRepoInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_REPO_FILE_NAME));
+
+		nexusGuideDTO.setShowPushFlag(showPushFlag);
+		if (showPushFlag) {
+			// 为true时，处理发布的信息
+			if (nexusUser == null) {
+				throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+			}
+			map.put("username", nexusUser.getNeUserId());
+			nexusGuideDTO.setPushPassword(nexusUser.getNeUserPassword());
+			nexusGuideDTO.setPushServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
+			nexusGuideDTO.setPushPomManageInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_MANGE_FILE_NAME));
+			nexusGuideDTO.setPushCmd(NexusGuideDTO.PUSH_CMD);
+		}
+
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return nexusGuideDTO;
 	}
 }

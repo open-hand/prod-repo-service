@@ -167,6 +167,13 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
+
+        <!-- velocity -->
+        <dependency>
+            <artifactId>velocity</artifactId>
+            <groupId>org.apache.velocity</groupId>
+            <version>1.7</version>
+        </dependency>
     </dependencies>
 
     <repositories>
