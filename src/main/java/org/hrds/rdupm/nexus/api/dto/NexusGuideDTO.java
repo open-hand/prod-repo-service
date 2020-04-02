@@ -13,6 +13,8 @@ public class NexusGuideDTO {
 	private Boolean pullServerFlag;
 	@ApiModelProperty(value = "拉取配置：server配置信息")
 	private String pullServerInfo;
+	@ApiModelProperty(value = "拉取配置：server配置信息(包含密码)")
+	private String pullServerInfoPassword;
 	@ApiModelProperty(value = "拉取配置：密码")
 	private String pullPassword;
 
@@ -25,6 +27,8 @@ public class NexusGuideDTO {
 	private Boolean showPushFlag;
 	@ApiModelProperty(value = "发布配置：server配置信息")
 	private String pushServerInfo;
+	@ApiModelProperty(value = "发布配置：server配置信息(包含密码)")
+	private String pushServerInfoPassword;
 	@ApiModelProperty(value = "发布配置：密码")
 	private String pushPassword;
 	@ApiModelProperty(value = "发布配置：pom文件，仓库配置")
@@ -110,6 +114,24 @@ public class NexusGuideDTO {
 
 	public NexusGuideDTO setShowPushFlag(Boolean showPushFlag) {
 		this.showPushFlag = showPushFlag;
+		return this;
+	}
+
+	public String getPullServerInfoPassword() {
+		return pullServerInfoPassword;
+	}
+
+	public NexusGuideDTO setPullServerInfoPassword(String pullServerInfoPassword) {
+		this.pullServerInfoPassword = pullServerInfoPassword;
+		return this;
+	}
+
+	public String getPushServerInfoPassword() {
+		return pushServerInfoPassword;
+	}
+
+	public NexusGuideDTO setPushServerInfoPassword(String pushServerInfoPassword) {
+		this.pushServerInfoPassword = pushServerInfoPassword;
 		return this;
 	}
 }
