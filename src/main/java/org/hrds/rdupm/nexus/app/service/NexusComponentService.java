@@ -2,6 +2,7 @@ package org.hrds.rdupm.nexus.app.service;
 
 import com.github.pagehelper.PageInfo;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
@@ -53,4 +54,10 @@ public interface NexusComponentService {
 						  NexusServerComponentUpload componentUpload,
 						  MultipartFile assetJar, MultipartFile assetPom);
 
+	/**
+	 * jar引入， pom配置
+	 * @param componentInfo jar引入
+	 * @return  NexusComponentGuideDTO
+	 */
+	NexusComponentGuideDTO componentGuide(NexusServerComponentInfo componentInfo);
 }

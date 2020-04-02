@@ -26,8 +26,8 @@ public class NexusComponentQuery {
 		if (this.name != null) {
 			paramMap.put("maven.artifactId", this.name);
 		}
-		if (this.useVersion != null) {
-			paramMap.put("maven.baseVersion", this.useVersion);
+		if (this.version != null) {
+			paramMap.put("maven.baseVersion", this.version);
 		}
 		return paramMap;
 	}
@@ -39,7 +39,7 @@ public class NexusComponentQuery {
 	@ApiModelProperty(value = "artifactId")
 	private String name;
 	@ApiModelProperty(value = "版本")
-	private String useVersion;
+	private String version;
 
 	public String getRepositoryName() {
 		return repositoryName;
@@ -68,12 +68,12 @@ public class NexusComponentQuery {
 		return this;
 	}
 
-	public String getUseVersion() {
-		return useVersion;
+	public String getVersion() {
+		return version;
 	}
 
-	public NexusComponentQuery setUseVersion(String useVersion) {
-		this.useVersion = useVersion;
+	public NexusComponentQuery setVersion(String version) {
+		this.version = version;
 		return this;
 	}
 }

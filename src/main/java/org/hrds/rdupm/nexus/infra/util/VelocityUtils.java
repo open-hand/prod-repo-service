@@ -18,6 +18,8 @@ public class VelocityUtils {
 	public static final String POM_REPO_FILE_NAME = "PomRepository.vm";
 	public static final String POM_MANGE_FILE_NAME = "PomManagement.vm";
 
+	public static final String POM_DEPENDENCY_FILE_NAME = "ComponentPom.vm";
+
 
 	public static String getJsonString(Map<String, Object> map, String fileName){
 		VelocityContext context = new VelocityContext(map);

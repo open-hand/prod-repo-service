@@ -22,6 +22,7 @@ public class NexusServerComponentInfo {
 	 * artifactId
 	 */
 	private String name;
+	private String version;
 	private String useVersion;
 	private Boolean deleteFlag;
 	private List<NexusServerComponent> components;
@@ -113,6 +114,15 @@ public class NexusServerComponentInfo {
 
 	public NexusServerComponentInfo setComponentIds(List<String> componentIds) {
 		this.componentIds = componentIds;
+		return this;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public NexusServerComponentInfo setVersion(String version) {
+		this.version = version;
 		return this;
 	}
 }

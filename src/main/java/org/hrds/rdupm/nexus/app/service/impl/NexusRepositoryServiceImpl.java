@@ -560,7 +560,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
 		repositoryNameList.forEach(repositoryName -> {
 			NexusServerRepository serverRepository = nexusServerRepositoryMap.get(repositoryName);
-			if (serverRepository != null && NexusApiConstants.VersionPolicy.RELEASE.equals(serverRepository.getVersionPolicy())) {
+			if (serverRepository != null && NexusApiConstants.VersionPolicy.RELEASE.equals(serverRepository.getVersionPolicy())
+					&& NexusApiConstants.RepositoryType.HOSTED.equals(serverRepository.getType())) {
 				// 包上传时，需要限制为RELEASE
 				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
 				nexusRepositoryDTO.setName(repositoryName);
