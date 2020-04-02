@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.infra.util;
 
+import io.choerodon.core.exception.CommonException;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -32,7 +33,7 @@ public class VelocityUtils {
 			tpl.merge(context, sw);
 			return sw.toString();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new CommonException(e);
 		}
 	}
 }

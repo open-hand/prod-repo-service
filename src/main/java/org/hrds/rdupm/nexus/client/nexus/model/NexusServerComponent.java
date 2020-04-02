@@ -1,5 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
 /**
@@ -7,26 +9,27 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/3/17
  */
 public class NexusServerComponent {
+	@ApiModelProperty(value = "id")
 	private String id;
+	@ApiModelProperty(value = "仓库名称")
 	private String repository;
+	@ApiModelProperty(value = "format")
 	private String format;
+	@ApiModelProperty(value = "groupId")
 	private String group;
-	/**
-	 * artifactId
-	 */
+	@ApiModelProperty(value = "artifactId")
 	private String name;
+	@ApiModelProperty(value = "版本")
 	private String version;
 	private List<NexusServerAsset> assets;
 
-	/**
-	 * 使用时，版本号
-	 */
+	@ApiModelProperty(value = "使用版本")
 	private String useVersion;
 
-	/**
-	 * 下级Component的Id， 没有时就是id
-	 */
+	@ApiModelProperty(value = "下级Component的Id， 没有时就是id")
 	private List<String> componentIds;
+	@ApiModelProperty(value = "是否允许删除")
+	private Boolean deleteFlag;
 
 
 	public String getId() {
@@ -107,6 +110,15 @@ public class NexusServerComponent {
 
 	public NexusServerComponent setComponentIds(List<String> componentIds) {
 		this.componentIds = componentIds;
+		return this;
+	}
+
+	public Boolean getDeleteFlag() {
+		return deleteFlag;
+	}
+
+	public NexusServerComponent setDeleteFlag(Boolean deleteFlag) {
+		this.deleteFlag = deleteFlag;
 		return this;
 	}
 }

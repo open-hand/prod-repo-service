@@ -1,29 +1,31 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
 /**
  * @author weisen.yang@hand-china.com 2020/3/17
  */
 public class NexusServerComponentInfo {
-	/**
-	 * 程序生成的
-	 */
-	private String uniqueId;
-	/**
-	 * 成员components列表，Id集合;
-	 */
+	@ApiModelProperty(value = "id")
+	private String id;
+	@ApiModelProperty(value = "成员components列表，Id集合")
 	private List<String> componentIds;
 	private String path;
+	@ApiModelProperty(value = "仓库名称")
 	private String repository;
+	@ApiModelProperty(value = "format")
 	private String format;
+	@ApiModelProperty(value = "groupId")
 	private String group;
-	/**
-	 * artifactId
-	 */
+	@ApiModelProperty(value = "artifactId")
 	private String name;
+	@ApiModelProperty(value = "版本")
 	private String version;
+	@ApiModelProperty(value = "使用版本")
 	private String useVersion;
+	@ApiModelProperty(value = "是否允许删除")
 	private Boolean deleteFlag;
 	private List<NexusServerComponent> components;
 
@@ -99,12 +101,12 @@ public class NexusServerComponentInfo {
 		return this;
 	}
 
-	public String getUniqueId() {
-		return uniqueId;
+	public String getId() {
+		return id;
 	}
 
-	public NexusServerComponentInfo setUniqueId(String uniqueId) {
-		this.uniqueId = uniqueId;
+	public NexusServerComponentInfo setId(String id) {
+		this.id = id;
 		return this;
 	}
 
