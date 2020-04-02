@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
@@ -110,8 +109,41 @@ public class NexusRepositoryController extends BaseController {
     @ApiOperation(value = "maven仓库组创建，获取仓库列表")
     @Permission(type = ResourceType.PROJECT, permissionPublic = true)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/group")
-    public ResponseEntity<List<NexusServerRepository>> groupRepo() {
-        return Results.success(nexusRepositoryService.groupRepo());
+    public ResponseEntity<List<NexusRepositoryDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                              @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, false));
+    }
+
+    @ApiOperation(value = "maven仓库 关联， 获取仓库列表")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/related")
+    public ResponseEntity<List<NexusRepositoryDTO>> listRelatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, true));
+    }
+
+    @ApiOperation(value = "获取当前项目关联列表")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/current")
+    public ResponseEntity<List<NexusRepositoryDTO>> listRepoByProjectId(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                      @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId));
+    }
+
+    @ApiOperation(value = "获取nexus服务所有仓库列表")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/all")
+    public ResponseEntity<List<NexusRepositoryDTO>> listRepoAll(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, false));
+    }
+
+    @ApiOperation(value = "包上传，仓库列表")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/component")
+    public ResponseEntity<List<NexusRepositoryDTO>> listComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                      @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listComponentRepo(projectId));
     }
 
     @ApiOperation(value = "配置指引信息，查询")

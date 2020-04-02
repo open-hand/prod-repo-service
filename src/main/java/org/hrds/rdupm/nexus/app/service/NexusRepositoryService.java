@@ -63,6 +63,14 @@ public interface NexusRepositoryService {
 							  String repositoryName, NexusServerConfig nexusServerConfig);
 
 	/**
+	 * maven仓库 关联， 获取仓库列表
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @return List<NexusServerRepository>
+	 */
+	List<NexusServerRepository> listRelatedMavenRepo(Long organizationId, Long projectId);
+
+	/**
 	 * 查询maven仓库列表，自建或关联的
 	 * @param pageRequest 分页参数
 	 * @param queryDTO 查询参数
@@ -85,10 +93,26 @@ public interface NexusRepositoryService {
 	List<NexusServerBlobStore> listMavenRepoBlob();
 
 	/**
-	 * 创建仓库组时，仓库列表
-	 * @return List<NexusServerRepository>
+	 * 获取仓库名列表
+	 * @param projectId 项目Id
+	 * @param excludeRelated 是否排除所有项目已关联或新建的  true:需要 false:不需要
+	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusServerRepository> groupRepo();
+	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated);
+
+	/**
+	 * 获取仓库名列表 - 当前仓库关联的
+	 * @param projectId 项目Id
+	 * @return List<NexusRepositoryDTO>
+	 */
+	List<NexusRepositoryDTO> listRepoNameByProjectId(Long projectId);
+
+	/**
+	 * 包上传 - 仓库列表
+	 * @param projectId 项目Id
+	 * @return List<NexusRepositoryDTO>
+	 */
+	List<NexusRepositoryDTO> listComponentRepo(Long projectId);
 
 	/**
 	 * 查询maven 仓库配置指引信息
@@ -97,5 +121,4 @@ public interface NexusRepositoryService {
 	 * @return NexusGuideDTO
 	 */
 	NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag);
-
 }

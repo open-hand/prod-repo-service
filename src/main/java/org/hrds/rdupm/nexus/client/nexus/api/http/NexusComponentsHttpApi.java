@@ -9,6 +9,7 @@ import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hzero.core.util.UUIDUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -18,10 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 组件API
@@ -40,38 +39,31 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		String response = responseEntity.getBody();
 		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
 		List<NexusServerComponent> componentList = componentResponse.getItems();
-		componentList.forEach(nexusComponent -> {
-			List<NexusServerAsset> assetList = nexusComponent.getAssets();
-			if (CollectionUtils.isNotEmpty(assetList)) {
-				NexusServerAsset asset = assetList.get(0);
-				nexusComponent.setUseVersion(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(asset.getPath(), "/"), "/"));
-			}
-		});
+		this.handleVersion(componentList);
 		return componentList;
 	}
 
 	@Override
 	public List<NexusServerComponentInfo> getComponentInfo(String repositoryName) {
-		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		List<NexusServerComponent> componentList = this.getComponents(repositoryName);
-		for (NexusServerComponent component : componentList) {
-			String path = component.getGroup() + "/" + component.getName() + "/" + component.getUseVersion();
-			if (componentInfoMap.get(path) == null) {
-				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
-				BeanUtils.copyProperties(component, componentInfo);
-				componentInfo.setPath(path);
+		return this.componentGroup(componentList);
+	}
 
-				List<NexusServerComponent> components = new ArrayList<>();
-				components.add(component);
-				componentInfo.setComponents(components);
+	@Override
+	public List<NexusServerComponent> searchComponent(NexusComponentQuery componentQuery) {
+		Map<String, Object> paramMap = componentQuery.convertParam();
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Search.SEARCH_COMPONENT, HttpMethod.GET, paramMap, null);
+		String response = responseEntity.getBody();
+		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
+		List<NexusServerComponent> componentList = componentResponse.getItems();
+		this.handleVersion(componentList);
+		return componentList;
+	}
 
-				componentInfoMap.put(path, componentInfo);
-			} else {
-				NexusServerComponentInfo componentInfo = componentInfoMap.get(path);
-				componentInfo.getComponents().add(component);
-			}
-		}
-		return new ArrayList<>(componentInfoMap.values());
+	@Override
+	public List<NexusServerComponentInfo> searchComponentInfo(NexusComponentQuery componentQuery) {
+		List<NexusServerComponent> componentList = this.searchComponent(componentQuery);
+		return this.componentGroup(componentList);
 	}
 
 	@Override
@@ -110,5 +102,67 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 
 		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
 
+	}
+
+	/**
+	 * 包组件分组处理
+	 * @param componentList 组件（包）信息
+	 * @return List<NexusServerComponentInfo>
+	 */
+	private List<NexusServerComponentInfo> componentGroup(List<NexusServerComponent> componentList){
+		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
+		for (NexusServerComponent component : componentList) {
+			String path = component.getGroup() + "/" + component.getName() + "/" + component.getUseVersion();
+			String key = component.getRepository() + path;
+			if (componentInfoMap.get(key) == null) {
+				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
+				BeanUtils.copyProperties(component, componentInfo);
+				componentInfo.setPath(path);
+
+				List<NexusServerComponent> components = new ArrayList<>();
+				components.add(component);
+				componentInfo.setComponents(components);
+
+				componentInfoMap.put(key, componentInfo);
+			} else {
+				NexusServerComponentInfo componentInfo = componentInfoMap.get(key);
+				componentInfo.getComponents().add(component);
+			}
+		}
+		List<NexusServerComponentInfo> componentInfoList = new ArrayList<>(componentInfoMap.values());
+		componentInfoList.forEach(componentInfo -> {
+			// 生成主键
+			componentInfo.setUniqueId(UUIDUtils.generateUUID());
+
+			List<NexusServerComponent> components = componentInfo.getComponents();
+			if (components.size() == 1){
+				NexusServerComponent nexusServerComponent = components.get(0);
+				if (nexusServerComponent.getUseVersion().equals(nexusServerComponent.getVersion())) {
+					// 版本相同时，不用再有下级； 如 RELEASE 版本的jar包
+					componentInfo.setComponents(new ArrayList<>());
+				}
+			}
+			// 设置Id
+			componentInfo.setComponentIds(components.stream().map(NexusServerComponent::getId).collect(Collectors.toList()));
+		});
+
+		return componentInfoList;
+	}
+
+	/**
+	 * 版本处理
+	 * @param componentList 组件（包）信息
+	 */
+	private void handleVersion(List<NexusServerComponent> componentList){
+		componentList.forEach(nexusComponent -> {
+			List<NexusServerAsset> assetList = nexusComponent.getAssets();
+			if (CollectionUtils.isNotEmpty(assetList)) {
+				NexusServerAsset asset = assetList.get(0);
+				nexusComponent.setUseVersion(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(asset.getPath(), "/"), "/"));
+			}
+			nexusComponent.setComponentIds(Collections.singletonList(nexusComponent.getId()));
+			// assets 前端不需要，数据量太大
+			nexusComponent.setAssets(new ArrayList<>());
+		});
 	}
 }

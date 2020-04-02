@@ -81,4 +81,9 @@ public interface NexusMessageConstants {
 	 * 地址填写有误，如：http://www.example.com
 	 */
 	String NEXUS_URL_ERROR = "error.nexus.url.error";
+
+	/**
+	 * 不能删除该仓库下的数据（只能删除自建或已关联仓库下的包）
+	 */
+	String NEXUS_NOT_DELETE_COMPONENT = "error.nexus.not.delete.component";
 }

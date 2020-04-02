@@ -1,9 +1,13 @@
 package org.hrds.rdupm.nexus.infra.repository.impl;
 
+import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 制品库_nexus仓库信息表 资源库实现
@@ -13,5 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class NexusRepositoryRepositoryImpl extends BaseRepositoryImpl<NexusRepository> implements NexusRepositoryRepository {
 
-  
+	@Autowired
+	private NexusRepositoryMapper nexusRepositoryMapper;
+
+	@Override
+	public List<String> getRepositoryByProject(Long projectId) {
+		return nexusRepositoryMapper.getRepositoryByProject(projectId);
+	}
 }

@@ -63,6 +63,16 @@ public interface NexusUrlConstants {
 	}
 
 	/**
+	 * 查询相关API
+	 */
+	interface Search {
+		/**
+		 * 组件（包）信息查询
+		 */
+		String SEARCH_COMPONENT = "/service/rest/v1/search";
+	}
+
+	/**
 	 * 权限相关API
 	 */
 	interface Privileges {

@@ -11,6 +11,9 @@ public class NexusServerComponent {
 	private String repository;
 	private String format;
 	private String group;
+	/**
+	 * artifactId
+	 */
 	private String name;
 	private String version;
 	private List<NexusServerAsset> assets;
@@ -19,6 +22,12 @@ public class NexusServerComponent {
 	 * 使用时，版本号
 	 */
 	private String useVersion;
+
+	/**
+	 * 下级Component的Id， 没有时就是id
+	 */
+	private List<String> componentIds;
+
 
 	public String getId() {
 		return id;
@@ -89,6 +98,15 @@ public class NexusServerComponent {
 
 	public NexusServerComponent setUseVersion(String useVersion) {
 		this.useVersion = useVersion;
+		return this;
+	}
+
+	public List<String> getComponentIds() {
+		return componentIds;
+	}
+
+	public NexusServerComponent setComponentIds(List<String> componentIds) {
+		this.componentIds = componentIds;
 		return this;
 	}
 }

@@ -6,6 +6,13 @@ package org.hrds.rdupm.nexus.client.nexus.constant;
 public interface NexusApiConstants {
 
 	/**
+	 * format类型
+	 */
+	interface NexusRepoFormat {
+		String MAVEN_FORMAT = "maven2";
+	}
+
+	/**
 	 * 仓库类型
 	 */
 	interface RepositoryType {

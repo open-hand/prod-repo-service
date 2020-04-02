@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
+import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
@@ -25,6 +26,20 @@ public interface NexusComponentsApi {
 	 * @return List<NexusComponentInfo>
 	 */
 	List<NexusServerComponentInfo> getComponentInfo(String repositoryName);
+
+	/**
+	 * 查询组件信息
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponent> searchComponent(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询组件信息,分组处理后
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponentInfo> searchComponentInfo(NexusComponentQuery componentQuery);
 
 	/**
 	 * 删除组件信息

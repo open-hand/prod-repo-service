@@ -51,7 +51,7 @@ public class PageConvertUtils {
      */
     public static <T> PageInfo<T> convert(int pageNum, int pageSize, List<T> allContent) {
         if (pageNum == 0) {
-            // 没传的时候，hzero默认是0，第一页; Choerodon 第一页是1
+            // 没传的时候，hzero默认0是第一页; Choerodon 第一页是1
             pageNum = 1;
         }
         com.github.pagehelper.Page<T> page = new com.github.pagehelper.Page<>(pageNum, pageSize);

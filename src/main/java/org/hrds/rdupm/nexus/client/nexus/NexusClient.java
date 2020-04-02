@@ -30,7 +30,7 @@ public interface NexusClient {
 	 * 获取组件API类
 	 * @return NexusComponentsHttpApi
 	 */
-	NexusComponentsHttpApi getComponentsHttpApi();
+	NexusComponentsApi getComponentsApi();
 
 	/**
 	 * 获取组件API类
