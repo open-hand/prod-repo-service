@@ -133,7 +133,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		componentInfoList.forEach(componentInfo -> {
 			// 生成主键
 			componentInfo.setUniqueId(UUIDUtils.generateUUID());
-
+			componentInfo.setVersion(componentInfo.getUseVersion());
 			List<NexusServerComponent> components = componentInfo.getComponents();
 			if (components.size() == 1){
 				NexusServerComponent nexusServerComponent = components.get(0);

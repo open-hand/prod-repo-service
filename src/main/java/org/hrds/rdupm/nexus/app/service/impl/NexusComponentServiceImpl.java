@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -13,6 +14,7 @@ import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
+import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 制品库_nexus 包信息应用服务默认实现
@@ -129,5 +133,16 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
+	}
+
+	@Override
+	public NexusComponentGuideDTO componentGuide(NexusServerComponentInfo componentInfo) {
+		Map<String, Object> map = new HashMap<>(16);
+		map.put("groupId", componentInfo.getGroup());
+		map.put("name", componentInfo.getName());
+		map.put("version", componentInfo.getVersion());
+		NexusComponentGuideDTO componentGuideDTO = new NexusComponentGuideDTO();
+		componentGuideDTO.setPullPomDep(VelocityUtils.getJsonString(map, VelocityUtils.POM_DEPENDENCY_FILE_NAME));
+		return componentGuideDTO;
 	}
 }

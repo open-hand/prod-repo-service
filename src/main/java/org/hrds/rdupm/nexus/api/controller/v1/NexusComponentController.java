@@ -7,6 +7,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
@@ -69,6 +70,13 @@ public class NexusComponentController extends BaseController {
 		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
 		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, assetJar, assetPom);
 		return Results.success();
+	}
+
+	@ApiOperation(value = "配置指引信息，查询")
+	@Permission(permissionPublic = true)
+	@GetMapping("/guide")
+	public ResponseEntity<NexusComponentGuideDTO> componentGuide(NexusServerComponentInfo componentInfo) {
+		return Results.success(nexusComponentService.componentGuide(componentInfo));
 	}
 
 

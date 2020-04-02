@@ -131,8 +131,8 @@ public class NexusRepositoryController extends BaseController {
     }
 
     @ApiOperation(value = "获取nexus服务所有仓库列表")
-    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
-    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/all")
+    @Permission(permissionPublic = true)
+    @GetMapping("/maven/repo/all")
     public ResponseEntity<List<NexusRepositoryDTO>> listRepoAll(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         return Results.success(nexusRepositoryService.listRepoNameAll(projectId, false));
