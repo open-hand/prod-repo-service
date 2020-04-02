@@ -66,6 +66,10 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 					} else {
 						nexusServerComponentInfo.setDeleteFlag(false);
 					}
+					nexusServerComponentInfo.getComponents().forEach(nexusServerComponent -> {
+						nexusServerComponent.setDeleteFlag(nexusServerComponentInfo.getDeleteFlag());
+					});
+
 				});
 			}
 		}
