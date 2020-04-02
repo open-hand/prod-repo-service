@@ -14,7 +14,7 @@
     <name>rdupm</name>
 
     <properties>
-        <choerodon.starters.version>0.14.0.RELEASE</choerodon.starters.version>
+        <choerodon.starters.version>0.16.0.RELEASE</choerodon.starters.version>
         <nx-version>3.9.0-01</nx-version>
     </properties>
 
