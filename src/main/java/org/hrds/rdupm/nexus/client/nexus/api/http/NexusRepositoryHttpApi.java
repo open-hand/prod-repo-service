@@ -38,7 +38,11 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		List<NexusServerRepository> nexusServerRepositoryList = new ArrayList<>();
 		repositoryMavenInfoList.forEach(repositoryMavenInfo -> {
 			NexusServerRepository nexusServerRepository = repositoryMavenInfo.covertNexusServerRepository();
-			nexusServerRepositoryList.add(nexusServerRepository);
+			if (nexusServerRepository.getFormat().equals(NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)) {
+				// 过滤为maven2类型
+				nexusServerRepositoryList.add(nexusServerRepository);
+			}
+
 
 		});
 		return nexusServerRepositoryList;

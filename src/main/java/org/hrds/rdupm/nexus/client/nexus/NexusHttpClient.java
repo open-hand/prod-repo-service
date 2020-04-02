@@ -45,7 +45,7 @@ public class NexusHttpClient implements NexusClient {
 	}
 
 	@Override
-	public NexusComponentsHttpApi getComponentsHttpApi() {
+	public NexusComponentsApi getComponentsApi() {
 		return nexusComponentsHttpApi;
 	}
 

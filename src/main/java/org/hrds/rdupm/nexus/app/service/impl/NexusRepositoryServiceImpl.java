@@ -13,6 +13,7 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.*;
 import org.hrds.rdupm.nexus.domain.repository.*;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -371,6 +372,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
+	public List<NexusServerRepository> listRelatedMavenRepo(Long organizationId, Long projectId) {
+		// TODO
+		return null;
+	}
+
+	@Override
 	public PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
 		configService.setNexusInfo(nexusClient);
 
@@ -469,26 +476,100 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusServerRepository> groupRepo() {
+	public List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 
+		// 所有nexus服务仓库数据
 		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return new ArrayList<>();
 		}
-		// 所有项目数据
-		NexusRepository query = new NexusRepository();
-		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
-		Map<String, NexusRepository> nexusRepositoryMap = nexusRepositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, a -> a, (k1, k2) -> k1));
+		// 所有项目仓库数据
+		List<String> repositoryNameList = new ArrayList<>();
+		if (excludeRelated) {
+			repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(null);
+		}
+		List<String> finalRepositoryNameList = repositoryNameList;
 
-		// 数据筛选
-		nexusServerRepositoryList = nexusServerRepositoryList.stream().filter(serverRepository ->
-				!nexusRepositoryMap.keySet().contains(serverRepository.getName())).collect(Collectors.toList());
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		nexusServerRepositoryList.forEach(serverRepository -> {
+			if (!finalRepositoryNameList.contains(serverRepository.getName())) {
+				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				nexusRepositoryDTO.setName(serverRepository.getName());
+				resultAll.add(nexusRepositoryDTO);
+			}
+		});
 
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
-		return nexusServerRepositoryList;
+		return resultAll;
+	}
+
+	@Override
+	public List<NexusRepositoryDTO> listRepoNameByProjectId(Long projectId) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		// nexus服务，仓库数据
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
+		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
+			return new ArrayList<>();
+		}
+		List<String> serverRepositoryNameList = nexusServerRepositoryList.stream().map(NexusServerRepository::getName).collect(Collectors.toList());
+
+		// 当前项目仓库数据
+		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId);
+		if (CollectionUtils.isEmpty(repositoryNameList)) {
+			return new ArrayList<>();
+		}
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		repositoryNameList.forEach(repositoryName -> {
+			if (serverRepositoryNameList.contains(repositoryName)) {
+				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				nexusRepositoryDTO.setName(repositoryName);
+				resultAll.add(nexusRepositoryDTO);
+			}
+		});
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return resultAll;
+	}
+
+	@Override
+	public List<NexusRepositoryDTO> listComponentRepo(Long projectId) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		// nexus服务，仓库数据
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
+		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
+			return new ArrayList<>();
+		}
+		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, a -> a, (k1, k2) -> k1));
+
+
+		// 当前项目仓库数据
+		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId);
+		if (CollectionUtils.isEmpty(repositoryNameList)) {
+			return new ArrayList<>();
+		}
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		repositoryNameList.forEach(repositoryName -> {
+			NexusServerRepository serverRepository = nexusServerRepositoryMap.get(repositoryName);
+			if (serverRepository != null && NexusApiConstants.VersionPolicy.RELEASE.equals(serverRepository.getVersionPolicy())) {
+				// 包上传时，需要限制为RELEASE
+				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				nexusRepositoryDTO.setName(repositoryName);
+				resultAll.add(nexusRepositoryDTO);
+			}
+		});
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return resultAll;
 	}
 
 	@Override

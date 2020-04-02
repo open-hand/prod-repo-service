@@ -103,7 +103,7 @@ public class TestController extends BaseController{
 															 @RequestParam("repositoryName") String repositoryName) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusServerComponent> componentList = nexusClient.getComponentsHttpApi().getComponents(repositoryName);
+		List<NexusServerComponent> componentList = nexusClient.getComponentsApi().getComponents(repositoryName);
 		return Results.success(componentList);
 	}
 
@@ -115,7 +115,7 @@ public class TestController extends BaseController{
 																	 @RequestParam("repositoryName") String repositoryName) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsHttpApi().getComponentInfo(repositoryName);
+		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().getComponentInfo(repositoryName);
 		return Results.success(componentInfoList);
 	}
 
@@ -128,60 +128,60 @@ public class TestController extends BaseController{
 									   @RequestParam("componentId") String componentId) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		nexusClient.getComponentsHttpApi().deleteComponent(componentId);
+		nexusClient.getComponentsApi().deleteComponent(componentId);
 		return Results.success();
 	}
 
-	@ApiOperation(value = "pro upload")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@PostMapping("/com/upload")
-	public ResponseEntity<?> comUpload(@RequestParam("username") String username,
-									   @RequestParam("password") String password,
-									   @RequestParam("ip") String ip,
-									   NexusServerComponentUpload componentUpload,
-									   @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
-									   @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
-		NexusServer nexusServer = new NexusServer(ip, username, password);
-		nexusClient.setNexusServerInfo(nexusServer);
-		if (assetJar == null && assetPom == null) {
-			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
-		}
-		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
-		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
-		try (
-				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
-				InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
-		) {
-			List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
-			if (assetJarStream != null) {
-				NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-				assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-				assetUpload.setExtension(NexusServerAssetUpload.JAR);
-				assetUploadList.add(assetUpload);
-			}
-			if (assetPomStream != null) {
-				NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-				assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-				assetUpload.setExtension(NexusServerAssetUpload.POM);
-				assetUploadList.add(assetUpload);
-			}
-			componentUpload.setAssetUploads(assetUploadList);
-			nexusClient.getComponentsHttpApi().createMavenComponent(componentUpload);
-		} catch (IOException e) {
-			throw new CommonException(e.getMessage());
-		}
-		return Results.success();
-	}
-
-	private void validateFileType(MultipartFile file, String type){
-		if (file != null) {
-			String name = file.getOriginalFilename();
-			String sourceType = name.substring(name.lastIndexOf(".")+1);
-			if (!type.equals(sourceType)) {
-				throw new CommonException(NexusMessageConstants.NEXUS_FILE_TYPE_ERROR);
-			}
-		}
-	}
+//	@ApiOperation(value = "pro upload")
+//	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+//	@PostMapping("/com/upload")
+//	public ResponseEntity<?> comUpload(@RequestParam("username") String username,
+//									   @RequestParam("password") String password,
+//									   @RequestParam("ip") String ip,
+//									   NexusServerComponentUpload componentUpload,
+//									   @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
+//									   @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
+//		NexusServer nexusServer = new NexusServer(ip, username, password);
+//		nexusClient.setNexusServerInfo(nexusServer);
+//		if (assetJar == null && assetPom == null) {
+//			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
+//		}
+//		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
+//		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
+//		try (
+//				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
+//				InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
+//		) {
+//			List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
+//			if (assetJarStream != null) {
+//				NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
+//				assetUpload.setAssetName(new InputStreamResource(assetJarStream));
+//				assetUpload.setExtension(NexusServerAssetUpload.JAR);
+//				assetUploadList.add(assetUpload);
+//			}
+//			if (assetPomStream != null) {
+//				NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
+//				assetUpload.setAssetName(new InputStreamResource(assetPomStream));
+//				assetUpload.setExtension(NexusServerAssetUpload.POM);
+//				assetUploadList.add(assetUpload);
+//			}
+//			componentUpload.setAssetUploads(assetUploadList);
+//			nexusClient.getComponentsApi().createMavenComponent(componentUpload);
+//		} catch (IOException e) {
+//			throw new CommonException(e.getMessage());
+//		}
+//		return Results.success();
+//	}
+//
+//	private void validateFileType(MultipartFile file, String type){
+//		if (file != null) {
+//			String name = file.getOriginalFilename();
+//			String sourceType = name.substring(name.lastIndexOf(".")+1);
+//			if (!type.equals(sourceType)) {
+//				throw new CommonException(NexusMessageConstants.NEXUS_FILE_TYPE_ERROR);
+//			}
+//		}
+//	}
 
 	@ApiOperation(value = "com/get")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)

@@ -1,5 +1,8 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -19,10 +22,17 @@ public class NexusServerComponentUpload {
 	 */
 	public static final String GENERATE_POM = "maven2.generate-pom";
 
-
+	@ApiModelProperty(value = "仓库名称",required = true)
+	@NotBlank
 	private String repositoryName;
+	@ApiModelProperty(value = "groupId",required = true)
+	@NotBlank
 	private String groupId;
+	@ApiModelProperty(value = "artifactId",required = true)
+	@NotBlank
 	private String artifactId;
+	@ApiModelProperty(value = "版本",required = true)
+	@NotBlank
 	private String version;
 	private List<NexusServerAssetUpload> assetUploads;
 

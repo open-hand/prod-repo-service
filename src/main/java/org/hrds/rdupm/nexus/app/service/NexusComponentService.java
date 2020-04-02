@@ -1,0 +1,56 @@
+package org.hrds.rdupm.nexus.app.service;
+
+import com.github.pagehelper.PageInfo;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+/**
+ * 制品库_nexus 包信息应用服务
+ *
+ * @author weisen.yang@hand-china.com 2020-03-27 11:42:59
+ */
+public interface NexusComponentService {
+
+	/**
+	 * 包列表查询
+	 * @param organizationId 组织ID
+	 * @param projectId 项目Id
+	 * @param deleteFlag 删除判断flag  true：需要返回是否允许删除标识  false: 不返回
+	 * @param componentQuery 查询参数
+	 * @param pageRequest 分页参数
+	 * @return PageInfo<NexusServerComponentInfo>
+	 */
+	PageInfo<NexusServerComponentInfo> listComponents(Long organizationId,
+													  Long projectId,
+													  Boolean deleteFlag,
+													  NexusComponentQuery componentQuery,
+													  PageRequest pageRequest);
+	/**
+	 * 包删除
+	 * @param organizationId 组织ID
+	 * @param projectId 项目Id
+	 * @param repositoryName 仓库名称
+	 * @param componentIds 待输出数据
+	 */
+	void deleteComponents(Long organizationId, Long projectId, String repositoryName, List<String> componentIds);
+
+	/**
+	 * 包上传
+	 * @param organizationId 组织ID
+	 * @param projectId 项目Id
+	 * @param componentUpload 仓库名称
+	 * @param assetJar jar文件
+	 * @param assetPom pom文件
+	 */
+	void componentsUpload(Long organizationId, Long projectId,
+						  NexusServerComponentUpload componentUpload,
+						  MultipartFile assetJar, MultipartFile assetPom);
+
+}

@@ -16,4 +16,15 @@
         <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
+    <select id="getRepositoryByProject" resultType="java.lang.String">
+        SELECT
+            ne_repository_name
+        FROM
+            rdupm_nexus_repository
+        <where>
+            <if test="projectId != null">
+                project_id = #{projectId}
+            </if>
+        </where>
+    </select>
 </mapper>

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author weisen.yang@hand-china.com 2020/3/27
  */
 public class NexusRepositoryCreateDTO {
-	public static Pattern URL_PATTERN = Pattern.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
+	public static Pattern URL_PATTERN = Pattern.compile("(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
 	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);
 
 	/**
