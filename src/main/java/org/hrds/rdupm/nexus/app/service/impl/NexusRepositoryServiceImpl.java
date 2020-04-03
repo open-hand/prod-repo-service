@@ -88,7 +88,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 角色
 		// 发布角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName());
+		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true);
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
 		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName());
@@ -258,6 +258,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		} else {
 			// 关联的仓库
 			// 角色
+			if (nexusRole.getNeRoleId() != null) {
+				nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNeRoleId());
+			}
 			if (nexusRole.getNePullRoleId() != null) {
 				nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNePullRoleId());
 			}
@@ -329,6 +332,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepository.setIsRelated(1);
 		nexusRepositoryRepository.insertSelective(nexusRepository);
 
+		// 发布角色
+		NexusServerRole nexusServerRole = new NexusServerRole();
+		nexusServerRole.createDefPushRole(repositoryName, false);
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
 		pullNexusServerRole.createDefPullRole(repositoryName);
@@ -336,6 +342,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
 		nexusRole.setNePullRoleId(pullNexusServerRole.getId());
+		nexusRole.setNeRoleId(nexusServerRole.getId());
 		nexusRoleRepository.insertSelective(nexusRole);
 
 		// 用户
@@ -353,15 +360,18 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusUserRepository.insertSelective(nexusUser);
 
 		// nexus服务数据
-		// 创建拉取角色
+		// 创建角色
+		nexusClient.getNexusRoleApi().createRole(nexusServerRole);
 		nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
 
+		// 为已有用户赋予发布角色
 		List<NexusServerUser> nexusServerUserList = nexusClient.getNexusUserApi().getUsers(nexusRepositoryRelatedDTO.getUserName());
 		if (CollectionUtils.isNotEmpty(nexusServerUserList)) {
 			NexusServerUser nexusServerUser = nexusServerUserList.get(0);
-			nexusServerUser.getRoles().add(pullNexusServerRole.getId());
+			nexusServerUser.getRoles().add(nexusServerRole.getId());
 			nexusClient.getNexusUserApi().updateUser(nexusServerUser);
 		}
+
 		// 默认允许匿名
 		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(nexusServerConfig.getAnonymousRole());
 		anonymousRole.setPullPri(repositoryName, 1);

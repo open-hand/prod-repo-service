@@ -61,7 +61,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId);
 			if (CollectionUtils.isNotEmpty(proRepoList)) {
 				componentInfoPageInfo.getList().forEach(nexusServerComponentInfo -> {
-					if (proRepoList.contains(nexusServerComponentInfo.getName())) {
+					if (proRepoList.contains(nexusServerComponentInfo.getRepository())) {
 						nexusServerComponentInfo.setDeleteFlag(true);
 					} else {
 						nexusServerComponentInfo.setDeleteFlag(false);

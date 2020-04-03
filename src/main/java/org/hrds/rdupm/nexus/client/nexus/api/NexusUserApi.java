@@ -39,9 +39,8 @@ public interface NexusUserApi {
 	 * 用户更新角色密码
 	 * @param userId 用户Id
 	 * @param newPassword 新密码
-	 * @param oldPassword 旧密码
 	 */
-	void changePassword(String userId, String newPassword, String oldPassword);
+	void changePassword(String userId, String newPassword);
 
 	/**
 	 * 校验改用户是否有仓库对应发布权限

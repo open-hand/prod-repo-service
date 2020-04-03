@@ -349,7 +349,7 @@ public class TestController extends BaseController{
 											@RequestParam("oldPassword") String oldPassword) {
 		NexusServer nexusServer = new NexusServer(ip, username, password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		nexusClient.getNexusUserApi().changePassword(userId, newPassword, oldPassword);
+		nexusClient.getNexusUserApi().changePassword(userId, newPassword);
 		return Results.success();
 	}
 

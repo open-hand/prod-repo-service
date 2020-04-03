@@ -1,5 +1,7 @@
 package org.hrds.rdupm.nexus.app.service;
 
+import org.hrds.rdupm.nexus.domain.entity.NexusUser;
+
 /**
  * 制品库_nexus仓库默认用户信息表应用服务
  *
@@ -7,4 +9,15 @@ package org.hrds.rdupm.nexus.app.service;
  */
 public interface NexusUserService {
 
+	/**
+	 * 密码更新
+	 * @param nexusUser 用信息
+	 */
+	void updatePassword(NexusUser nexusUser);
+
+	/**
+	 * 修改用户发布权限
+	 * @param nexusUser 用户信息
+	 */
+	void updatePushAuth(NexusUser nexusUser);
 }

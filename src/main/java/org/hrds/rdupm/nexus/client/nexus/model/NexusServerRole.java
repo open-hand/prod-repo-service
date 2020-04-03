@@ -33,14 +33,36 @@ public class NexusServerRole {
 	}
 
 	/**
-	 * 创建仓库默认发布角色
+	 * 添加仓库发布权限
 	 * @param repositoryName 仓库名称（Id）
 	 */
-	public void createDefPushRole(String repositoryName){
+	public void addDefPushPri(String repositoryName) {
+		this.privileges.add(DEFAULT_PRI.replace("{repositoryName}", repositoryName));
+	}
+
+	/**
+	 * 删除仓库发布权限
+	 * @param repositoryName 仓库名称（Id）
+	 */
+	public void removeDefPushPri(String repositoryName) {
+		this.privileges.remove(DEFAULT_PRI.replace("{repositoryName}", repositoryName));
+	}
+
+	/**
+	 * 创建仓库默认发布角色
+	 * @param repositoryName 仓库名称（Id）
+	 * @param pushFlag 是否赋予发布权限
+	 */
+	public void createDefPushRole(String repositoryName, Boolean pushFlag){
 		this.setId(repositoryName + "-defRole");
 		this.setName(this.getId());
 		this.setDescription(repositoryName + " 仓库, 默认发布角色");
-		this.setPrivileges(this.createDefPushPri(repositoryName));
+		if (pushFlag) {
+			this.setPrivileges(this.createDefPushPri(repositoryName));
+		} else {
+			this.setPrivileges(new ArrayList<>());
+		}
+
 	}
 
 	/**

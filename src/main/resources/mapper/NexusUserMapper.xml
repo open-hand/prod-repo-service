@@ -15,4 +15,60 @@
         <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
+    <select id="selectList" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
+        SELECT
+            nr.ne_repository_name,
+            nu.user_id,
+            nu.ne_user_id,
+            nu.ne_user_password
+        FROM
+            rdupm_nexus_repository nr
+        INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
+        WHERE
+            nr.organization_id = #{organizationId}
+        AND nr.project_id = #{projectId}
+        AND nu.is_default = 1
+    </select>
+    <select id="getOtherRepositoryNames" resultType="java.lang.String">
+        SELECT
+            nr.ne_repository_name
+        FROM
+            rdupm_nexus_user nu
+        INNER JOIN rdupm_nexus_repository nr ON nu.repository_id = nr.repository_id
+        WHERE
+            nu.is_default = 0
+        AND nu.user_id = #{userId}
+    </select>
+    <select id="selectByUserId" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
+        SELECT
+            <include refid="nexusUserDefInfo"></include>
+        FROM
+            rdupm_nexus_repository nr
+        INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
+        WHERE
+         nu.user_id = #{userId}
+         AND nu.is_default = 1
+    </select>
+    <select id="selectByRepoName" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
+        SELECT
+            <include refid="nexusUserDefInfo"></include>
+        FROM
+            rdupm_nexus_repository nr
+        INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
+        WHERE
+            nr.ne_repository_name = #{repositoryName}
+        AND nr.project_id = #{projectId}
+        AND nu.is_default = 1
+    </select>
+
+    <sql id="nexusUserDefInfo">
+        nu.user_id,
+        nu.repository_id,
+        nu.ne_user_id,
+        nu.ne_user_password,
+        nr.organization_id,
+        nr.ne_repository_name,
+        nr.project_id,
+        role.ne_role_id
+    </sql>
 </mapper>

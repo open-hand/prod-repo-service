@@ -86,4 +86,20 @@ public interface NexusMessageConstants {
 	 * 不能删除该仓库下的数据（只能删除自建或已关联仓库下的包）
 	 */
 	String NEXUS_NOT_DELETE_COMPONENT = "error.nexus.not.delete.component";
+	/**
+	 * 新密码不能为空
+	 */
+	String NEXUS_NEW_PASSWORD_NOT_NULL = "error.nexus.new.password.not.null";
+	/**
+	 * 旧密码不能为空
+	 */
+	String NEXUS_OLD_PASSWORD_NOT_NULL = "error.nexus.old.password.not.null";
+	/**
+	 * 不能更改其它仓库管理用户密码
+	 */
+	String NEXUS_NOT_CHANGE_OTHER_REPO_PWD = "error.nexus.not.change.other.repo.password";
+	/**
+	 * 原密码填写错误
+	 */
+	String NEXUS_OLD_PASSWORD_ERROR = "error.nexus.old.password.error";
 }
