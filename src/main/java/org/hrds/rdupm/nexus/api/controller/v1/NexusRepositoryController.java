@@ -147,7 +147,7 @@ public class NexusRepositoryController extends BaseController {
 
     @ApiOperation(value = "配置指引信息，查询")
     @Permission(permissionPublic = true)
-    @GetMapping("maven/repo/guide/{repositoryName}")
+    @GetMapping("/maven/repo/guide/{repositoryName}")
     public ResponseEntity<NexusGuideDTO> mavenRepoGuide(@ApiParam(value = "仓库名称", required = true) @PathVariable(name = "repositoryName") String repositoryName,
                                                         @ApiParam(value = "showPushFlag 是否返回发布的配置信息") @RequestParam(name = "showPushFlag", defaultValue = "false") Boolean showPushFlag) {
         return Results.success(nexusRepositoryService.mavenRepoGuide(repositoryName, showPushFlag));
