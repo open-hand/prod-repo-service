@@ -24,10 +24,10 @@ public interface NexusUserRepository extends BaseRepository<NexusUser> {
 
 	/**
 	 * 查询用户其它仓库
-	 * @param userId 用户Id
+	 * @param neUserId 用户Id(nexus)
 	 * @return 仓库名列表
 	 */
-	List<String> getOtherRepositoryNames(Long userId);
+	List<String> getOtherRepositoryNames(String neUserId);
 
 	/**
 	 * 查询默认用户信息
@@ -35,12 +35,4 @@ public interface NexusUserRepository extends BaseRepository<NexusUser> {
 	 * @return NexusUser
 	 */
 	NexusUser selectByUserId(Long userId);
-
-	/**
-	 * 查询默认用户信息
-	 * @param repositoryName 仓库名称
-	 * @param projectId 项目Id
-	 * @return NexusUser
-	 */
-	NexusUser selectByRepoName(String repositoryName, Long projectId);
 }

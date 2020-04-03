@@ -22,10 +22,10 @@ public interface NexusUserMapper extends BaseMapper<NexusUser> {
 
 	/**
 	 * 查询用户其它仓库
-	 * @param userId 用户Id
+	 * @param neUserId 用户Id
 	 * @return 仓库名列表
 	 */
-	List<String> getOtherRepositoryNames(@Param("userId") Long userId);
+	List<String> getOtherRepositoryNames(@Param("neUserId") String neUserId);
 
 	/**
 	 * 查询默认用户信息
@@ -34,11 +34,4 @@ public interface NexusUserMapper extends BaseMapper<NexusUser> {
 	 */
 	NexusUser selectByUserId(@Param("userId") Long userId);
 
-	/**
-	 * 查询默认用户信息
-	 * @param repositoryName 仓库名称
-	 * @param projectId 项目Id
-	 * @return NexusUser
-	 */
-	NexusUser selectByRepoName(@Param("repositoryName") String repositoryName, @Param("projectId") Long projectId);
 }

@@ -101,7 +101,7 @@ public interface NexusRepositoryService {
 	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated);
 
 	/**
-	 * 获取仓库名列表 - 当前仓库关联的
+	 * 获取仓库名列表 - 当前项目关联的
 	 * @param projectId 项目Id
 	 * @return List<NexusRepositoryDTO>
 	 */
@@ -113,6 +113,14 @@ public interface NexusRepositoryService {
 	 * @return List<NexusRepositoryDTO>
 	 */
 	List<NexusRepositoryDTO> listComponentRepo(Long projectId);
+
+	/**
+	 * 发布权限编辑，仓库列表
+	 * @param projectId 项目Id
+	 * @param currentRepoName 当前默认仓库名称
+	 * @return List<NexusRepositoryDTO>
+	 */
+	List<NexusRepositoryDTO> listRepoPush(Long projectId, String currentRepoName);
 
 	/**
 	 * 查询maven 仓库配置指引信息
