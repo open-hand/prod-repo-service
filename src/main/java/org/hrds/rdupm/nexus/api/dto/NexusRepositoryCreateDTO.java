@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.api.dto;
 
 import io.choerodon.core.exception.CommonException;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * maven 仓库创建dto
  * @author weisen.yang@hand-china.com 2020/3/27
  */
+@ApiModel("maven 仓库创建")
 public class NexusRepositoryCreateDTO {
 	public static Pattern URL_PATTERN = Pattern.compile("(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
 	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);

@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.api.dto;
 
 import io.choerodon.core.exception.CommonException;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
@@ -13,6 +14,7 @@ import java.util.List;
  * maven 仓库关联dto
  * @author weisen.yang@hand-china.com 2020/3/30
  */
+@ApiModel("maven 仓库关联")
 public class NexusRepositoryRelatedDTO {
 	private static final String ADMIN = "admin";
 

@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.api.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
@@ -11,6 +12,7 @@ import java.util.List;
  * 仓库信息
  * @author weisen.yang@hand-china.com 2020/3/30
  */
+@ApiModel("仓库信息")
 public class NexusRepositoryDTO implements SecurityToken {
 	private String _token;
 
