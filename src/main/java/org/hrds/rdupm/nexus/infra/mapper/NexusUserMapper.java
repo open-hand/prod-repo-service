@@ -1,7 +1,10 @@
 package org.hrds.rdupm.nexus.infra.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import io.choerodon.mybatis.common.BaseMapper;
+
+import java.util.List;
 
 /**
  * 制品库_nexus仓库默认用户信息表Mapper
@@ -10,4 +13,32 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface NexusUserMapper extends BaseMapper<NexusUser> {
 
+	/**
+	 * 发布权限列表查询
+	 * @param nexusUser 查询参数
+	 * @return List<NexusUserDTO>
+	 */
+	List<NexusUser> selectList(NexusUser nexusUser);
+
+	/**
+	 * 查询用户其它仓库
+	 * @param userId 用户Id
+	 * @return 仓库名列表
+	 */
+	List<String> getOtherRepositoryNames(@Param("userId") Long userId);
+
+	/**
+	 * 查询默认用户信息
+	 * @param userId 用户Id
+	 * @return NexusUser
+	 */
+	NexusUser selectByUserId(@Param("userId") Long userId);
+
+	/**
+	 * 查询默认用户信息
+	 * @param repositoryName 仓库名称
+	 * @param projectId 项目Id
+	 * @return NexusUser
+	 */
+	NexusUser selectByRepoName(@Param("repositoryName") String repositoryName, @Param("projectId") Long projectId);
 }

@@ -59,19 +59,18 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 		if (deleteFlag && projectId != null) {
 			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId);
-			if (CollectionUtils.isNotEmpty(proRepoList)) {
-				componentInfoPageInfo.getList().forEach(nexusServerComponentInfo -> {
-					if (proRepoList.contains(nexusServerComponentInfo.getName())) {
-						nexusServerComponentInfo.setDeleteFlag(true);
-					} else {
-						nexusServerComponentInfo.setDeleteFlag(false);
-					}
-					nexusServerComponentInfo.getComponents().forEach(nexusServerComponent -> {
-						nexusServerComponent.setDeleteFlag(nexusServerComponentInfo.getDeleteFlag());
-					});
-
+			componentInfoPageInfo.getList().forEach(nexusServerComponentInfo -> {
+				if (proRepoList.contains(nexusServerComponentInfo.getRepository())) {
+					nexusServerComponentInfo.setDeleteFlag(true);
+				} else {
+					nexusServerComponentInfo.setDeleteFlag(false);
+				}
+				nexusServerComponentInfo.getComponents().forEach(nexusServerComponent -> {
+					nexusServerComponent.setDeleteFlag(nexusServerComponentInfo.getDeleteFlag());
 				});
-			}
+
+			});
+
 		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();

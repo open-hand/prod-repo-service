@@ -3,14 +3,21 @@ package org.hrds.rdupm.nexus.domain.entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hzero.core.util.AssertUtils;
+
+import java.util.List;
 
 /**
  * 制品库_nexus仓库默认用户信息表
@@ -22,6 +29,19 @@ import io.swagger.annotations.ApiModelProperty;
 @ModifyAudit
 @Table(name = "rdupm_nexus_user")
 public class NexusUser extends AuditDomain {
+
+	/**
+	 * 密码更改校验
+	 */
+	public void validChangePassword(){
+		AssertUtils.notNull(this.userId, "userId is not null");
+		if (StringUtils.isEmpty(this.neUserPassword)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_NEW_PASSWORD_NOT_NULL);
+		}
+		if (StringUtils.isEmpty(this.oldNeUserPassword)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_NOT_NULL);
+		}
+	}
 
     public static final String FIELD_USER_ID = "userId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
@@ -64,6 +84,31 @@ public class NexusUser extends AuditDomain {
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------
+
+	@ApiModelProperty(value = "默认仓库名称")
+	@Transient
+	private String neRepositoryName;
+
+	@ApiModelProperty(value = "默认管理用户角色")
+	@Transient
+	private String neRoleId;
+
+	@ApiModelProperty(value = "其它仓库名称")
+	@Transient
+	private List<String> otherRepositoryName;
+
+	@ApiModelProperty(value = "组织Id")
+	@Transient
+	private Long organizationId;
+	@ApiModelProperty(value = "项目id")
+	@Transient
+	private Long projectId;
+
+
+
+	@ApiModelProperty(value = "旧密码")
+	@Transient
+	private String oldNeUserPassword;
 
     //
     // getter/setter
@@ -145,6 +190,60 @@ public class NexusUser extends AuditDomain {
 
 	public NexusUser setNePullUserPassword(String nePullUserPassword) {
 		this.nePullUserPassword = nePullUserPassword;
+		return this;
+	}
+
+	public String getNeRepositoryName() {
+		return neRepositoryName;
+	}
+
+	public NexusUser setNeRepositoryName(String neRepositoryName) {
+		this.neRepositoryName = neRepositoryName;
+		return this;
+	}
+
+	public List<String> getOtherRepositoryName() {
+		return otherRepositoryName;
+	}
+
+	public NexusUser setOtherRepositoryName(List<String> otherRepositoryName) {
+		this.otherRepositoryName = otherRepositoryName;
+		return this;
+	}
+
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+
+	public NexusUser setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
+		return this;
+	}
+
+	public Long getProjectId() {
+		return projectId;
+	}
+
+	public NexusUser setProjectId(Long projectId) {
+		this.projectId = projectId;
+		return this;
+	}
+
+	public String getOldNeUserPassword() {
+		return oldNeUserPassword;
+	}
+
+	public NexusUser setOldNeUserPassword(String oldNeUserPassword) {
+		this.oldNeUserPassword = oldNeUserPassword;
+		return this;
+	}
+
+	public String getNeRoleId() {
+		return neRoleId;
+	}
+
+	public NexusUser setNeRoleId(String neRoleId) {
+		this.neRoleId = neRoleId;
 		return this;
 	}
 }
