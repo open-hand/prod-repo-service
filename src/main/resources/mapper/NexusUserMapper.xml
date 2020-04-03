@@ -37,7 +37,7 @@
         INNER JOIN rdupm_nexus_repository nr ON nu.repository_id = nr.repository_id
         WHERE
             nu.is_default = 0
-        AND nu.user_id = #{userId}
+        AND nu.ne_user_id = #{neUserId}
     </select>
     <select id="selectByUserId" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
         SELECT
@@ -45,20 +45,10 @@
         FROM
             rdupm_nexus_repository nr
         INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
+        INNER JOIN rdupm_nexus_role role ON role.repository_id = nr.repository_id
         WHERE
          nu.user_id = #{userId}
          AND nu.is_default = 1
-    </select>
-    <select id="selectByRepoName" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
-        SELECT
-            <include refid="nexusUserDefInfo"></include>
-        FROM
-            rdupm_nexus_repository nr
-        INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
-        WHERE
-            nr.ne_repository_name = #{repositoryName}
-        AND nr.project_id = #{projectId}
-        AND nu.is_default = 1
     </select>
 
     <sql id="nexusUserDefInfo">

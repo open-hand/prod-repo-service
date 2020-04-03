@@ -50,6 +50,8 @@ public class NexusUserServiceImpl implements NexusUserService {
 			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_ERROR);
 		}
 
+		nexusUserRepository.updateOptional(nexusUser, NexusUser.FIELD_NE_USER_PASSWORD);
+
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 		nexusClient.getNexusUserApi().changePassword(existUser.getNeUserId(), nexusUser.getNeUserPassword());
@@ -65,11 +67,11 @@ public class NexusUserServiceImpl implements NexusUserService {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
 		// 查询更新前数据
-		List<String> existOtherRepoName = nexusUserRepository.getOtherRepositoryNames(nexusUser.getUserId());
+		List<String> existOtherRepoName = nexusUserRepository.getOtherRepositoryNames(existUser.getNeUserId());
 
 		// 删除更新前数据
 		NexusUser delete = new NexusUser();
-		delete.setRepositoryId(existUser.getRepositoryId());
+		delete.setNeUserId(existUser.getNeUserId());
 		delete.setIsDefault(0);
 		nexusUserRepository.delete(delete);
 
@@ -79,9 +81,13 @@ public class NexusUserServiceImpl implements NexusUserService {
 
 		List<String> otherRepositoryNameList = nexusUser.getOtherRepositoryName();
 		if (CollectionUtils.isNotEmpty(otherRepositoryNameList)) {
+			// 排除默认仓库
+			otherRepositoryNameList.remove(existUser.getNeRepositoryName());
+
 			NexusRepository queryRepo = new NexusRepository();
 			otherRepositoryNameList.forEach(otherRepositoryName ->{
 				queryRepo.setNeRepositoryName(otherRepositoryName);
+				queryRepo.setProjectId(existUser.getProjectId());
 				NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(queryRepo);
 				if (nexusRepository != null) {
 					updateOtherRepoName.add(nexusRepository.getNeRepositoryName());

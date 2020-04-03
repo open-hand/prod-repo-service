@@ -584,6 +584,42 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
+	public List<NexusRepositoryDTO> listRepoPush(Long projectId, String currentRepoName) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		// nexus服务，仓库数据
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
+		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
+			return new ArrayList<>();
+		}
+		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, a -> a, (k1, k2) -> k1));
+
+
+		// 当前项目仓库数据
+		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId);
+		// 排除当前仓库
+		repositoryNameList.remove(currentRepoName);
+		if (CollectionUtils.isEmpty(repositoryNameList)) {
+			return new ArrayList<>();
+		}
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		repositoryNameList.forEach(repositoryName -> {
+			NexusServerRepository serverRepository = nexusServerRepositoryMap.get(repositoryName);
+			if (serverRepository != null && NexusApiConstants.RepositoryType.HOSTED.equals(serverRepository.getType())) {
+				// 限制为hosted， proxy与group不需要
+				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				nexusRepositoryDTO.setName(repositoryName);
+				resultAll.add(nexusRepositoryDTO);
+			}
+		});
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return resultAll;
+	}
+
+	@Override
 	public NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);

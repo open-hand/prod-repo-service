@@ -111,7 +111,7 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/group")
     public ResponseEntity<List<NexusRepositoryDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                               @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, false));
+        return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId));
     }
 
     @ApiOperation(value = "maven仓库 关联， 获取仓库列表")
@@ -143,6 +143,15 @@ public class NexusRepositoryController extends BaseController {
     public ResponseEntity<List<NexusRepositoryDTO>> listComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                       @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         return Results.success(nexusRepositoryService.listComponentRepo(projectId));
+    }
+
+    @ApiOperation(value = "发布权限编辑，仓库列表")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/push")
+    public ResponseEntity<List<NexusRepositoryDTO>> listRepoPush(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName) {
+        return Results.success(nexusRepositoryService.listRepoPush(projectId, repositoryName));
     }
 
     @ApiOperation(value = "配置指引信息，查询")

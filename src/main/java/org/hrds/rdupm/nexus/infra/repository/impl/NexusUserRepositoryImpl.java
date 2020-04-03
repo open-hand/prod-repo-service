@@ -29,14 +29,14 @@ public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> imple
 	public PageInfo<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest) {
 		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectList(nexusUser));
 		page.getContent().forEach(user -> {
-			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getUserId()));
+			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
 		});
 		return PageConvertUtils.convert(page);
 	}
 
 	@Override
-	public List<String> getOtherRepositoryNames(Long userId) {
-		return nexusUserMapper.getOtherRepositoryNames(userId);
+	public List<String> getOtherRepositoryNames(String neUserId) {
+		return nexusUserMapper.getOtherRepositoryNames(neUserId);
 	}
 
 	@Override
@@ -44,8 +44,4 @@ public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> imple
 		return nexusUserMapper.selectByUserId(userId);
 	}
 
-	@Override
-	public NexusUser selectByRepoName(String repositoryName, Long projectId) {
-		return nexusUserMapper.selectByRepoName(repositoryName, projectId);
-	}
 }
