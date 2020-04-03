@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import java.util.List;
  * 组件提交jar请求
  * @author weisen.yang@hand-china.com 2020/3/19
  */
+@ApiModel("包上传")
 public class NexusServerComponentUpload {
 
 	public static final String REPOSITORY_NAME = "repository";

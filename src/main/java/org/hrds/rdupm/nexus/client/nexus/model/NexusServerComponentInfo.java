@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 /**
  * @author weisen.yang@hand-china.com 2020/3/17
  */
+@ApiModel("包信息")
 public class NexusServerComponentInfo {
 	@ApiModelProperty(value = "id")
 	private String id;

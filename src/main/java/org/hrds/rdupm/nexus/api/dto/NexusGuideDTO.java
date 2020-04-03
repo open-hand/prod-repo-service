@@ -1,11 +1,13 @@
 package org.hrds.rdupm.nexus.api.dto;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 配置指引信息DTO
  * @author weisen.yang@hand-china.com 2020/4/1
  */
+@ApiModel("nexus maven-仓库配置")
 public class NexusGuideDTO {
 	public static final String PUSH_CMD = "mvn clean deploy -DskipTests";
 
