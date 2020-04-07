@@ -21,7 +21,8 @@
             nr.ne_repository_name,
             nu.user_id,
             nu.ne_user_id,
-            nu.ne_user_password
+            nu.ne_user_password,
+            nu.object_version_number
         FROM
             rdupm_nexus_repository nr
         INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
