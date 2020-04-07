@@ -70,21 +70,22 @@ public interface NexusRepositoryService {
 	 */
 	List<NexusServerRepository> listRelatedMavenRepo(Long organizationId, Long projectId);
 
-	/**
-	 * 查询maven仓库列表，自建或关联的
-	 * @param pageRequest 分页参数
-	 * @param queryDTO 查询参数
-	 * @return PageInfo<NexusRepositoryDTO>
-	 */
-	PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
+//	/**
+//	 * 查询maven仓库列表，自建或关联的
+//	 * @param pageRequest 分页参数
+//	 * @param queryDTO 查询参数
+//	 * @return PageInfo<NexusRepositoryDTO>
+//	 */
+//	PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
 
 	/**
-	 * 查询maven仓库列表，项目之外的其它仓库
+	 * 查询maven仓库列表
 	 * @param pageRequest 分页参数
 	 * @param queryDTO 查询参数
+	 * @param queryData  查看： NexusConstants.RepoQueryData
 	 * @return PageInfo<NexusRepositoryDTO>
 	 */
-	PageInfo<NexusRepositoryDTO> listOtherMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
+	PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
 
 	/**
 	 * 查询blob

@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
@@ -85,7 +86,8 @@ public class NexusRepositoryController extends BaseController {
                                                                       NexusRepositoryQueryDTO queryDTO,
                                                                       @ApiIgnore PageRequest pageRequest) {
         queryDTO.setProjectId(projectId);
-        return Results.success(nexusRepositoryService.listMavenRepo(pageRequest, queryDTO));
+        queryDTO.setOrganizationId(organizationId);
+        return Results.success(nexusRepositoryService.listMavenRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_PROJECT));
     }
 
     @ApiOperation(value = "maven仓库列表，项目之外的其它仓库")
@@ -96,7 +98,8 @@ public class NexusRepositoryController extends BaseController {
                                                                            NexusRepositoryQueryDTO queryDTO,
                                                                            @ApiIgnore PageRequest pageRequest) {
         queryDTO.setProjectId(projectId);
-        return Results.success(nexusRepositoryService.listOtherMavenRepo(pageRequest, queryDTO));
+        queryDTO.setOrganizationId(organizationId);
+        return Results.success(nexusRepositoryService.listMavenRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_EXCLUDE_PROJECT));
     }
 
     @ApiOperation(value = "maven仓库列表，获取存储器")
