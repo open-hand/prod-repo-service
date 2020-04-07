@@ -24,10 +24,14 @@
         FROM
             rdupm_nexus_repository nr
         INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
-        WHERE
-            nr.organization_id = #{organizationId}
-        AND nr.project_id = #{projectId}
-        AND nu.is_default = 1
+        WHERE nu.is_default = 1
+        <if test="organizationId != null">
+            AND nr.organization_id = #{organizationId}
+        </if>
+        <if test="projectId != null">
+            AND nr.project_id = #{projectId}
+        </if>
+
     </select>
     <select id="getOtherRepositoryNames" resultType="java.lang.String">
         SELECT
