@@ -27,6 +27,9 @@ public class NexusRepositoryDTO implements SecurityToken {
 			this.name = nexusRepository.getNeRepositoryName();
 			this.allowAnonymous = nexusRepository.getAllowAnonymous();
 			this._token = nexusRepository.get_token();
+			this.projectId = nexusRepository.getProjectId();
+			this.organizationId = nexusRepository.getOrganizationId();
+			this.projectName = nexusRepository.getProjectName();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -41,8 +44,6 @@ public class NexusRepositoryDTO implements SecurityToken {
 			this.remoteUrl = nexusServerRepository.getRemoteUrl();
 			this.remoteUsername = nexusServerRepository.getRemoteUsername();
 		}
-
-
 	}
 
 
@@ -74,6 +75,13 @@ public class NexusRepositoryDTO implements SecurityToken {
 	private String remoteUsername;
 	@ApiModelProperty(value = "远程仓库密码")
 	private String remotePassword;
+
+	@ApiModelProperty(value = "项目Id")
+	private Long projectId;
+	@ApiModelProperty(value = "项目名称")
+	private String projectName;
+	@ApiModelProperty(value = "组织Id")
+	private Long organizationId;
 
 	public Long getRepositoryId() {
 		return repositoryId;
@@ -189,6 +197,33 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	public NexusRepositoryDTO setWritePolicy(String writePolicy) {
 		this.writePolicy = writePolicy;
+		return this;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public NexusRepositoryDTO setProjectName(String projectName) {
+		this.projectName = projectName;
+		return this;
+	}
+
+	public Long getProjectId() {
+		return projectId;
+	}
+
+	public NexusRepositoryDTO setProjectId(Long projectId) {
+		this.projectId = projectId;
+		return this;
+	}
+
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+
+	public NexusRepositoryDTO setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
 		return this;
 	}
 

@@ -13,6 +13,8 @@ public class NexusRepositoryQueryDTO {
 	private String name;
 	@ApiModelProperty(value = "项目Id", hidden = true)
 	private Long projectId;
+	@ApiModelProperty(value = "组织Id", hidden = true)
+	private Long organizationId;
 
 	public String getName() {
 		return name;
@@ -29,6 +31,15 @@ public class NexusRepositoryQueryDTO {
 
 	public NexusRepositoryQueryDTO setProjectId(Long projectId) {
 		this.projectId = projectId;
+		return this;
+	}
+
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+
+	public NexusRepositoryQueryDTO setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
 		return this;
 	}
 }

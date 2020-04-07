@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.domain.entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -68,6 +69,10 @@ public class NexusRepository extends AuditDomain {
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
+
+	@ApiModelProperty(value = "项目名称")
+	@Transient
+	private String projectName;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -149,6 +154,15 @@ public class NexusRepository extends AuditDomain {
 
 	public NexusRepository setIsRelated(Integer isRelated) {
 		this.isRelated = isRelated;
+		return this;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public NexusRepository setProjectName(String projectName) {
+		this.projectName = projectName;
 		return this;
 	}
 }
