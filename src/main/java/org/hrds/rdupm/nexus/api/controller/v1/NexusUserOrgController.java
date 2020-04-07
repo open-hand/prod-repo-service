@@ -22,7 +22,7 @@ import springfox.documentation.annotations.ApiIgnore;
  * @author weisen.yang@hand-china.com 2020-03-27 11:42:59
  */
 @RestController("nexusUserOrgController.v1")
-@RequestMapping("/v1/nexus-users")
+@RequestMapping("/v1/nexus-users/organizations")
 public class NexusUserOrgController extends BaseController {
 
     @Autowired
@@ -30,7 +30,7 @@ public class NexusUserOrgController extends BaseController {
     @Autowired
     private NexusUserService nexusUserService;
 
-    @ApiOperation(value = "项目层-发布权限列表列表查询")
+    @ApiOperation(value = "组织层-发布权限列表列表查询")
     @Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
     @GetMapping("/{organizationId}")
     public ResponseEntity<PageInfo<NexusUser>> listUser(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,

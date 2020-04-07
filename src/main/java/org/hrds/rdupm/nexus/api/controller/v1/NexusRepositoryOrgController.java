@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author weisen.yang@hand-china.com 2020-03-27 11:43:00
  */
-@RestController("nexusRepositoryController.v1")
+@RestController("nexusRepositoryOrgController.v1")
 @RequestMapping("/v1/nexus-repositorys/organizations")
 public class NexusRepositoryOrgController extends BaseController {
 

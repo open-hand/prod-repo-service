@@ -131,6 +131,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			componentUpload.setAssetUploads(assetUploadList);
 			nexusClient.getComponentsApi().createMavenComponent(componentUpload);
 		} catch (IOException e) {
+			logger.error("上传jar包错误", e);
 			throw new CommonException(e.getMessage());
 		}
 

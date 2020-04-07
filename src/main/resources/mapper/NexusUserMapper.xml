@@ -17,6 +17,7 @@
     </resultMap>
     <select id="selectList" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
         SELECT
+            nr.repository_id,
             nr.ne_repository_name,
             nu.user_id,
             nu.ne_user_id,
