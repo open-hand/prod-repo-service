@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableChoerodonResourceServer
 @EnableDiscoveryClient
-@EnableFeignClients("org.hrds")
+@EnableFeignClients({"org.hrds", "io.choerodon"})
 @EnableAsync
 @SpringBootApplication
 public class RdupmApplication {
