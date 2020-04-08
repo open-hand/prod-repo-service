@@ -7,6 +7,7 @@ import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.iam.ResourceLevel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.ehcache.core.internal.util.CollectionUtil;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
@@ -125,9 +126,13 @@ public class TestServiceImpl implements TestService{
 		nexusUserRepository.insertSelective(nexusUser);
 
 		producer.apply(StartSagaBuilder.newBuilder()
-				.withSagaCode(NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE),
+						.withSagaCode(NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE)
+						.withLevel(ResourceLevel.PROJECT)
+						.withRefType("mavenRepo"),
 				builder -> {
-					builder.withPayloadAndSerialize(nexusRepository);
+					builder.withPayloadAndSerialize(nexusRepository)
+							.withRefId(String.valueOf(nexusRepository.getRepositoryId()))
+							.withSourceId(nexusRepository.getRepositoryId());
 				});
 		nexusClient.removeNexusServerInfo();
 		return nexusRepoCreateDTO;
