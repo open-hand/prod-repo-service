@@ -26,26 +26,26 @@ public interface TestService {
 	 */
 	NexusRepositoryCreateDTO createMavenRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO);
 
-	/**
-	 * 创建maven仓库: 创建nexus server仓库
-	 * @param message 创建信息
-	 * @return NexusRepository
-	 */
-	NexusRepository createMavenRepoSaga(String message) throws IOException;
-
-	/**
-	 * 创建maven仓库：创建角色
-	 * @param message 创建信息
-	 * @return NexusRepository
-	 */
-	NexusRepository createMavenRepoRoleSaga(String message) throws IOException;
-
-	/**
-	 * 创建maven仓库：创建用户
-	 * @param message 创建信息
-	 * @return NexusRepository
-	 */
-	NexusRepository createMavenRepoUserSaga(String message) throws IOException;
+//	/**
+//	 * 创建maven仓库: 创建nexus server仓库
+//	 * @param message 创建信息
+//	 * @return NexusRepository
+//	 */
+//	NexusRepository createMavenRepoSaga(String message) throws IOException;
+//
+//	/**
+//	 * 创建maven仓库：创建角色
+//	 * @param message 创建信息
+//	 * @return NexusRepository
+//	 */
+//	NexusRepository createMavenRepoRoleSaga(String message) throws IOException;
+//
+//	/**
+//	 * 创建maven仓库：创建用户
+//	 * @param message 创建信息
+//	 * @return NexusRepository
+//	 */
+//	NexusRepository createMavenRepoUserSaga(String message) throws IOException;
 
 
 }
