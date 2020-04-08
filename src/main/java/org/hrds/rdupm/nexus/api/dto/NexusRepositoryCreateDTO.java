@@ -180,6 +180,12 @@ public class NexusRepositoryCreateDTO {
 	@ApiModelProperty(value = "远程仓库密码")
 	private String remotePassword;
 
+
+	@ApiModelProperty(value = "项目Id", hidden = true)
+	private Long projectId;
+	@ApiModelProperty(value = "组织Id", hidden = true)
+	private Long organizationId;
+
 	public String getType() {
 		return type;
 	}
@@ -267,6 +273,24 @@ public class NexusRepositoryCreateDTO {
 
 	public NexusRepositoryCreateDTO setRemotePassword(String remotePassword) {
 		this.remotePassword = remotePassword;
+		return this;
+	}
+
+	public Long getProjectId() {
+		return projectId;
+	}
+
+	public NexusRepositoryCreateDTO setProjectId(Long projectId) {
+		this.projectId = projectId;
+		return this;
+	}
+
+	public Long getOrganizationId() {
+		return organizationId;
+	}
+
+	public NexusRepositoryCreateDTO setOrganizationId(Long organizationId) {
+		this.organizationId = organizationId;
 		return this;
 	}
 }

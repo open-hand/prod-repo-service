@@ -43,6 +43,8 @@ public class NexusRepositoryController extends BaseController {
                                                                     @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
                                                                     @RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
         validObject(nexusRepoCreateDTO);
+        nexusRepoCreateDTO.setOrganizationId(organizationId);
+        nexusRepoCreateDTO.setProjectId(projectId);
         return Results.success(nexusRepositoryService.createMavenRepo(organizationId, projectId,nexusRepoCreateDTO));
     }
 
@@ -54,6 +56,8 @@ public class NexusRepositoryController extends BaseController {
                                                                     @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId,
                                                                     @RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
         validObject(nexusRepoCreateDTO);
+        nexusRepoCreateDTO.setOrganizationId(organizationId);
+        nexusRepoCreateDTO.setProjectId(projectId);
         return Results.success(nexusRepositoryService.updateMavenRepo(organizationId, projectId, repositoryId, nexusRepoCreateDTO));
     }
 
