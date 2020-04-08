@@ -40,7 +40,7 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/4/8
  */
 @Component
-public class TestServiceImpl implements TestService{
+public class TestServiceImpl implements TestService {
 	@Autowired
 	private NexusRepositoryRepository nexusRepositoryRepository;
 	@Autowired
@@ -138,7 +138,6 @@ public class TestServiceImpl implements TestService{
 		return nexusRepoCreateDTO;
 	}
 
-	@Override
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
 			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_REPO,
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
@@ -180,7 +179,6 @@ public class TestServiceImpl implements TestService{
 		return nexusRepository;
 	}
 
-	@Override
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_ROLE,
 			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_ROLE,
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
@@ -230,7 +228,6 @@ public class TestServiceImpl implements TestService{
 		return nexusRepository;
 	}
 
-	@Override
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_USER,
 			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_USER,
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
