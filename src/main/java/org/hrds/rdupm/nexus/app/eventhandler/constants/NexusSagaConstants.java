@@ -1,4 +1,4 @@
-package org.hrds.rdupm.nexus.infra.constant;
+package org.hrds.rdupm.nexus.app.eventhandler.constants;
 
 /**
  * saga 常量配置
