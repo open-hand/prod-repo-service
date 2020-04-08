@@ -52,6 +52,7 @@ public class NexusSagaHandler {
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
 			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_REPO,
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
+			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.REPO_SEQ)
 	public NexusRepository createMavenRepoSaga(String message) throws IOException {
 		NexusRepositoryCreateDTO nexusRepoCreateDTO = objectMapper.readValue(message, NexusRepositoryCreateDTO.class);
@@ -93,6 +94,7 @@ public class NexusSagaHandler {
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_ROLE,
 			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_ROLE,
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
+			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.ROLE_SEQ)
 	public NexusRepository createMavenRepoRoleSaga(String message) throws IOException {
 		NexusRepository nexusRepository = objectMapper.readValue(message, NexusRepository.class);
@@ -142,6 +144,7 @@ public class NexusSagaHandler {
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_USER,
 			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_USER,
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
+			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.USER_SEQ)
 	public NexusRepository createMavenRepoUserSaga(String message) throws IOException {
 		NexusRepository nexusRepository = objectMapper.readValue(message, NexusRepository.class);
