@@ -22,10 +22,15 @@ public class NexusServerUser {
 	/**
 	 * 创建仓库默认发布用户
 	 * @param repositoryName 仓库名称（Id）
-	 *  @param roleId 角色Id
+	 * @param roleId 角色Id
+	 * @param id 用户Id
 	 */
-	public void createDefPushUser(String repositoryName, String roleId){
-		this.setUserId(repositoryName + "-defUser");
+	public void createDefPushUser(String repositoryName, String roleId, String id){
+		if (id == null) {
+			this.setUserId(repositoryName + "-defUser");
+		} else {
+			this.setUserId(id);
+		}
 		this.setPassword(this.createDefPassword());
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());
@@ -37,10 +42,15 @@ public class NexusServerUser {
 	/**
 	 * 创建仓库默认拉取用户
 	 * @param repositoryName 仓库名称（Id）
-	 *  @param roleId 角色Id
+	 * @param roleId 角色Id
+	 * @param id 用户Id
 	 */
-	public void createDefPullUser(String repositoryName, String roleId){
-		this.setUserId(repositoryName + "-defPullUser");
+	public void createDefPullUser(String repositoryName, String roleId, String id){
+		if (id == null) {
+			this.setUserId(repositoryName + "-defPullUser");
+		} else {
+			this.setUserId(id);
+		}
 		this.setPassword(this.createDefPassword());
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());

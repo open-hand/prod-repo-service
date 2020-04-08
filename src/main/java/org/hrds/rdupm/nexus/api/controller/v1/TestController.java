@@ -4,6 +4,10 @@ import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
 import io.choerodon.core.exception.CommonException;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
+import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
+import org.hrds.rdupm.nexus.app.service.TestService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
@@ -29,6 +33,22 @@ public class TestController extends BaseController{
 
 	@Autowired
 	private NexusClient nexusClient;
+	@Autowired
+	private TestService testService;
+
+	@ApiOperation(value = "maven仓库创建")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping("/{organizationId}/project/{projectId}/maven/repo")
+	public ResponseEntity<NexusRepositoryCreateDTO> createMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																	@ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+																	@RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+		validObject(nexusRepoCreateDTO);
+		nexusRepoCreateDTO.setOrganizationId(organizationId);
+		nexusRepoCreateDTO.setProjectId(projectId);
+		return Results.success(testService.createMavenRepo(organizationId, projectId,nexusRepoCreateDTO));
+	}
+
+
 
 	@ApiOperation(value = "test pro")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)

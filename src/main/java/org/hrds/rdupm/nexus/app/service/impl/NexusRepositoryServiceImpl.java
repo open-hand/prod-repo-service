@@ -88,10 +88,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 角色
 		// 发布角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true);
+		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null);
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName());
+		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null);
 
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
@@ -101,10 +101,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 用户
 		// 发布用户
 		NexusServerUser nexusServerUser = new NexusServerUser();
-		nexusServerUser.createDefPushUser(nexusRepoCreateDTO.getName(), nexusServerRole.getId());
+		nexusServerUser.createDefPushUser(nexusRepoCreateDTO.getName(), nexusServerRole.getId(), null);
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
-		pullNexusServerUser.createDefPullUser(nexusRepoCreateDTO.getName(), pullNexusServerRole.getId());
+		pullNexusServerUser.createDefPullUser(nexusRepoCreateDTO.getName(), pullNexusServerRole.getId(), null);
 
 		NexusUser nexusUser = new NexusUser();
 		nexusUser.setRepositoryId(nexusRepository.getRepositoryId());
@@ -154,7 +154,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
-		return null;
+		return nexusRepoCreateDTO;
 	}
 
 	@Override
@@ -334,10 +334,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		// 发布角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(repositoryName, false);
+		nexusServerRole.createDefPushRole(repositoryName, false, null);
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(repositoryName);
+		pullNexusServerRole.createDefPullRole(repositoryName, null);
 
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
@@ -348,7 +348,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 用户
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
-		pullNexusServerUser.createDefPullUser(repositoryName, pullNexusServerRole.getId());
+		pullNexusServerUser.createDefPullUser(repositoryName, pullNexusServerRole.getId(), null);
 
 		NexusUser nexusUser = new NexusUser();
 		nexusUser.setRepositoryId(nexusRepository.getRepositoryId());

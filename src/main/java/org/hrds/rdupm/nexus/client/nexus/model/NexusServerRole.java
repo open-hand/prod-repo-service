@@ -52,9 +52,14 @@ public class NexusServerRole {
 	 * 创建仓库默认发布角色
 	 * @param repositoryName 仓库名称（Id）
 	 * @param pushFlag 是否赋予发布权限
+	 * @param id 角色Id
 	 */
-	public void createDefPushRole(String repositoryName, Boolean pushFlag){
-		this.setId(repositoryName + "-defRole");
+	public void createDefPushRole(String repositoryName, Boolean pushFlag, String id){
+		if (id == null) {
+			this.setId(repositoryName + "-defRole");
+		} else {
+			this.setId(id);
+		}
 		this.setName(this.getId());
 		this.setDescription(repositoryName + " 仓库, 默认发布角色");
 		if (pushFlag) {
@@ -68,9 +73,14 @@ public class NexusServerRole {
 	/**
 	 * 创建仓库默认拉取角色
 	 * @param repositoryName 仓库名称（Id）
+	 * @param id 角色Id
 	 */
-	public void createDefPullRole(String repositoryName){
-		this.setId(repositoryName + "-defPullRole");
+	public void createDefPullRole(String repositoryName, String id){
+		if (id == null) {
+			this.setId(repositoryName + "-defPullRole");
+		} else {
+			this.setId(id);
+		}
 		this.setName(this.getId());
 		this.setDescription(repositoryName + " 仓库, 默认拉取角色");
 		this.setPrivileges(new ArrayList<>());
