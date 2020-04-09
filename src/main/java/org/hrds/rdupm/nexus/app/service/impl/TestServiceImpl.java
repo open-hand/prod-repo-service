@@ -54,7 +54,7 @@ public class TestServiceImpl implements TestService {
 	@Transactional(rollbackFor = Exception.class)
 	@Saga(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
 			description = "创建maven仓库",
-			inputSchemaClass = NexusRepository.class)
+			inputSchemaClass = NexusRepositoryCreateDTO.class)
 	public NexusRepositoryCreateDTO createMavenRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 步骤
@@ -120,7 +120,7 @@ public class TestServiceImpl implements TestService {
 						.withLevel(ResourceLevel.PROJECT)
 						.withRefType("mavenRepo"),
 				builder -> {
-					builder.withPayloadAndSerialize(nexusRepository)
+					builder.withPayloadAndSerialize(nexusRepoCreateDTO)
 							.withRefId(String.valueOf(nexusRepository.getRepositoryId()))
 							.withSourceId(projectId);
 				});
