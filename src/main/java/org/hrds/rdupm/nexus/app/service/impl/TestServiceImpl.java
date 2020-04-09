@@ -21,7 +21,9 @@ import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +53,7 @@ public class TestServiceImpl implements TestService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	@Saga(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
-			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC,
+			description = "创建maven仓库",
 			inputSchemaClass = NexusRepository.class)
 	public NexusRepositoryCreateDTO createMavenRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
@@ -123,6 +125,33 @@ public class TestServiceImpl implements TestService {
 							.withSourceId(projectId);
 				});
 		nexusClient.removeNexusServerInfo();
+		return nexusRepoCreateDTO;
+	}
+
+	@Override
+	@Saga(code = NexusSagaConstants.NexusMavenRepoUpdate.MAVEN_REPO_UPDATE,
+			description = "更新maven仓库",
+			inputSchemaClass = NexusRepository.class)
+	public NexusRepositoryCreateDTO updateMavenRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+		// 参数校验
+		nexusRepoCreateDTO.validParam(baseServiceFeignClient, false);
+
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+		if (nexusRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		if (!nexusRepository.getProjectId().equals(projectId)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_MAVEN_REPO_NOT_CHANGE_OTHER_PRO);
+		}
+		if (!nexusRepository.getAllowAnonymous().equals(nexusRepoCreateDTO.getAllowAnonymous())) {
+			nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
+			nexusRepositoryRepository.updateOptional(nexusRepository, NexusRepository.FIELD_ALLOW_ANONYMOUS);
+		}
+
+
+
+
+		// TODO 多次调用，数据一致性
 		return nexusRepoCreateDTO;
 	}
 }

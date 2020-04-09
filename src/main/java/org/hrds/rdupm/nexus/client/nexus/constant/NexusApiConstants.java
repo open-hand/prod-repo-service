@@ -43,11 +43,11 @@ public interface NexusApiConstants {
 	 */
 	interface ScriptName {
 		/**
-		 * 创建maven仓库组
+		 * 创建maven仓库组   脚本：groovy包下create_repo_maven_group.groovy
 		 */
 		String CREATE_MAVEN_GROUP = "hrds.create_maven_group";
 		/**
-		 * 创建maven代理仓库
+		 * 创建maven代理仓库  脚本：groovy包下create_repo_maven_proxy.groovy
 		 */
 		String CREATE_MAVEN_PROXY = "hrds.create_maven_proxy";
 	}
