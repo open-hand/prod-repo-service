@@ -50,14 +50,19 @@ public class NexusSagaHandler {
 
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
-			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_REPO,
+			description = "创建maven仓库: 创建nexus server仓库",
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
 			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.REPO_SEQ)
-	public NexusRepository createMavenRepoSaga(String message) throws IOException {
-		NexusRepositoryCreateDTO nexusRepoCreateDTO = objectMapper.readValue(message, NexusRepositoryCreateDTO.class);
+	public NexusRepository createMavenRepoSaga(String message) {
+		NexusRepositoryCreateDTO nexusRepoCreateDTO = null;
+		try {
+			nexusRepoCreateDTO = objectMapper.readValue(message, NexusRepositoryCreateDTO.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
 
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		configService.setNexusInfo(nexusClient);
 
 		NexusRepository query = new NexusRepository();
 		query.setNeRepositoryName(nexusRepoCreateDTO.getName());
@@ -92,12 +97,17 @@ public class NexusSagaHandler {
 	}
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_ROLE,
-			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_ROLE,
+			description = "创建maven仓库：创建角色",
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
 			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.ROLE_SEQ)
-	public NexusRepository createMavenRepoRoleSaga(String message) throws IOException {
-		NexusRepository nexusRepository = objectMapper.readValue(message, NexusRepository.class);
+	public NexusRepository createMavenRepoRoleSaga(String message) {
+		NexusRepository nexusRepository = null;
+		try {
+			nexusRepository = objectMapper.readValue(message, NexusRepository.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
 
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 
@@ -125,13 +135,24 @@ public class NexusSagaHandler {
 		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId());
 
 		// 创建角色
-		nexusClient.getNexusRoleApi().createRole(nexusServerRole);
-		nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
+		NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
+		if (pushExist == null) {
+			// 角色不存在，创建
+			nexusClient.getNexusRoleApi().createRole(nexusServerRole);
+		}
+		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
+		if (pullExist == null) {
+			// 角色不存在，创建
+			nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
+		}
 
 		// 匿名访问
 		if (nexusRepository.getAllowAnonymous() == 1) {
 			// 允许匿名
 			NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
+			if (anonymousRole == null) {
+				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+			}
 			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1);
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
@@ -142,14 +163,19 @@ public class NexusSagaHandler {
 	}
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_USER,
-			description = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_DEC_USER,
+			description = "创建maven仓库：创建用户",
 			sagaCode = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
 			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.USER_SEQ)
-	public NexusRepository createMavenRepoUserSaga(String message) throws IOException {
-		NexusRepository nexusRepository = objectMapper.readValue(message, NexusRepository.class);
+	public NexusRepository createMavenRepoUserSaga(String message) {
+		NexusRepository nexusRepository = null;
+		try {
+			nexusRepository = objectMapper.readValue(message, NexusRepository.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
 
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		configService.setNexusInfo(nexusClient);
 
 		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
 		if (exist == null) {
@@ -180,16 +206,20 @@ public class NexusSagaHandler {
 		// 用户
 		// 发布用户
 		NexusServerUser nexusServerUser = new NexusServerUser();
-		nexusServerUser.createDefPushUser(nexusRepository.getNeRepositoryName(), nexusRole.getNeRoleId(), null);
+		nexusServerUser.createDefPushUser(nexusRepository.getNeRepositoryName(), nexusRole.getNeRoleId(), nexusUser.getNeRoleId());
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
-		pullNexusServerUser.createDefPullUser(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), null);
+		pullNexusServerUser.createDefPullUser(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusUser.getNePullUserId());
 
 		// 创建用户
-		nexusClient.getNexusUserApi().createUser(nexusServerUser);
-		nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
-
-
+		List<NexusServerUser> pushExistUserList = nexusClient.getNexusUserApi().getUsers(nexusServerUser.getUserId());
+		if (CollectionUtils.isEmpty(pushExistUserList)) {
+			nexusClient.getNexusUserApi().createUser(nexusServerUser);
+		}
+		List<NexusServerUser> pullExistUserList = nexusClient.getNexusUserApi().getUsers(pullNexusServerUser.getUserId());
+		if (CollectionUtils.isEmpty(pullExistUserList)) {
+			nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
+		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusRepository;
