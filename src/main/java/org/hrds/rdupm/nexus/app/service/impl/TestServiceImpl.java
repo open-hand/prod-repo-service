@@ -118,7 +118,8 @@ public class TestServiceImpl implements TestService {
 		producer.apply(StartSagaBuilder.newBuilder()
 						.withSagaCode(NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE)
 						.withLevel(ResourceLevel.PROJECT)
-						.withRefType("mavenRepo"),
+						.withRefType("mavenRepo")
+						.withSourceId(projectId),
 				builder -> {
 					builder.withPayloadAndSerialize(nexusRepoCreateDTO)
 							.withRefId(String.valueOf(nexusRepository.getRepositoryId()))
