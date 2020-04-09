@@ -48,6 +48,19 @@ public class TestController extends BaseController{
 		return Results.success(testService.createMavenRepo(organizationId, projectId,nexusRepoCreateDTO));
 	}
 
+	@ApiOperation(value = "maven仓库更新")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PutMapping("/{organizationId}/project/{projectId}/maven/repo/{repositoryId}")
+	public ResponseEntity<NexusRepositoryCreateDTO> updateMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																	@ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+																	@ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId,
+																	@RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+		validObject(nexusRepoCreateDTO);
+		nexusRepoCreateDTO.setOrganizationId(organizationId);
+		nexusRepoCreateDTO.setProjectId(projectId);
+		return Results.success(testService.updateMavenRepo(organizationId, projectId, repositoryId, nexusRepoCreateDTO));
+	}
+
 
 
 	@ApiOperation(value = "test pro")

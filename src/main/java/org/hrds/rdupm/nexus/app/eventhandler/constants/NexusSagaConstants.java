@@ -11,7 +11,6 @@ public interface NexusSagaConstants {
 		 * 创建maven仓库   Saga code
 		 */
 		String MAVEN_REPO_CREATE = "rdupm-maven-create";
-		String MAVEN_REPO_CREATE_DEC = "创建maven仓库，及其相关信息";
 		/**
 		 * 创建maven仓库: 创建nexus server仓库   SagaTask code
 		 */
@@ -27,5 +26,17 @@ public interface NexusSagaConstants {
 		 */
 		String MAVEN_REPO_CREATE_USER = "rdupm-maven-create.user";
 		int USER_SEQ = 3;
+	}
+
+	interface NexusMavenRepoUpdate {
+		/**
+		 * 更新maven仓库   Saga code
+		 */
+		String MAVEN_REPO_UPDATE = "rdupm-maven-update";
+		/**
+		 * 更新maven仓库: 更新nexus server仓库   SagaTask code
+		 */
+		String MAVEN_REPO_UPDATE_REPO = "rdupm-maven-update.repo";
+		int REPO_SEQ = 1;
 	}
 }

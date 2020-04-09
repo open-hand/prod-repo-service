@@ -9,6 +9,8 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,9 @@ import java.util.List;
  */
 @Component
 public class NexusRoleHttpApi implements NexusRoleApi{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusRoleHttpApi.class);
+
 	@Autowired
 	private NexusRequest nexusRequest;
 
@@ -53,7 +58,15 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	@Override
 	public void deleteRole(String roleId) {
 		String url = NexusUrlConstants.Role.DELETE_ROLE + roleId;
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		try {
+			ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				LOGGER.warn("nexus role has been deleted");
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	@Override

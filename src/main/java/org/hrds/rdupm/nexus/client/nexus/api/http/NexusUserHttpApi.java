@@ -15,6 +15,8 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,9 @@ import java.util.Map;
  */
 @Component
 public class NexusUserHttpApi implements NexusUserApi{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusUserHttpApi.class);
+
 	@Autowired
 	private NexusRequest nexusRequest;
 	@Autowired
@@ -54,7 +59,15 @@ public class NexusUserHttpApi implements NexusUserApi{
 	@Override
 	public void deleteUser(String userId) {
 		String url = NexusUrlConstants.User.DELETE_USER + userId;
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		try {
+			ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				LOGGER.warn("nexus user has been deleted");
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	@Override

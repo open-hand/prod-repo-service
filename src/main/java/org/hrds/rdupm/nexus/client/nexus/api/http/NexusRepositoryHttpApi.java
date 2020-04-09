@@ -7,10 +7,14 @@ import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
+import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +28,9 @@ import java.util.stream.Collectors;
  */
 @Component
 public class NexusRepositoryHttpApi implements NexusRepositoryApi{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusRepositoryHttpApi.class);
+
 	@Autowired
 	private NexusRequest nexusRequest;
 	@Autowired
@@ -72,7 +79,15 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	@Override
 	public void deleteRepository(String repositoryName) {
 		String url = NexusUrlConstants.Repository.DELETE_REPOSITORY + repositoryName;
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		try {
+			ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				LOGGER.warn("nexus repository has been deleted");
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	@Override

@@ -225,4 +225,46 @@ public class NexusSagaHandler {
 		return nexusRepository;
 	}
 
+	@SagaTask(code = NexusSagaConstants.NexusMavenRepoUpdate.MAVEN_REPO_UPDATE_REPO,
+			description = "更新maven仓库",
+			sagaCode = NexusSagaConstants.NexusMavenRepoUpdate.MAVEN_REPO_UPDATE,
+			maxRetryCount = 3,
+			seq = NexusSagaConstants.NexusMavenRepoUpdate.REPO_SEQ)
+	public String updateMavenRepoSaga(String message) {
+		NexusRepositoryCreateDTO nexusRepoCreateDTO = null;
+		try {
+			nexusRepoCreateDTO = objectMapper.readValue(message, NexusRepositoryCreateDTO.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
+		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+
+		// 创建更新
+		switch (nexusRepoCreateDTO.getType()) {
+			case NexusApiConstants.RepositoryType.HOSTED:
+				// 创建本地仓库
+				nexusClient.getRepositoryApi().updateMavenRepository(nexusRepoCreateDTO.convertMavenHostedRequest());
+				break;
+			case NexusApiConstants.RepositoryType.PROXY:
+				// 创建代理仓库
+				nexusClient.getRepositoryApi().createAndUpdateMavenProxy(nexusRepoCreateDTO.convertMavenProxyRequest());
+				break;
+			case NexusApiConstants.RepositoryType.GROUP:
+				// 创建仓库组
+				nexusClient.getRepositoryApi().createAndUpdateMavenGroup(nexusRepoCreateDTO.convertMavenGroupRequest());
+				break;
+			default:break;
+		}
+
+
+		// 匿名访问
+		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
+		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous());
+		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
+
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return message;
+	}
+
 }

@@ -8,8 +8,11 @@ import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
+import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hzero.core.util.UUIDUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -28,6 +31,9 @@ import java.util.stream.Collectors;
  */
 @Component
 public class NexusComponentsHttpApi implements NexusComponentsApi {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusComponentsHttpApi.class);
+
 	@Autowired
 	private NexusRequest nexusRequest;
 
@@ -69,7 +75,17 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	@Override
 	public void deleteComponent(String componentId) {
 		String url = NexusUrlConstants.Components.DELETE_COMPONENTS + componentId;
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				LOGGER.warn("nexus component has been deleted");
+				return;
+			} else {
+				throw e;
+			}
+		}
 		if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.COMPONENT_ID_ERROR);
 		}

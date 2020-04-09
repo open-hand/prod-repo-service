@@ -3,9 +3,13 @@ package org.hrds.rdupm.nexus.client.nexus.api.http;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
+import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerScript;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -16,6 +20,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class NexusScriptHttpApi implements NexusScriptApi {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusScriptHttpApi.class);
+
 	@Autowired
 	private NexusRequest nexusRequest;
 
@@ -40,6 +47,14 @@ public class NexusScriptHttpApi implements NexusScriptApi {
 	@Override
 	public void deleteScript(String scriptName) {
 		String url = NexusUrlConstants.Script.DELETE_SCRIPT.replace("{scriptName}", scriptName);
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		try {
+			ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.DELETE, null, null);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				LOGGER.warn("nexus script has been deleted");
+			} else {
+				throw e;
+			}
+		}
 	}
 }
