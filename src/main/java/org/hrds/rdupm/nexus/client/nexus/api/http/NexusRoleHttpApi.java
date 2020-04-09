@@ -7,9 +7,11 @@ import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRoleApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
+import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +36,16 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 	@Override
 	public NexusServerRole getRoleById(String roleId) {
 		String url = NexusUrlConstants.Role.GET_ROLE_BY_ID + roleId;
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.GET, null, null);
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = nexusRequest.exchange(url, HttpMethod.GET, null, null);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+				return null;
+			} else {
+				throw e;
+			}
+		}
 		String response = responseEntity.getBody();
 		return JSON.parseObject(response, NexusServerRole.class);
 	}
