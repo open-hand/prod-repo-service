@@ -66,7 +66,7 @@ public class CustomUserDetails extends User implements Serializable {
 	private Map<String, Object> additionInfo;
 	private Map<String, String> additionInfoMeaning;
 
-	public CustomUserDetails(String username, String password, String userType, Collection<? extends GrantedAuthority> authorities) {
+	public CustomUserDetails(String username, String userType, String password, Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, authorities);
 		this.userType = userType;
 	}
@@ -81,10 +81,7 @@ public class CustomUserDetails extends User implements Serializable {
 
 	@JsonCreator
 	public CustomUserDetails(@JsonProperty("username") String username, @JsonProperty("userType") String userType, @JsonProperty("password") String password) {
-//		this(username, userType, password, Collections.emptyList());
-
-		// weisen.yang
-		this(username, "P", password, Collections.emptyList());
+		this(username, userType, password, Collections.emptyList());
 	}
 
 	public List<Long> roleMergeIds() {

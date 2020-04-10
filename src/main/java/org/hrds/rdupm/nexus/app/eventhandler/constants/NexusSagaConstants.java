@@ -37,6 +37,27 @@ public interface NexusSagaConstants {
 		 * 更新maven仓库: 更新nexus server仓库   SagaTask code
 		 */
 		String MAVEN_REPO_UPDATE_REPO = "rdupm-maven-update.repo";
-		int REPO_SEQ = 1;
+	}
+
+	interface NexusMavenRepoDelete {
+		/**
+		 * 删除maven仓库   Saga code
+		 */
+		String MAVEN_REPO_DELETE = "rdupm-maven-delete";
+		/**
+		 * 删除maven仓库   SagaTask code
+		 */
+		String MAVEN_REPO_DELETE_REPO = "rdupm-maven-delete.repo";
+	}
+
+	interface NexusMavenRepoRelated {
+		/**
+		 * 关联maven仓库   Saga code
+		 */
+		String MAVEN_REPO_RELATED = "rdupm-maven-related ";
+		/**
+		 * 关联maven仓库   SagaTask code
+		 */
+		String MAVEN_REPO_RELATED_REPO = "rdupm-maven-related.repo";
 	}
 }

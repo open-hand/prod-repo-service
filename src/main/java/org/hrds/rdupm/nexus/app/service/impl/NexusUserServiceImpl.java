@@ -111,6 +111,9 @@ public class NexusUserServiceImpl implements NexusUserService {
 		configService.setNexusInfo(nexusClient);
 
 		NexusServerRole serverRole = nexusClient.getNexusRoleApi().getRoleById(existUser.getNeRoleId());
+		if (serverRole == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_DEFAULT_ROLE_IS_NULL, existUser.getNeRepositoryName());
+		}
 		// 删除以前仓库的权限
 		existOtherRepoName.forEach(serverRole::removeDefPushPri);
 		// 添加现在仓库的权限

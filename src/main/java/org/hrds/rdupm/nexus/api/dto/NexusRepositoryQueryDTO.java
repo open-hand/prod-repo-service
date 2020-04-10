@@ -10,18 +10,22 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("仓库列表查询")
 public class NexusRepositoryQueryDTO {
 	@ApiModelProperty(value = "仓库名称")
-	private String name;
+	private String repositoryName;
+	@ApiModelProperty(value = "类型")
+	private String type;
+	@ApiModelProperty(value = "策略")
+	private String versionPolicy;
 	@ApiModelProperty(value = "项目Id", hidden = true)
 	private Long projectId;
 	@ApiModelProperty(value = "组织Id", hidden = true)
 	private Long organizationId;
 
-	public String getName() {
-		return name;
+	public String getRepositoryName() {
+		return repositoryName;
 	}
 
-	public NexusRepositoryQueryDTO setName(String name) {
-		this.name = name;
+	public NexusRepositoryQueryDTO setRepositoryName(String repositoryName) {
+		this.repositoryName = repositoryName;
 		return this;
 	}
 
@@ -40,6 +44,24 @@ public class NexusRepositoryQueryDTO {
 
 	public NexusRepositoryQueryDTO setOrganizationId(Long organizationId) {
 		this.organizationId = organizationId;
+		return this;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public NexusRepositoryQueryDTO setType(String type) {
+		this.type = type;
+		return this;
+	}
+
+	public String getVersionPolicy() {
+		return versionPolicy;
+	}
+
+	public NexusRepositoryQueryDTO setVersionPolicy(String versionPolicy) {
+		this.versionPolicy = versionPolicy;
 		return this;
 	}
 }
