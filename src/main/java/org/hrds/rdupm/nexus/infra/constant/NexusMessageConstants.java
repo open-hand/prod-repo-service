@@ -78,6 +78,14 @@ public interface NexusMessageConstants {
 	 */
 	String NEXUS_REPO_ALREADY_RELATED = "error.nexus.repo.already.related";
 	/**
+	 * 以下仓库关联失败：{0}
+	 */
+	String NEXUS_REPO_RELATED_ERROR = "error.nexus.repo.related.error";
+	/**
+	 * 关联仓库：{0}，默认发布用户为空
+	 */
+	String NEXUS_REPO_RELATED_EFAULT_USER_IS_NULL = "error.nexus.repo.related.default.user.is.null";
+	/**
 	 * 地址填写有误，如：http://www.example.com
 	 */
 	String NEXUS_URL_ERROR = "error.nexus.url.error";
@@ -102,4 +110,8 @@ public interface NexusMessageConstants {
 	 * 原密码填写错误
 	 */
 	String NEXUS_OLD_PASSWORD_ERROR = "error.nexus.old.password.error";
+	/**
+	 * {0}仓库对应关联角色不存在
+	 */
+	String NEXUS_DEFAULT_ROLE_IS_NULL = "error.nexus.default.role.is.null";
 }

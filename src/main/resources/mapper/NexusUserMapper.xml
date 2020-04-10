@@ -33,6 +33,14 @@
         <if test="projectId != null">
             AND nr.project_id = #{projectId}
         </if>
+        <if test="neUserId != null">
+            <bind name="neUserIdLike" value="'%' + neUserId + '%'"/>
+            AND nu.ne_user_id LIKE #{neUserIdLike}
+        </if>
+        <if test="neRepositoryName != null">
+            <bind name="neRepositoryNameLike" value="'%' + neRepositoryName + '%'"/>
+            AND nr.ne_repository_name LIKE #{neRepositoryNameLike}
+        </if>
 
     </select>
     <select id="getOtherRepositoryNames" resultType="java.lang.String">
