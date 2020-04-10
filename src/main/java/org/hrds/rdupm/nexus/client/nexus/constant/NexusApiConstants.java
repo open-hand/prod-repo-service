@@ -1,5 +1,9 @@
 package org.hrds.rdupm.nexus.client.nexus.constant;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author weisen.yang@hand-china.com 2020/3/17
  */
@@ -42,14 +46,30 @@ public interface NexusApiConstants {
 	 * script脚本列表
 	 */
 	interface ScriptName {
+
+		/**
+		 * TYPE
+		 */
+		String TYPE = "groovy";
+		/**
+		 * 脚本前缀
+		 */
+		String SCRIPT_PREFIX = "hrds.";
+
+		/**
+		 * 脚本ID list: 初始化脚本时使用
+		 */
+		List<String> SCRIPT_LIST = Arrays.asList(
+				ScriptName.CREATE_MAVEN_PROXY,
+				ScriptName.CREATE_MAVEN_GROUP);
 		/**
 		 * 创建maven仓库组   脚本：groovy包下create_repo_maven_group.groovy
 		 */
-		String CREATE_MAVEN_GROUP = "hrds.create_maven_group";
+		String CREATE_MAVEN_GROUP = ScriptName.SCRIPT_PREFIX + "create_maven_group";
 		/**
 		 * 创建maven代理仓库  脚本：groovy包下create_repo_maven_proxy.groovy
 		 */
-		String CREATE_MAVEN_PROXY = "hrds.create_maven_proxy";
+		String CREATE_MAVEN_PROXY = ScriptName.SCRIPT_PREFIX + "create_maven_proxy";
 	}
 
 	interface ErrorMessage {

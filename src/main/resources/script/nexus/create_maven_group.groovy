@@ -1,8 +1,7 @@
-package org.hrds.rdupm.nexus.client.nexus.groovy
+package org.hrds.rdupm.nexus.client.nexus.script
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository
-import org.sonatype.nexus.repository.config.Configuration
 import org.sonatype.nexus.repository.manager.RepositoryManager
 
 def param = new JsonSlurper().parseText(args)

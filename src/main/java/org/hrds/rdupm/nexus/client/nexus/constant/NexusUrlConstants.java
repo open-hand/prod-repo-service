@@ -150,6 +150,8 @@ public interface NexusUrlConstants {
 	 * 脚本相关API
 	 */
 	interface Script {
+
+		String GET_SCRIPT_BY_NAME = "/service/rest/v1/script/";
 		/**
 		 * 脚本上传
 		 */

@@ -9,6 +9,13 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerScript;
 public interface NexusScriptApi {
 
 	/**
+	 * 脚本查询
+	 * @param scriptName 脚本名称
+	 * @return NexusServerScript
+	 */
+	NexusServerScript getScript(String scriptName);
+
+	/**
 	 * 脚本上传
 	 * @param nexusScript 脚本信息
 	 */
@@ -33,4 +40,9 @@ public interface NexusScriptApi {
 	 * @param scriptName 脚本名称
 	 */
 	void deleteScript(String scriptName);
+
+	/**
+	 * script脚本初始化: 根据 NexusApiConstants.ScriptName.SCRIPT_LIST 的数据从 resource/script/nexus下处理文件
+	 */
+	void initScript();
 }
