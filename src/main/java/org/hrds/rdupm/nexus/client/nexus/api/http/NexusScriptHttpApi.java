@@ -99,7 +99,6 @@ public class NexusScriptHttpApi implements NexusScriptApi {
 		List<NexusServerScript> serverScriptList = new ArrayList<>();
 		scriptIdList.forEach(scriptId -> {
 			String fileName = scriptId.substring(NexusApiConstants.ScriptName.SCRIPT_PREFIX.length()) + FILE_SUFFIX;
-			System.out.println(fileName);
 
 			String filePath = FILE_PATH + fileName;
 			try (

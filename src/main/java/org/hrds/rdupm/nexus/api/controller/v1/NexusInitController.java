@@ -10,8 +10,11 @@ import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 制品库_nexus仓库 初始化 管理 API
@@ -28,8 +31,16 @@ public class NexusInitController extends BaseController {
     @ApiOperation(value = "脚本初始化与更新")
     @Permission(type = ResourceType.SITE, permissionPublic = true)
     @GetMapping("/script")
-    public ResponseEntity<?> listUser() {
+    public ResponseEntity<?> initScript() {
         nexusInitService.initScript();
+        return Results.success();
+    }
+
+    @ApiOperation(value = "匿名用户-拉取权限初始化：默认给予所有仓库拉取权限")
+    @Permission(type = ResourceType.SITE, permissionPublic = true)
+    @GetMapping("/anonymous")
+    public ResponseEntity<?> initAnonymous(@RequestBody List<String> repositoryNames) {
+        nexusInitService.initAnonymous(repositoryNames);
         return Results.success();
     }
 }
