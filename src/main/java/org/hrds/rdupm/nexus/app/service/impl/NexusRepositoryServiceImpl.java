@@ -531,11 +531,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 								  Map<String, NexusServerRepository> nexusServerRepositoryMap){
 		nexusRepositoryList.forEach(repository -> {
 			NexusServerRepository nexusServerRepository = nexusServerRepositoryMap.get(repository.getNeRepositoryName());
-			if (nexusServerRepository != null) {
-				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
-				nexusRepositoryDTO.convert(repository, nexusServerRepository);
-				resultAll.add(nexusRepositoryDTO);
-			}
+			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+			nexusRepositoryDTO.convert(repository, nexusServerRepository);
+			resultAll.add(nexusRepositoryDTO);
+
 		});
 	}
 
