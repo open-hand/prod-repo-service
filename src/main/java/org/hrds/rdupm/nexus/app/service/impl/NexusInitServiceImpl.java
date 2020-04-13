@@ -7,7 +7,11 @@ import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +29,8 @@ public class NexusInitServiceImpl implements NexusInitService {
 	private NexusClient nexusClient;
 	@Autowired
 	private NexusServerConfigService configService;
+	@Autowired
+	private NexusRepositoryRepository nexusRepositoryRepository;
 
 	@Override
 	public void initScript() {
@@ -50,6 +56,13 @@ public class NexusInitServiceImpl implements NexusInitService {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found: " + serverConfig.getAnonymousRole());
 		}
+
+		Condition condition = Condition.builder(NexusRepository.class)
+				.where(Sqls.custom()
+						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 1))
+				.build();
+		List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
+		repositoryNames.removeAll(repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList()));
 		if (CollectionUtils.isNotEmpty(repositoryNames)) {
 			repositoryNames.forEach(repositoryName -> {
 				anonymousRole.setPullPri(repositoryName, 1);
