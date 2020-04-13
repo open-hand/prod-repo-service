@@ -1,13 +1,23 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
+import io.choerodon.core.exception.CommonException;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.app.service.NexusInitService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 制品库_nexus仓库 初始化
@@ -19,6 +29,8 @@ public class NexusInitServiceImpl implements NexusInitService {
 	private NexusClient nexusClient;
 	@Autowired
 	private NexusServerConfigService configService;
+	@Autowired
+	private NexusRepositoryRepository nexusRepositoryRepository;
 
 	@Override
 	public void initScript() {
@@ -28,6 +40,36 @@ public class NexusInitServiceImpl implements NexusInitService {
 		nexusClient.getNexusScriptApi().initScript();
 
 		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+	}
+
+	@Override
+	public void initAnonymous(List<String> repositoryNames) {
+		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+
+		if (CollectionUtils.isEmpty(repositoryNames)) {
+			List<NexusServerRepository> nexusServerRepositoryList =nexusClient.getRepositoryApi().getRepository();
+			repositoryNames = nexusServerRepositoryList.stream().map(NexusServerRepository::getName).collect(Collectors.toList());
+		}
+
+		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
+		if (anonymousRole == null) {
+			throw new CommonException("default anonymous role not found: " + serverConfig.getAnonymousRole());
+		}
+
+		Condition condition = Condition.builder(NexusRepository.class)
+				.where(Sqls.custom()
+						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 1))
+				.build();
+		List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
+		repositoryNames.removeAll(repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList()));
+		if (CollectionUtils.isNotEmpty(repositoryNames)) {
+			repositoryNames.forEach(repositoryName -> {
+				anonymousRole.setPullPri(repositoryName, 1);
+			});
+			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
+		}
+
 		nexusClient.removeNexusServerInfo();
 	}
 }
