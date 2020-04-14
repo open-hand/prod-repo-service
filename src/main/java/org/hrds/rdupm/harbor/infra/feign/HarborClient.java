@@ -13,8 +13,7 @@ import retrofit2.http.*;
  * @author mofei.li@hand-china.com 2020/03/17 16:18
  */
 public interface HarborClient {
-    @GET("api/users/current")
-    Call<User> getCurrentUser();
+    /* 项目相关接口 */
 
     @GET("api/projects")
     Call<List<ProjectDetail>> listProject(@Query("name") String name);
@@ -22,9 +21,14 @@ public interface HarborClient {
     @GET("api/search")
     Call<ProjectRepository> projectRepositorySearch(@Query("q") String q);
 
-
     @POST("api/projects")
     Call<Void> insertProject(@Body Project harborProject);
+
+    @POST("api/projects")
+    Call<Void> insertProject(@QueryMap Map<String,String> entityName, @Body Project harborProject);
+
+    @PUT("api/projects/{project_id}")
+    Call<Void> updateProject(@Path("project_id") Integer projectId, @Body ProjectUpdateDTO projectUpdateDTO);
 
     @GET("api/projects/{project_id}")
     Call<ProjectDetail> projectDetail(@Path("project_id") Long projectId);
@@ -32,10 +36,28 @@ public interface HarborClient {
     @DELETE("api/projects/{project_id}")
     Call<Void> deleteProject(@Path("project_id") Long projectId);
 
+    @POST("/projects/{project_id}/robots")
+    Call<List<ProjectMember>> createRobots(@Body Project harborProject);
+
+    @GET("api/projects/{project_id}/logs")
+    Call<List<Log>> projectLogs(@Path("project_id") Integer projectId, @Query("username") String username, @Query("repository") String repository, @Query("tag") String tag, @Query("operation") String operation, @Query("page") Integer page, @Query("page_size") Integer pageSize);
+
     /* 用户相关接口 */
 
     @POST("api/users")
     Call<Void> insertUser(@Body User harborUser);
+
+    @GET("api/users/current")
+    Call<User> getCurrentUser();
+
+    @GET("api/users")
+    Call<List<User>> listUser(@Query("username") String username,@Query("email") String email);
+
+    @GET("api/users/{user_id}")
+    Call<User> getUserById(@Path("user_id") Integer userId);
+
+    @GET("api/users/search")
+    Call<List<User>> searchUserByName(@Query("username") String username);
 
     @PUT("api/users/{user_id}")
     Call<Void> updateUser(@Path("user_id") Integer userId,@Body UserUpdateDTO userUpdateDTO);
@@ -48,6 +70,7 @@ public interface HarborClient {
 
     @PUT("api/users/{user_id}/password")
     Call<Void> setPassword(@Path("user_id") Integer userId,@Body PasswordUpdateDTO passwordUpdateDTO);
+
 
     /* 项目成员相关接口 */
 
@@ -75,28 +98,29 @@ public interface HarborClient {
     @GET("api/projects/{project_id}/members")
     Call<Object> listProjectMember(@Path("project_id") Long projectId);
 
+    /* 日志 */
+
+    @GET("api/logs")
+    Call<List<Log>> getLogs(@Query("username") String username, @Query("repository") String repository, @Query("tag") String tag, @Query("operation") String operation, @Query("page") Integer page, @Query("page_size") Integer pageSize);
+
+    /* ------------------------------------------------------- */
+
+    /* Harbor配置属性 */
+
+    @GET("api/configurations")
+    Call<Configurations> getConfigurations();
+
+    @PUT("api/configurations")
+    Call<Void> setConfigurations(@Body ConfigurationsUpdateDTO configurationsUpdateDTO);
 
 
-    @POST("api/projects")
-    Call<Void> insertProject(@QueryMap Map<String,String> entityName, @Body Project harborProject);
+    /* 镜像扫描器 */
 
-    @GET("api/users")
-    Call<List<User>> listUser(@Query("username") String username,@Query("email") String email);
-
-    @GET("api/users/{user_id}")
-    Call<User> getUserById(@Path("user_id") Integer userId);
-
-    @GET("api/users/search")
-    Call<List<User>> searchUserByName(@Query("username") String username);
-
-    @PUT("api/projects/{project_id}")
-    Call<Void> updateProject(@Path("project_id") Integer projectId, @Body ProjectUpdateDTO projectUpdateDTO);
+    @GET("api/scanners")
+    Call<List<Scanner>> listScanners();
 
     @GET("api/systeminfo")
     Call<SystemInfo> getSystemInfo();
 
 
-
-    @POST("/projects/{project_id}/robots")
-    Call<List<ProjectMember>> createRobots(@Body Project harborProject);
 }

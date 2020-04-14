@@ -6,7 +6,7 @@ import io.choerodon.core.annotation.Permission;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.harbor.app.service.TestAppService;
+import org.hrds.rdupm.harbor.app.service.HarborAppService;
 import org.hrds.rdupm.harbor.infra.dto.*;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping(value = "/v1/projects/project_config")
-public class HarborTestController {
+public class HarborController {
 
     @Autowired
-    TestAppService testAppService;
+    HarborAppService harborAppService;
 
     /**
      * 校验harbor配置信息是否正确
@@ -50,7 +50,7 @@ public class HarborTestController {
             @RequestParam(required = false) String project,
             @ApiParam(value = "harbor邮箱", required = true)
             @RequestParam String email) {
-        return Results.success(testAppService.checkHarbor(url, userName, password, project, email));
+        return Results.success(harborAppService.checkHarbor(url, userName, password, project, email));
     }
 
     @Permission(permissionPublic = true)
@@ -59,7 +59,7 @@ public class HarborTestController {
     public ResponseEntity<List<ProjectDetail>> listProject(
             @ApiParam(value = "harborProject")
             @RequestParam(required = false) String name) {
-        return Results.success(testAppService.listProject(name));
+        return Results.success(harborAppService.listProject(name));
     }
 
     @Permission(permissionPublic = true)
@@ -68,17 +68,17 @@ public class HarborTestController {
     public ResponseEntity<ProjectRepository> searchProjectRepository(
             @ApiParam(value = "harborProject")
             @RequestParam(required = false) String q) {
-        return Results.success(testAppService.searchProjectRepository(q));
+        return Results.success(harborAppService.searchProjectRepository(q));
     }
 
     @Permission(permissionPublic = true)
     @ApiOperation(value = "创建新项目")
     @PostMapping(value = "/project_new")
-    public void createProject(
+    public ResponseEntity<?> createProject(
             @ApiParam(value = "harborProject")
             @RequestBody Project project) {
-        testAppService.createProject(project);
-        //return Results.success();
+        harborAppService.createProject(project);
+        return Results.success();
     }
 
     @Permission(permissionPublic = true)
@@ -87,7 +87,7 @@ public class HarborTestController {
     public ResponseEntity<ProjectDetail> projectDetailById(
             @ApiParam(value = "projectId")
             @PathVariable(value = "project_id") Long projectId) {
-        return  Results.success(testAppService.projectDetailById(projectId));
+        return  Results.success(harborAppService.projectDetailById(projectId));
     }
 
     @Permission(permissionPublic = true)
@@ -96,7 +96,7 @@ public class HarborTestController {
     public ResponseEntity<?> deleteProjectById(
             @ApiParam(value = "projectId")
             @PathVariable(value = "project_id") Long projectId) {
-        testAppService.deleteProject(projectId);
+        harborAppService.deleteProject(projectId);
         return  Results.success();
     }
 
@@ -108,7 +108,7 @@ public class HarborTestController {
             @PathVariable(value = "project_id") Integer projectId,
             @ApiParam(value = "project")
             @RequestBody ProjectUpdateDTO projectUpdateDTO) {
-        testAppService.updateProject(projectId,projectUpdateDTO);
+        harborAppService.updateProject(projectId,projectUpdateDTO);
         return  Results.success();
     }
 
@@ -116,7 +116,7 @@ public class HarborTestController {
     @ApiOperation(value = "获取当前用户信息")
     @GetMapping(value = "/users/current_user")
     public ResponseEntity<User> currentUser() {
-        return Results.success(testAppService.getCurrentUser());
+        return Results.success(harborAppService.getCurrentUser());
     }
 
     @Permission(permissionPublic = true)
@@ -125,7 +125,7 @@ public class HarborTestController {
     public ResponseEntity<User> getUserById(
             @ApiParam(value = "projectId")
             @PathVariable(value = "user_id") Integer userId) {
-        return Results.success(testAppService.getUserById(userId));
+        return Results.success(harborAppService.getUserById(userId));
     }
 
     @Permission(permissionPublic = true)
@@ -136,7 +136,7 @@ public class HarborTestController {
             @RequestParam(required = false) String username,
             @ApiParam(value = "email")
             @RequestParam(required = false) String email) {
-        return Results.success(testAppService.getUserList(username,email));
+        return Results.success(harborAppService.getUserList(username,email));
     }
 
     @Permission(permissionPublic = true)
@@ -145,7 +145,7 @@ public class HarborTestController {
     public ResponseEntity<List<User>> searchUserByName(
             @ApiParam(value = "username")
             @RequestParam(required = true) String username) {
-        return Results.success(testAppService.searchUserByName(username));
+        return Results.success(harborAppService.searchUserByName(username));
     }
 
 
@@ -155,7 +155,7 @@ public class HarborTestController {
     public ResponseEntity<?> createUser(
             @ApiParam(value = "user")
             @RequestBody User user) {
-        testAppService.createUser(user);
+        harborAppService.createUser(user);
         return Results.success();
     }
 
@@ -167,7 +167,7 @@ public class HarborTestController {
             @PathVariable(value = "user_id")Integer userId,
             @ApiParam(value = "user")
             @RequestBody UserUpdateDTO userUpdateDTO) {
-        testAppService.updateUser(userId,userUpdateDTO);
+        harborAppService.updateUser(userId,userUpdateDTO);
         return Results.success();
     }
 
@@ -177,7 +177,7 @@ public class HarborTestController {
     public ResponseEntity<?> deleteUser(
             @ApiParam(value = "user_id")
             @PathVariable(value = "user_id")Integer userId) {
-        testAppService.deleteUser(userId);
+        harborAppService.deleteUser(userId);
         return Results.success();
     }
 
@@ -189,7 +189,7 @@ public class HarborTestController {
             @PathVariable(value = "user_id")Integer userId,
             @ApiParam(value = "has_admin_role")
             @RequestBody HasAdminRoleDTO hasAdminRoleDTO) {
-        testAppService.setAdminRole(userId,hasAdminRoleDTO);
+        harborAppService.setAdminRole(userId,hasAdminRoleDTO);
         return Results.success();
     }
 
@@ -201,7 +201,7 @@ public class HarborTestController {
             @PathVariable(value = "user_id")Integer userId,
             @ApiParam(value = "password")
             @RequestBody PasswordUpdateDTO passwordUpdateDTO) {
-        testAppService.setPassword(userId,passwordUpdateDTO);
+        harborAppService.setPassword(userId,passwordUpdateDTO);
         return Results.success();
     }
 
@@ -213,7 +213,7 @@ public class HarborTestController {
             @PathVariable(value = "project_id")Integer projectId,
             @ApiParam(value = "entityname")
             @RequestParam String entityname) {
-        return Results.success(testAppService.getProjectMembers(projectId,entityname));
+        return Results.success(harborAppService.getProjectMembers(projectId,entityname));
     }
 
     @Permission(permissionPublic = true)
@@ -224,7 +224,7 @@ public class HarborTestController {
             @PathVariable(value = "project_id")Integer projectId,
             @ApiParam(value = "project_member")
             @RequestBody ProjectMember projectMember) {
-        testAppService.createProjectMembers(projectId,projectMember);
+        harborAppService.createProjectMembers(projectId,projectMember);
         return Results.success();
     }
 
@@ -236,7 +236,7 @@ public class HarborTestController {
             @PathVariable(value = "project_id")Integer projectId,
             @ApiParam(value = "member_id")
             @PathVariable(value = "mid")Integer mid) {
-        return Results.success(testAppService.getProjectMembersByMid(projectId,mid));
+        return Results.success(harborAppService.getProjectMembersByMid(projectId,mid));
     }
 
     @Permission(permissionPublic = true)
@@ -249,7 +249,7 @@ public class HarborTestController {
             @PathVariable(value = "mid")Integer mid,
             @ApiParam(value = "role")
             @RequestBody ProjectMemberUpdateDTO projectMemberUpdateDTO) {
-        testAppService.updateProjectMember(projectId,mid,projectMemberUpdateDTO);
+        harborAppService.updateProjectMember(projectId,mid,projectMemberUpdateDTO);
         return Results.success();
     }
 
@@ -261,7 +261,77 @@ public class HarborTestController {
             @PathVariable(value = "project_id")Integer projectId,
             @ApiParam(value = "member_id")
             @PathVariable(value = "mid")Integer mid) {
-        testAppService.deleteProjectMember(projectId,mid);
+        harborAppService.deleteProjectMember(projectId,mid);
         return Results.success();
     }
+
+    @Permission(permissionPublic = true)
+    @ApiOperation(value = "查询镜像日志")
+    @GetMapping(value = "/logs")
+    public ResponseEntity<List<Log>> getLogs(
+            @ApiParam(value = "username")
+            @RequestParam(required = false) String username,
+            @ApiParam(value = "repository")
+            @RequestParam(required = false) String repository,
+            @ApiParam(value = "tag")
+            @RequestParam(required = false) String tag,
+            @ApiParam(value = "operation")
+            @RequestParam(required = false) String operation,
+            @ApiParam(value = "begin_timestamp")
+            @RequestParam(required = false) String beginTimestamp,
+            @ApiParam(value = "end_timestamp")
+            @RequestParam(required = false) String endTimestamp,
+            @ApiParam(value = "page")
+            @RequestParam(required = false) Integer page,
+            @ApiParam(value = "page_size")
+            @RequestParam(required = false) Integer pageSize) {
+        return Results.success(harborAppService.getLogs(username,repository,tag,operation,page,pageSize));
+    }
+
+    @Permission(permissionPublic = true)
+    @ApiOperation(value = "查询当前项目的镜像日志")
+    @GetMapping(value = "/projects/{project_id}/logs")
+    public ResponseEntity<List<Log>> getProjectLogs(
+            @ApiParam(value = "username")
+            @PathVariable(value = "project_id") Integer projectId,
+            @ApiParam(value = "username")
+            @RequestParam(required = false) String username,
+            @ApiParam(value = "repository")
+            @RequestParam(required = false) String repository,
+            @ApiParam(value = "tag")
+            @RequestParam(required = false) String tag,
+            @ApiParam(value = "operation")
+            @RequestParam(required = false) String operation,
+            @ApiParam(value = "page")
+            @RequestParam(required = false) Integer page,
+            @ApiParam(value = "page_size")
+            @RequestParam(required = false) Integer pageSize) {
+        return Results.success(harborAppService.getProjectLogs(projectId,username,repository,tag,operation,page,pageSize));
+    }
+
+    @Permission(permissionPublic = true)
+    @ApiOperation(value = "查询仓库配置属性")
+    @GetMapping(value = "/configurations")
+    public ResponseEntity<Configurations> getConfigurations() {
+        return Results.success(harborAppService.getConfigurations());
+    }
+
+    @Permission(permissionPublic = true)
+    @ApiOperation(value = "修改仓库配置属性")
+    @PutMapping(value = "/configurations")
+    public ResponseEntity<?> getConfigurations(
+            @ApiParam(value = "operation")
+            @RequestBody  ConfigurationsUpdateDTO configurationsUpdateDTO ) {
+        harborAppService.setConfigurations(configurationsUpdateDTO);
+        return Results.success();
+    }
+
+    @Permission(permissionPublic = true)
+    @ApiOperation(value = "列表查询扫描器")
+    @GetMapping(value = "/scanners")
+    public ResponseEntity<List<Scanner>> listScanners() {
+        return Results.success(harborAppService.listScanners());
+    }
+
+
 }

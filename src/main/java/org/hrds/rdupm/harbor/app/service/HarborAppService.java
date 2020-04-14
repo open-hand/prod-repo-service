@@ -9,7 +9,7 @@ import org.hrds.rdupm.harbor.infra.dto.*;
  *
  * @author mofei.li@hand-china.com 2020/03/17 11:37
  */
-public interface TestAppService {
+public interface HarborAppService {
 
     /**
      * 校验harbor配置信息是否正确
@@ -196,4 +196,52 @@ public interface TestAppService {
      * @return
      */
     void deleteProjectMember(Integer projectId, Integer mid);
+
+    /**
+     * 查询仓库日志
+     *
+     * @param username
+     * @param repository
+     * @param tag
+     * @param operation
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    List<Log> getLogs(String username, String  repository, String tag, String operation, Integer page, Integer pageSize);
+
+    /**
+     * 查询当前项目的仓库日志
+     *
+     * @param projectId
+     * @param username
+     * @param repository
+     * @param tag
+     * @param operation
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    List<Log> getProjectLogs(Integer projectId, String username, String  repository, String tag, String operation, Integer page, Integer pageSize);
+
+    /**
+     * 查询仓库配置属性
+     *
+     * @return Configurations
+     */
+    Configurations getConfigurations();
+
+    /**
+     * 修改仓库配置属性
+     *
+     * @return Configurations
+     */
+    void setConfigurations(ConfigurationsUpdateDTO configurationsUpdateDTO);
+
+    /**
+     * 列表查询扫描器
+     *
+     * @return List<Scanner>
+     */
+    List<Scanner> listScanners();
 }

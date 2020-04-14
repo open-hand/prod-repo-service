@@ -38,6 +38,15 @@ public class ConfigurationProperties extends HarborConfigurationProperties {
         this.setBaseUrl(chartConfigurationProperties.getBaseUrl());
     }
 
+    public ConfigurationProperties(String harborBaseUrl, String harborUserName, String harborPassword, Boolean insecureSkipTlsVerify, String project, String type){
+        this.setBaseUrl(harborBaseUrl);
+        this.setUsername(harborUserName);
+        this.setPassword(harborPassword);
+        this.setInsecureSkipTlsVerify(insecureSkipTlsVerify);
+        this.setProject(project);
+        this.setType(type);
+    }
+
 
     public String getType() {
         return type;

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hrds.rdupm.harbor.app.service.TestAppService;
+import org.hrds.rdupm.harbor.app.service.HarborAppService;
 import org.hrds.rdupm.harbor.infra.config.ConfigurationProperties;
 import org.hrds.rdupm.harbor.infra.config.HarborConfigurationProperties;
 import org.hrds.rdupm.harbor.infra.dto.*;
@@ -29,8 +29,8 @@ import retrofit2.Retrofit;
  */
 @Service
 @EnableConfigurationProperties(HarborConfigurationProperties.class)
-public class TestAppServiceImpl implements TestAppService {
-    public static final Logger LOGGER = LoggerFactory.getLogger(TestAppServiceImpl.class);
+public class HarborAppServiceImpl implements HarborAppService {
+    public static final Logger LOGGER = LoggerFactory.getLogger(HarborAppServiceImpl.class);
 
     private static final String HARBOR = "harbor";
 
@@ -715,6 +715,155 @@ public class TestAppServiceImpl implements TestAppService {
                 } else {
                     throw new CommonException(deleteProjectMemberResponse.errorBody().string());
                 }
+            }
+        } catch (IOException e) {
+            throw new CommonException(e);
+        }
+    }
+
+    @Override
+    public List<Log> getLogs(String username, String repository, String tag, String operation, Integer page, Integer pageSize) {
+        ConfigurationProperties configurationProperties = new ConfigurationProperties();
+        configurationProperties.setBaseUrl(harborBaseUrl);
+        configurationProperties.setUsername(harborUserName);
+        configurationProperties.setPassword(harborPassword);
+        configurationProperties.setInsecureSkipTlsVerify(true);
+        configurationProperties.setType(HARBOR);
+        Retrofit retrofit = RetrofitHandler.initRetrofit(configurationProperties);
+        HarborClient harborClient = retrofit.create(HarborClient.class);
+        Call<List<Log>> getLogsCall = harborClient.getLogs(username,repository,tag,operation, page, pageSize);
+        Response<List<Log>> getLogsResponse;
+        try {
+            getLogsResponse = getLogsCall.execute();
+            if (getLogsResponse.raw().code() != 200) {
+                if (getLogsResponse.raw().code() == 401) {
+                    throw new CommonException("error.harbor.user.password");
+                } else {
+                    throw new CommonException(getLogsResponse.errorBody().string());
+                }
+            } else {
+                List<Log> logs = getLogsResponse.body();
+                return logs;
+            }
+        } catch (IOException e) {
+            throw new CommonException(e);
+        }
+    }
+
+    @Override
+    public List<Log> getProjectLogs(Integer projectId, String username, String repository, String tag, String operation, Integer page, Integer pageSize) {
+        ConfigurationProperties configurationProperties = new ConfigurationProperties();
+        configurationProperties.setBaseUrl(harborBaseUrl);
+        configurationProperties.setUsername(harborUserName);
+        configurationProperties.setPassword(harborPassword);
+        configurationProperties.setInsecureSkipTlsVerify(true);
+        configurationProperties.setType(HARBOR);
+        Retrofit retrofit = RetrofitHandler.initRetrofit(configurationProperties);
+        HarborClient harborClient = retrofit.create(HarborClient.class);
+        Call<List<Log>> getProjectLogsCall = harborClient.projectLogs(projectId,username,repository,tag,operation,page,pageSize);
+        Response<List<Log>> getProjectLogsResponse;
+        try {
+            getProjectLogsResponse = getProjectLogsCall.execute();
+            if (getProjectLogsResponse.raw().code() != 200) {
+                if (getProjectLogsResponse.raw().code() == 401) {
+                    throw new CommonException("error.harbor.user.password");
+                } else {
+                    throw new CommonException(getProjectLogsResponse.errorBody().string());
+                }
+            } else {
+                List<Log> logs = getProjectLogsResponse.body();
+                return logs;
+            }
+        } catch (IOException e) {
+            throw new CommonException(e);
+        }
+    }
+
+    @Override
+    public Configurations getConfigurations() {
+        ConfigurationProperties configurationProperties = new ConfigurationProperties();
+        configurationProperties.setBaseUrl(harborBaseUrl);
+        configurationProperties.setUsername(harborUserName);
+        configurationProperties.setPassword(harborPassword);
+        configurationProperties.setInsecureSkipTlsVerify(true);
+        configurationProperties.setType(HARBOR);
+        Retrofit retrofit = RetrofitHandler.initRetrofit(configurationProperties);
+        HarborClient harborClient = retrofit.create(HarborClient.class);
+        Call<Configurations> getConfigurationsCall = harborClient.getConfigurations();
+        Response<Configurations> getConfigurationsResponse;
+        try {
+            getConfigurationsResponse = getConfigurationsCall.execute();
+            if (getConfigurationsResponse.raw().code() != 200) {
+                if (getConfigurationsResponse.raw().code() == 401) {
+                    throw new CommonException("error.harbor.user.password");
+                } else {
+                    throw new CommonException(getConfigurationsResponse.errorBody().string());
+                }
+            } else {
+                Configurations configurations = getConfigurationsResponse.body();
+                if(Objects.isNull(configurations)){
+                    throw new CommonException("error.harbor.logs.null");
+                } else {
+                    return configurations;
+                }
+            }
+        } catch (IOException e) {
+            throw new CommonException(e);
+        }
+
+    }
+
+    @Override
+    public void setConfigurations(ConfigurationsUpdateDTO configurationsUpdateDTO) {
+        ConfigurationProperties configurationProperties = new ConfigurationProperties();
+        configurationProperties.setBaseUrl(harborBaseUrl);
+        configurationProperties.setUsername(harborUserName);
+        configurationProperties.setPassword(harborPassword);
+        configurationProperties.setInsecureSkipTlsVerify(true);
+        configurationProperties.setType(HARBOR);
+        Retrofit retrofit = RetrofitHandler.initRetrofit(configurationProperties);
+        HarborClient harborClient = retrofit.create(HarborClient.class);
+        Call<Void> setConfigurationsCall = harborClient.setConfigurations(configurationsUpdateDTO);
+        Response<Void> setConfigurationsResponse;
+        try {
+            setConfigurationsResponse = setConfigurationsCall.execute();
+            if (setConfigurationsResponse.raw().code() != 200) {
+                if (setConfigurationsResponse.raw().code() == 401) {
+                    throw new CommonException("error.harbor.user.password");
+                } else if (setConfigurationsResponse.raw().code() == 403) {
+                    throw new CommonException("error.harbor.user.permission");
+                } else {
+                    throw new CommonException(setConfigurationsResponse.errorBody().string());
+                }
+            }
+        } catch (IOException e) {
+            throw new CommonException(e);
+        }
+    }
+
+    @Override
+    public List<Scanner> listScanners() {
+        ConfigurationProperties configurationProperties = new ConfigurationProperties();
+        configurationProperties.setBaseUrl(harborBaseUrl);
+        configurationProperties.setUsername(harborUserName);
+        configurationProperties.setPassword(harborPassword);
+        configurationProperties.setInsecureSkipTlsVerify(true);
+        configurationProperties.setType(HARBOR);
+        Retrofit retrofit = RetrofitHandler.initRetrofit(configurationProperties);
+        HarborClient harborClient = retrofit.create(HarborClient.class);
+        Call<List<Scanner>> listScannersCall = harborClient.listScanners();
+        Response<List<Scanner>> listScannersResponse;
+        try {
+            listScannersResponse = listScannersCall.execute();
+            if (listScannersResponse.raw().code() != 200) {
+                if (listScannersResponse.raw().code() == 401) {
+                    throw new CommonException("error.harbor.user.password");
+                } else {
+                    throw new CommonException(listScannersResponse.errorBody().string());
+                }
+            } else {
+                List<Scanner> scannerList = listScannersResponse.body();
+                return scannerList;
             }
         } catch (IOException e) {
             throw new CommonException(e);
