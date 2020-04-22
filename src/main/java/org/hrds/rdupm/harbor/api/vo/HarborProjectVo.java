@@ -1,14 +1,19 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 
-import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.domain.entity.HarborMetadataDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.springframework.beans.BeanUtils;
@@ -66,6 +71,7 @@ public class HarborProjectVo {
 	private List<String> cveNoList;
 
 	@ApiModelProperty("有效期至")
+	@Future
 	private Date endDate;
 
 	@ApiModelProperty("镜像数量")
@@ -79,5 +85,22 @@ public class HarborProjectVo {
 		this.harborId = harborProjectDTO.getProjectId();
 		this.code = harborProjectDTO.getName();
 		this.repoConut = harborProjectDTO.getRepoCount();
+
+		Map<String,Object> whiteMap = harborProjectDTO.getCveWhiteList();
+		List<Map<String,String >> itemMapList = (List<Map<String, String>>) whiteMap.get("items");
+		List<String> cveNoList = new ArrayList<>();
+		for(Map<String,String> itemMap : itemMapList){
+			cveNoList.add(itemMap.get("cve_id"));
+		}
+		this.cveNoList = cveNoList;
+
+		String expires = String.valueOf(whiteMap.get("expires_at"));
+		Date endDate = null;
+		try {
+			endDate = new SimpleDateFormat("yyyy-MM-dd").parse(expires);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		this.endDate = endDate;
 	}
 }

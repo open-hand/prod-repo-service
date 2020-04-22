@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.domain.entity;
 
+import java.util.*;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
@@ -87,6 +89,9 @@ public class HarborProjectDTO {
 	@SerializedName("metadata")
 	private HarborMetadataDTO metadata;
 
+	@SerializedName("cve_whitelist")
+	private Map<String,Object> cveWhiteList;
+
 	public HarborProjectDTO() {
 
 	}
@@ -100,6 +105,5 @@ public class HarborProjectDTO {
 		HarborMetadataDTO metadataDTO = new HarborMetadataDTO();
 		BeanUtils.copyProperties(harborProjectVo,metadataDTO);
 		this.metadata = metadataDTO;
-
 	}
 }

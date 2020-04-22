@@ -9,6 +9,10 @@ import org.springframework.http.HttpMethod;
  */
 public interface HarborConstants {
 
+	String TRUE = "true";
+
+	String FALSE = "false";
+
 	String MB = "MB";
 
 	String GB = "GB";

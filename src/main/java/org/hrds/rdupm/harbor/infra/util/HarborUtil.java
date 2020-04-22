@@ -14,6 +14,9 @@ public class HarborUtil {
 
 	public static Integer getStorageLimit(Integer storageNum,String storageUnit){
 		Integer storageLimit = -1;
+		if(storageNum == -1){
+			return storageLimit;
+		}
 		switch (storageUnit){
 			case HarborConstants.MB: storageLimit = storageNum*1024*1024;break;
 			case HarborConstants.GB: storageLimit = storageNum*1024*1024*1024;break;

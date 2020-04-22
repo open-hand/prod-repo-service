@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +106,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(harborId == null){
 			throw new CommonException("error.harbor.get.harborId");
 		}
+		saveWhiteList(harborProjectVo,harborProjectDTO,harborId);
 
 		//保存数据库
 		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),new Long(harborId),projectDTO.getOrganizationId());
@@ -154,7 +156,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* 1.校验数据必输性
 		* 2.更新harbor项目元数据
 	    * 3.更新项目资源配额
-	    * 4.更新数据库项目
+	    * 4.更新项目白名单
+	    * 5.更新数据库项目
 		* */
 		check(harborProjectVo);
 
@@ -169,15 +172,47 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		qutoaObject.put("hard",hardObject);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,false,harborId);
 
+		saveWhiteList(harborProjectVo,harborProjectDTO,harborId.intValue());
+
 		if(!harborRepository.getPublicFlag().equals(harborProjectVo.getPublicFlag())){
 			harborRepository.setPublicFlag(harborProjectVo.getPublicFlag());
 			harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
 		}
 	}
 
+	/***
+	 * 保存cve白名单
+	 * @param harborProjectVo
+	 * @param harborProjectDTO
+	 * @param harborId
+	 */
+	public void saveWhiteList(HarborProjectVo harborProjectVo,HarborProjectDTO harborProjectDTO,Integer harborId){
+		if(HarborConstants.TRUE.equals(harborProjectVo.getUseProjectCveFlag())){
+			Map<String,Object> map = new HashMap<>(4);
+			List<Map<String,String >> cveMapList = new ArrayList<>();
+			for(String cve : harborProjectVo.getCveNoList()){
+				Map<String,String> cveMap = new HashMap<>(2);
+				cveMap.put("cve_id",cve);
+				cveMapList.add(cveMap);
+			}
+			map.put("items",cveMapList);
+			map.put("expires_at",harborProjectVo.getEndDate().getTime());
+			map.put("project_id",harborId);
+			map.put("id",1);
+			harborProjectDTO.setCveWhiteList(map);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT,null,harborProjectDTO,false,harborId);
+		}
+	}
+
 	public void check(HarborProjectVo harborProjectVo){
 		AssertUtils.notNull(harborProjectVo.getPublicFlag(),"error.harbor.publicFlag.empty");
-		AssertUtils.notNull(harborProjectVo.getPublicFlag(),"error.harbor.publicFlag.empty");
+		AssertUtils.notNull(harborProjectVo.getCountLimit(),"error.harbor.CountLimit.empty");
+		AssertUtils.notNull(harborProjectVo.getStorageNum(),"error.harbor.StorageNum.empty");
+		AssertUtils.notNull(harborProjectVo.getStorageUnit(),"error.harbor.StorageUnit.empty");
+		AssertUtils.notNull(harborProjectVo.getContentTrustFlag(),"error.harbor.ContentTrustFlag.empty");
+		AssertUtils.notNull(harborProjectVo.getAutoScanFlag(),"error.harbor.AutoScanFlag.empty");
+		AssertUtils.notNull(harborProjectVo.getPreventVulnerableFlag(),"error.harbor.PreventVulnerableFlag.empty");
+		AssertUtils.notNull(harborProjectVo.getSeverity(),"error.harbor.Severity.empty");
 	}
 
 }
