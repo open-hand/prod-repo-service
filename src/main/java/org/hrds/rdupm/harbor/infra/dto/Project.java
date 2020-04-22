@@ -11,6 +11,7 @@ public class Project {
 
     @SerializedName("project_name")
     private String name;
+
     @SerializedName("public")
     private Integer isPublic;
 

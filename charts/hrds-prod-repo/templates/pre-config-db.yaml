@@ -20,7 +20,7 @@ spec:
       - command:
         - sh
         - -c
-        - cp -rfp /var/choerodon/* /tools
+        - cp -rf /var/choerodon/* /tools
         image: {{ .Values.preJob.image }}
         imagePullPolicy: IfNotPresent
         name: tools

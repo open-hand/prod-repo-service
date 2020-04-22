@@ -1,0 +1,14 @@
+<distributionManagement>
+#if($versionPolicy == "RELEASE")
+    <repository>
+        <id>${repositoryName}</id>
+        <url>${url}</url>
+    </repository>
+#end
+#if($versionPolicy == "SNAPSHOT")
+    <snapshotRepository>
+        <id>${repositoryName}</id>
+        <url>${url}</url>
+    </snapshotRepository>
+#end
+</distributionManagement>
