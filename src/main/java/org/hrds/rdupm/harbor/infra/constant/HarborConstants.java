@@ -82,9 +82,9 @@ public interface HarborConstants {
 		* */
 		LIST_IMAGE("/api/repositories", HttpMethod.GET,"查询镜像列表"),
 
-		UPDATE_IMAGE_DESC("/api/repositories/%s", HttpMethod.PUT,"更新镜像描述--镜像名称"),
+		UPDATE_IMAGE_DESC("/api/repositories/%s", HttpMethod.PUT,"更新镜像描述--  仓库名/镜像名称"),
 
-		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE,"删除镜像--镜像名称"),
+		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE,"删除镜像-- 仓库名/镜像名称"),
 
 		/**
 		* 日志API

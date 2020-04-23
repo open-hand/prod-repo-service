@@ -30,4 +30,19 @@ public interface HarborImageService {
 	 * @return
 	 */
 	PageInfo<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest);
+
+	/***
+	 * 删除镜像
+	 * @param projectCode
+	 * @param imageName
+	 */
+	void delete(String projectCode, String imageName);
+
+	/***
+	 * 更新镜像描述
+	 * @param projectCode
+	 * @param imageName
+	 * @param description
+	 */
+	void updateDesc(String projectCode, String imageName, String description);
 }

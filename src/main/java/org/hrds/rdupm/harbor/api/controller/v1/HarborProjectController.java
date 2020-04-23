@@ -1,8 +1,5 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
-import java.util.List;
-import java.util.Map;
-
 import com.github.pagehelper.PageInfo;
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
@@ -13,7 +10,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
-import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;

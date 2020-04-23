@@ -110,6 +110,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(harborId == null){
 			throw new CommonException("error.harbor.get.harborId");
 		}
+		//TODO 修改配额
 		saveWhiteList(harborProjectVo,harborProjectDTO,harborId);
 
 		//保存数据库
@@ -180,7 +181,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		hardObject.put("count",harborProjectVo.getCountLimit());
 		hardObject.put("storage",storageLimit);
 		qutoaObject.put("hard",hardObject);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,false,harborId);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,true,harborId);
 
 		saveWhiteList(harborProjectVo,harborProjectDTO,harborId.intValue());
 

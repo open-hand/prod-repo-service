@@ -16,6 +16,7 @@ import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.domain.entity.HarborMetadataDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
 
@@ -78,13 +79,13 @@ public class HarborProjectVo {
 	@ApiModelProperty("镜像数量")
 	private Integer repoConut;
 
-	@ApiModelProperty("镜像已占用数量")
+	@ApiModelProperty("镜像已使用数量")
 	private Integer usedCount;
 
 	@ApiModelProperty("存储容量限制值")
 	private Integer storageLimit;
 
-	@ApiModelProperty("存储已使用值")
+	@ApiModelProperty("存储容量已使用值")
 	private Integer usedStorage;
 
 	@ApiModelProperty(value = "已使用存储容量数值")
@@ -102,13 +103,19 @@ public class HarborProjectVo {
 		this.code = harborProjectDTO.getName();
 		this.repoConut = harborProjectDTO.getRepoCount();
 
-		Map<String,Object> whiteMap = harborProjectDTO.getCveWhiteList();
-		List<Map<String,String >> itemMapList = (List<Map<String, String>>) whiteMap.get("items");
-		List<String> cveNoList = new ArrayList<>();
-		for(Map<String,String> itemMap : itemMapList){
-			cveNoList.add(itemMap.get("cve_id"));
+		if(!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlag())){
+			this.useProjectCveFlag = HarborConstants.TRUE;
+			Map<String,Object> whiteMap = harborProjectDTO.getCveWhiteList();
+			List<Map<String,String >> itemMapList = (List<Map<String, String>>) whiteMap.get("items");
+			List<String> cveNoList = new ArrayList<>();
+			for(Map<String,String> itemMap : itemMapList){
+				cveNoList.add(itemMap.get("cve_id"));
+			}
+			this.cveNoList = cveNoList;
+			this.endDate = HarborUtil.timestampToDate(whiteMap);
+		}else {
+			this.useProjectCveFlag = HarborConstants.FALSE;
 		}
-		this.cveNoList = cveNoList;
-		this.endDate = HarborUtil.timestampToDate(whiteMap);
+
 	}
 }

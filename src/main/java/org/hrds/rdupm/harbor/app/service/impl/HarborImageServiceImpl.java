@@ -80,4 +80,17 @@ public class HarborImageServiceImpl implements HarborImageService {
 
 		return new PageInfo(harborImageVoList,totalSize);
 	}
+
+	@Override
+	public void delete(String projectCode, String imageName) {
+		String repoName = projectCode+"/"+imageName;
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE,null,null,false,repoName);
+	}
+
+	@Override
+	public void updateDesc(String projectCode, String imageName, String description) {
+		String repoName = projectCode+"/"+imageName;
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,description,false,repoName);
+	}
+
 }
