@@ -15,6 +15,14 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020-03-27 11:43:00
  */
 public interface NexusRepositoryService {
+
+	/**
+	 * 仓库信息查询
+	 * @param repositoryId 仓库表Id
+	 * @return NexusRepositoryDTO
+	 */
+	NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId);
+
 	/**
 	 * 创建maven仓库
 	 * @param organizationId 组织Id
@@ -86,6 +94,14 @@ public interface NexusRepositoryService {
 	 * @return PageInfo<NexusRepositoryDTO>
 	 */
 	PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
+
+	/**
+	 * 查询maven仓库列表, 不分页
+	 * @param queryDTO 查询参数
+	 * @param queryData  查看： NexusConstants.RepoQueryData
+	 * @return List<NexusRepositoryDTO>
+	 */
+	List<NexusRepositoryDTO> listMavenRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData);
 
 	/**
 	 * 查询blob
