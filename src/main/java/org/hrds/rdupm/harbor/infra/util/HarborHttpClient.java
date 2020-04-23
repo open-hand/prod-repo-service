@@ -181,6 +181,12 @@ public class HarborHttpClient {
 					default: break;
 				}
 				break;
+			case DETAIL_PROJECT:
+				switch (statusCode){
+					case 403: throw new CommonException("User does not have permission to the project.");
+					default: break;
+				}
+				break;
 			case GET_PROJECT_SUMMARY:
 				switch (statusCode){
 					case 400: throw new CommonException("Illegal format of provided ID value.");

@@ -4,6 +4,7 @@ import java.util.Date;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -88,6 +89,18 @@ public class HarborRepository extends AuditDomain {
     private Date lastUpdateDate;
    @ApiModelProperty(value = "")    
     private Long lastUpdateLogin;
+
+   @Transient
+   private Integer repoCount;
+
+   @Transient
+   private String creatorImageUrl;
+
+   @Transient
+   private String creatorLoginName;
+
+   @Transient
+   private String creatorRealName;
 
 	public HarborRepository(){
 

@@ -1,9 +1,9 @@
 package org.hrds.rdupm.harbor.app.service;
 
-import java.util.Map;
+import java.util.List;
 
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
-import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 
 /**
  * description
@@ -26,5 +26,24 @@ public interface HarborProjectService {
 	 */
 	HarborProjectVo detail(Long harborId);
 
+	/***
+	 * 更新镜像仓库配置
+	 * @param projectId
+	 * @param harborProjectVo
+	 */
 	void update(Long projectId, HarborProjectVo harborProjectVo);
+
+	/***
+	 * 项目层--查询镜像仓库列表
+	 * @param projectId
+	 * @return
+	 */
+	List<HarborRepository> listByProject(Long projectId);
+
+	/***
+	 * 组织层--查询镜像仓库列表
+	 * @param organizationId
+	 * @return
+	 */
+	List<HarborRepository> listByOrg(Long organizationId);
 }

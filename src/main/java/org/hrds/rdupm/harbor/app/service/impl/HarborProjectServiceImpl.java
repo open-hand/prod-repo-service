@@ -1,9 +1,7 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -132,10 +130,16 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		Double usedStorage = (Double) usedMap.get("storage");
 
 		harborProjectVo.setCountLimit(Double.valueOf(hardCount).intValue());
-		Map<String,Object> storage = HarborUtil.getStorageNumUnit(Double.valueOf(hardStorage).intValue());
-		harborProjectVo.setStorageNum((Integer) storage.get("storageNum"));
-		harborProjectVo.setStorageUnit((String) storage.get("storageUnit"));
+		harborProjectVo.setUsedCount(Double.valueOf(usedCount).intValue());
+		harborProjectVo.setStorageLimit(Double.valueOf(hardStorage).intValue());
+		harborProjectVo.setUsedStorage(Double.valueOf(usedStorage).intValue());
 
+		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(Double.valueOf(hardStorage).intValue());
+		harborProjectVo.setStorageNum((Integer) storageLimitMap.get("storageNum"));
+		harborProjectVo.setStorageUnit((String) storageLimitMap.get("storageUnit"));
+		Map<String,Object> usedStorageMap = HarborUtil.getStorageNumUnit(Double.valueOf(usedStorage).intValue());
+		harborProjectVo.setUsedStorageNum((Integer) usedStorageMap.get("storageNum"));
+		harborProjectVo.setUsedStorageUnit((String) usedStorageMap.get("storageUnit"));
 
 		//获取镜像仓库名称
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborId).stream().findFirst().orElse(null);
@@ -180,13 +184,60 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		}
 	}
 
+	@Override
+	public List<HarborRepository> listByProject(Long projectId) {
+		List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId);
+		processHarborRepositoryList(harborRepositoryList);
+		return harborRepositoryList;
+	}
+
+	@Override
+	public List<HarborRepository> listByOrg(Long organizationId) {
+		List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
+		processHarborRepositoryList(harborRepositoryList);
+		return harborRepositoryList;
+	}
+
+	/***
+	 * 处理镜像仓库列表：查询镜像数、获得创建人登录名、真实名称、创建人头像
+	 * @param harborRepositoryList
+	 */
+	private void processHarborRepositoryList(List<HarborRepository> harborRepositoryList){
+		if(CollectionUtils.isEmpty(harborRepositoryList)){
+			return;
+		}
+
+		//创建人ID去重，并获得创建人详细信息
+		Set<Long> userIdSet = harborRepositoryList.stream().map(dto->dto.getCreatedBy()).collect(Collectors.toSet());
+		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
+		if(responseEntity == null){
+			throw new CommonException("error.feign.user.select.empty");
+		}
+		Map<Long,UserDTO> userDtoMap = responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
+
+		harborRepositoryList.forEach(dto->{
+			//获得镜像数
+			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,dto.getHarborId());
+			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+			dto.setRepoCount(harborProjectDTO.getRepoCount());
+
+			//设置创建人登录名、真实名称、创建人头像
+			UserDTO userDTO = userDtoMap.get(dto.getCreatedBy());
+			if(userDTO != null){
+				dto.setCreatorImageUrl(userDTO.getImageUrl());
+				dto.setCreatorLoginName(userDTO.getLoginName());
+				dto.setCreatorRealName(userDTO.getRealName());
+			}
+		});
+	}
+
 	/***
 	 * 保存cve白名单
 	 * @param harborProjectVo
 	 * @param harborProjectDTO
 	 * @param harborId
 	 */
-	public void saveWhiteList(HarborProjectVo harborProjectVo,HarborProjectDTO harborProjectDTO,Integer harborId){
+	private void saveWhiteList(HarborProjectVo harborProjectVo,HarborProjectDTO harborProjectDTO,Integer harborId){
 		if(HarborConstants.TRUE.equals(harborProjectVo.getUseProjectCveFlag())){
 			Map<String,Object> map = new HashMap<>(4);
 			List<Map<String,String >> cveMapList = new ArrayList<>();
@@ -196,7 +247,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 				cveMapList.add(cveMap);
 			}
 			map.put("items",cveMapList);
-			map.put("expires_at",harborProjectVo.getEndDate().getTime());
+			map.put("expires_at",HarborUtil.dateToTimestamp(harborProjectVo.getEndDate()));
 			map.put("project_id",harborId);
 			map.put("id",1);
 			harborProjectDTO.setCveWhiteList(map);
@@ -204,7 +255,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		}
 	}
 
-	public void check(HarborProjectVo harborProjectVo){
+	private void check(HarborProjectVo harborProjectVo){
 		AssertUtils.notNull(harborProjectVo.getPublicFlag(),"error.harbor.publicFlag.empty");
 		AssertUtils.notNull(harborProjectVo.getCountLimit(),"error.harbor.CountLimit.empty");
 		AssertUtils.notNull(harborProjectVo.getStorageNum(),"error.harbor.StorageNum.empty");

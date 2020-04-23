@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
+import java.util.List;
 import java.util.Map;
 
 import io.choerodon.core.annotation.Permission;
@@ -9,6 +10,7 @@ import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,4 +54,17 @@ public class HarborProjectController extends BaseController {
 		return Results.success();
 	}
 
+	@ApiOperation(value = "项目层-镜像仓库列表")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@GetMapping(value = "/list-project/{projectId}")
+	public ResponseEntity<List<HarborRepository>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
+		return Results.success(harborProjectService.listByProject(projectId));
+	}
+
+	@ApiOperation(value = "组织层-镜像仓库列表")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@GetMapping(value = "/list-org/{organizationId}")
+	public ResponseEntity<List<HarborRepository>> listByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId) {
+		return Results.success(harborProjectService.listByOrg(organizationId));
+	}
 }

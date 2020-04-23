@@ -16,6 +16,7 @@ import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.domain.entity.HarborMetadataDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -77,6 +78,21 @@ public class HarborProjectVo {
 	@ApiModelProperty("镜像数量")
 	private Integer repoConut;
 
+	@ApiModelProperty("镜像已占用数量")
+	private Integer usedCount;
+
+	@ApiModelProperty("存储容量限制值")
+	private Integer storageLimit;
+
+	@ApiModelProperty("存储已使用值")
+	private Integer usedStorage;
+
+	@ApiModelProperty(value = "已使用存储容量数值")
+	private Integer usedStorageNum;
+
+	@ApiModelProperty(value = "已使用存储容量单位")
+	private String usedStorageUnit;
+
 	public HarborProjectVo(){}
 
 	public HarborProjectVo(HarborProjectDTO harborProjectDTO){
@@ -93,14 +109,6 @@ public class HarborProjectVo {
 			cveNoList.add(itemMap.get("cve_id"));
 		}
 		this.cveNoList = cveNoList;
-
-		String expires = String.valueOf(whiteMap.get("expires_at"));
-		Date endDate = null;
-		try {
-			endDate = new SimpleDateFormat("yyyy-MM-dd").parse(expires);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		this.endDate = endDate;
+		this.endDate = HarborUtil.timestampToDate(whiteMap);
 	}
 }

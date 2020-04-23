@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 /**
  * 启动注入自定义RestTemplate
  *
- * @author ke.li@hand-china.com
+ * @author xiuhong.chen@hand-china.com
  */
 @Configuration
 public class HarborRestConfiguration {

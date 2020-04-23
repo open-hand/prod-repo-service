@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.infra.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,19 +32,24 @@ public class HarborUtil {
 		Integer storageNum = 0;
 		String storageUnit = null;
 
-		Integer divisionResult1 = Double.valueOf(storageLimt/(1024*1024)).intValue();
-		Integer divisionResult2 = Double.valueOf(storageLimt/(1024*1024*1024)).intValue();
+		Integer divisionResult1 = Double.valueOf(storageLimt/(1024)).intValue();
+		Integer divisionResult2 = Double.valueOf(storageLimt/(1024*1024)).intValue();
 		Integer divisionResult3 = Double.valueOf(storageLimt/(1024*1024*1024)).intValue();
+		Integer divisionResult4 = Double.valueOf(storageLimt/(1024*1024*1024)).intValue();
 		if(divisionResult1 >= 1){
 			storageNum = divisionResult1;
-			storageUnit = HarborConstants.MB;
+			storageUnit = HarborConstants.KB;
 		}
 		if(divisionResult2 >= 1){
 			storageNum = divisionResult2;
-			storageUnit = HarborConstants.GB;
+			storageUnit = HarborConstants.MB;
 		}
 		if(divisionResult3 >= 1){
 			storageNum = divisionResult3;
+			storageUnit = HarborConstants.GB;
+		}
+		if(divisionResult4 >= 1){
+			storageNum = divisionResult4;
 			storageUnit = HarborConstants.TB;
 		}
 
@@ -51,4 +58,17 @@ public class HarborUtil {
 		map.put("storageUnit",storageUnit);
 		return map;
 	}
+
+	public static Date timestampToDate(Map<String,Object> whiteMap){
+		String expires = String.valueOf(new Double((Double) whiteMap.get("expires_at")).intValue()) + "000";
+		Date endDate = new Date(Long.parseLong(expires));
+		return endDate;
+	}
+
+	public static long dateToTimestamp(Date date){
+		String timestamp = String.valueOf(date.getTime());
+		String str = timestamp.substring(0,timestamp.length()-3);
+		return new Long(str);
+	}
+
 }
