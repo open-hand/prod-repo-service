@@ -3,8 +3,12 @@ package org.hrds.rdupm.harbor.api.controller.v1;
 import java.util.List;
 import java.util.Map;
 
+import com.github.pagehelper.PageInfo;
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
@@ -16,6 +20,7 @@ import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * description
@@ -54,17 +59,27 @@ public class HarborProjectController extends BaseController {
 		return Results.success();
 	}
 
+	@ApiOperation(value = "删除镜像仓库")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@DeleteMapping(value = "/delete/{projectId}")
+	public ResponseEntity delete(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
+		harborProjectService.delete(projectId);
+		return Results.success();
+	}
+
 	@ApiOperation(value = "项目层-镜像仓库列表")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping(value = "/list-project/{projectId}")
-	public ResponseEntity<List<HarborRepository>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
-		return Results.success(harborProjectService.listByProject(projectId));
+	public ResponseEntity<PageInfo<HarborRepository>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+																	@ApiIgnore @SortDefault(value = HarborRepository.FIELD_PROJECT_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		return Results.success(harborProjectService.listByProject(projectId,pageRequest));
 	}
 
 	@ApiOperation(value = "组织层-镜像仓库列表")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
 	@GetMapping(value = "/list-org/{organizationId}")
-	public ResponseEntity<List<HarborRepository>> listByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId) {
-		return Results.success(harborProjectService.listByOrg(organizationId));
+	public ResponseEntity<PageInfo<HarborRepository>> listByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId,
+																@ApiIgnore @SortDefault(value = HarborRepository.FIELD_PROJECT_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		return Results.success(harborProjectService.listByOrg(organizationId,pageRequest));
 	}
 }

@@ -14,12 +14,7 @@ import org.apache.velocity.app.Velocity;
  * @author xiuhong.chen@hand-china.com 2020/4/21
  */
 public class HarborVelocityUtils {
-	public static final String SET_SERVER_FILE_NAME = "SettingServer.vm";
-	public static final String POM_REPO_FILE_NAME = "PomRepository.vm";
-	public static final String POM_MANGE_FILE_NAME = "PomManagement.vm";
-
-	public static final String POM_DEPENDENCY_FILE_NAME = "ComponentPom.vm";
-
+	public static final String DOCKER_FILE_NAME = "Dockerfile.vm";
 
 	public static String getJsonString(Map<String, Object> map, String fileName){
 		VelocityContext context = new VelocityContext(map);

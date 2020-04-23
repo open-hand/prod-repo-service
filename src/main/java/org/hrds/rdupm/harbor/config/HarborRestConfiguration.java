@@ -24,7 +24,7 @@ public class HarborRestConfiguration {
         requestFactory.setConnectTimeout(601000);
         requestFactory.setReadTimeout(601000);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
-//        restTemplate.setErrorHandler(new NexusCustomErrorHandler());
+        //restTemplate.setErrorHandler(new NexusCustomErrorHandler());
         restTemplate.getMessageConverters().set(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
         return restTemplate;
     }

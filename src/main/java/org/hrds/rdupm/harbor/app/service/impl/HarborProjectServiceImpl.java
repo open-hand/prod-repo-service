@@ -6,8 +6,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
+import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
@@ -21,10 +25,12 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.AssertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * description
@@ -185,17 +191,28 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	}
 
 	@Override
-	public List<HarborRepository> listByProject(Long projectId) {
-		List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId);
-		processHarborRepositoryList(harborRepositoryList);
-		return harborRepositoryList;
+	public PageInfo<HarborRepository> listByProject(Long projectId, PageRequest pageRequest) {
+		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId));
+		processHarborRepositoryList(page.getContent());
+		return PageConvertUtils.convert(page);
 	}
 
 	@Override
-	public List<HarborRepository> listByOrg(Long organizationId) {
-		List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
-		processHarborRepositoryList(harborRepositoryList);
-		return harborRepositoryList;
+	public PageInfo<HarborRepository> listByOrg(Long organizationId,PageRequest pageRequest) {
+		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId));
+		processHarborRepositoryList(page.getContent());
+		return PageConvertUtils.convert(page);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void delete(Long projectId) {
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.notexist");
+		}
+		harborRepositoryRepository.deleteByPrimaryKey(harborRepository.getId());
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_PROJECT,null,null,false,harborRepository.getHarborId());
 	}
 
 	/***

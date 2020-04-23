@@ -2,6 +2,8 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.List;
 
+import com.github.pagehelper.PageInfo;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 
@@ -38,12 +40,18 @@ public interface HarborProjectService {
 	 * @param projectId
 	 * @return
 	 */
-	List<HarborRepository> listByProject(Long projectId);
+	PageInfo<HarborRepository> listByProject(Long projectId, PageRequest pageRequest);
 
 	/***
 	 * 组织层--查询镜像仓库列表
 	 * @param organizationId
 	 * @return
 	 */
-	List<HarborRepository> listByOrg(Long organizationId);
+	PageInfo<HarborRepository> listByOrg(Long organizationId,PageRequest pageRequest);
+
+	/***
+	 * 删除镜像仓库
+	 * @param projectId
+	 */
+	void delete(Long projectId);
 }

@@ -29,6 +29,10 @@ public interface HarborConstants {
 
 	enum HarborApiEnum{
 
+		COUNT("/api/statistics", HttpMethod.GET,"获取所有项目数量、镜像数量"),
+
+		SEARCH("/api/search", HttpMethod.GET,"获取所有项目、所有镜像"),
+
 		/**
 		* 用户API
 		* */
@@ -72,6 +76,15 @@ public interface HarborConstants {
 		GET_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.GET,"获取项目资源使用情况--项目ID"),
 
 		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源使用情况--项目ID"),
+
+		/**
+		* 镜像API
+		* */
+		LIST_IMAGE("/api/repositories", HttpMethod.GET,"查询镜像列表"),
+
+		UPDATE_IMAGE_DESC("/api/repositories/%s", HttpMethod.PUT,"更新镜像描述--镜像名称"),
+
+		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE,"删除镜像--镜像名称"),
 
 		/**
 		* 日志API

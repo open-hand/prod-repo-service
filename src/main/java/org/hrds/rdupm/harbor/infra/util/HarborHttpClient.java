@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
+import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
@@ -56,6 +57,9 @@ public class HarborHttpClient {
 	@Qualifier("hrdsHarborRestTemplate")
 	private RestTemplate restTemplate;
 
+	@Autowired
+	private HarborInfoConfiguration harborInfo;
+
 	public HarborHttpClient buildBasicAuth(String userName,String password){
 		this.userName = userName;
 		this.password = password;
@@ -77,12 +81,12 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public ResponseEntity<String> exchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body,boolean adminAccountFlag, Object... pathParam){
-		String url = harborUrl + apiEnum.getApiUrl();
+		String url = harborInfo.getBaseUrl() + apiEnum.getApiUrl();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
 		if(adminAccountFlag){
-			buildBasicAuth(HarborConstants.USER_NAME,HarborConstants.PASSWORD);
+			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
 			//TODO 使用当前登陆用户账号
 			buildBasicAuth("15367","Abcd1234");
@@ -151,7 +155,9 @@ public class HarborHttpClient {
 		}
 		StringBuilder newUrl = new StringBuilder().append(url).append(BaseConstants.Symbol.QUESTION);
 		for (String key : paramMap.keySet()) {
-			newUrl.append(key).append(BaseConstants.Symbol.EQUAL).append(paramMap.get(key)).append(BaseConstants.Symbol.AND);
+			if(paramMap.get(key) != null){
+				newUrl.append(key).append(BaseConstants.Symbol.EQUAL).append(paramMap.get(key)).append(BaseConstants.Symbol.AND);
+			}
 		}
 		return newUrl.toString().substring(0, newUrl.length() - 1);
 	}
@@ -170,40 +176,34 @@ public class HarborHttpClient {
 				switch (statusCode){
 					case 400: throw new CommonException("Unsatisfied with constraints of the project creation.");
 					case 409: throw new CommonException("Project name already exists.");
-					default: break;
+					default: throw new CommonException(e.getMessage());
 				}
-				break;
 			case UPDATE_PROJECT:
 				switch (statusCode){
 					case 400: throw new CommonException("Illegal format of provided ID value.");
 					case 403: throw new CommonException("User does not have permission to the project.");
 					case 404: throw new CommonException("Project ID does not exist.");
-					default: break;
+					default: throw new CommonException(e.getMessage());
 				}
-				break;
 			case DETAIL_PROJECT:
 				switch (statusCode){
 					case 403: throw new CommonException("User does not have permission to the project.");
-					default: break;
+					default: throw new CommonException(e.getMessage());
 				}
-				break;
 			case GET_PROJECT_SUMMARY:
 				switch (statusCode){
 					case 400: throw new CommonException("Illegal format of provided ID value.");
 					case 403: throw new CommonException("User does not have permission to the project.");
 					case 404: throw new CommonException("Project ID does not exist.");
-					default: break;
+					default: throw new CommonException(e.getMessage());
 				}
-				break;
 			case CREATE_USER:
 				switch (statusCode){
 					case 400: throw new CommonException("Unsatisfied with constraints of the user creation.");
 					case 403: throw new CommonException("User registration can only be used by admin role user when self-registration is off.");
-					default: break;
+					default: throw new CommonException(e.getMessage());
 				}
-				break;
-			default:
-				break;
+			default: throw new CommonException(e.getMessage());
 		}
 
 	}
