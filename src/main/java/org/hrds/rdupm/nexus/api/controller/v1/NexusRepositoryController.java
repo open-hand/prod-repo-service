@@ -36,6 +36,15 @@ public class NexusRepositoryController extends BaseController {
     @Autowired
     private NexusRepositoryService nexusRepositoryService;
 
+    @ApiOperation(value = "maven仓库更新")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/{repositoryId}")
+    public ResponseEntity<NexusRepositoryDTO> getMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                           @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                           @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId) {
+        return Results.success(nexusRepositoryService.getMavenRepo(organizationId, projectId, repositoryId));
+    }
+
     @ApiOperation(value = "maven仓库创建")
     @Permission(type = ResourceType.PROJECT, permissionPublic = true)
     @PostMapping("/{organizationId}/project/{projectId}/maven/repo")
@@ -92,6 +101,17 @@ public class NexusRepositoryController extends BaseController {
         queryDTO.setProjectId(projectId);
         queryDTO.setOrganizationId(organizationId);
         return Results.success(nexusRepositoryService.listMavenRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_PROJECT));
+    }
+
+    @ApiOperation(value = "maven仓库列表，当前项目下所有")
+    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/self/all")
+    public ResponseEntity<List<NexusRepositoryDTO>> listMavenRepoAll(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                         NexusRepositoryQueryDTO queryDTO) {
+        queryDTO.setProjectId(projectId);
+        queryDTO.setOrganizationId(organizationId);
+        return Results.success(nexusRepositoryService.listMavenRepoAll(queryDTO, NexusConstants.RepoQueryData.REPO_PROJECT));
     }
 
     @ApiOperation(value = "maven仓库列表，项目之外的其它仓库")

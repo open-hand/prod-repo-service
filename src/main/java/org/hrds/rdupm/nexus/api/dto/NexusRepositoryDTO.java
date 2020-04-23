@@ -6,6 +6,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.mybatis.domian.SecurityToken;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +31,9 @@ public class NexusRepositoryDTO implements SecurityToken {
 			this.projectId = nexusRepository.getProjectId();
 			this.organizationId = nexusRepository.getOrganizationId();
 			this.projectName = nexusRepository.getProjectName();
+
+			this.createdBy = nexusRepository.getCreatedBy();
+			this.creationDate = nexusRepository.getCreationDate();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -82,6 +86,9 @@ public class NexusRepositoryDTO implements SecurityToken {
 	private String projectName;
 	@ApiModelProperty(value = "组织Id")
 	private Long organizationId;
+
+	private Long createdBy;
+	private Date creationDate;
 
 	public Long getRepositoryId() {
 		return repositoryId;
@@ -224,6 +231,24 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	public NexusRepositoryDTO setOrganizationId(Long organizationId) {
 		this.organizationId = organizationId;
+		return this;
+	}
+
+	public Long getCreatedBy() {
+		return createdBy;
+	}
+
+	public NexusRepositoryDTO setCreatedBy(Long createdBy) {
+		this.createdBy = createdBy;
+		return this;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public NexusRepositoryDTO setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
 		return this;
 	}
 

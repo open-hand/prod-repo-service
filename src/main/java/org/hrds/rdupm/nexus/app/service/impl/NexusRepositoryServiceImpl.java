@@ -60,6 +60,28 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Autowired
 	private TransactionalProducer producer;
 
+	@Override
+	public NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
+		configService.setNexusInfo(nexusClient);
+
+		NexusRepository query = new NexusRepository();
+		query.setRepositoryId(repositoryId);
+		query.setOrganizationId(organizationId);
+		query.setProjectId(projectId);
+
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
+		if (nexusRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+		if (nexusServerRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+		nexusRepositoryDTO.convert(nexusRepository, nexusServerRepository);
+		nexusClient.removeNexusServerInfo();
+		return nexusRepositoryDTO;
+	}
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -383,10 +405,31 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	public PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
+		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
+		if (CollectionUtils.isEmpty(resultAll)) {
+			return PageConvertUtils.convert();
+		}
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
 
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+	}
+
+	@Override
+	public List<NexusRepositoryDTO> listMavenRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return resultAll;
+	}
+
+
+	private List<NexusRepositoryDTO> queryMavenRepo(NexusRepositoryQueryDTO queryDTO, String queryData){
 		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
-			return PageConvertUtils.convert();
+			return new ArrayList<>();
 		}
 
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
@@ -431,11 +474,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
 					nexusRepositoryDTO.getVersionPolicy() != null && nexusRepositoryDTO.getVersionPolicy().toLowerCase().contains(queryDTO.getVersionPolicy().toLowerCase())).collect(Collectors.toList());
 		}
-
-		// remove配置信息
-		nexusClient.removeNexusServerInfo();
-
-		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+		return resultAll;
 	}
 
 	/**
