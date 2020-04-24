@@ -6,8 +6,10 @@ import io.choerodon.core.enums.ResourceType;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.config.SwaggerTags;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -23,6 +25,7 @@ import springfox.documentation.annotations.ApiIgnore;
  *
  * @author chenxiuhong 2020/04/21 9:50 上午
  */
+@Api(tags = SwaggerTags.PROJECT)
 @RestController("HarborProjectController.v1")
 @RequestMapping("/v1/harbor-project")
 public class HarborProjectController extends BaseController {

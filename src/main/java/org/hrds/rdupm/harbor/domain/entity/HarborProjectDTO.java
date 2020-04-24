@@ -4,12 +4,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.gson.annotations.SerializedName;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
-import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
 
@@ -24,7 +22,7 @@ import org.springframework.beans.BeanUtils;
 public class HarborProjectDTO {
 
 	@SerializedName("project_id")
-	private Integer projectId;
+	private Integer harborId;
 
 	/**
 	* 项目名称
@@ -97,7 +95,7 @@ public class HarborProjectDTO {
 	}
 
 	public HarborProjectDTO(HarborProjectVo harborProjectVo) {
-		this.projectId = harborProjectVo.getHarborId();
+		this.harborId = harborProjectVo.getHarborId();
 		this.countLimit = harborProjectVo.getCountLimit();
 		if(!StringUtils.isEmpty(harborProjectVo.getStorageUnit())){
 			this.storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());

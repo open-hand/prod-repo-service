@@ -103,7 +103,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		for(String object : projectList){
 			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
 			if(code.equals(projectResponseDto.getName())){
-				harborId = projectResponseDto.getProjectId();
+				harborId = projectResponseDto.getHarborId();
 				break;
 			}
 		}

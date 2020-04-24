@@ -1,0 +1,61 @@
+package org.hrds.rdupm.harbor.api.vo;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.gson.annotations.SerializedName;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+/**
+ * description
+ *
+ * @author chenxiuhong 2020/04/24 11:37 上午
+ */
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class HarborImageTagVo {
+
+	@ApiModelProperty("摘要")
+	private String digest;
+
+	@ApiModelProperty("TAG名称")
+	@SerializedName("name")
+	private String tagName;
+
+	@ApiModelProperty("TAG大小：102400")
+	private Integer size;
+
+	@ApiModelProperty("架构")
+	private String architecture;
+
+	@ApiModelProperty("操作系统")
+	private String os;
+
+	@ApiModelProperty("操作系统版本")
+	@SerializedName("os.version")
+	private String osVersion;
+
+	@ApiModelProperty("docker版本")
+	@SerializedName("docker_version")
+	private String dockerVersion;
+
+	@ApiModelProperty("创建人")
+	private String author;
+
+	@ApiModelProperty("创建时间")
+	@SerializedName("created")
+	private String createTime;
+
+	@ApiModelProperty("最新push时间")
+	@SerializedName("push_time")
+	private String pushTime;
+
+	@ApiModelProperty("最近pull时间")
+	@SerializedName("pull_time")
+	private String pullTime;
+
+	@ApiModelProperty("TAG大小显示：19MB")
+	private String sizeDesc;
+}

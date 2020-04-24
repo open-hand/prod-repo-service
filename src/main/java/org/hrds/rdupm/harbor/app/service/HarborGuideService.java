@@ -1,6 +1,6 @@
 package org.hrds.rdupm.harbor.app.service;
 
-import org.hrds.rdupm.harbor.api.vo.HarborGuide;
+import org.hrds.rdupm.harbor.api.vo.HarborGuideVo;
 
 /**
  * description
@@ -13,5 +13,13 @@ public interface HarborGuideService {
 	 * @param projectId
 	 * @return
 	 */
-	HarborGuide getByProject(Long projectId);
+	HarborGuideVo getProjectGuide(Long projectId);
+
+	/***
+	 * 镜像TAG--拉取指引
+	 * @param repoName
+	 * @param tagName
+	 * @return
+	 */
+	HarborGuideVo getTagGuide(String repoName, String tagName);
 }

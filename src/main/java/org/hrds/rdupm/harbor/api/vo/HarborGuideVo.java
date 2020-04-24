@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,22 +11,27 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class HarborGuide {
+public class HarborGuideVo {
 
+	@ApiModelProperty("登录命令")
 	private String loginCmd;
 
+	@ApiModelProperty("dockerfile内容")
 	private String dockerFile;
 
+	@ApiModelProperty("构建命令")
 	private String buildCmd;
 
+	@ApiModelProperty("push命令")
 	private String pushCmd;
 
+	@ApiModelProperty("pull命令")
 	private String pullCmd;
 
-	public HarborGuide(){
+	public HarborGuideVo(){
 
 	}
-	public HarborGuide(String loginCmd, String dockerFile, String buildCmd, String pushCmd, String pullCmd) {
+	public HarborGuideVo(String loginCmd, String dockerFile, String buildCmd, String pushCmd, String pullCmd) {
 		this.loginCmd = loginCmd;
 		this.dockerFile = dockerFile;
 		this.buildCmd = buildCmd;

@@ -87,6 +87,19 @@ public interface HarborConstants {
 		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE,"删除镜像-- 仓库名/镜像名称"),
 
 		/**
+		* 镜像TAG API
+		* */
+		GET_IMAGE_BUILD_LOG("/api/repositories/%s/tags/%s/manifest", HttpMethod.GET,"获取构建日志-- 仓库名/镜像名称、版本号"),
+
+		DETAIL_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.GET,"获取镜像TAG明细-- 仓库名/镜像名称、版本号"),
+
+		DELETE_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.DELETE,"删除镜像TAG-- 仓库名/镜像名称、版本号"),
+
+		LIST_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.GET,"获取镜像TAG列表-- 仓库名/镜像名称"),
+
+		COPY_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.POST,"复制镜像TAG-- 仓库名/镜像名称"),
+
+		/**
 		* 日志API
 		* */
 		LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID");

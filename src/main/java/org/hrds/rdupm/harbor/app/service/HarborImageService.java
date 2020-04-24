@@ -33,16 +33,13 @@ public interface HarborImageService {
 
 	/***
 	 * 删除镜像
-	 * @param projectCode
-	 * @param imageName
+	 * @param harborImageVo
 	 */
-	void delete(String projectCode, String imageName);
+	void delete(HarborImageVo harborImageVo);
 
 	/***
 	 * 更新镜像描述
-	 * @param projectCode
-	 * @param imageName
-	 * @param description
+	 * @param harborImageVo
 	 */
-	void updateDesc(String projectCode, String imageName, String description);
+	void updateDesc(HarborImageVo harborImageVo);
 }
