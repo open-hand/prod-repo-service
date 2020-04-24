@@ -50,3 +50,4 @@ src/main/resources/application-dev.yml
 src/main/resources/application-remote.yml
 
 init-local-database-dev.sh
+/src/main/java/org/hrds/rdupm/config/CustomWebSecurityConfigurerAdapter.java
