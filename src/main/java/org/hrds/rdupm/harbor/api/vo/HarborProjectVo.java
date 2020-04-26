@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.domain.entity.HarborMetadataDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
 
@@ -95,6 +96,8 @@ public class HarborProjectVo {
 
 	@ApiModelProperty(value = "已使用存储容量单位")
 	private String usedStorageUnit;
+
+	private ProjectDTO projectDTO;
 
 	public HarborProjectVo(){}
 

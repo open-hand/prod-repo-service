@@ -42,6 +42,15 @@ public class HarborProjectController extends BaseController {
 		return Results.success();
 	}
 
+	@ApiOperation(value = "saga测试-创建镜像仓库")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping(value = "/create/{projectId}")
+	public ResponseEntity createSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
+		harborProjectService.createSaga(projectId,harborProjectVo);
+		return Results.success();
+	}
+
 	@ApiOperation(value = "查询镜像仓库明细")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping(value = "/detail/{harborId}")

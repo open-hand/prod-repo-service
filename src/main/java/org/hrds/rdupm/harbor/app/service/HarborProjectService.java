@@ -21,6 +21,8 @@ public interface HarborProjectService {
 	 */
 	void create(Long projectId, HarborProjectVo harborProjectVo);
 
+	void createSaga(Long projectId, HarborProjectVo harborProjectVo);
+
 	/***
 	 * 根据镜像仓库ID查询明细
 	 * @param harborId

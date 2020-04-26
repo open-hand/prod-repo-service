@@ -27,6 +27,25 @@ public interface HarborConstants {
 
 	String DEFAULT_PASSWORD = "Abcd1234";
 
+	interface HarborSagaCode{
+		/**
+		* 创建Docker仓库
+		* 创建用户、创建镜像仓库、保存存储容量配置、保存CVE白名单、保存项目到数据库
+		* */
+		String CREATE_PROJECT = "rdupm-docker-create";
+
+		String CREATE_PROJECT_USER = "rdupm-docker-create.user";
+
+		String CREATE_PROJECT_REPO = "rdupm-docker-create.repo";
+
+		String CREATE_PROJECT_QUOTA = "rdupm-docker-create.quota";
+
+		String CREATE_PROJECT_CVE = "rdupm-docker-create.cve";
+
+		String CREATE_PROJECT_DB = "rdupm-docker-create.db";
+
+	}
+
 	enum HarborApiEnum{
 
 		COUNT("/api/statistics", HttpMethod.GET,"获取所有项目数量、镜像数量"),
