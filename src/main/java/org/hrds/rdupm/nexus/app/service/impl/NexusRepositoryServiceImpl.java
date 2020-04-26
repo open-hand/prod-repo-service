@@ -461,6 +461,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			ProjectVO projectVO = projectVOMap.get(nexusRepositoryDTO.getProjectId());
 			if (projectVO != null) {
 				nexusRepositoryDTO.setProjectName(projectVO.getName());
+				nexusRepositoryDTO.setProjectImgUrl(projectVO.getImageUrl());
 			}
 		});
 

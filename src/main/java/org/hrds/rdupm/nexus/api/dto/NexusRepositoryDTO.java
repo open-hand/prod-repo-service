@@ -92,9 +92,14 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	private Long createdBy;
 	private Date creationDate;
+	@ApiModelProperty(value = "创建人图标")
 	private String creatorImageUrl;
+	@ApiModelProperty(value = "创建人登录名")
 	private String creatorLoginName;
+	@ApiModelProperty(value = "创建人名称")
 	private String creatorRealName;
+	@ApiModelProperty(value = "项目图标")
+	private String projectImgUrl;
 
 	public Long getRepositoryId() {
 		return repositoryId;
@@ -282,6 +287,15 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	public NexusRepositoryDTO setCreatorRealName(String creatorRealName) {
 		this.creatorRealName = creatorRealName;
+		return this;
+	}
+
+	public String getProjectImgUrl() {
+		return projectImgUrl;
+	}
+
+	public NexusRepositoryDTO setProjectImgUrl(String projectImgUrl) {
+		this.projectImgUrl = projectImgUrl;
 		return this;
 	}
 
