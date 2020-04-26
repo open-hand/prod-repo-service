@@ -6,9 +6,11 @@ import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
@@ -30,6 +32,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -488,13 +491,37 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusRepository query = new NexusRepository();
 		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
 		Map<String, NexusRepository> nexusRepositoryMap = nexusRepositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, a -> a, (k1, k2) -> k1));
-
+		this.setUserInfo(nexusRepositoryList);
 		nexusServerRepositoryList.forEach(serverRepository -> {
 			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
 			nexusRepositoryDTO.convert(nexusRepositoryMap.get(serverRepository.getName()), serverRepository);
 			resultAll.add(nexusRepositoryDTO);
 		});
 
+	}
+
+	/**
+	 * 设置用户信息
+	 * @param nexusRepositoryList 仓库列表
+	 */
+	private void setUserInfo(List<NexusRepository> nexusRepositoryList){
+		//创建人ID去重，并获得创建人详细信息
+		Set<Long> userIdSet = nexusRepositoryList.stream().map(AuditDomain::getCreatedBy).collect(Collectors.toSet());
+		if (CollectionUtils.isNotEmpty(userIdSet)) {
+			List<UserDTO> userDTOList = baseServiceFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
+			Map<Long,UserDTO> userDtoMap = userDTOList.stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
+			if (CollectionUtils.isNotEmpty(userDTOList)) {
+				nexusRepositoryList.forEach(repository -> {
+					//设置创建人登录名、真实名称、创建人头像
+					UserDTO userDTO = userDtoMap.get(repository.getCreatedBy());
+					if(userDTO != null){
+						repository.setCreatorImageUrl(userDTO.getImageUrl());
+						repository.setCreatorLoginName(userDTO.getLoginName());
+						repository.setCreatorRealName(userDTO.getRealName());
+					}
+				});
+			}
+		}
 	}
 
 	/**
@@ -529,7 +556,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusRepository query = new NexusRepository();
 		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
 		Map<String, NexusRepository> nexusRepositoryMap = nexusRepositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, a -> a, (k1, k2) -> k1));
-
+		// 设置用户信息
+		this.setUserInfo(nexusRepositoryList);
 		// 过滤数据，排除当前项目的
 		Set<String> currentProject = nexusRepositoryList.stream().filter(nexusRepository -> nexusRepository.getProjectId().equals(queryDTO.getProjectId()))
 				.map(NexusRepository::getNeRepositoryName).collect(Collectors.toSet());
@@ -568,6 +596,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	private void mavenRepoConvert(List<NexusRepositoryDTO> resultAll,
 								  List<NexusRepository> nexusRepositoryList,
 								  Map<String, NexusServerRepository> nexusServerRepositoryMap){
+		// 设置用户信息
+		this.setUserInfo(nexusRepositoryList);
 		nexusRepositoryList.forEach(repository -> {
 			NexusServerRepository nexusServerRepository = nexusServerRepositoryMap.get(repository.getNeRepositoryName());
 			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();

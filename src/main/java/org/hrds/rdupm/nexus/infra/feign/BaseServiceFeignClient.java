@@ -1,13 +1,12 @@
 package org.hrds.rdupm.nexus.infra.feign;
 
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.nexus.infra.feign.fallback.BaseServiceFeignClientFallBackFactory;
 import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
@@ -17,6 +16,16 @@ import java.util.Set;
  */
 @FeignClient(value = "base-service", fallbackFactory = BaseServiceFeignClientFallBackFactory.class)
 public interface BaseServiceFeignClient {
+
+	/***
+	 * 根据id批量查询用户信息列表
+	 * @param ids 用户ID数组
+	 * @param onlyEnabled 是否查询启用用户
+	 * @return
+	 */
+	@PostMapping(value = "/v1/users/ids")
+	List<UserDTO> listUsersByIds(@RequestBody Long[] ids, @RequestParam(value = "only_enabled", defaultValue = "true", required = false) Boolean onlyEnabled);
+
 
 	/**
 	 * 查询快码信息
