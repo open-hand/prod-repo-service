@@ -19,8 +19,8 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
@@ -33,7 +33,6 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.AssertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,11 +60,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Resource
 	private TransactionalProducer transactionalProducer;
 
-	@Autowired
-	private ObjectMapper objectMapper;
-
 	//TODO
-	String userName = "15367";
+	private String userName = "15367";
 
 	@Override
 	public void create(Long projectId, HarborProjectVo harborProjectVo) {
@@ -76,14 +72,15 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		 * 4.创建harbor项目，存储容量、安全级别、其他配置等
 		 * 5.数据库保存harbor项目，并关联猪齿鱼ID
 		 * */
-		//TODO 当前用户登录名
-		String userName = "15367";
+		//获取猪齿鱼项目信息
+		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
+		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
+		String code = projectDTO.getCode();
+		harborProjectVo.setName(code);
 
 		//校验项目是否已经存在、校验数据正确性
-		if(CollectionUtils.isNotEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId))){
-			throw new CommonException("error.harbor.project.exist");
-		}
-		check(harborProjectVo);
+		checkParam(harborProjectVo);
+		checkProject(harborProjectVo,projectId);
 
 		//判断是否存在当前用户
 		Map<String,Object> paramMap = new HashMap<>(1);
@@ -98,11 +95,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 		}
-
-		//获取猪齿鱼项目信息
-		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
-		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
-		String code = projectDTO.getCode();
 
 		//创建Harbor项目
 		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
@@ -126,7 +118,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			}
 		}
 		if(harborId == null){
-			throw new CommonException("error.harbor.get.harborId");
+			throw new CommonException("error.harbor.project.get.harborId");
 		}
 		saveQuota(harborProjectVo,harborId);
 		saveWhiteList(harborProjectVo,harborProjectDTO,harborId);
@@ -146,12 +138,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* 4.创建harbor项目，存储容量、安全级别、其他配置等
 		* 5.数据库保存harbor项目，并关联猪齿鱼ID
 		* */
-
-		//校验项目是否已经存在、校验数据正确性
-		if(CollectionUtils.isNotEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId))){
-			throw new CommonException("error.harbor.project.exist");
-		}
-		check(harborProjectVo);
 		//获取猪齿鱼项目信息
 		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
 		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
@@ -159,112 +145,18 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		harborProjectVo.setName(code);
 		harborProjectVo.setProjectDTO(projectDTO);
 
+		//校验项目是否已经存在、校验数据正确性
+		checkParam(harborProjectVo);
+		checkProject(harborProjectVo,projectId);
+
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
 									.withSagaCode(HarborConstants.HarborSagaCode.CREATE_PROJECT)
 									.withLevel(ResourceLevel.PROJECT)
 									.withRefType("dockerRepo")
 									.withSourceId(projectId),
-								startSagaBuilder -> { startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withRefId(code).withSourceId(projectId); }
+								startSagaBuilder -> { startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withSourceId(projectId); }
 		);
 	}
-
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3)
-	private void createProjectUserSaga(String message){
-		//判断是否存在当前用户
-		Map<String,Object> paramMap = new HashMap<>(1);
-		paramMap.put("username",userName);
-		ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
-		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
-
-		//新增用户到Harbor
-		if(CollectionUtils.isEmpty(userList)){
-			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(userName);
-			UserDTO userDTO = userDTOResponseEntity.getBody();
-			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
-		}
-	}
-
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3,
-			outputSchemaClass = HarborProjectVo.class
-	)
-	private HarborProjectVo createProjectRepoSaga(String message){
-		HarborProjectVo harborProjectVo = null;
-		try {
-			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
-		} catch (IOException e) {
-			throw new CommonException(e);
-		}
-
-		//创建Harbor项目
-		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,false);
-
-		//查询harbor-id
-		Integer harborId = null;
-		Map<String,Object> paramMap2 = new HashMap<>(3);
-		paramMap2.put("name",harborProjectVo.getName());
-		paramMap2.put("public",harborProjectVo.getPublicFlag());
-		paramMap2.put("owner",userName);
-		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,paramMap2,null,false);
-		List<String> projectList= JSONObject.parseArray(projectResponse.getBody(),String.class);
-		Gson gson = new Gson();
-		for(String object : projectList){
-			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
-			if(harborProjectVo.getName().equals(projectResponseDto.getName())){
-				harborId = projectResponseDto.getHarborId();
-				break;
-			}
-		}
-		if(harborId == null){
-			throw new CommonException("error.harbor.get.harborId");
-		}
-		harborProjectVo.setHarborId(harborId);
-		return harborProjectVo;
-	}
-
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_QUOTA,description = "创建Docker镜像仓库：保存存储容量配置",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3)
-	private void createProjectQuotaSaga(String message){
-		HarborProjectVo harborProjectVo = null;
-		try {
-			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
-		} catch (IOException e) {
-			throw new CommonException(e);
-		}
-		saveQuota(harborProjectVo,harborProjectVo.getHarborId());
-	}
-
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_CVE,description = "创建Docker镜像仓库：保存cve白名单",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3,outputSchemaClass = Integer.class)
-	private Integer createProjectCveSaga(String message){
-		HarborProjectVo harborProjectVo = null;
-		try {
-			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
-		} catch (IOException e) {
-			throw new CommonException(e);
-		}
-		saveWhiteList(harborProjectVo,harborProjectVo.getHarborId());
-		return harborProjectVo.getHarborId();
-	}
-
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：保存镜像仓库到数据库",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3)
-	private void createProjectDbSaga(String message){
-		HarborProjectVo harborProjectVo = null;
-		try {
-			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
-		} catch (IOException e) {
-			throw new CommonException(e);
-		}
-		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
-		Integer harborId = harborProjectVo.getHarborId();
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),new Long(harborId),projectDTO.getOrganizationId());
-		harborRepositoryRepository.insertSelective(harborRepository);
-	}
-
 
 	@Override
 	public HarborProjectVo detail(Long harborId) {
@@ -307,7 +199,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	public void update(Long projectId, HarborProjectVo harborProjectVo) {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
-			throw new CommonException("error.harbor.project.notexist");
+			throw new CommonException("error.harbor.project.not.exist");
 		}
 		Long harborId = harborRepository.getHarborId();
 
@@ -318,7 +210,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	    * 4.更新项目白名单
 	    * 5.更新数据库项目
 		* */
-		check(harborProjectVo);
+		checkParam(harborProjectVo);
 
 		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT,null,harborProjectDTO,false,harborId);
@@ -330,6 +222,39 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			harborRepository.setPublicFlag(harborProjectVo.getPublicFlag());
 			harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
 		}
+	}
+
+	@Override
+	@Saga(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT,description = "更新Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
+	public void updateSaga(Long projectId, HarborProjectVo harborProjectVo) {
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		Long harborId = harborRepository.getHarborId();
+
+		/**
+		 * 1.校验数据必输性
+		 * 2.更新harbor项目元数据
+		 * 3.更新项目资源配额
+		 * 4.更新项目白名单
+		 * 5.更新数据库项目
+		 * */
+		checkParam(harborProjectVo);
+
+		transactionalProducer.apply(StartSagaBuilder.newBuilder()
+						.withSagaCode(HarborConstants.HarborSagaCode.UPDATE_PROJECT)
+						.withLevel(ResourceLevel.PROJECT)
+						.withRefType("dockerRepo")
+						.withSourceId(projectId),
+				startSagaBuilder -> {
+					if(!harborRepository.getPublicFlag().equals(harborProjectVo.getPublicFlag())){
+						harborRepository.setPublicFlag(harborProjectVo.getPublicFlag());
+						harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
+					}
+					startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withSourceId(projectId);
+				}
+		);
 	}
 
 	@Override
@@ -351,7 +276,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	public void delete(Long projectId) {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
-			throw new CommonException("error.harbor.project.notexist");
+			throw new CommonException("error.harbor.project.not.exist");
 		}
 		harborRepositoryRepository.deleteByPrimaryKey(harborRepository.getId());
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_PROJECT,null,null,false,harborRepository.getHarborId());
@@ -396,7 +321,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	 * @param harborProjectDTO
 	 * @param harborId
 	 */
-	private void saveWhiteList(HarborProjectVo harborProjectVo,HarborProjectDTO harborProjectDTO,Integer harborId){
+	public void saveWhiteList(HarborProjectVo harborProjectVo,HarborProjectDTO harborProjectDTO,Integer harborId){
 		if(HarborConstants.TRUE.equals(harborProjectVo.getUseProjectCveFlag())){
 			Map<String,Object> map = new HashMap<>(4);
 			List<Map<String,String >> cveMapList = new ArrayList<>();
@@ -414,28 +339,10 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		}
 	}
 
-	/***
-	 * 保存cve白名单
-	 * @param harborProjectVo
-	 * @param harborId
-	 */
-	private void saveWhiteList(HarborProjectVo harborProjectVo,Integer harborId){
-		if(HarborConstants.TRUE.equals(harborProjectVo.getUseProjectCveFlag())){
-			HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
-			Map<String,Object> map = new HashMap<>(4);
-			List<Map<String,String >> cveMapList = new ArrayList<>();
-			for(String cve : harborProjectVo.getCveNoList()){
-				Map<String,String> cveMap = new HashMap<>(2);
-				cveMap.put("cve_id",cve);
-				cveMapList.add(cveMap);
-			}
-			map.put("items",cveMapList);
-			map.put("expires_at",HarborUtil.dateToTimestamp(harborProjectVo.getEndDate()));
-			map.put("project_id",harborId);
-			map.put("id",1);
-			harborProjectDTO.setCveWhiteList(map);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT,null,harborProjectDTO,false,harborId);
-		}
+	@Override
+	public void saveWhiteList(HarborProjectVo harborProjectVo, Integer harborId){
+		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
+		saveWhiteList(harborProjectVo,harborProjectDTO,harborId);
 	}
 
 	/***
@@ -443,7 +350,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	 * @param harborProjectVo
 	 * @param harborId
 	 */
-	private void saveQuota(HarborProjectVo harborProjectVo,Integer harborId){
+	@Override
+	public void saveQuota(HarborProjectVo harborProjectVo, Integer harborId){
 		Integer storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
 		Map<String,Object> qutoaObject = new HashMap<>(1);
 		Map<String,Object> hardObject = new HashMap<>(2);
@@ -453,15 +361,77 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,true,harborId);
 	}
 
-	private void check(HarborProjectVo harborProjectVo){
-		AssertUtils.notNull(harborProjectVo.getPublicFlag(),"error.harbor.publicFlag.empty");
-		AssertUtils.notNull(harborProjectVo.getCountLimit(),"error.harbor.CountLimit.empty");
-		AssertUtils.notNull(harborProjectVo.getStorageNum(),"error.harbor.StorageNum.empty");
-		AssertUtils.notNull(harborProjectVo.getStorageUnit(),"error.harbor.StorageUnit.empty");
-		AssertUtils.notNull(harborProjectVo.getContentTrustFlag(),"error.harbor.ContentTrustFlag.empty");
-		AssertUtils.notNull(harborProjectVo.getAutoScanFlag(),"error.harbor.AutoScanFlag.empty");
-		AssertUtils.notNull(harborProjectVo.getPreventVulnerableFlag(),"error.harbor.PreventVulnerableFlag.empty");
-		AssertUtils.notNull(harborProjectVo.getSeverity(),"error.harbor.Severity.empty");
+	private void checkParam(HarborProjectVo harborProjectVo){
+		if(StringUtils.isEmpty(harborProjectVo.getPublicFlag())){
+			harborProjectVo.setPublicFlag(HarborConstants.FALSE);
+		}
+		if(StringUtils.isEmpty(harborProjectVo.getContentTrustFlag())){
+			harborProjectVo.setContentTrustFlag(HarborConstants.FALSE);
+		}
+		if(StringUtils.isEmpty(harborProjectVo.getPreventVulnerableFlag())){
+			harborProjectVo.setPreventVulnerableFlag(HarborConstants.FALSE);
+		}
+		if(HarborConstants.TRUE.equals(harborProjectVo.getPreventVulnerableFlag())){
+			if(StringUtils.isEmpty(harborProjectVo.getSeverity())){
+				harborProjectVo.setSeverity(HarborConstants.SeverityLevel.LOW);
+			}
+		}
+		if(StringUtils.isEmpty(harborProjectVo.getAutoScanFlag())){
+			harborProjectVo.setAutoScanFlag(HarborConstants.FALSE);
+		}
+		if(harborProjectVo.getCountLimit() == null){
+			harborProjectVo.setCountLimit(-1);
+		}
+		if(harborProjectVo.getStorageNum() == null){
+			harborProjectVo.setStorageNum(-1);
+		}
+		if(StringUtils.isEmpty(harborProjectVo.getUseSysCveFlag())){
+			harborProjectVo.setUseSysCveFlag(HarborConstants.TRUE);
+			harborProjectVo.setUseProjectCveFlag(HarborConstants.FALSE);
+		}
+
+		AssertUtils.notNull(harborProjectVo.getStorageUnit(),"error.harbor.project.StorageUnit.empty");
+		notIn(harborProjectVo.getStorageUnit(),"存储容量单位","error.harbor.project.StorageUnit.value.not.in",HarborConstants.KB,HarborConstants.MB,HarborConstants.GB,HarborConstants.TB);
+		notIn(harborProjectVo.getPublicFlag(),"访问级别","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		notIn(harborProjectVo.getContentTrustFlag(),"内容信任","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		notIn(harborProjectVo.getPreventVulnerableFlag(),"阻止潜在漏洞","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		notIn(harborProjectVo.getAutoScanFlag(),"自动扫描","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		notIn(harborProjectVo.getUseSysCveFlag(),"启用系统白名单","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		notIn(harborProjectVo.getUseProjectCveFlag(),"启用项目白名单","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		notIn(harborProjectVo.getSeverity(),"危害级别","error.harbor.project.Severity.value.not.in",HarborConstants.SeverityLevel.LOW,HarborConstants.SeverityLevel.MEDIUM,HarborConstants.SeverityLevel.HIGH,HarborConstants.SeverityLevel.CRITICAL);
+
+	}
+
+	private void checkProject(HarborProjectVo harborProjectVo,Long projectId){
+		if(CollectionUtils.isNotEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId))){
+			throw new CommonException("error.harbor.project.exist");
+		}
+
+		Map<String,Object> checkProjectParamMap = new HashMap<>();
+		checkProjectParamMap.put("project_name",harborProjectVo.getName());
+		ResponseEntity<String> checkProjectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHECK_PROJECT_NAME,checkProjectParamMap,null,true);
+		if(checkProjectResponse != null && checkProjectResponse.getStatusCode().value() == 200){
+			throw new CommonException("error.harbor.project.exist");
+		}
+	}
+
+	private void notIn(String str,String fieldName,String errorMsgCode,String... args){
+		if(StringUtils.isEmpty(str)){
+			return;
+		}
+		boolean flag = false;
+
+		int length = args.length;
+		for(int i=0; i < length; i++){
+			if(str.equals(args[i])){
+				flag = true;
+				break;
+			}
+		}
+
+		if(!flag){
+			throw new CommonException(errorMsgCode,fieldName,str);
+		}
 	}
 
 }

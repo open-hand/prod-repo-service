@@ -166,6 +166,11 @@ public class HarborHttpClient {
 					case 409: throw new CommonException("Target tag already exists.");
 					default: throw new CommonException(e.getMessage());
 				}
+			case CHECK_PROJECT_NAME:
+				switch (statusCode){
+					case 404: return;
+					default: throw new CommonException(e.getMessage());
+				}
 			default: throw new CommonException(e.getMessage());
 		}
 

@@ -46,7 +46,7 @@ public class HarborImageController {
 		return Results.success(harborImageService.getByOrg(organizationId,projectCode,projectName,imageName,pageRequest));
 	}
 
-	@ApiOperation(value = "删除镜像",notes = "必输字段{repoName 名称")
+	@ApiOperation(value = "删除镜像,必输字段{repoName 名称")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@DeleteMapping(value = "/delete")
 	public ResponseEntity delete(@RequestBody HarborImageVo harborImageVo) {
@@ -54,7 +54,7 @@ public class HarborImageController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "更新镜像描述",notes = "必输字段{repoName 名称、description镜像描述}")
+	@ApiOperation(value = "更新镜像描述,必输字段{repoName 名称、description镜像描述}")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@PostMapping(value = "/update/description")
 	public ResponseEntity updateDesc(@RequestBody HarborImageVo harborImageVo) {

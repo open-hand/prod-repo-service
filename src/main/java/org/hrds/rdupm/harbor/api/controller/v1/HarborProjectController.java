@@ -66,6 +66,15 @@ public class HarborProjectController extends BaseController {
 		return Results.success();
 	}
 
+	@ApiOperation(value = "saga测试-更新镜像仓库配置")
+	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@PostMapping(value = "/update-sagas/{projectId}")
+	public ResponseEntity updateSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
+		harborProjectService.updateSaga(projectId,harborProjectVo);
+		return Results.success();
+	}
+
 	@ApiOperation(value = "删除镜像仓库")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@DeleteMapping(value = "/delete/{projectId}")

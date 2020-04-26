@@ -36,6 +36,8 @@ public interface HarborProjectService {
 	 * @param harborProjectVo
 	 */
 	void update(Long projectId, HarborProjectVo harborProjectVo);
+	
+	void updateSaga(Long projectId, HarborProjectVo harborProjectVo);
 
 	/***
 	 * 项目层--查询镜像仓库列表
@@ -56,4 +58,18 @@ public interface HarborProjectService {
 	 * @param projectId
 	 */
 	void delete(Long projectId);
+
+	/***
+	 * 保存存储配置
+	 * @param harborProjectVo
+	 * @param harborId
+	 */
+	void saveQuota(HarborProjectVo harborProjectVo, Integer harborId);
+
+	/***
+	 * 保存白名单
+	 * @param harborProjectVo
+	 * @param harborId
+	 */
+	void saveWhiteList(HarborProjectVo harborProjectVo, Integer harborId);
 }

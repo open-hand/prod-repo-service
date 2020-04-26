@@ -27,6 +27,20 @@ public interface HarborConstants {
 
 	String DEFAULT_PASSWORD = "Abcd1234";
 
+	/**
+	* 危害等级
+	* */
+	interface SeverityLevel{
+
+		String LOW = "low";
+
+		String MEDIUM = "medium";
+
+		String HIGH = "high";
+
+		String CRITICAL = "critical";
+	}
+
 	interface HarborSagaCode{
 		/**
 		* 创建Docker仓库
@@ -44,6 +58,18 @@ public interface HarborConstants {
 
 		String CREATE_PROJECT_DB = "rdupm-docker-create.db";
 
+		/**
+		* 更新Docke仓库
+		* */
+		String UPDATE_PROJECT = "rdupm-docker-update";
+
+		String UPDATE_PROJECT_REPO = "rdupm-docker-update.repo";
+
+		String UPDATE_PROJECT_QUOTA = "rdupm-docker-update.quota";
+
+		String UPDATE_PROJECT_CVE = "rdupm-docker-update.cve";
+
+		String UPDATE_PROJECT_DB = "rdupm-docker-update.db";
 	}
 
 	enum HarborApiEnum{
