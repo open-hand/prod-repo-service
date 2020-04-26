@@ -44,7 +44,7 @@ public class HarborProjectController extends BaseController {
 
 	@ApiOperation(value = "saga测试-创建镜像仓库")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@PostMapping(value = "/create/{projectId}")
+	@PostMapping(value = "/create-saga/{projectId}")
 	public ResponseEntity createSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
 		harborProjectService.createSaga(projectId,harborProjectVo);
