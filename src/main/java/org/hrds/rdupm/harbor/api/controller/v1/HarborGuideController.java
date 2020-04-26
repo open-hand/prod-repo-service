@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author chenxiuhong 2020/04/23 11:40 上午
  */
-@Api(tags = SwaggerTags.GUIDE)
 @RestController("HarborGuideController.v1")
 @RequestMapping("/v1/harbor-guide")
 public class HarborGuideController {

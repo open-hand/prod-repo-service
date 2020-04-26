@@ -24,7 +24,6 @@ import springfox.documentation.annotations.ApiIgnore;
  *
  * @author chenxiuhong 2020/04/23 11:40 上午
  */
-@Api(tags = SwaggerTags.IMAGE_TAG)
 @RestController("HarborImageTagController.v1")
 @RequestMapping("/v1/harbor-image-tag")
 public class HarborImageTagController {

@@ -25,7 +25,6 @@ import springfox.documentation.annotations.ApiIgnore;
  *
  * @author chenxiuhong 2020/04/21 9:50 上午
  */
-@Api(tags = SwaggerTags.PROJECT)
 @RestController("HarborProjectController.v1")
 @RequestMapping("/v1/harbor-project")
 public class HarborProjectController extends BaseController {
