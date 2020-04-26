@@ -55,7 +55,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		// 查询所有数据
 		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().searchComponentInfo(componentQuery);
 		// 分页
-		PageInfo<NexusServerComponentInfo> componentInfoPageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfoList);
+		PageInfo<NexusServerComponentInfo> componentInfoPageInfo = PageConvertUtils.convert(pageRequest.getPage() + 1, pageRequest.getSize(), componentInfoList);
 
 		if (deleteFlag && projectId != null) {
 			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId);

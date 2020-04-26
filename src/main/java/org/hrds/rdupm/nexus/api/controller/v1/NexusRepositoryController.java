@@ -36,7 +36,7 @@ public class NexusRepositoryController extends BaseController {
     @Autowired
     private NexusRepositoryService nexusRepositoryService;
 
-    @ApiOperation(value = "maven仓库更新")
+    @ApiOperation(value = "maven仓库查询")
     @Permission(type = ResourceType.PROJECT, permissionPublic = true)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/{repositoryId}")
     public ResponseEntity<NexusRepositoryDTO> getMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
