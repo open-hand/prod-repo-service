@@ -95,6 +95,7 @@ public class HarborProjectDTO {
 	}
 
 	public HarborProjectDTO(HarborProjectVo harborProjectVo) {
+		this.name = harborProjectVo.getCode();
 		this.harborId = harborProjectVo.getHarborId();
 		this.countLimit = harborProjectVo.getCountLimit();
 		if(!StringUtils.isEmpty(harborProjectVo.getStorageUnit())){

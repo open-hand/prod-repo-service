@@ -100,7 +100,7 @@ public class HarborProjectCreateHandler {
 		//查询harbor-id
 		Integer harborId = null;
 		Map<String,Object> paramMap2 = new HashMap<>(3);
-		paramMap2.put("name",harborProjectVo.getName());
+		paramMap2.put("name",harborProjectVo.getCode());
 		paramMap2.put("public",harborProjectVo.getPublicFlag());
 		paramMap2.put("owner",userName);
 		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,paramMap2,null,false);
@@ -108,7 +108,7 @@ public class HarborProjectCreateHandler {
 		Gson gson = new Gson();
 		for(String object : projectList){
 			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
-			if(harborProjectVo.getName().equals(projectResponseDto.getName())){
+			if(harborProjectVo.getCode().equals(projectResponseDto.getName())){
 				harborId = projectResponseDto.getHarborId();
 				break;
 			}

@@ -142,7 +142,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
 		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
 		String code = projectDTO.getCode();
-		harborProjectVo.setName(code);
+		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
 
 		//校验项目是否已经存在、校验数据正确性
@@ -231,7 +231,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
-		Long harborId = harborRepository.getHarborId();
+		harborProjectVo.setHarborId(harborRepository.getHarborId().intValue());
 
 		/**
 		 * 1.校验数据必输性
