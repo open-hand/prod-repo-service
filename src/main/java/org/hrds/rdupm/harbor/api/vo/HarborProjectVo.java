@@ -11,6 +11,7 @@ import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ import org.springframework.beans.BeanUtils;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborProjectVo {
 
 	private Integer harborId;
@@ -123,4 +125,5 @@ public class HarborProjectVo {
 		}
 
 	}
+
 }

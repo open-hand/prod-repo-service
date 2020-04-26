@@ -76,7 +76,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
 		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
 		String code = projectDTO.getCode();
-		harborProjectVo.setName(code);
+		harborProjectVo.setCode(code);
 
 		//校验项目是否已经存在、校验数据正确性
 		checkParam(harborProjectVo);
@@ -408,7 +408,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		}
 
 		Map<String,Object> checkProjectParamMap = new HashMap<>();
-		checkProjectParamMap.put("project_name",harborProjectVo.getName());
+		checkProjectParamMap.put("project_name",harborProjectVo.getCode());
 		ResponseEntity<String> checkProjectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHECK_PROJECT_NAME,checkProjectParamMap,null,true);
 		if(checkProjectResponse != null && checkProjectResponse.getStatusCode().value() == 200){
 			throw new CommonException("error.harbor.project.exist");
