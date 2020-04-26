@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.domain.entity.HarborMetadataDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
 
@@ -27,6 +29,7 @@ import org.springframework.beans.BeanUtils;
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HarborProjectVo {
 
 	private Integer harborId;
@@ -94,12 +97,14 @@ public class HarborProjectVo {
 	@ApiModelProperty(value = "已使用存储容量单位")
 	private String usedStorageUnit;
 
+	private ProjectDTO projectDTO;
+
 	public HarborProjectVo(){}
 
 	public HarborProjectVo(HarborProjectDTO harborProjectDTO){
 		HarborMetadataDTO harborMetadataDTO = harborProjectDTO.getMetadata();
 		BeanUtils.copyProperties(harborMetadataDTO,this);
-		this.harborId = harborProjectDTO.getProjectId();
+		this.harborId = harborProjectDTO.getHarborId();
 		this.code = harborProjectDTO.getName();
 		this.repoConut = harborProjectDTO.getRepoCount();
 

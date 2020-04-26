@@ -1,7 +1,7 @@
-package org.hrds.rdupm.harbor.infra.util;
+package org.hrds.rdupm.harbor.config;
 
 /**
- * description
+ * https请求时，不扫描SSL证书
  *
  * @author chenxiuhong 2020/04/21 4:51 下午
  */
@@ -9,46 +9,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
-import java.io.IOException;
-import java.net.URL;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-public class DisableSSLCertificateCheckUtil {
+public class DisableSSLCertificateCheck {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DisableSSLCertificateCheckUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DisableSSLCertificateCheck.class);
 
 	/**
 	 * Prevent instantiation of utility class.
 	 */
-
-	private DisableSSLCertificateCheckUtil() {
+	private DisableSSLCertificateCheck() {
 
 	}
 
 	/**
 	 * Disable trust checks for SSL connections.
 	 */
-
-	public static void disableChecks(String url) {
+	public static void disableChecks() {
 		try {
-			new URL(url).getContent();
-		} catch (IOException e) {
-			LOGGER.info("test");
-		}
-		try {
-			SSLContext sslc;
-			sslc = SSLContext.getInstance("TLS");
+			SSLContext sslc= SSLContext.getInstance("TLS");
 			TrustManager[] trustManagerArray = {new X509TrustManager() {
 				@Override
-				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-				}
+				public void checkClientTrusted(X509Certificate[] chain, String authType) { }
 
 				@Override
-				public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-				}
+				public void checkServerTrusted(X509Certificate[] chain, String authType) { }
 
 				@Override
 				public X509Certificate[] getAcceptedIssuers() {

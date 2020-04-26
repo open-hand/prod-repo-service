@@ -8,12 +8,15 @@ import java.util.Map;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborCountVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +34,21 @@ public class HarborImageServiceImpl implements HarborImageService {
 	@Autowired
 	private HarborHttpClient harborHttpClient;
 
+	@Autowired
+	private HarborRepositoryRepository harborRepositoryRepository;
+
 	@Override
 	public PageInfo<HarborImageVo> getByProject(Long harborId, String imageName, PageRequest pageRequest) {
 		Gson gson = new Gson();
+
+		//获得镜像数
+		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,harborId);
+		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+		Integer totalSize = harborProjectDTO.getRepoCount();
+		String repoName = harborProjectDTO.getName();
+		if(totalSize <= 0){
+			return new PageInfo(null,totalSize);
+		}
 
 		Map<String,Object> paramMap = new HashMap<>();
 		paramMap.put("project_id",harborId);
@@ -45,11 +60,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
 			harborImageVoList = gson.fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageVo>>(){}.getType());
 		}
-
-		//获得镜像数
-		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,harborId);
-		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-		Integer totalSize = harborProjectDTO.getRepoCount();
+		harborImageVoList.forEach(dto->dto.setImageName(dto.getImageName().substring(repoName.length()+1)));
 
 		return new PageInfo(harborImageVoList,totalSize);
 	}
@@ -82,15 +93,34 @@ public class HarborImageServiceImpl implements HarborImageService {
 	}
 
 	@Override
-	public void delete(String projectCode, String imageName) {
-		String repoName = projectCode+"/"+imageName;
+	public void delete(HarborImageVo harborImageVo) {
+		String repoName = harborImageVo.getRepoName();
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE,null,null,false,repoName);
 	}
 
 	@Override
-	public void updateDesc(String projectCode, String imageName, String description) {
-		String repoName = projectCode+"/"+imageName;
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,description,false,repoName);
+	public void updateDesc(HarborImageVo harborImageVo) {
+		String repoName = harborImageVo.getRepoName();
+		Map<String,String> bodyMap = new HashMap<>();
+		bodyMap.put("description",harborImageVo.getDescription());
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,false,repoName);
+	}
+
+	/***
+	 * 获取镜像仓库名+"/"+镜像名
+	 * @param harborImageVo
+	 * @return
+	 */
+	private String getRepoName(HarborImageVo harborImageVo){
+		if(harborImageVo.getHarborId() == null || StringUtils.isEmpty(harborImageVo.getImageName())){
+			throw new CommonException("error.harbor.image.param.empty");
+		}
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborImageVo.getHarborId()).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.notexist");
+		}
+		String repoName = harborRepository.getCode()+"/"+harborImageVo.getImageName();
+		return repoName;
 	}
 
 }

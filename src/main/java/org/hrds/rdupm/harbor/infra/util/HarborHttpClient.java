@@ -6,10 +6,9 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
+import org.hrds.rdupm.harbor.config.DisableSSLCertificateCheck;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
-import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -33,21 +30,9 @@ public class HarborHttpClient {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HarborHttpClient.class);
 
-	/**
-	 * 默认请求类型
-	 */
-	String DEFAULT_CONTENT_TYPE = "application/json;charset=utf-8";
-
-	/**
-	 * 默认请求格式
-	 */
-	String DEFAULT_CHAR_SET = "UTF-8";
-
 	String AUTH_HEADER= "Authorization";
 
 	String AUTH_PRE = "Basic ";
-
-	String harborUrl = "https://118.25.175.161";
 
 	String userName;
 
@@ -99,46 +84,16 @@ public class HarborHttpClient {
 
 		ResponseEntity<String> responseEntity = null;
 		try {
-			DisableSSLCertificateCheckUtil.disableChecks(harborUrl);
+			DisableSSLCertificateCheck.disableChecks();
 			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 		} catch (HttpClientErrorException e) {
 			e.printStackTrace();
 			handleStatusCode(apiEnum,e);
 		}finally {
-			LOGGER.debug("url："+url);
-			LOGGER.debug("body："+new Gson().toJson(body));
+			LOGGER.debug("api：{}",apiEnum);
+			LOGGER.debug("url：{}",url);
+			LOGGER.debug("body：{}",new Gson().toJson(body));
 		}
-		return responseEntity;
-	}
-
-	/**
-	 * 请求
-	 * @param apiEnum api枚举参数
-	 * @param paramMap url后面接的参数
-	 * @param body body的参数
-	 *  默认：application/json
-	 * @return ResponseEntity<String>
-	 */
-	public ResponseEntity<String> exchangeFormData(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, MultiValueMap<String, Object> body){
-		String url = harborUrl + apiEnum.getApiUrl();
-		HttpMethod httpMethod = apiEnum.getHttpMethod();
-
-		HttpHeaders headers = new HttpHeaders();
-		MediaType type = MediaType.parseMediaType(MediaType.MULTIPART_FORM_DATA_VALUE);
-		headers.setContentType(type);
-		headers.add(AUTH_HEADER, this.getToken());
-
-		HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
-		url = this.setParam(url, paramMap);
-
-		ResponseEntity<String> responseEntity = null;
-		try {
-			DisableSSLCertificateCheckUtil.disableChecks(harborUrl);
-			responseEntity = restTemplate.exchange(url, httpMethod, entity, String.class, paramMap);
-		} catch (HttpClientErrorException e) {
-			handleStatusCode(apiEnum,e);
-		}
-
 		return responseEntity;
 	}
 
@@ -165,7 +120,7 @@ public class HarborHttpClient {
 	private void handleStatusCode(HarborConstants.HarborApiEnum apiEnum,HttpClientErrorException e){
 		int statusCode = e.getStatusCode().value();
 		switch (statusCode){
-			case 401: throw new CommonException("User need to log in first.");
+			case 401: throw new CommonException("User need to log in first. or User has no permission to the source project or destination project.");
 			case 415: throw new CommonException("The Media Type of the request is not supported, it has to be \"application/json\"");
 			case 500: throw new CommonException("Unexpected internal errors.");
 			default: break;
@@ -201,6 +156,14 @@ public class HarborHttpClient {
 				switch (statusCode){
 					case 400: throw new CommonException("Unsatisfied with constraints of the user creation.");
 					case 403: throw new CommonException("User registration can only be used by admin role user when self-registration is off.");
+					default: throw new CommonException(e.getMessage());
+				}
+			case COPY_IMAGE_TAG:
+				switch (statusCode){
+					case 400: throw new CommonException("Invalid image values provided.");
+					case 403: throw new CommonException("Forbiden as quota exceeded.");
+					case 404: throw new CommonException("Project or repository not found.");
+					case 409: throw new CommonException("Target tag already exists.");
 					default: throw new CommonException(e.getMessage());
 				}
 			default: throw new CommonException(e.getMessage());

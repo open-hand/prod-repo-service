@@ -27,6 +27,25 @@ public interface HarborConstants {
 
 	String DEFAULT_PASSWORD = "Abcd1234";
 
+	interface HarborSagaCode{
+		/**
+		* 创建Docker仓库
+		* 创建用户、创建镜像仓库、保存存储容量配置、保存CVE白名单、保存项目到数据库
+		* */
+		String CREATE_PROJECT = "rdupm-docker-create";
+
+		String CREATE_PROJECT_USER = "rdupm-docker-create.user";
+
+		String CREATE_PROJECT_REPO = "rdupm-docker-create.repo";
+
+		String CREATE_PROJECT_QUOTA = "rdupm-docker-create.quota";
+
+		String CREATE_PROJECT_CVE = "rdupm-docker-create.cve";
+
+		String CREATE_PROJECT_DB = "rdupm-docker-create.db";
+
+	}
+
 	enum HarborApiEnum{
 
 		COUNT("/api/statistics", HttpMethod.GET,"获取所有项目数量、镜像数量"),
@@ -85,6 +104,19 @@ public interface HarborConstants {
 		UPDATE_IMAGE_DESC("/api/repositories/%s", HttpMethod.PUT,"更新镜像描述--  仓库名/镜像名称"),
 
 		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE,"删除镜像-- 仓库名/镜像名称"),
+
+		/**
+		* 镜像TAG API
+		* */
+		GET_IMAGE_BUILD_LOG("/api/repositories/%s/tags/%s/manifest", HttpMethod.GET,"获取构建日志-- 仓库名/镜像名称、版本号"),
+
+		DETAIL_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.GET,"获取镜像TAG明细-- 仓库名/镜像名称、版本号"),
+
+		DELETE_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.DELETE,"删除镜像TAG-- 仓库名/镜像名称、版本号"),
+
+		LIST_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.GET,"获取镜像TAG列表-- 仓库名/镜像名称"),
+
+		COPY_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.POST,"复制镜像TAG-- 仓库名/镜像名称"),
 
 		/**
 		* 日志API
