@@ -65,6 +65,13 @@ public class NexusRepository extends AuditDomain {
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
 
+	@Transient
+	private String creatorImageUrl;
+	@Transient
+	private String creatorLoginName;
+	@Transient
+	private String creatorRealName;
+
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------
@@ -163,6 +170,33 @@ public class NexusRepository extends AuditDomain {
 
 	public NexusRepository setProjectName(String projectName) {
 		this.projectName = projectName;
+		return this;
+	}
+
+	public String getCreatorImageUrl() {
+		return creatorImageUrl;
+	}
+
+	public NexusRepository setCreatorImageUrl(String creatorImageUrl) {
+		this.creatorImageUrl = creatorImageUrl;
+		return this;
+	}
+
+	public String getCreatorLoginName() {
+		return creatorLoginName;
+	}
+
+	public NexusRepository setCreatorLoginName(String creatorLoginName) {
+		this.creatorLoginName = creatorLoginName;
+		return this;
+	}
+
+	public String getCreatorRealName() {
+		return creatorRealName;
+	}
+
+	public NexusRepository setCreatorRealName(String creatorRealName) {
+		this.creatorRealName = creatorRealName;
 		return this;
 	}
 }

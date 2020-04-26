@@ -34,6 +34,9 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 			this.createdBy = nexusRepository.getCreatedBy();
 			this.creationDate = nexusRepository.getCreationDate();
+			this.creatorImageUrl = nexusRepository.getCreatorImageUrl();
+			this.creatorLoginName = nexusRepository.getCreatorLoginName();
+			this.creatorRealName = nexusRepository.getCreatorRealName();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -89,6 +92,9 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	private Long createdBy;
 	private Date creationDate;
+	private String creatorImageUrl;
+	private String creatorLoginName;
+	private String creatorRealName;
 
 	public Long getRepositoryId() {
 		return repositoryId;
@@ -249,6 +255,33 @@ public class NexusRepositoryDTO implements SecurityToken {
 
 	public NexusRepositoryDTO setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
+		return this;
+	}
+
+	public String getCreatorImageUrl() {
+		return creatorImageUrl;
+	}
+
+	public NexusRepositoryDTO setCreatorImageUrl(String creatorImageUrl) {
+		this.creatorImageUrl = creatorImageUrl;
+		return this;
+	}
+
+	public String getCreatorLoginName() {
+		return creatorLoginName;
+	}
+
+	public NexusRepositoryDTO setCreatorLoginName(String creatorLoginName) {
+		this.creatorLoginName = creatorLoginName;
+		return this;
+	}
+
+	public String getCreatorRealName() {
+		return creatorRealName;
+	}
+
+	public NexusRepositoryDTO setCreatorRealName(String creatorRealName) {
+		this.creatorRealName = creatorRealName;
 		return this;
 	}
 
