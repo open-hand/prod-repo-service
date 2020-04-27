@@ -27,7 +27,7 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/4/27
  */
 @RestController("ProductLibraryController.v1")
-@RequestMapping("/v1/product_library")
+@RequestMapping("/v1/product-library")
 public class ProductLibraryController extends BaseController {
 
 	@Autowired
