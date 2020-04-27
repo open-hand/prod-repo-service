@@ -16,6 +16,8 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborImageReTag {
+
+	@ApiModelProperty("源名称 镜像仓库名/镜像名 ")
 	private String srcRepoName;
 
 	@ApiModelProperty("摘要")

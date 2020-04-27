@@ -7,6 +7,7 @@ import io.choerodon.core.exception.CommonException;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -65,6 +66,11 @@ public class BaseFeignClientFallBack implements BaseFeignClient {
 	@Override
 	public ResponseEntity<List<UserDTO>> listProjectOwnerById(Long projectId) {
 		throw new CommonException("error.feign.user.select");
+	}
+
+	@Override
+	public ResponseEntity<List<UserWithGitlabIdDTO>> listUsersWithRolesAndGitlabUserIdByIds(Long projectId, Set<Long> userIds) {
+		throw new CommonException("error.feign.user.batch.select");
 	}
 
 }

@@ -171,6 +171,13 @@ public class HarborHttpClient {
 					case 404: return;
 					default: throw new CommonException(e.getMessage());
 				}
+			case CREATE_ONE_AUTH:
+				switch (statusCode){
+					case 400: throw new CommonException("Illegal format of project member or project id is invalid, or LDAP DN is invalid.");
+					case 403: throw new CommonException("User in session does not have permission to the project.");
+					case 409: throw new CommonException("A user group with same group name already exist or an LDAP user group with same DN already exist.");
+					default: throw new CommonException(e.getMessage());
+				}
 			default: throw new CommonException(e.getMessage());
 		}
 

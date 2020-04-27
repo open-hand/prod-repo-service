@@ -21,10 +21,6 @@ public interface HarborConstants {
 
 	String TB = "TB";
 
-	String USER_NAME = "admin";
-
-	String PASSWORD = "Harbor12345";
-
 	String DEFAULT_PASSWORD = "Abcd1234";
 
 	/**
@@ -147,7 +143,15 @@ public interface HarborConstants {
 		/**
 		* 获取项目用户
 		* */
-		GET_PROJECT_MEMBER("/api/projects/%s/members", HttpMethod.GET,"获取项目中用户--项目ID"),
+		LIST_AUTH("/api/projects/%s/members", HttpMethod.GET,"获取项目中权限列表--项目ID"),
+
+		GET_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.GET,"获取项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+
+		DELETE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.DELETE,"删除项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+
+		UPDATE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.PUT,"修改项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+
+		CREATE_ONE_AUTH("/api/projects/%s/members", HttpMethod.POST,"分配项目中某个用户的权限情况--项目ID"),
 
 		/**
 		* 日志API
