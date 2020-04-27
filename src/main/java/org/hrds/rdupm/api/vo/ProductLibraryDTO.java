@@ -32,8 +32,6 @@ public class ProductLibraryDTO extends AuditDomain {
 	private Long projectId;
 	@ApiModelProperty(value = "项目编码")
 	private String projectCode;
-	@ApiModelProperty(value = "项目名称")
-	private String projectName;
 	@ApiModelProperty(value = "创建人图标")
 	private String creatorImageUrl;
 	@ApiModelProperty(value = "创建人登录名")
@@ -46,6 +44,8 @@ public class ProductLibraryDTO extends AuditDomain {
 	 */
 	@ApiModelProperty("harbor, 主键")
 	private Long id;
+	@ApiModelProperty(value = "名称")
+	private String name;
 	@ApiModelProperty(value = "是否公开访问，默认false")
 	private String publicFlag;
 	@ApiModelProperty(value = "harbor项目ID")
@@ -72,6 +72,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	public ProductLibraryDTO(NexusRepositoryDTO nexusRepositoryDTO) {
 		this.uniqueId = UUIDUtils.generateUUID();
 		this.productType = TYPE_MAVEN;
+		this.repositoryName = nexusRepositoryDTO.getName();
 		BeanUtils.copyProperties(nexusRepositoryDTO, this);
 	}
 
