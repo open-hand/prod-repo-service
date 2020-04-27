@@ -72,6 +72,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	public ProductLibraryDTO(NexusRepositoryDTO nexusRepositoryDTO) {
 		this.uniqueId = UUIDUtils.generateUUID();
 		this.productType = TYPE_MAVEN;
+		this.repositoryName = nexusRepositoryDTO.getName();
 		BeanUtils.copyProperties(nexusRepositoryDTO, this);
 	}
 
