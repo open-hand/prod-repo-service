@@ -258,10 +258,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	}
 
 	@Override
-	public PageInfo<HarborRepository> listByProject(Long projectId, PageRequest pageRequest) {
-		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId));
-		processHarborRepositoryList(page.getContent());
-		return PageConvertUtils.convert(page);
+	public List<HarborRepository> listByProject(Long projectId, HarborRepository dto) {
+		return 	harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId);
 	}
 
 	@Override

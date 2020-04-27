@@ -46,7 +46,7 @@ public class HarborImageController {
 		return Results.success(harborImageService.getByOrg(organizationId,projectCode,projectName,imageName,pageRequest));
 	}
 
-	@ApiOperation(value = "删除镜像,必输字段{repoName 名称")
+	@ApiOperation(value = "删除镜像,必输字段{repoName 名称}")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@DeleteMapping(value = "/delete")
 	public ResponseEntity delete(@RequestBody HarborImageVo harborImageVo) {

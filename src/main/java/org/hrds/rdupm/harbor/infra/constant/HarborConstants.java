@@ -145,6 +145,11 @@ public interface HarborConstants {
 		COPY_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.POST,"复制镜像TAG-- 仓库名/镜像名称"),
 
 		/**
+		* 获取项目用户
+		* */
+		GET_PROJECT_MEMBER("/api/projects/%s/members", HttpMethod.GET,"获取项目中用户--项目ID"),
+
+		/**
 		* 日志API
 		* */
 		LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID");

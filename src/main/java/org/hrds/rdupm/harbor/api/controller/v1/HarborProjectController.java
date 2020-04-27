@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
+import java.util.List;
+
 import com.github.pagehelper.PageInfo;
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
@@ -86,9 +88,8 @@ public class HarborProjectController extends BaseController {
 	@ApiOperation(value = "项目层-镜像仓库列表")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@GetMapping(value = "/list-project/{projectId}")
-	public ResponseEntity<PageInfo<HarborRepository>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
-																	@ApiIgnore @SortDefault(value = HarborRepository.FIELD_PROJECT_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		return Results.success(harborProjectService.listByProject(projectId,pageRequest));
+	public ResponseEntity<List<HarborRepository>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
+		return Results.success(harborProjectService.listByProject(projectId,null));
 	}
 
 	@ApiOperation(value = "组织层-镜像仓库列表")
