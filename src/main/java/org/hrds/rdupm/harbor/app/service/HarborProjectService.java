@@ -42,9 +42,10 @@ public interface HarborProjectService {
 	/***
 	 * 项目层--查询镜像仓库列表
 	 * @param projectId
+	 * @param dto
 	 * @return
 	 */
-	PageInfo<HarborRepository> listByProject(Long projectId, PageRequest pageRequest);
+	List<HarborRepository> listByProject(Long projectId, HarborRepository dto);
 
 	/***
 	 * 组织层--查询镜像仓库列表
