@@ -127,7 +127,11 @@ public interface HarborConstants {
 		* */
 		GET_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.GET,"获取项目资源使用情况--项目ID"),
 
-		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源使用情况--项目ID"),
+		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源配额--项目ID"),
+
+		UPDATE_GLOBAL_QUOTA("/api/configurations", HttpMethod.PUT,"全局更新项目资源配额"),
+
+		GET_GLOBAL_QUOTA("/api/configurations", HttpMethod.GET,"获得全局资源配额"),
 
 		/**
 		* 镜像API

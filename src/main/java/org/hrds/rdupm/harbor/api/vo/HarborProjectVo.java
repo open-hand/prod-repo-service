@@ -126,4 +126,9 @@ public class HarborProjectVo {
 
 	}
 
+	public HarborProjectVo(Integer countLimit, Integer storageNum, String storageUnit) {
+		this.countLimit = countLimit;
+		this.storageNum = storageNum;
+		this.storageUnit = storageUnit;
+	}
 }

@@ -17,6 +17,7 @@ import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
+import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
@@ -46,11 +47,11 @@ public class HarborProjectCreateHandler {
 	@Autowired
 	private HarborRepositoryRepository harborRepositoryRepository;
 
-	@Resource
-	private TransactionalProducer transactionalProducer;
-
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@Autowired
+	private HarborQuotaService harborQuotaService;
 
 	//TODO
 	private String userName = "15367";
@@ -140,7 +141,7 @@ public class HarborProjectCreateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		harborProjectService.saveQuota(harborProjectVo,harborProjectVo.getHarborId());
+		harborQuotaService.saveQuota(harborProjectVo,harborProjectVo.getHarborId());
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_CVE,description = "创建Docker镜像仓库：保存cve白名单",
