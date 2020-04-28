@@ -39,6 +39,14 @@
             <bind name="realNameLike" value=" '%'+realName + '%'" />
             and rha.real_name like #{realNameLike}
         </if>
+        <if test=" code != null and code != '' ">
+            <bind name="codeLike" value=" '%'+code + '%'" />
+            and rhr.CODE like #{codeLike}
+        </if>
+        <if test=" name != null and name != '' ">
+            <bind name="nameLike" value=" '%'+ name + '%'" />
+            and rhr.NAME like #{nameLike}
+        </if>
         <if test=" projectId != null ">
             and rha.project_id = #{projectId}
         </if>

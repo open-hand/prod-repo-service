@@ -42,30 +42,41 @@ public interface HarborConstants {
 		* 创建Docker仓库
 		* 创建用户、创建镜像仓库、保存存储容量配置、保存CVE白名单、保存项目到数据库
 		* */
-		String CREATE_PROJECT = "rdupm-docker-create";
+		String CREATE_PROJECT = "rdupm-docker-repo-create";
 
-		String CREATE_PROJECT_USER = "rdupm-docker-create.user";
+		String CREATE_PROJECT_USER = "rdupm-docker-repo-create.user";
 
-		String CREATE_PROJECT_REPO = "rdupm-docker-create.repo";
+		String CREATE_PROJECT_REPO = "rdupm-docker-repo-create.repo";
 
-		String CREATE_PROJECT_QUOTA = "rdupm-docker-create.quota";
+		String CREATE_PROJECT_QUOTA = "rdupm-docker-repo-create.quota";
 
-		String CREATE_PROJECT_CVE = "rdupm-docker-create.cve";
+		String CREATE_PROJECT_CVE = "rdupm-docker-repo-create.cve";
 
-		String CREATE_PROJECT_DB = "rdupm-docker-create.db";
+		String CREATE_PROJECT_DB = "rdupm-docker-repo-create.db";
 
 		/**
 		* 更新Docke仓库
 		* */
-		String UPDATE_PROJECT = "rdupm-docker-update";
+		String UPDATE_PROJECT = "rdupm-docker-repo-update";
 
-		String UPDATE_PROJECT_REPO = "rdupm-docker-update.repo";
+		String UPDATE_PROJECT_REPO = "rdupm-docker-repo-update.repo";
 
-		String UPDATE_PROJECT_QUOTA = "rdupm-docker-update.quota";
+		String UPDATE_PROJECT_QUOTA = "rdupm-docker-repo-update.quota";
 
-		String UPDATE_PROJECT_CVE = "rdupm-docker-update.cve";
+		String UPDATE_PROJECT_CVE = "rdupm-docker-repo-update.cve";
 
-		String UPDATE_PROJECT_DB = "rdupm-docker-update.db";
+		String UPDATE_PROJECT_DB = "rdupm-docker-repo-update.db";
+
+		/**
+		* 分配权限
+		* */
+		String CREATE_AUTH = "rdupm-docker-auth-create";
+
+		String CREATE_AUTH_USER = "rdupm-docker-auth-create.user";
+
+		String CREATE_AUTH_AUTH = "rdupm-docker-auth-create.auth";
+
+		String CREATE_AUTH_DB = "rdupm-docker-auth-create.db";
 	}
 
 	enum HarborApiEnum{
@@ -196,8 +207,56 @@ public interface HarborConstants {
 
 	}
 
-	interface ErrorMessage{
-		String HARBOR_SERVER_ERROR = "error.harbor.service";
-	}
+	enum HarborRoleEnum{
+		PROJECT_ADMIN(1L,"projectAdmin","项目管理员"),
+		DEVELOPER(2L,"developer","开发人员"),
+		GUEST(3L,"guest","访客"),
+		MASTER(4L,"master","维护人员"),
+		LIMITED_GUEST(5L,"limitedGuest","受限访客5");
 
+		Long roleId;
+
+		String roleValue;
+
+		String roleName;
+
+		public Long getRoleId() {
+			return roleId;
+		}
+
+		public void setRoleId(Long roleId) {
+			this.roleId = roleId;
+		}
+
+		public String getRoleValue() {
+			return roleValue;
+		}
+
+		public void setRoleValue(String roleValue) {
+			this.roleValue = roleValue;
+		}
+
+		public String getRoleName() {
+			return roleName;
+		}
+
+		public void setRoleName(String roleName) {
+			this.roleName = roleName;
+		}
+
+		HarborRoleEnum(Long roleId, String roleValue, String roleName) {
+			this.roleId = roleId;
+			this.roleValue = roleValue;
+			this.roleName = roleName;
+		}
+
+		public static String getNameById(Long roleId){
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (roleId.equals(authorityEnum.getRoleId())) {
+					return authorityEnum.getRoleName();
+				}
+			}
+			return null;
+		}
+	}
 }

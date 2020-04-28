@@ -17,6 +17,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hzero.core.base.BaseConstants;
+import org.hzero.export.annotation.ExcelColumn;
+import org.hzero.export.annotation.ExcelSheet;
+import org.hzero.export.render.ValueRenderer;
 
 /**
  * 制品库-harbor权限表
@@ -30,6 +35,7 @@ import lombok.Setter;
 @ModifyAudit
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @Table(name = "rdupm_harbor_auth")
+@ExcelSheet(title = "Docker镜像仓库权限表")
 public class HarborAuth extends AuditDomain {
 
     public static final String FIELD_AUTH_ID = "authId";
@@ -68,18 +74,22 @@ public class HarborAuth extends AuditDomain {
     @NotNull
     private Long userId;
 
+    @ExcelColumn(title = "登录名",order = 3)
    @ApiModelProperty(value = "登录名，必输")
    @NotBlank
     private String loginName;
 
+    @ExcelColumn(title = "用户名",order = 4)
    @ApiModelProperty(value = "用户姓名，必输")
     private String realName;
 
-    @ApiModelProperty(value = "harbor角色ID，必输")
+	@ExcelColumn(title = "权限角色", renderers = AuthorityValueRenderer.class,order = 6)
+	@ApiModelProperty(value = "harbor角色ID，必输")
     @NotNull
     private Long harborRoleId;
 
-    @ApiModelProperty(value = "有效期，必输")
+	@ExcelColumn(title = "有效期",pattern = BaseConstants.Pattern.DATE ,order = 7)
+	@ApiModelProperty(value = "有效期，必输")
     @NotNull
     private Date endDate;
 
@@ -95,13 +105,39 @@ public class HarborAuth extends AuditDomain {
     @Transient
 	private String userImageUrl;
 
-    @Transient
+	@ExcelColumn(title = "成员角色",order = 5)
+	@Transient
 	private String memberRole;
 
-    @Transient
+	@ExcelColumn(title = "镜像仓库编码",order = 1)
+	@Transient
 	private String code;
 
-    @Transient
+	@ExcelColumn(title = "镜像仓库名称",order = 2)
+	@Transient
 	private String name;
 
+	public HarborAuth(){}
+
+	public HarborAuth(Long projectId, @NotBlank String loginName, String realName) {
+		this.projectId = projectId;
+		this.loginName = loginName;
+		this.realName = realName;
+	}
+
+	public HarborAuth(@NotBlank String loginName, String realName, Long organizationId, String code, String name) {
+		this.loginName = loginName;
+		this.realName = realName;
+		this.organizationId = organizationId;
+		this.code = code;
+		this.name = name;
+	}
+
+	public static class AuthorityValueRenderer implements ValueRenderer {
+		@Override
+		public Object render(Object value, Object data) {
+			HarborAuth dto = (HarborAuth) data;
+			return HarborConstants.HarborRoleEnum.getNameById(dto.getHarborRoleId());
+		}
+	}
 }

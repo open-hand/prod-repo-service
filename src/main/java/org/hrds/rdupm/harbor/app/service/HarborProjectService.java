@@ -19,8 +19,6 @@ public interface HarborProjectService {
 	 * @param projectId 猪齿鱼项目ID
 	 * @param harborProjectVo 镜像仓库信息
 	 */
-	void create(Long projectId, HarborProjectVo harborProjectVo);
-
 	void createSaga(Long projectId, HarborProjectVo harborProjectVo);
 
 	/***
@@ -35,8 +33,6 @@ public interface HarborProjectService {
 	 * @param projectId
 	 * @param harborProjectVo
 	 */
-	void update(Long projectId, HarborProjectVo harborProjectVo);
-	
 	void updateSaga(Long projectId, HarborProjectVo harborProjectVo);
 
 	/***

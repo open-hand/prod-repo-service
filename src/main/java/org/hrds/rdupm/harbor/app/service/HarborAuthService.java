@@ -2,9 +2,13 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hzero.export.vo.ExportParam;
 
 /**
  * 制品库-harbor权限表应用服务
@@ -32,11 +36,21 @@ public interface HarborAuthService {
 	 * @param harborAuth
 	 * @return
 	 */
-	PageInfo<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth);
+	Page<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth);
 
 	/***
 	 * 删除权限
 	 * @param harborAuth
 	 */
 	void delete(HarborAuth harborAuth);
+
+	/***
+	 * 导出权限
+	 * @param pageRequest
+	 * @param harborAuth
+	 * @param exportParam
+	 * @param response
+	 * @return
+	 */
+	Page<HarborAuth> export(PageRequest pageRequest, HarborAuth harborAuth, ExportParam exportParam, HttpServletResponse response);
 }

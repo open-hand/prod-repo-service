@@ -1,39 +1,33 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import io.choerodon.asgard.saga.annotation.Saga;
+import io.choerodon.asgard.saga.producer.StartSagaBuilder;
+import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
-import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.dto.User;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.RoleDTO;
-import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
-import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
+import org.hzero.export.annotation.ExcelExport;
+import org.hzero.export.vo.ExportParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -62,8 +56,11 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Resource
 	private HarborAuthMapper harborAuthMapper;
 
+	@Autowired
+	private TransactionalProducer transactionalProducer;
+
 	@Override
-	@Transactional(rollbackFor = Exception.class)
+	@Saga(code = HarborConstants.HarborSagaCode.CREATE_AUTH,description = "分配权限",inputSchemaClass = List.class)
 	public void save(Long projectId,List<HarborAuth> dtoList) {
 		if(CollectionUtils.isEmpty(dtoList)){
 			throw new CommonException("error.harbor.auth.param.empty");
@@ -72,15 +69,28 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
+
+		//校验是否已分配权限
+		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,dtoList.get(0).getProjectId());
+		Map<String,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getLoginName,dto->dto));
+
 		Long harborId = harborRepository.getHarborId();
 		dtoList.forEach(dto->{
+			if(harborAuthMap.get(dto.getLoginName()) != null){
+				throw new CommonException("error.harbor.auth.already.exist",dto.getLoginName(),dto.getRealName());
+			}
 			dto.setProjectId(projectId);
 			dto.setOrganizationId(harborRepository.getOrganizationId());
 			dto.setHarborId(harborId);
 		});
-		insertUser(dtoList);
-		insertToHarbor(dtoList);
-		insertToDb(dtoList);
+
+		transactionalProducer.apply(StartSagaBuilder.newBuilder()
+						.withSagaCode(HarborConstants.HarborSagaCode.CREATE_AUTH)
+						.withLevel(ResourceLevel.PROJECT)
+						.withRefType("dockerRepo")
+						.withSourceId(projectId),
+				startSagaBuilder -> startSagaBuilder.withPayloadAndSerialize(dtoList).withSourceId(projectId)
+		);
 	}
 
 	@Override
@@ -99,15 +109,16 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	}
 
 	@Override
-	public PageInfo<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth) {
+	public Page<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth) {
 		Page<HarborAuth> page = PageHelper.doPageAndSort(pageRequest,()->harborAuthMapper.list(harborAuth));
 		List<HarborAuth> dataList = page.getContent();
 		if(CollectionUtils.isEmpty(dataList)){
-			return PageConvertUtils.convert(page);
+			return page;
 		}
+		Long projectId = dataList.get(0).getProjectId();
 
 		Set<Long> userIdSet = dataList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
-		ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(harborAuth.getProjectId(),userIdSet);
+		ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
 		if(responseEntity == null){
 			throw new CommonException("error.feign.user.select.empty");
 		}
@@ -129,7 +140,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			}
 		});
 
-		return PageConvertUtils.convert(page);
+		return page;
 	}
 
 	@Override
@@ -144,45 +155,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,false,harborId,harborAuth.getHarborAuthId());
 	}
 
-	private void insertUser(List<HarborAuth> dtoList){
-		for(HarborAuth harborAuth : dtoList){
-			Map<String,Object> paramMap = new HashMap<>(1);
-			paramMap.put("username",harborAuth.getLoginName());
-			ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
-			List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
-
-			if(CollectionUtils.isEmpty(userList)){
-				ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(harborAuth.getLoginName());
-				UserDTO userDTO = userDTOResponseEntity.getBody();
-				User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
-				harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
-			}
-		}
-	}
-
-	private void insertToHarbor(List<HarborAuth> dtoList){
-		for(HarborAuth dto : dtoList){
-			Map<String,Object> bodyMap = new HashMap<>(2);
-			Map<String,Object> memberMap = new HashMap<>(1);
-			memberMap.put("username",dto.getLoginName());
-			bodyMap.put("role_id",dto.getHarborRoleId());
-			bodyMap.put("member_user",memberMap);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,dto.getHarborId());
-		}
-	}
-
-	private void insertToDb(List<HarborAuth> dtoList){
-		Long harborId = dtoList.get(0).getHarborId();
-		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
-		List<HarborAuthVo> harborImageTagVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
-		Map<String,HarborAuthVo> harborAuthVoMap = harborImageTagVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
-		dtoList.stream().forEach(dto->{
-			if(harborAuthVoMap.get(dto.getLoginName()) != null){
-				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
-			}else {
-				throw new CommonException("error.harbor.auth.find.harborAuthId");
-			}
-		});
-		repository.batchInsert(dtoList);
+	@Override
+	@ExcelExport(HarborAuth.class)
+	public Page<HarborAuth> export(PageRequest pageRequest, HarborAuth harborAuth, ExportParam exportParam, HttpServletResponse response) {
+		Page<HarborAuth> page = this.pageList(pageRequest,harborAuth);
+		return page;
 	}
 }
