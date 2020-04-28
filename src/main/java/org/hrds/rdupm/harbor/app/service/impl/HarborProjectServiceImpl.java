@@ -64,71 +64,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	private String userName = "15367";
 
 	@Override
-	public void create(Long projectId, HarborProjectVo harborProjectVo) {
-		/*
-		 * 1.判断Harbor中是否存在当前用户
-		 * 2.获取当前用户登录名，调用猪齿鱼接口获取用户基本信息，新增用户到harbor
-		 * 3.根据projectId获取猪齿鱼项目信息，得到项目编码、组织ID
-		 * 4.创建harbor项目，存储容量、安全级别、其他配置等
-		 * 5.数据库保存harbor项目，并关联猪齿鱼ID
-		 * */
-		//获取猪齿鱼项目信息
-		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
-		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
-		String code = projectDTO.getCode();
-		harborProjectVo.setCode(code);
-
-		//校验项目是否已经存在、校验数据正确性
-		checkParam(harborProjectVo);
-		checkProject(harborProjectVo,projectId);
-
-		//判断是否存在当前用户
-		Map<String,Object> paramMap = new HashMap<>(1);
-		paramMap.put("username",userName);
-		ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
-		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
-
-		//新增用户到Harbor
-		if(CollectionUtils.isEmpty(userList)){
-			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(userName);
-			UserDTO userDTO = userDTOResponseEntity.getBody();
-			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
-		}
-
-		//创建Harbor项目
-		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
-		harborProjectDTO.setName(code);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,false);
-
-		//查询harbor-id
-		Integer harborId = null;
-		Map<String,Object> paramMap2 = new HashMap<>(3);
-		paramMap2.put("name",code);
-		paramMap2.put("public",harborProjectVo.getPublicFlag());
-		paramMap2.put("owner",userName);
-		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,paramMap,null,false);
-		List<String> projectList= JSONObject.parseArray(projectResponse.getBody(),String.class);
-		Gson gson = new Gson();
-		for(String object : projectList){
-			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
-			if(code.equals(projectResponseDto.getName())){
-				harborId = projectResponseDto.getHarborId();
-				break;
-			}
-		}
-		if(harborId == null){
-			throw new CommonException("error.harbor.project.get.harborId");
-		}
-		saveQuota(harborProjectVo,harborId);
-		saveWhiteList(harborProjectVo,harborProjectDTO,harborId);
-
-		//保存数据库
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),new Long(harborId),projectDTO.getOrganizationId());
-		harborRepositoryRepository.insertSelective(harborRepository);
-	}
-
-	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
 	public void createSaga(Long projectId, HarborProjectVo harborProjectVo) {
 		/*
@@ -193,35 +128,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		harborProjectVo.setName(harborRepository == null ? null : harborRepository.getName());
 
 		return harborProjectVo;
-	}
-
-	@Override
-	public void update(Long projectId, HarborProjectVo harborProjectVo) {
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
-		if(harborRepository == null){
-			throw new CommonException("error.harbor.project.not.exist");
-		}
-		Long harborId = harborRepository.getHarborId();
-
-		/**
-		* 1.校验数据必输性
-		* 2.更新harbor项目元数据
-	    * 3.更新项目资源配额
-	    * 4.更新项目白名单
-	    * 5.更新数据库项目
-		* */
-		checkParam(harborProjectVo);
-
-		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT,null,harborProjectDTO,false,harborId);
-
-		saveQuota(harborProjectVo,harborId.intValue());
-		saveWhiteList(harborProjectVo,harborProjectDTO,harborId.intValue());
-
-		if(!harborRepository.getPublicFlag().equals(harborProjectVo.getPublicFlag())){
-			harborRepository.setPublicFlag(harborProjectVo.getPublicFlag());
-			harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
-		}
 	}
 
 	@Override

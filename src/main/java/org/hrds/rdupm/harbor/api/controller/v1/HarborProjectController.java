@@ -37,15 +37,6 @@ public class HarborProjectController extends BaseController {
 	@ApiOperation(value = "创建镜像仓库")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@PostMapping(value = "/create/{projectId}")
-	public ResponseEntity create(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
-								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
-		harborProjectService.create(projectId,harborProjectVo);
-		return Results.success();
-	}
-
-	@ApiOperation(value = "saga测试-创建镜像仓库")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@PostMapping(value = "/create-saga/{projectId}")
 	public ResponseEntity createSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
 		harborProjectService.createSaga(projectId,harborProjectVo);
@@ -62,15 +53,6 @@ public class HarborProjectController extends BaseController {
 	@ApiOperation(value = "更新镜像仓库配置")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@PostMapping(value = "/update/{projectId}")
-	public ResponseEntity update(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
-								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
-		harborProjectService.update(projectId,harborProjectVo);
-		return Results.success();
-	}
-
-	@ApiOperation(value = "saga测试-更新镜像仓库配置")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@PostMapping(value = "/update-sagas/{projectId}")
 	public ResponseEntity updateSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
 		harborProjectService.updateSaga(projectId,harborProjectVo);

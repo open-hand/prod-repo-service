@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hrds.rdupm.harbor.domain.entity.HarborAuth">
+        <result column="auth_id" property="authId" jdbcType="DECIMAL"/>
+        <result column="project_id" property="projectId" jdbcType="DECIMAL"/>
+        <result column="user_id" property="userId" jdbcType="DECIMAL"/>
+        <result column="login_name" property="loginName" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="harbor_role_id" property="harborRoleId" jdbcType="DECIMAL"/>
+        <result column="harbor_auth_id" property="harborAuthId" jdbcType="DECIMAL"/>
+        <result column="end_date" property="endDate" jdbcType="DATE"/>
+        <result column="organization_id" property="organizationId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
+        <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
+
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT
+            rha.*,
+            rhr.CODE,
+            rhr.NAME
+        FROM
+            rdupm_harbor_auth rha
+            LEFT JOIN rdupm_harbor_repository rhr ON rha.project_id = rhr.project_id
+        WHERE 1=1
+        <if test=" loginName != null and loginName != '' ">
+            <bind name="loginNameLike" value=" '%'+loginName + '%'" />
+            and rha.login_name like #{loginNameLike}
+        </if>
+        <if test=" realName != null and realName != '' ">
+            <bind name="realNameLike" value=" '%'+realName + '%'" />
+            and rha.real_name like #{realNameLike}
+        </if>
+        <if test=" code != null and code != '' ">
+            <bind name="codeLike" value=" '%'+code + '%'" />
+            and rhr.CODE like #{codeLike}
+        </if>
+        <if test=" name != null and name != '' ">
+            <bind name="nameLike" value=" '%'+ name + '%'" />
+            and rhr.NAME like #{nameLike}
+        </if>
+        <if test=" projectId != null ">
+            and rha.project_id = #{projectId}
+        </if>
+        <if test=" organizationId != null ">
+            and rha.organization_id = #{organizationId}
+        </if>
+    </select>
+</mapper>

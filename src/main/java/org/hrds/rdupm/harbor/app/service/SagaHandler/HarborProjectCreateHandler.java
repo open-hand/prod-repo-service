@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -58,29 +59,23 @@ public class HarborProjectCreateHandler {
 	private HarborProjectService harborProjectService;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = HarborProjectVo.class)
-	private HarborProjectVo createProjectUserSaga(String message){
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
+	private String createProjectUserSaga(String message){
 		//判断是否存在当前用户
 		Map<String,Object> paramMap = new HashMap<>(1);
 		paramMap.put("username",userName);
 		ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
 		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
+		Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
 
-		//新增用户到Harbor
-		if(CollectionUtils.isEmpty(userList)){
+		if(userMap.get(userName) == null){
 			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(userName);
 			UserDTO userDTO = userDTOResponseEntity.getBody();
 			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 		}
 
-		HarborProjectVo harborProjectVo = null;
-		try {
-			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
-		} catch (IOException e) {
-			throw new CommonException(e);
-		}
-		return harborProjectVo;
+		return message;
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
