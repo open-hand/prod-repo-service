@@ -1,17 +1,13 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.Saga;
-import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
@@ -22,12 +18,13 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
+import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.dto.User;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
@@ -35,6 +32,9 @@ import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.AssertUtils;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -60,8 +60,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Resource
 	private TransactionalProducer transactionalProducer;
 
-	//TODO
-	private String userName = "15367";
+	@Autowired
+	private HarborQuotaService harborQuotaService;
 
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
@@ -100,33 +100,13 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 		HarborProjectVo harborProjectVo = new HarborProjectVo(harborProjectDTO);
 
-		//获取存储容量
-		ResponseEntity<String> summaryResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY,null,null,false,harborId);
-		Map<String,Object> summaryMap = gson.fromJson(summaryResponseEntity.getBody(),Map.class);
-		Map<String,Object> quotaMap = (Map<String, Object>) summaryMap.get("quota");
-		Map<String,Object> hardMap = (Map<String, Object>) quotaMap.get("hard");
-		Map<String,Object> usedMap = (Map<String, Object>) quotaMap.get("used");
-		Double hardCount = (Double) hardMap.get("count");
-		Double hardStorage = (Double) hardMap.get("storage");
-		Double usedCount = (Double) usedMap.get("count");
-		Double usedStorage = (Double) usedMap.get("storage");
-
-		harborProjectVo.setCountLimit(Double.valueOf(hardCount).intValue());
-		harborProjectVo.setUsedCount(Double.valueOf(usedCount).intValue());
-		harborProjectVo.setStorageLimit(Double.valueOf(hardStorage).intValue());
-		harborProjectVo.setUsedStorage(Double.valueOf(usedStorage).intValue());
-
-		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(Double.valueOf(hardStorage).intValue());
-		harborProjectVo.setStorageNum((Integer) storageLimitMap.get("storageNum"));
-		harborProjectVo.setStorageUnit((String) storageLimitMap.get("storageUnit"));
-		Map<String,Object> usedStorageMap = HarborUtil.getStorageNumUnit(Double.valueOf(usedStorage).intValue());
-		harborProjectVo.setUsedStorageNum((Integer) usedStorageMap.get("storageNum"));
-		harborProjectVo.setUsedStorageUnit((String) usedStorageMap.get("storageUnit"));
-
 		//获取镜像仓库名称
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborId).stream().findFirst().orElse(null);
 		harborProjectVo.setName(harborRepository == null ? null : harborRepository.getName());
 
+		//获取存储容量
+		HarborQuotaVo harborQuotaVo = harborQuotaService.getProjectQuota(harborRepository.getProjectId());
+		BeanUtils.copyProperties(harborQuotaVo,harborProjectVo);
 		return harborProjectVo;
 	}
 
@@ -169,8 +149,19 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	}
 
 	@Override
-	public PageInfo<HarborRepository> listByOrg(Long organizationId,PageRequest pageRequest) {
-		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId));
+	public PageInfo<HarborRepository> listByOrg(HarborRepository harborRepository,PageRequest pageRequest) {
+		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,harborRepository.getOrganizationId());
+		if(!StringUtils.isEmpty(harborRepository.getPublicFlag())){
+			sql.andEqualTo(HarborRepository.FIELD_PUBLIC_FLAG,harborRepository.getPublicFlag());
+		}
+		if(!StringUtils.isEmpty(harborRepository.getCode())){
+			sql.andLike(HarborRepository.FIELD_CODE,harborRepository.getCode());
+		}
+		if(!StringUtils.isEmpty(harborRepository.getName())){
+			sql.andLike(HarborRepository.FIELD_NAME,harborRepository.getName());
+		}
+		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
+		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
 		processHarborRepositoryList(page.getContent());
 		return PageConvertUtils.convert(page);
 	}
@@ -198,14 +189,11 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		//创建人ID去重，并获得创建人详细信息
 		Set<Long> userIdSet = harborRepositoryList.stream().map(dto->dto.getCreatedBy()).collect(Collectors.toSet());
 		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
-		if(responseEntity == null){
-			throw new CommonException("error.feign.user.select.empty");
-		}
-		Map<Long,UserDTO> userDtoMap = responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
+		Map<Long,UserDTO> userDtoMap = responseEntity == null ? new HashMap<>(1) : responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
 
 		harborRepositoryList.forEach(dto->{
 			//获得镜像数
-			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,dto.getHarborId());
+			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,dto.getHarborId());
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 			dto.setRepoCount(harborProjectDTO.getRepoCount());
 
@@ -249,20 +237,23 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		saveWhiteList(harborProjectVo,harborProjectDTO,harborId);
 	}
 
-	/***
-	 * 保存存储容量配置
-	 * @param harborProjectVo
-	 * @param harborId
-	 */
 	@Override
-	public void saveQuota(HarborProjectVo harborProjectVo, Integer harborId){
-		Integer storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
-		Map<String,Object> qutoaObject = new HashMap<>(1);
-		Map<String,Object> hardObject = new HashMap<>(2);
-		hardObject.put("count",harborProjectVo.getCountLimit());
-		hardObject.put("storage",storageLimit);
-		qutoaObject.put("hard",hardObject);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,true,harborId);
+	public void updatePublicFlag(Long projectId, String publicFlag) {
+		HarborUtil.notIn(publicFlag,"访问级别","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		if(!publicFlag.equals(harborRepository.getPublicFlag())){
+			harborRepository.setPublicFlag(harborRepository.getPublicFlag());
+			harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
+
+			Map<String,Object> bodyMap = new HashMap<>(1);
+			Map<String,Object> metadataMap = new HashMap<>(1);
+			metadataMap.put("public",publicFlag);
+			bodyMap.put("metadata",metadataMap);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT,null,bodyMap,true,harborRepository.getHarborId());
+		}
 	}
 
 	private void checkParam(HarborProjectVo harborProjectVo){
@@ -295,14 +286,14 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		}
 
 		AssertUtils.notNull(harborProjectVo.getStorageUnit(),"error.harbor.project.StorageUnit.empty");
-		notIn(harborProjectVo.getStorageUnit(),"存储容量单位","error.harbor.project.StorageUnit.value.not.in",HarborConstants.KB,HarborConstants.MB,HarborConstants.GB,HarborConstants.TB);
-		notIn(harborProjectVo.getPublicFlag(),"访问级别","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		notIn(harborProjectVo.getContentTrustFlag(),"内容信任","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		notIn(harborProjectVo.getPreventVulnerableFlag(),"阻止潜在漏洞","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		notIn(harborProjectVo.getAutoScanFlag(),"自动扫描","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		notIn(harborProjectVo.getUseSysCveFlag(),"启用系统白名单","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		notIn(harborProjectVo.getUseProjectCveFlag(),"启用项目白名单","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		notIn(harborProjectVo.getSeverity(),"危害级别","error.harbor.project.Severity.value.not.in",HarborConstants.SeverityLevel.LOW,HarborConstants.SeverityLevel.MEDIUM,HarborConstants.SeverityLevel.HIGH,HarborConstants.SeverityLevel.CRITICAL);
+		HarborUtil.notIn(harborProjectVo.getStorageUnit(),"存储容量单位","error.harbor.project.StorageUnit.value.not.in",HarborConstants.KB,HarborConstants.MB,HarborConstants.GB,HarborConstants.TB);
+		HarborUtil.notIn(harborProjectVo.getPublicFlag(),"访问级别","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborUtil.notIn(harborProjectVo.getContentTrustFlag(),"内容信任","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborUtil.notIn(harborProjectVo.getPreventVulnerableFlag(),"阻止潜在漏洞","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborUtil.notIn(harborProjectVo.getAutoScanFlag(),"自动扫描","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborUtil.notIn(harborProjectVo.getUseSysCveFlag(),"启用系统白名单","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborUtil.notIn(harborProjectVo.getUseProjectCveFlag(),"启用项目白名单","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
+		HarborUtil.notIn(harborProjectVo.getSeverity(),"危害级别","error.harbor.project.Severity.value.not.in",HarborConstants.SeverityLevel.LOW,HarborConstants.SeverityLevel.MEDIUM,HarborConstants.SeverityLevel.HIGH,HarborConstants.SeverityLevel.CRITICAL);
 
 	}
 
@@ -316,25 +307,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		ResponseEntity<String> checkProjectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHECK_PROJECT_NAME,checkProjectParamMap,null,true);
 		if(checkProjectResponse != null && checkProjectResponse.getStatusCode().value() == 200){
 			throw new CommonException("error.harbor.project.exist");
-		}
-	}
-
-	private void notIn(String str,String fieldName,String errorMsgCode,String... args){
-		if(StringUtils.isEmpty(str)){
-			return;
-		}
-		boolean flag = false;
-
-		int length = args.length;
-		for(int i=0; i < length; i++){
-			if(str.equals(args[i])){
-				flag = true;
-				break;
-			}
-		}
-
-		if(!flag){
-			throw new CommonException(errorMsgCode,fieldName,str);
 		}
 	}
 

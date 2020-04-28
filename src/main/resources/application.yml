@@ -128,15 +128,7 @@ choerodon:
   cleanPermission: false
 
 harbor:
-  baseUrl: https://118.25.175.161
+  baseUrl: https://192.168.17.187
   username: admin
   password: Harbor12345
-
-services:
-  harbor:
-    baseUrl: https://192.168.198.128 #"harbor.example.com" # harbor地址
-    username: admin #"123456" # harbor用户名
-    password: Harbor12345 #"123456" # 对应harbor用户名的密码
-    insecureSkipTlsVerify: false
-
 

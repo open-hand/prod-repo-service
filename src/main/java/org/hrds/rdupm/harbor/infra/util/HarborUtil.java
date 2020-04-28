@@ -1,12 +1,15 @@
 package org.hrds.rdupm.harbor.infra.util;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import io.choerodon.core.exception.CommonException;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
@@ -33,31 +36,37 @@ public class HarborUtil {
 		return storageLimit;
 	}
 
-	public static Map<String,Object> getStorageNumUnit(Integer storageLimt) {
-		Integer storageNum = 0;
-		String storageUnit = HarborConstants.KB;
-		if(storageLimt > 0){
-			Integer divisionResult1 = Double.valueOf(storageLimt/(1024)).intValue();
-			Integer divisionResult2 = Double.valueOf(storageLimt/(1024*1024)).intValue();
-			Integer divisionResult3 = Double.valueOf(storageLimt/(1024*1024*1024)).intValue();
-			Integer divisionResult4 = Double.valueOf(storageLimt/(1024*1024*1024)).intValue();
-			if(divisionResult1 >= 1){
-				storageNum = divisionResult1;
-				storageUnit = HarborConstants.KB;
-			}
-			if(divisionResult2 >= 1){
-				storageNum = divisionResult2;
-				storageUnit = HarborConstants.MB;
-			}
-			if(divisionResult3 >= 1){
-				storageNum = divisionResult3;
-				storageUnit = HarborConstants.GB;
-			}
-			if(divisionResult4 >= 1){
-				storageNum = divisionResult4;
-				storageUnit = HarborConstants.TB;
-			}
+	public static Map<String,Object> getStorageNumUnit(Integer size) {
+		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
+		if (size < 1024) {
+			return storageMap(size,"B");
+		} else {
+			size = size / 1024;
 		}
+
+		//如果原字节数除于1024之后，少于1024，则可以直接以KB作为单位
+		if (size < 1024) {
+			return storageMap(size,"KB");
+		} else {
+			size = size / 1024;
+		}
+
+		if (size < 1024) {
+			return storageMap(size,"MB");
+		} else {
+			size = size / 1024;
+		}
+
+		if (size < 1024) {
+			return storageMap(size,"GB");
+		} else {
+			size = size / 1024;
+		}
+
+		return storageMap(size,"TB");
+	}
+
+	public static Map<String,Object> storageMap(Object storageNum,Object storageUnit){
 		Map<String,Object> map = new HashMap<>();
 		map.put("storageNum",storageNum);
 		map.put("storageUnit",storageUnit);
@@ -93,6 +102,10 @@ public class HarborUtil {
 		return date.getTime()/1000;
 	}
 
+	/***
+	 * 设置导出全部列
+	 * @param exportParam
+	 */
 	public static void setIds(ExportParam exportParam){
 		//无需在前台指定"列ids"
 		Set<Long> ids = new HashSet<>(16);
@@ -101,6 +114,67 @@ public class HarborUtil {
 		for(int i=1;i<=fieldLength+1;i++){
 			ids.add((long)i);
 		}
+	}
+
+	/***
+	 * 校验字符串是否在值区间内
+	 * @param str 字符串
+	 * @param fieldName 字段名
+	 * @param errorMsgCode 消息code
+	 * @param args 参数
+	 */
+	public static void notIn(String str,String fieldName,String errorMsgCode,String... args){
+		if(StringUtils.isEmpty(str)){
+			return;
+		}
+		boolean flag = false;
+
+		int length = args.length;
+		for(int i=0; i < length; i++){
+			if(str.equals(args[i])){
+				flag = true;
+				break;
+			}
+		}
+
+		if(!flag){
+			throw new CommonException(errorMsgCode,fieldName,str);
+		}
+	}
+
+	public static String getPrintSize(long size) {
+		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
+		if (size < 1024) {
+			return String.valueOf(size) + "B";
+		} else {
+			size = size / 1024;
+		}
+		//如果原字节数除于1024之后，少于1024，则可以直接以KB作为单位
+		//因为还没有到达要使用另一个单位的时候
+		//接下去以此类推
+		if (size < 1024) {
+			return String.valueOf(size) + "KB";
+		} else {
+			size = size / 1024;
+		}
+		if (size < 1024) {
+			//因为如果以MB为单位的话，要保留最后1位小数，
+			//因此，把此数乘以100之后再取余
+			size = size * 100;
+			return String.valueOf((size / 100)) + "."
+					+ String.valueOf((size % 100)) + "MB";
+		} else {
+			//否则如果要以GB为单位的，先除于1024再作同样的处理
+			size = size * 100 / 1024;
+			return String.valueOf((size / 100)) + "." + String.valueOf((size % 100)) + "GB";
+		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getPrintSize(200));
+		System.out.println(getPrintSize(200000));
+		System.out.println(getPrintSize(200000000));
+		System.out.println(getPrintSize(2000000000));
 	}
 
 }

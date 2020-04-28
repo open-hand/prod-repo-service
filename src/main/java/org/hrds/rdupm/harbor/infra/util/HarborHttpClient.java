@@ -143,6 +143,7 @@ public class HarborHttpClient {
 			case DETAIL_PROJECT:
 				switch (statusCode){
 					case 403: throw new CommonException("User does not have permission to the project.");
+					case 404: throw new CommonException("Project does not exist.");
 					default: throw new CommonException(e.getMessage());
 				}
 			case GET_PROJECT_SUMMARY:

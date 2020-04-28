@@ -78,7 +78,21 @@ public class HarborProjectController extends BaseController {
 	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
 	@GetMapping(value = "/list-org/{organizationId}")
 	public ResponseEntity<PageInfo<HarborRepository>> listByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId,
+																@ApiParam("镜像仓库编码") @RequestParam(required = false) String code,
+																@ApiParam("镜像仓库名称") @RequestParam(required = false) String name,
+																@ApiParam("访问级别") @RequestParam(required = false) String publicFlag,
 																@ApiIgnore @SortDefault(value = HarborRepository.FIELD_PROJECT_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		return Results.success(harborProjectService.listByOrg(organizationId,pageRequest));
+		HarborRepository harborRepository = new HarborRepository(code,name,publicFlag,organizationId);
+		return Results.success(harborProjectService.listByOrg(harborRepository,pageRequest));
 	}
+
+	@ApiOperation(value = "组织层-修改访问级别")
+	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@GetMapping(value = "/update/publicFlag/{projectId}")
+	public ResponseEntity updatePublicFlag(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+																   @ApiParam("访问级别,字符串true或者false") @RequestParam String publicFlag) {
+		harborProjectService.updatePublicFlag(projectId,publicFlag);
+		return Results.success();
+	}
+
 }
