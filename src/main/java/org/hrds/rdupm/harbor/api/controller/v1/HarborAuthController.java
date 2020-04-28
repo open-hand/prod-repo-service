@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
@@ -133,7 +134,7 @@ public class HarborAuthController extends BaseController {
 														   @ApiIgnore @SortDefault(value = HarborAuth.FIELD_AUTH_ID, direction = Sort.Direction.DESC) PageRequest pageRequest,
 														  @ApiParam("导出，输入exportType=DATA即可") ExportParam exportParam,
 														   HttpServletResponse response) {
-		setIds(exportParam);
+		HarborUtil.setIds(exportParam);
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName);
 		return Results.success(harborAuthService.export(pageRequest, harborAuth, exportParam, response));
 	}
@@ -148,18 +149,8 @@ public class HarborAuthController extends BaseController {
 															   @ApiParam("用户名") @RequestParam(required = false) String realName,
 															   @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
 													           @ApiParam("导出，输入exportType=DATA即可") ExportParam exportParam, HttpServletResponse response, PageRequest pageRequest) {
-		setIds(exportParam);
+		HarborUtil.setIds(exportParam);
 		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name);
 		return Results.success(harborAuthService.export(pageRequest, harborAuth, exportParam, response));
-	}
-
-	public void setIds(ExportParam exportParam){
-		//无需在前台指定"列ids"
-		Set<Long> ids = new HashSet<>(16);
-		exportParam.setIds(ids);
-		int fieldLength = HarborAuth.class.getDeclaredFields().length;
-		for(int i=1;i<=fieldLength+1;i++){
-			ids.add((long)i);
-		}
 	}
 }

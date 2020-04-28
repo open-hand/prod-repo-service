@@ -82,7 +82,7 @@ public class HarborProjectVo {
 	private Date endDate;
 
 	@ApiModelProperty("镜像数量")
-	private Integer repoConut;
+	private Integer repoCount;
 
 	@ApiModelProperty("镜像已使用数量")
 	private Integer usedCount;
@@ -108,7 +108,7 @@ public class HarborProjectVo {
 		BeanUtils.copyProperties(harborMetadataDTO,this);
 		this.harborId = harborProjectDTO.getHarborId();
 		this.code = harborProjectDTO.getName();
-		this.repoConut = harborProjectDTO.getRepoCount();
+		this.repoCount = harborProjectDTO.getRepoCount();
 
 		if(!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlag())){
 			this.useProjectCveFlag = HarborConstants.TRUE;

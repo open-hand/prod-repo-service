@@ -2,16 +2,15 @@ package org.hrds.rdupm.harbor.infra.util;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hzero.export.vo.ExportParam;
 
 /**
  * description
@@ -92,6 +91,16 @@ public class HarborUtil {
 			return null;
 		}
 		return date.getTime()/1000;
+	}
+
+	public static void setIds(ExportParam exportParam){
+		//无需在前台指定"列ids"
+		Set<Long> ids = new HashSet<>(16);
+		exportParam.setIds(ids);
+		int fieldLength = HarborAuth.class.getDeclaredFields().length;
+		for(int i=1;i<=fieldLength+1;i++){
+			ids.add((long)i);
+		}
 	}
 
 }
