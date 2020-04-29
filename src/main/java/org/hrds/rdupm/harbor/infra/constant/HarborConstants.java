@@ -23,6 +23,12 @@ public interface HarborConstants {
 
 	String DEFAULT_PASSWORD = "Abcd1234";
 
+	String ASSIGN_AUTH = "assign";
+
+	String UPDATE_AUTH = "update";
+
+	String REVOKE_AUTH = "revoke";
+
 	/**
 	* 危害等级
 	* */
@@ -216,7 +222,7 @@ public interface HarborConstants {
 		DEVELOPER(2L,"developer","开发人员"),
 		GUEST(3L,"guest","访客"),
 		MASTER(4L,"master","维护人员"),
-		LIMITED_GUEST(5L,"limitedGuest","受限访客5");
+		LIMITED_GUEST(5L,"limitedGuest","受限访客");
 
 		Long roleId;
 
@@ -258,6 +264,15 @@ public interface HarborConstants {
 			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
 				if (roleId.equals(authorityEnum.getRoleId())) {
 					return authorityEnum.getRoleName();
+				}
+			}
+			return null;
+		}
+
+		public static Long getIdByValue(String value){
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (value.equals(authorityEnum.getRoleValue())) {
+					return authorityEnum.getRoleId();
 				}
 			}
 			return null;

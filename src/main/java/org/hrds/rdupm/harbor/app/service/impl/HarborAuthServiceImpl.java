@@ -20,6 +20,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
+import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.RoleDTO;
@@ -56,10 +57,11 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Resource
 	private HarborAuthMapper harborAuthMapper;
 
-	@Autowired
+	@Resource
 	private TransactionalProducer transactionalProducer;
 
 	@Override
+	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_AUTH,description = "分配权限",inputSchemaClass = List.class)
 	public void save(Long projectId,List<HarborAuth> dtoList) {
 		if(CollectionUtils.isEmpty(dtoList)){
@@ -94,6 +96,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	}
 
 	@Override
+	@OperateLog(operateType = HarborConstants.UPDATE_AUTH,content = "%s 更新 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Transactional(rollbackFor = Exception.class)
 	public void update(HarborAuth harborAuth) {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
@@ -105,7 +108,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 		Map<String,Object> bodyMap = new HashMap<>(2);
 		bodyMap.put("role_id",harborAuth.getHarborRoleId());
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_ONE_AUTH,null,bodyMap,false,harborId,harborAuth.getHarborAuthId());
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_ONE_AUTH,null,bodyMap,true,harborId,harborAuth.getHarborAuthId());
 	}
 
 	@Override
@@ -144,6 +147,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	}
 
 	@Override
+	@OperateLog(operateType = HarborConstants.REVOKE_AUTH,content = "%s 删除 %s 的权限角色 【%s】")
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(HarborAuth harborAuth) {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);

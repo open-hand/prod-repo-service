@@ -145,7 +145,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 	@Override
 	public List<HarborRepository> listByProject(Long projectId, HarborRepository dto) {
-		return 	harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId);
+		List<HarborRepository> list = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId);
+		processHarborRepositoryList(list);
+		return list;
 	}
 
 	@Override
