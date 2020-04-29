@@ -177,7 +177,7 @@ public interface HarborConstants {
 		/**
 		* 日志API
 		* */
-		LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID");
+		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID");
 
 		String apiUrl;
 

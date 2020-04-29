@@ -1,24 +1,34 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import com.github.pagehelper.PageInfo;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
+import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.app.service.HarborLogService;
 import org.hrds.rdupm.harbor.domain.entity.HarborLog;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +46,12 @@ public class HarborLogServiceImpl implements HarborLogService {
 
 	@Resource
 	private BaseFeignClient baseFeignClient;
+
+	@Autowired
+	private HarborHttpClient harborHttpClient;
+
+	@Autowired
+	private HarborRepositoryRepository harborRepositoryRepository;
 
 	@Override
 	public PageInfo<HarborLog> listAuthLog(PageRequest pageRequest, HarborLog harborLog) {
@@ -76,5 +92,50 @@ public class HarborLogServiceImpl implements HarborLogService {
 		}
 
 		return PageConvertUtils.convert(page);
+	}
+
+	@Override
+	public PageInfo<HarborImageLog> listImageLog(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		Map<String,Object> paramMap = new HashMap<>(6);
+		if(StringUtils.isNotEmpty(loginName)){
+			paramMap.put("username",loginName);
+		}
+		if(StringUtils.isNotEmpty(imageName)){
+			paramMap.put("repository",imageName);
+		}
+		if(StringUtils.isNotEmpty(tagName)){
+			paramMap.put("tag",tagName);
+		}
+		if(StringUtils.isNotEmpty(operateType)){
+			paramMap.put("operation",operateType);
+		}
+		if(startDate != null){
+			paramMap.put("begin_timestamp", HarborUtil.dateToTimestamp(startDate));
+		}
+		if(endDate != null){
+			paramMap.put("end_timestamp",HarborUtil.dateToTimestamp(endDate));
+		}
+
+		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,false,harborRepository.getHarborId());
+		List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
+		List<HarborImageLog> harborImageLogList = dataList.stream().filter(dto->"pull".equals(dto.getOperateType()) || "push".equals(dto.getOperateType())).collect(Collectors.toList());
+
+		//创建人ID去重，并获得创建人详细信息
+		Set<String> userNameSet = harborImageLogList.stream().map(dto->dto.getLoginName()).collect(Collectors.toSet());
+		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
+		Map<String,UserDTO> userDtoMap = responseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName,dto->dto));
+		harborImageLogList.stream().forEach(dto->{
+			UserDTO userDTO = userDtoMap.get(dto.getLoginName());
+			if(userDTO != null){
+				dto.setUserImageUrl(userDTO.getImageUrl());
+				dto.setContent(String.format("%s(%s) %s 镜像【%s:%s】",userDTO.getRealName(),userDTO.getLoginName(),dto.getOperateType(),dto.getRepoName(),dto.getTagName()));
+			}
+		});
+
+		return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageLogList);
 	}
 }
