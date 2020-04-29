@@ -15,6 +15,7 @@ import org.hrds.rdupm.config.SwaggerTags;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class HarborProjectController extends BaseController {
 
 	@Autowired
 	private HarborProjectService harborProjectService;
+
+	@Autowired
+	private HarborRepositoryRepository harborRepositoryRepository;
 
 	@ApiOperation(value = "创建镜像仓库")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
@@ -93,6 +97,13 @@ public class HarborProjectController extends BaseController {
 																   @ApiParam("访问级别,字符串true或者false") @RequestParam String publicFlag) {
 		harborProjectService.updatePublicFlag(projectId,publicFlag);
 		return Results.success();
+	}
+
+	@ApiOperation(value = "查询组织下所有镜像仓库列表--组织层下拉框使用")
+	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@GetMapping(value = "/all/{organizationId}")
+	public ResponseEntity<List<HarborRepository>> listAll(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId) {
+		return Results.success(harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId));
 	}
 
 }

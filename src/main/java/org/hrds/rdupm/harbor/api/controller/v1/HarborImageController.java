@@ -5,7 +5,6 @@ import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.*;
-import org.hrds.rdupm.config.SwaggerTags;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hzero.core.util.Results;
@@ -39,11 +38,11 @@ public class HarborImageController {
 	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
 	@GetMapping(value = "/list-org/{organizationId}")
 	public ResponseEntity<PageInfo<HarborImageVo>> getByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId,
-														@ApiParam(value = "镜像库编码") @RequestParam(required = false) String projectCode,
-														@ApiParam(value = "镜像库名称") @RequestParam(required = false) String projectName,
+														@ApiParam(value = "镜像库编码") @RequestParam String code,
+														@ApiParam(value = "镜像库名称") @RequestParam(required = false) String name,
 														@ApiParam(value = "镜像名称") @RequestParam(required = false) String imageName,
 														@ApiIgnore PageRequest pageRequest) {
-		return Results.success(harborImageService.getByOrg(organizationId,projectCode,projectName,imageName,pageRequest));
+		return Results.success(harborImageService.getByOrg(organizationId,code,name,imageName,pageRequest));
 	}
 
 	@ApiOperation(value = "删除镜像,必输字段{repoName 名称}")
