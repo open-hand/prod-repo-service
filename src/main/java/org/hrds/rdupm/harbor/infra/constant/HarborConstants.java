@@ -177,7 +177,9 @@ public interface HarborConstants {
 		/**
 		* 日志API
 		* */
-		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID");
+		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID"),
+
+		LIST_LOGS("/api/logs", HttpMethod.GET,"查询全局日志");
 
 		String apiUrl;
 
@@ -273,6 +275,47 @@ public interface HarborConstants {
 			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
 				if (value.equals(authorityEnum.getRoleValue())) {
 					return authorityEnum.getRoleId();
+				}
+			}
+			return null;
+		}
+	}
+
+	enum HarborImageOperateEnum{
+		DELETE("delete","删除"),
+		PULL("pull","拉取"),
+		PUSH("push","推送");
+
+		String operateType;
+
+		String operateName;
+
+		public String getOperateType() {
+			return operateType;
+		}
+
+		public void setOperateType(String operateType) {
+			this.operateType = operateType;
+		}
+
+		public String getOperateName() {
+			return operateName;
+		}
+
+		public void setOperateName(String operateName) {
+			this.operateName = operateName;
+		}
+
+		HarborImageOperateEnum(String operateType, String operateName) {
+			this.operateType = operateType;
+			this.operateName = operateName;
+		}
+
+
+		public static String getNameByValue(String value){
+			for (HarborImageOperateEnum operateEnum : HarborImageOperateEnum.values()) {
+				if (value.equals(operateEnum.getOperateType())) {
+					return operateEnum.getOperateName();
 				}
 			}
 			return null;

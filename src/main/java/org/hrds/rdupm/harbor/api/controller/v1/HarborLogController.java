@@ -46,7 +46,7 @@ public class HarborLogController extends BaseController {
         return Results.success(pageInfo);
     }
 
-	@ApiOperation(value = "项目层-权限日志列表")
+	@ApiOperation(value = "组织层-权限日志列表")
 	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
 	@GetMapping("/auth/list-org/{organizationId}")
 	public ResponseEntity<PageInfo<HarborLog>> listAuthLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
@@ -74,6 +74,23 @@ public class HarborLogController extends BaseController {
 		return Results.success(pageInfo);
 	}
 
+
+	@ApiOperation(value = "组织层-镜像日志列表")
+	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+	@GetMapping("/image/list-org/{organizationId}")
+	public ResponseEntity<PageInfo<HarborImageLog>> listImageLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+																		  @ApiParam("项目编码") @RequestParam(required = false) String code,
+																		  @ApiParam("项目名称") @RequestParam(required = false) String name,
+																	 	  @ApiParam("登录名") @RequestParam(required = false) String loginName,
+																	 	  @ApiParam("镜像名") @RequestParam(required = false) String imageName,
+																		  @ApiParam("镜像TAG名") @RequestParam(required = false) String tagName,
+																		  @ApiParam("操作类型") @RequestParam(required = false) String operateType,
+																		  @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
+																		  @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
+																		  @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		PageInfo<HarborImageLog> pageInfo = service.listImageLogByOrg(pageRequest, organizationId,code,name,imageName,loginName,tagName,operateType,startDate,endDate);
+		return Results.success(pageInfo);
+	}
 
 
 
