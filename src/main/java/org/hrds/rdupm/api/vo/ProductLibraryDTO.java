@@ -83,6 +83,8 @@ public class ProductLibraryDTO extends AuditDomain {
 		this.uniqueId = UUIDUtils.generateUUID();
 		this.productType = TYPE_DOCKER;
 		BeanUtils.copyProperties(harborRepository, this);
+		this.name = harborRepository.getCode();
+		this.projectCode = harborRepository.getCode();
 	}
 
 }

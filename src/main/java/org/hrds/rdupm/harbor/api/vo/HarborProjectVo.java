@@ -40,7 +40,7 @@ public class HarborProjectVo {
 
 	private String name;
 
-	@ApiModelProperty(name = "公开访问，true、false")
+	@ApiModelProperty(value ="公开访问，true、false")
 	@NotBlank
 	private String publicFlag;
 
@@ -53,25 +53,25 @@ public class HarborProjectVo {
 	@ApiModelProperty(value = "存储容量单位")
 	private String storageUnit;
 
-	@ApiModelProperty(name = "内容信任，true、false")
+	@ApiModelProperty(value ="内容信任，true、false")
 	private String contentTrustFlag;
 
-	@ApiModelProperty(name = "阻止潜在漏洞镜像，true、false")
+	@ApiModelProperty(value ="阻止潜在漏洞镜像，true、false")
 	@NotBlank
 	private String preventVulnerableFlag;
 
-	@ApiModelProperty(name = "危害级别，low、medium、high、critical")
+	@ApiModelProperty(value ="危害级别，low、medium、high、critical")
 	@NotBlank
 	private String severity;
 
-	@ApiModelProperty(name = "自动扫描镜像，true、false")
+	@ApiModelProperty(value ="自动扫描镜像，true、false")
 	@NotBlank
 	private String autoScanFlag;
 
-	@ApiModelProperty(name = "启用系统白名单，true、false")
+	@ApiModelProperty(value ="启用系统白名单，true、false")
 	private String useSysCveFlag;
 
-	@ApiModelProperty(name = "启用项目白名单，true、false")
+	@ApiModelProperty(value ="启用项目白名单，true、false")
 	private String useProjectCveFlag;
 
 	@ApiModelProperty("CVE编号列表")
@@ -82,7 +82,7 @@ public class HarborProjectVo {
 	private Date endDate;
 
 	@ApiModelProperty("镜像数量")
-	private Integer repoConut;
+	private Integer repoCount;
 
 	@ApiModelProperty("镜像已使用数量")
 	private Integer usedCount;
@@ -108,7 +108,7 @@ public class HarborProjectVo {
 		BeanUtils.copyProperties(harborMetadataDTO,this);
 		this.harborId = harborProjectDTO.getHarborId();
 		this.code = harborProjectDTO.getName();
-		this.repoConut = harborProjectDTO.getRepoCount();
+		this.repoCount = harborProjectDTO.getRepoCount();
 
 		if(!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlag())){
 			this.useProjectCveFlag = HarborConstants.TRUE;
@@ -126,4 +126,9 @@ public class HarborProjectVo {
 
 	}
 
+	public HarborProjectVo(Integer countLimit, Integer storageNum, String storageUnit) {
+		this.countLimit = countLimit;
+		this.storageNum = storageNum;
+		this.storageUnit = storageUnit;
+	}
 }

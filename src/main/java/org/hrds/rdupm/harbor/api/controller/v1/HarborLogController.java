@@ -1,68 +1,97 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 
+import com.github.pagehelper.PageInfo;
 import io.choerodon.core.annotation.Permission;
 import io.choerodon.core.enums.ResourceType;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.harbor.api.vo.HarborGuideVo;
+import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
+import org.hrds.rdupm.harbor.app.service.HarborLogService;
 import org.hzero.core.util.Results;
+import org.hzero.core.base.BaseController;
+import org.hrds.rdupm.harbor.domain.entity.HarborLog;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * description
+ * 制品库-harbor日志表 管理 API
  *
- * @author chenxiuhong 2020/04/26 8:46 下午
+ * @author xiuhong.chen@hand-china.com 2020-04-29 14:54:57
  */
-@RestController("HarborLogController.v1")
-@RequestMapping("/v1/harbor-log")
-public class HarborLogController {
+@RestController("harborLogController.v1")
+@RequestMapping("/v1/harbor-logs")
+public class HarborLogController extends BaseController {
 
-	@ApiOperation(value = "项目层-镜像操作日志列表")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@GetMapping(value = "/image/list-project/{projectId}")
-	public ResponseEntity getProjectGuid(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
-		Map<String,Object> paramMap = new HashMap<>();
-		paramMap.put("username",null);
-		paramMap.put("repository",null);
-		paramMap.put("tag",null);
-		paramMap.put("operation",null);
-		paramMap.put("begin_timestamp",null);
-		paramMap.put("end_timestamp",null);
-		paramMap.put("page",null);
-		paramMap.put("page_size",null);
+    @Autowired
+    private HarborLogService service;
 
-		/*
-		{
-    "log_id": 37,
-    "username": "admin",
-    "project_id": 34,
-    "repo_name": "cxh-test/busybox",
-    "repo_tag": "1.0",
-    "guid": "",
-    "operation": "delete",
-    "op_time": "2020-04-24T07:48:02.600387Z"
-  }
+    @ApiOperation(value = "项目层-权限日志列表")
+	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+    @GetMapping("/auth/list-project/{projectId}")
+    public ResponseEntity<PageInfo<HarborLog>> listAuthLogByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
+															 @ApiParam("用户名") @RequestParam(required = false) String loginName,
+															 @ApiParam("操作类型") @RequestParam(required = false) String operateType,
+															 @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
+															 @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
+															 @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		PageInfo<HarborLog> pageInfo = service.listAuthLog(pageRequest, new HarborLog(projectId,null,operateType,loginName,startDate,endDate));
+        return Results.success(pageInfo);
+    }
 
-  /api/users/current/permissions?scope=/project/34&relative=true
-  /api/projects/34/members
-
-entity_id: 36
-entity_name: "15367"
-entity_type: "u"
-id: 57
-project_id: 34
-role_id: 1
-role_name: "projectAdmin"
-
-		* */
-		return Results.success();
+	@ApiOperation(value = "组织层-权限日志列表")
+	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+	@GetMapping("/auth/list-org/{organizationId}")
+	public ResponseEntity<PageInfo<HarborLog>> listAuthLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+															 @ApiParam("用户名") @RequestParam(required = false) String loginName,
+															 @ApiParam("操作类型") @RequestParam(required = false) String operateType,
+															 @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
+															 @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
+															 @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		PageInfo<HarborLog> pageInfo = service.listAuthLog(pageRequest, new HarborLog(null,organizationId,operateType,loginName,startDate,endDate));
+		return Results.success(pageInfo);
 	}
+
+	@ApiOperation(value = "项目层-镜像日志列表")
+	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+	@GetMapping("/image/list-project/{projectId}")
+	public ResponseEntity<PageInfo<HarborImageLog>> listImageLogByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
+															 @ApiParam("登录名") @RequestParam(required = false) String loginName,
+															 @ApiParam("镜像名") @RequestParam(required = false) String imageName,
+															 @ApiParam("镜像TAG名") @RequestParam(required = false) String tagName,
+															 @ApiParam("操作类型") @RequestParam(required = false) String operateType,
+															 @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
+															 @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
+															 @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		PageInfo<HarborImageLog> pageInfo = service.listImageLog(pageRequest, projectId,imageName,loginName,tagName,operateType,startDate,endDate);
+		return Results.success(pageInfo);
+	}
+
+
+	@ApiOperation(value = "组织层-镜像日志列表")
+	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+	@GetMapping("/image/list-org/{organizationId}")
+	public ResponseEntity<PageInfo<HarborImageLog>> listImageLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+																		  @ApiParam("项目编码") @RequestParam(required = false) String code,
+																		  @ApiParam("项目名称") @RequestParam(required = false) String name,
+																	 	  @ApiParam("登录名") @RequestParam(required = false) String loginName,
+																	 	  @ApiParam("镜像名") @RequestParam(required = false) String imageName,
+																		  @ApiParam("镜像TAG名") @RequestParam(required = false) String tagName,
+																		  @ApiParam("操作类型") @RequestParam(required = false) String operateType,
+																		  @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
+																		  @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
+																		  @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+		PageInfo<HarborImageLog> pageInfo = service.listImageLogByOrg(pageRequest, organizationId,code,name,imageName,loginName,tagName,operateType,startDate,endDate);
+		return Results.success(pageInfo);
+	}
+
+
 
 }

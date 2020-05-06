@@ -21,11 +21,13 @@ public interface HarborConstants {
 
 	String TB = "TB";
 
-	String USER_NAME = "admin";
-
-	String PASSWORD = "Harbor12345";
-
 	String DEFAULT_PASSWORD = "Abcd1234";
+
+	String ASSIGN_AUTH = "assign";
+
+	String UPDATE_AUTH = "update";
+
+	String REVOKE_AUTH = "revoke";
 
 	/**
 	* 危害等级
@@ -46,30 +48,41 @@ public interface HarborConstants {
 		* 创建Docker仓库
 		* 创建用户、创建镜像仓库、保存存储容量配置、保存CVE白名单、保存项目到数据库
 		* */
-		String CREATE_PROJECT = "rdupm-docker-create";
+		String CREATE_PROJECT = "rdupm-docker-repo-create";
 
-		String CREATE_PROJECT_USER = "rdupm-docker-create.user";
+		String CREATE_PROJECT_USER = "rdupm-docker-repo-create.user";
 
-		String CREATE_PROJECT_REPO = "rdupm-docker-create.repo";
+		String CREATE_PROJECT_REPO = "rdupm-docker-repo-create.repo";
 
-		String CREATE_PROJECT_QUOTA = "rdupm-docker-create.quota";
+		String CREATE_PROJECT_QUOTA = "rdupm-docker-repo-create.quota";
 
-		String CREATE_PROJECT_CVE = "rdupm-docker-create.cve";
+		String CREATE_PROJECT_CVE = "rdupm-docker-repo-create.cve";
 
-		String CREATE_PROJECT_DB = "rdupm-docker-create.db";
+		String CREATE_PROJECT_DB = "rdupm-docker-repo-create.db";
 
 		/**
 		* 更新Docke仓库
 		* */
-		String UPDATE_PROJECT = "rdupm-docker-update";
+		String UPDATE_PROJECT = "rdupm-docker-repo-update";
 
-		String UPDATE_PROJECT_REPO = "rdupm-docker-update.repo";
+		String UPDATE_PROJECT_REPO = "rdupm-docker-repo-update.repo";
 
-		String UPDATE_PROJECT_QUOTA = "rdupm-docker-update.quota";
+		String UPDATE_PROJECT_QUOTA = "rdupm-docker-repo-update.quota";
 
-		String UPDATE_PROJECT_CVE = "rdupm-docker-update.cve";
+		String UPDATE_PROJECT_CVE = "rdupm-docker-repo-update.cve";
 
-		String UPDATE_PROJECT_DB = "rdupm-docker-update.db";
+		String UPDATE_PROJECT_DB = "rdupm-docker-repo-update.db";
+
+		/**
+		* 分配权限
+		* */
+		String CREATE_AUTH = "rdupm-docker-auth-create";
+
+		String CREATE_AUTH_USER = "rdupm-docker-auth-create.user";
+
+		String CREATE_AUTH_AUTH = "rdupm-docker-auth-create.auth";
+
+		String CREATE_AUTH_DB = "rdupm-docker-auth-create.db";
 	}
 
 	enum HarborApiEnum{
@@ -120,7 +133,11 @@ public interface HarborConstants {
 		* */
 		GET_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.GET,"获取项目资源使用情况--项目ID"),
 
-		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源使用情况--项目ID"),
+		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源配额--项目ID"),
+
+		UPDATE_GLOBAL_QUOTA("/api/configurations", HttpMethod.PUT,"全局更新项目资源配额"),
+
+		GET_GLOBAL_QUOTA("/api/configurations", HttpMethod.GET,"获得全局资源配额"),
 
 		/**
 		* 镜像API
@@ -147,12 +164,22 @@ public interface HarborConstants {
 		/**
 		* 获取项目用户
 		* */
-		GET_PROJECT_MEMBER("/api/projects/%s/members", HttpMethod.GET,"获取项目中用户--项目ID"),
+		LIST_AUTH("/api/projects/%s/members", HttpMethod.GET,"获取项目中权限列表--项目ID"),
+
+		GET_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.GET,"获取项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+
+		DELETE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.DELETE,"删除项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+
+		UPDATE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.PUT,"修改项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+
+		CREATE_ONE_AUTH("/api/projects/%s/members", HttpMethod.POST,"分配项目中某个用户的权限情况--项目ID"),
 
 		/**
 		* 日志API
 		* */
-		LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID");
+		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID"),
+
+		LIST_LOGS("/api/logs", HttpMethod.GET,"查询全局日志");
 
 		String apiUrl;
 
@@ -192,8 +219,106 @@ public interface HarborConstants {
 
 	}
 
-	interface ErrorMessage{
-		String HARBOR_SERVER_ERROR = "error.harbor.service";
+	enum HarborRoleEnum{
+		PROJECT_ADMIN(1L,"projectAdmin","项目管理员"),
+		DEVELOPER(2L,"developer","开发人员"),
+		GUEST(3L,"guest","访客"),
+		MASTER(4L,"master","维护人员"),
+		LIMITED_GUEST(5L,"limitedGuest","受限访客");
+
+		Long roleId;
+
+		String roleValue;
+
+		String roleName;
+
+		public Long getRoleId() {
+			return roleId;
+		}
+
+		public void setRoleId(Long roleId) {
+			this.roleId = roleId;
+		}
+
+		public String getRoleValue() {
+			return roleValue;
+		}
+
+		public void setRoleValue(String roleValue) {
+			this.roleValue = roleValue;
+		}
+
+		public String getRoleName() {
+			return roleName;
+		}
+
+		public void setRoleName(String roleName) {
+			this.roleName = roleName;
+		}
+
+		HarborRoleEnum(Long roleId, String roleValue, String roleName) {
+			this.roleId = roleId;
+			this.roleValue = roleValue;
+			this.roleName = roleName;
+		}
+
+		public static String getNameById(Long roleId){
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (roleId.equals(authorityEnum.getRoleId())) {
+					return authorityEnum.getRoleName();
+				}
+			}
+			return null;
+		}
+
+		public static Long getIdByValue(String value){
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (value.equals(authorityEnum.getRoleValue())) {
+					return authorityEnum.getRoleId();
+				}
+			}
+			return null;
+		}
 	}
 
+	enum HarborImageOperateEnum{
+		DELETE("delete","删除"),
+		PULL("pull","拉取"),
+		PUSH("push","推送");
+
+		String operateType;
+
+		String operateName;
+
+		public String getOperateType() {
+			return operateType;
+		}
+
+		public void setOperateType(String operateType) {
+			this.operateType = operateType;
+		}
+
+		public String getOperateName() {
+			return operateName;
+		}
+
+		public void setOperateName(String operateName) {
+			this.operateName = operateName;
+		}
+
+		HarborImageOperateEnum(String operateType, String operateName) {
+			this.operateType = operateType;
+			this.operateName = operateName;
+		}
+
+
+		public static String getNameByValue(String value){
+			for (HarborImageOperateEnum operateEnum : HarborImageOperateEnum.values()) {
+				if (value.equals(operateEnum.getOperateType())) {
+					return operateEnum.getOperateName();
+				}
+			}
+			return null;
+		}
+	}
 }

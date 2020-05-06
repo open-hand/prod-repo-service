@@ -15,6 +15,7 @@ import org.hrds.rdupm.config.SwaggerTags;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,18 +35,12 @@ public class HarborProjectController extends BaseController {
 	@Autowired
 	private HarborProjectService harborProjectService;
 
+	@Autowired
+	private HarborRepositoryRepository harborRepositoryRepository;
+
 	@ApiOperation(value = "创建镜像仓库")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@PostMapping(value = "/create/{projectId}")
-	public ResponseEntity create(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
-								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
-		harborProjectService.create(projectId,harborProjectVo);
-		return Results.success();
-	}
-
-	@ApiOperation(value = "saga测试-创建镜像仓库")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@PostMapping(value = "/create-saga/{projectId}")
 	public ResponseEntity createSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
 		harborProjectService.createSaga(projectId,harborProjectVo);
@@ -62,15 +57,6 @@ public class HarborProjectController extends BaseController {
 	@ApiOperation(value = "更新镜像仓库配置")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
 	@PostMapping(value = "/update/{projectId}")
-	public ResponseEntity update(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
-								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
-		harborProjectService.update(projectId,harborProjectVo);
-		return Results.success();
-	}
-
-	@ApiOperation(value = "saga测试-更新镜像仓库配置")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@PostMapping(value = "/update-sagas/{projectId}")
 	public ResponseEntity updateSaga(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 								 @ApiParam(value = "镜像仓库Dto") @RequestBody HarborProjectVo harborProjectVo) {
 		harborProjectService.updateSaga(projectId,harborProjectVo);
@@ -96,7 +82,28 @@ public class HarborProjectController extends BaseController {
 	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
 	@GetMapping(value = "/list-org/{organizationId}")
 	public ResponseEntity<PageInfo<HarborRepository>> listByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId,
+																@ApiParam("镜像仓库编码") @RequestParam(required = false) String code,
+																@ApiParam("镜像仓库名称") @RequestParam(required = false) String name,
+																@ApiParam("访问级别") @RequestParam(required = false) String publicFlag,
 																@ApiIgnore @SortDefault(value = HarborRepository.FIELD_PROJECT_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		return Results.success(harborProjectService.listByOrg(organizationId,pageRequest));
+		HarborRepository harborRepository = new HarborRepository(code,name,publicFlag,organizationId);
+		return Results.success(harborProjectService.listByOrg(harborRepository,pageRequest));
 	}
+
+	@ApiOperation(value = "组织层-修改访问级别")
+	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@GetMapping(value = "/update/publicFlag/{projectId}")
+	public ResponseEntity updatePublicFlag(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+																   @ApiParam("访问级别,字符串true或者false") @RequestParam String publicFlag) {
+		harborProjectService.updatePublicFlag(projectId,publicFlag);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "查询组织下所有镜像仓库列表--组织层下拉框使用")
+	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@GetMapping(value = "/all/{organizationId}")
+	public ResponseEntity<List<HarborRepository>> listAll(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId) {
+		return Results.success(harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId));
+	}
+
 }

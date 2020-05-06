@@ -3,8 +3,10 @@ package org.hrds.rdupm.harbor.infra.feign;
 import java.util.List;
 import java.util.Set;
 
+import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.feign.fallback.BaseFeignClientFallBack;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +55,7 @@ public interface BaseFeignClient {
 	ResponseEntity<List<UserDTO>> listUsersByLoginNames(@RequestBody String[] loginNames, @RequestParam(value = "only_enabled", defaultValue = "true", required = false) Boolean onlyEnabled);
 
 	/***
-	 * 根据项目ID获取团队成员
+	 * 根据项目ID获取团队成员,登录名或者用户名模糊
 	 * @param projectId 项目ID
 	 * @param param 参数
 	 * @return
@@ -101,5 +103,13 @@ public interface BaseFeignClient {
 	 */
 	@GetMapping("/v1/projects/{project_id}/owner/list")
 	ResponseEntity<List<UserDTO>> listProjectOwnerById(@PathVariable(name = "project_id") Long projectId);
+
+	/***
+	 * 根据多个id查询用户（包括用户信息以及所分配的项目角色信息以及GitlabUserId）
+	 */
+	@PostMapping(value = "/v1/projects/{project_id}/users/list_by_ids")
+	ResponseEntity<List<UserWithGitlabIdDTO>> listUsersWithRolesAndGitlabUserIdByIds(
+			@PathVariable(name = "project_id") Long projectId,
+			@ApiParam(value = "多个用户id", required = true) @RequestBody Set<Long> userIds);
 
 }

@@ -113,4 +113,11 @@ public class HarborRepository extends AuditDomain {
 		this.harborId = harborId;
 		this.organizationId = organizationId;
 	}
+
+	public HarborRepository(@NotBlank String code, @NotBlank String name, String publicFlag, @NotNull Long organizationId) {
+		this.code = code;
+		this.name = name;
+		this.publicFlag = publicFlag;
+		this.organizationId = organizationId;
+	}
 }

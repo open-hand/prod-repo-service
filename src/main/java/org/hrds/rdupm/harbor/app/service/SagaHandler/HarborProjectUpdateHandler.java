@@ -7,6 +7,7 @@ import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
+import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
@@ -28,6 +29,9 @@ public class HarborProjectUpdateHandler {
 
 	@Autowired
 	private HarborHttpClient harborHttpClient;
+
+	@Autowired
+	private HarborQuotaService harborQuotaService;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_REPO,description = "更新Docker镜像仓库：保存仓库元数据",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PROJECT,seq = 1,maxRetryCount = 3)
@@ -52,7 +56,7 @@ public class HarborProjectUpdateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		harborProjectService.saveQuota(harborProjectVo,harborProjectVo.getHarborId());
+		harborQuotaService.saveQuota(harborProjectVo,harborProjectVo.getHarborId());
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_CVE,description = "更新Docker镜像仓库：保存cve白名单",

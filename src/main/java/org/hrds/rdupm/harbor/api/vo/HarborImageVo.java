@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import java.beans.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.annotations.SerializedName;
@@ -54,5 +56,11 @@ public class HarborImageVo {
 	@ApiModelProperty("更新时间")
 	@SerializedName("update_time")
 	private String updateTime;
+
+	@ApiModelProperty("项目名称")
+	private String projectName;
+
+	@ApiModelProperty("项目图标URL")
+	private String projectImageUrl;
 
 }

@@ -19,8 +19,6 @@ public interface HarborProjectService {
 	 * @param projectId 猪齿鱼项目ID
 	 * @param harborProjectVo 镜像仓库信息
 	 */
-	void create(Long projectId, HarborProjectVo harborProjectVo);
-
 	void createSaga(Long projectId, HarborProjectVo harborProjectVo);
 
 	/***
@@ -35,8 +33,6 @@ public interface HarborProjectService {
 	 * @param projectId
 	 * @param harborProjectVo
 	 */
-	void update(Long projectId, HarborProjectVo harborProjectVo);
-	
 	void updateSaga(Long projectId, HarborProjectVo harborProjectVo);
 
 	/***
@@ -49,10 +45,11 @@ public interface HarborProjectService {
 
 	/***
 	 * 组织层--查询镜像仓库列表
-	 * @param organizationId
+	 * @param harborRepository
+	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborRepository> listByOrg(Long organizationId,PageRequest pageRequest);
+	PageInfo<HarborRepository> listByOrg( HarborRepository harborRepository,PageRequest pageRequest);
 
 	/***
 	 * 删除镜像仓库
@@ -61,16 +58,17 @@ public interface HarborProjectService {
 	void delete(Long projectId);
 
 	/***
-	 * 保存存储配置
-	 * @param harborProjectVo
-	 * @param harborId
-	 */
-	void saveQuota(HarborProjectVo harborProjectVo, Integer harborId);
-
-	/***
 	 * 保存白名单
 	 * @param harborProjectVo
 	 * @param harborId
 	 */
 	void saveWhiteList(HarborProjectVo harborProjectVo, Integer harborId);
+
+	/***
+	 * 修改访问级别
+	 * @param projectId
+	 * @param publicFlag
+	 */
+	void updatePublicFlag(Long projectId, String publicFlag);
+
 }
