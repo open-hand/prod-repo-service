@@ -27,6 +27,7 @@ import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
@@ -145,9 +146,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusUser nexusUser = new NexusUser();
 		nexusUser.setRepositoryId(nexusRepository.getRepositoryId());
 		nexusUser.setNeUserId(nexusServerUser.getUserId());
-		nexusUser.setNeUserPassword(nexusServerUser.getPassword());
+		nexusUser.setNeUserPassword(DESEncryptUtil.encode(nexusServerUser.getPassword()));
 		nexusUser.setNePullUserId(pullNexusServerUser.getUserId());
-		nexusUser.setNePullUserPassword(pullNexusServerUser.getPassword());
+		nexusUser.setNePullUserPassword(DESEncryptUtil.encode(pullNexusServerUser.getPassword()));
 		nexusUser.setIsDefault(1);
 		nexusUserRepository.insertSelective(nexusUser);
 
@@ -342,9 +343,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusUser nexusUser = new NexusUser();
 		nexusUser.setRepositoryId(nexusRepository.getRepositoryId());
 		nexusUser.setNeUserId(nexusRepositoryRelatedDTO.getUserName());
-		nexusUser.setNeUserPassword(nexusRepositoryRelatedDTO.getPassword());
+		nexusUser.setNeUserPassword(DESEncryptUtil.encode(nexusRepositoryRelatedDTO.getPassword()));
 		nexusUser.setNePullUserId(pullNexusServerUser.getUserId());
-		nexusUser.setNePullUserPassword(pullNexusServerUser.getPassword());
+		nexusUser.setNePullUserPassword(DESEncryptUtil.encode(pullNexusServerUser.getPassword()));
 		nexusUser.setIsDefault(1);
 		nexusUserRepository.insertSelective(nexusUser);
 
@@ -793,9 +794,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusGuideDTO.setPullServerFlag(nexusRepository != null && nexusRepository.getAllowAnonymous() != 1);
 		if (nexusGuideDTO.getPullServerFlag() && nexusUser != null) {
 			// 要显示的时候，返回数据
+
+			String nePullUserPassword = DESEncryptUtil.decode(nexusUser.getNePullUserPassword());
+
 			map.put("username", nexusUser.getNePullUserId());
 			nexusGuideDTO.setPullServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
-			nexusGuideDTO.setPullPassword(nexusUser.getNePullUserPassword());
+			nexusGuideDTO.setPullPassword(nePullUserPassword);
 			nexusGuideDTO.setPullServerInfoPassword(nexusGuideDTO.getPullServerInfo().replace("[password]", nexusGuideDTO.getPullPassword()));
 		}
 		// pom 仓库配置
@@ -813,8 +817,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 				if (nexusUser == null) {
 					throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 				}
+
+				String neUserPassword = DESEncryptUtil.decode(nexusUser.getNeUserPassword());
+
 				map.put("username", nexusUser.getNeUserId());
-				nexusGuideDTO.setPushPassword(nexusUser.getNeUserPassword());
+				nexusGuideDTO.setPushPassword(neUserPassword);
 				nexusGuideDTO.setPushServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
 				nexusGuideDTO.setPushServerInfoPassword(nexusGuideDTO.getPushServerInfo().replace("[password]", nexusGuideDTO.getPushPassword()));
 
