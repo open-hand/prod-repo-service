@@ -11,6 +11,7 @@ import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,15 +47,18 @@ public class NexusUserServiceImpl implements NexusUserService {
 				|| !existUser.getProjectId().equals(nexusUser.getProjectId())) {
 			throw new CommonException(NexusMessageConstants.NEXUS_NOT_CHANGE_OTHER_REPO_PWD);
 		}
-		if (!existUser.getNeUserPassword().equals(nexusUser.getOldNeUserPassword())) {
+		if (!DESEncryptUtil.decode(existUser.getNeUserPassword()).equals(nexusUser.getOldNeUserPassword())) {
 			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_ERROR);
 		}
 
+		String neUserPassword = existUser.getNeUserPassword();
+
+		nexusUser.setNeUserPassword(DESEncryptUtil.encode(neUserPassword));
 		nexusUserRepository.updateOptional(nexusUser, NexusUser.FIELD_NE_USER_PASSWORD);
 
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
-		nexusClient.getNexusUserApi().changePassword(existUser.getNeUserId(), nexusUser.getNeUserPassword());
+		nexusClient.getNexusUserApi().changePassword(existUser.getNeUserId(), neUserPassword);
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 	}

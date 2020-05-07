@@ -8,6 +8,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,9 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (nexusServerConfig == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
 		}
-		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(), nexusServerConfig.getUserName(), nexusServerConfig.getPassword());
+		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
+				nexusServerConfig.getUserName(),
+				DESEncryptUtil.decode(nexusServerConfig.getPassword()));
 		nexusClient.setNexusServerInfo(nexusServer);
 		return nexusServerConfig;
 	}
@@ -58,6 +61,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (exist == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
+		nexusServerConfig.setPassword(DESEncryptUtil.encode(nexusServerConfig.getPassword()));
 		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_SERVER_NAME,
 				NexusServerConfig.FIELD_SERVER_URL, NexusServerConfig.FIELD_USER_NAME, NexusServerConfig.FIELD_PASSWORD);
 		return nexusServerConfig;
