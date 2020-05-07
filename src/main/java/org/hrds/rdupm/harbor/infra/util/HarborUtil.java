@@ -143,17 +143,4 @@ public class HarborUtil {
 		}
 	}
 
-	public static void main(String[] args) {
-		String str = "0001-01-01T00:00:00Z";
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		try {
-			Date date = sdf.parse(str);
-			String createTime = sdf2.format(date);
-			System.out.println(createTime);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-	}
-
 }
