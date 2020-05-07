@@ -184,6 +184,14 @@ public class HarborHttpClient {
 					case 400: throw new CommonException("Illegal format of quota update request.");
 					default: throw new CommonException(e.getMessage());
 				}
+			case DELETE_PROJECT:
+				switch (statusCode){
+					case 400: throw new CommonException("Invalid project id.");
+					case 403: throw new CommonException("User need to log in first.");
+					case 404: throw new CommonException("Project does not exist.");
+					case 412: throw new CommonException("error.delete.project.412");
+					default: throw new CommonException(e.getMessage());
+				}
 			default: throw new CommonException(e.getMessage());
 		}
 

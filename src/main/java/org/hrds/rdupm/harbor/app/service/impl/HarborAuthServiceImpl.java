@@ -114,6 +114,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		Long harborId = harborRepository.getHarborId();
+		harborAuth.setHarborRoleId(HarborConstants.HarborRoleEnum.getIdByValue(harborAuth.getHarborRoleValue()));
 		repository.updateByPrimaryKey(harborAuth);
 
 		Map<String,Object> bodyMap = new HashMap<>(2);
@@ -145,11 +146,11 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 				List<RoleDTO> roleDTOList = userDto.getRoles();
 				if(CollectionUtils.isNotEmpty(roleDTOList)){
-					String memberRole = "";
+					StringBuffer memberRole = new StringBuffer();
 					for(RoleDTO roleDTO : roleDTOList){
-						memberRole = memberRole + roleDTO.getName() + "  ";
+						memberRole.append(roleDTO.getName()).append(" ");
 					}
-					dto.setMemberRole(memberRole);
+					dto.setMemberRole(memberRole.toString());
 				}
 			}
 		});

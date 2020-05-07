@@ -12,6 +12,11 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface HarborAuthMapper extends BaseMapper<HarborAuth> {
 
+	/***
+	 * list
+	 * @param harborAuth
+	 * @return
+	 */
 	List<HarborAuth> list(HarborAuth harborAuth);
 
 }

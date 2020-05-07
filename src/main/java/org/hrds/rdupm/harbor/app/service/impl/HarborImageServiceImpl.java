@@ -65,11 +65,12 @@ public class HarborImageServiceImpl implements HarborImageService {
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
 		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageVoList);
+		pageInfo.setTotal(totalSize);
 		return pageInfo;
 	}
 
 	private List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest,String projectCode){
-		Map<String,Object> paramMap = new HashMap<>();
+		Map<String,Object> paramMap = new HashMap<>(4);
 		paramMap.put("project_id",harborId);
 		paramMap.put("q",imageName);
 		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage());
@@ -135,7 +136,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(StringUtils.isEmpty(repoName)){
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
-		Map<String,String> bodyMap = new HashMap<>();
+		Map<String,String> bodyMap = new HashMap<>(1);
 		bodyMap.put("description",harborImageVo.getDescription());
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,false,repoName);
 	}
