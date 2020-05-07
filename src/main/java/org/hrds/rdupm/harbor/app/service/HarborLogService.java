@@ -23,7 +23,7 @@ public interface HarborLogService {
 	PageInfo<HarborLog> listAuthLog(PageRequest pageRequest, HarborLog harborLog);
 
 	/***
-	 * 查询镜像操作日志列表
+	 * 项目层-查询镜像操作日志列表
 	 * @param pageRequest
 	 * @param projectId
 	 * @param imageName
@@ -34,7 +34,21 @@ public interface HarborLogService {
 	 * @param endDate
 	 * @return
 	 */
-	PageInfo<HarborImageLog> listImageLog(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
+	PageInfo<HarborImageLog> listImageLogByProject(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
 
+	/***
+	 * 组织层-查询镜像操作日志列表
+	 * @param pageRequest
+	 * @param organizationId
+	 * @param code
+	 * @param name
+	 * @param imageName
+	 * @param loginName
+	 * @param tagName
+	 * @param operateType
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
 	PageInfo<HarborImageLog> listImageLogByOrg(PageRequest pageRequest, Long organizationId, String code, String name, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
 }

@@ -42,6 +42,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		}
 		harborImageTagVoList.stream().forEach(dto->{
 			dto.setSizeDesc(HarborUtil.getTagSizeDesc(dto.getSize()));
+			dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
 		});
 		PageInfo<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
 		return pageInfo;

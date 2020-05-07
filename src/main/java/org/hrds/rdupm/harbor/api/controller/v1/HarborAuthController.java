@@ -87,7 +87,7 @@ public class HarborAuthController extends BaseController {
         return Results.success(harborAuth);
     }
 
-    @ApiOperation(value = "项目层--分配权限,必输字段endDate、harborRoleId、userId、loginName、realName")
+    @ApiOperation(value = "项目层--分配权限,必输字段endDate、harborRoleValue、userId")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
     @PostMapping("/create/{projectId}")
     public ResponseEntity<List<HarborAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,

@@ -24,6 +24,7 @@ import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.RoleDTO;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
@@ -76,14 +77,23 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,dtoList.get(0).getProjectId());
 		Map<String,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getLoginName,dto->dto));
 
-		Long harborId = harborRepository.getHarborId();
+		//设置loginName、realName
+		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
+		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
+		Map<Long,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
+
 		dtoList.forEach(dto->{
 			if(harborAuthMap.get(dto.getLoginName()) != null){
 				throw new CommonException("error.harbor.auth.already.exist",dto.getLoginName(),dto.getRealName());
 			}
 			dto.setProjectId(projectId);
 			dto.setOrganizationId(harborRepository.getOrganizationId());
-			dto.setHarborId(harborId);
+			dto.setHarborId(harborRepository.getHarborId());
+			dto.setHarborRoleValue(dto.getHarborRoleValue());
+
+			UserDTO userDTO = userDtoMap.get(dto.getUserId());
+			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
+			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
 		});
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
@@ -127,6 +137,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		}
 		Map<Long,UserWithGitlabIdDTO> userDtoMap = responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto));
 		dataList.forEach(dto->{
+			dto.setHarborRoleValueById(dto.getHarborRoleId());
 			UserWithGitlabIdDTO userDto = userDtoMap.get(dto.getUserId());
 			if(userDto != null){
 				dto.setRealName(userDto.getRealName());

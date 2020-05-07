@@ -179,6 +179,11 @@ public class HarborHttpClient {
 					case 409: throw new CommonException("A user group with same group name already exist or an LDAP user group with same DN already exist.");
 					default: throw new CommonException(e.getMessage());
 				}
+			case UPDATE_PROJECT_QUOTA:
+				switch (statusCode){
+					case 400: throw new CommonException("Illegal format of quota update request.");
+					default: throw new CommonException(e.getMessage());
+				}
 			default: throw new CommonException(e.getMessage());
 		}
 

@@ -29,6 +29,12 @@ public interface HarborConstants {
 
 	String REVOKE_AUTH = "revoke";
 
+	String LOWER_CREATE = "create";
+
+	String HARBOR_UI = "harbor-ui";
+
+	String DEFAULT_DATE = "0001-01-01T00:00:00Z";
+
 	/**
 	* 危害等级
 	* */
@@ -260,6 +266,15 @@ public interface HarborConstants {
 			this.roleId = roleId;
 			this.roleValue = roleValue;
 			this.roleName = roleName;
+		}
+
+		public static String getValueById(Long roleId){
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (roleId.equals(authorityEnum.getRoleId())) {
+					return authorityEnum.getRoleValue();
+				}
+			}
+			return null;
 		}
 
 		public static String getNameById(Long roleId){

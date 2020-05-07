@@ -75,12 +75,11 @@ public class HarborAuth extends AuditDomain {
     private Long userId;
 
     @ExcelColumn(title = "登录名",order = 3)
-   @ApiModelProperty(value = "登录名，必输")
-   @NotBlank
+   @ApiModelProperty(value = "登录名")
     private String loginName;
 
     @ExcelColumn(title = "用户名",order = 4)
-   @ApiModelProperty(value = "用户姓名，必输")
+   @ApiModelProperty(value = "用户姓名")
     private String realName;
 
 	@ExcelColumn(title = "权限角色", renderers = AuthorityValueRenderer.class,order = 6)
@@ -140,6 +139,10 @@ public class HarborAuth extends AuditDomain {
 		Long roleId = HarborConstants.HarborRoleEnum.getIdByValue(value);
 		this.harborRoleId = roleId;
 		this.harborRoleValue = value;
+	}
+
+	public void setHarborRoleValueById(Long roleId){
+		this.harborRoleValue = HarborConstants.HarborRoleEnum.getValueById(roleId);
 	}
 
 	public static class AuthorityValueRenderer implements ValueRenderer {

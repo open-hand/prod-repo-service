@@ -70,7 +70,7 @@ public class HarborLogController extends BaseController {
 															 @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
 															 @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
 															 @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		PageInfo<HarborImageLog> pageInfo = service.listImageLog(pageRequest, projectId,imageName,loginName,tagName,operateType,startDate,endDate);
+		PageInfo<HarborImageLog> pageInfo = service.listImageLogByProject(pageRequest, projectId,imageName,loginName,tagName,operateType,startDate,endDate);
 		return Results.success(pageInfo);
 	}
 
@@ -79,8 +79,8 @@ public class HarborLogController extends BaseController {
 	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
 	@GetMapping("/image/list-org/{organizationId}")
 	public ResponseEntity<PageInfo<HarborImageLog>> listImageLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
-																		  @ApiParam("项目编码") @RequestParam(required = false) String code,
-																		  @ApiParam("项目名称") @RequestParam(required = false) String name,
+																		  @ApiParam("镜像仓库编码") @RequestParam(required = false) String projectCode,
+																		  @ApiParam("镜像仓库名称") @RequestParam(required = false) String projectName,
 																	 	  @ApiParam("登录名") @RequestParam(required = false) String loginName,
 																	 	  @ApiParam("镜像名") @RequestParam(required = false) String imageName,
 																		  @ApiParam("镜像TAG名") @RequestParam(required = false) String tagName,
@@ -88,10 +88,8 @@ public class HarborLogController extends BaseController {
 																		  @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
 																		  @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
 																		  @ApiIgnore @SortDefault(value = HarborLog.FIELD_LOG_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		PageInfo<HarborImageLog> pageInfo = service.listImageLogByOrg(pageRequest, organizationId,code,name,imageName,loginName,tagName,operateType,startDate,endDate);
+		PageInfo<HarborImageLog> pageInfo = service.listImageLogByOrg(pageRequest, organizationId,projectCode,projectName,imageName,loginName,tagName,operateType,startDate,endDate);
 		return Results.success(pageInfo);
 	}
-
-
 
 }
