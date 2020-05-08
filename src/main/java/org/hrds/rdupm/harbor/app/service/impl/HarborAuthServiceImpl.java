@@ -130,14 +130,16 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(CollectionUtils.isEmpty(dataList)){
 			return page;
 		}
-		Long projectId = dataList.get(0).getProjectId();
 
-		Set<Long> userIdSet = dataList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
-		ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
-		if(responseEntity == null){
-			throw new CommonException("error.feign.user.select.empty");
+		//分项目查询成员角色
+		Map<Long,List<HarborAuth>> dataListMap = dataList.stream().collect(Collectors.groupingBy(HarborAuth::getProjectId));
+		Map<Long,UserWithGitlabIdDTO> userDtoMap = new HashMap<>(16);
+		for(Long projectId : dataListMap.keySet()){
+			Set<Long> userIdSet = dataListMap.get(projectId).stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
+			ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
+			userDtoMap.putAll(responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto)));
 		}
-		Map<Long,UserWithGitlabIdDTO> userDtoMap = responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto));
+
 		dataList.forEach(dto->{
 			dto.setHarborRoleValueById(dto.getHarborRoleId());
 			UserWithGitlabIdDTO userDto = userDtoMap.get(dto.getUserId());

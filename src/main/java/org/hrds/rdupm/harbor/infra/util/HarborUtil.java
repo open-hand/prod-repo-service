@@ -1,6 +1,7 @@
 package org.hrds.rdupm.harbor.infra.util;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import io.choerodon.core.exception.CommonException;
@@ -16,15 +17,15 @@ import org.hzero.export.vo.ExportParam;
  */
 public class HarborUtil {
 
-	public static Integer getStorageLimit(Integer storageNum,String storageUnit){
-		Integer storageLimit = -1;
+	public static Long getStorageLimit(Integer storageNum,String storageUnit){
+		Long storageLimit = -1L;
 		if(storageNum == -1){
 			return storageLimit;
 		}
 		switch (storageUnit){
-			case HarborConstants.MB: storageLimit = storageNum*1024*1024;break;
-			case HarborConstants.GB: storageLimit = storageNum*1024*1024*1024;break;
-			case HarborConstants.TB: storageLimit = storageNum*1024*1024*1024*1024;break;
+			case HarborConstants.MB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(2))).longValue();break;
+			case HarborConstants.GB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(3))).longValue();break;
+			case HarborConstants.TB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(4))).longValue();break;
 			default: break;
 		}
 		return storageLimit;
@@ -35,7 +36,7 @@ public class HarborUtil {
 	 * @param size
 	 * @return
 	 */
-	public static Map<String,Object> getStorageNumUnit(Integer size) {
+	public static Map<String,Object> getStorageNumUnit(Long size) {
 		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
 		if (size < 1024) {
 			return storageMap(size,"B");
@@ -70,7 +71,7 @@ public class HarborUtil {
 	 * @param num
 	 * @return
 	 */
-	public static Map<String,Object> getUsedStorageNumUnit(Integer num) {
+	public static Map<String,Object> getUsedStorageNumUnit(Long num) {
 		BigDecimal size = new BigDecimal(num);
 
 		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
@@ -109,7 +110,7 @@ public class HarborUtil {
 		return map;
 	}
 
-	public static String getTagSizeDesc(Integer size) {
+	public static String getTagSizeDesc(Long size) {
 		Map<String,Object> sizeMap = getStorageNumUnit(size);
 		Integer storageNum = (Integer) sizeMap.get("storageNum");
 		String storageUnit = (String) sizeMap.get("storageUnit");
@@ -177,6 +178,22 @@ public class HarborUtil {
 			throw new CommonException(errorMsgCode,fieldName,str);
 		}
 	}
+	public static void main(String[] args){
+		System.out.println(readableFileSize(300000230));
+	}
 
+	/***
+	 * size转GB、TB等
+	 * @param size
+	 * @return
+	 */
+	public static String readableFileSize(long size) {
+		if (size <= 0) {
+			return "0";
+		}
+		final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+		return new DecimalFormat("#,##0.##").format(size / Math.pow(1024, digitGroups)) + "/" + units[digitGroups];
+	}
 
 }

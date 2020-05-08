@@ -43,7 +43,7 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 
 	@Override
 	public void updateGlobalQuota(HarborProjectVo harborProjectVo) {
-		Integer storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
+		Long storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
 		Map<String,Object> bodyMap = new HashMap<>(2);
 		bodyMap.put("count_per_project",harborProjectVo.getCountLimit());
 		bodyMap.put("storage_per_project",storageLimit);
@@ -57,7 +57,7 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 	 */
 	@Override
 	public void saveQuota(HarborProjectVo harborProjectVo, Integer harborId){
-		Integer storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
+		Long storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
 		Map<String,Object> qutoaObject = new HashMap<>(1);
 		Map<String,Object> hardObject = new HashMap<>(2);
 		hardObject.put("count",harborProjectVo.getCountLimit());
@@ -79,20 +79,20 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		Map<String,Object> hardMap = (Map<String, Object>) quotaMap.get("hard");
 		Map<String,Object> usedMap = (Map<String, Object>) quotaMap.get("used");
 		Double hardCount = (Double) hardMap.get("count");
-		Double hardStorage = (Double) hardMap.get("storage");
+		Long hardStorage = ((Double) hardMap.get("storage")).longValue();
 		Double usedCount = (Double) usedMap.get("count");
-		Double usedStorage = (Double) usedMap.get("storage");
+		Long usedStorage = ((Double) usedMap.get("storage")).longValue();
 
 		HarborQuotaVo harborQuotaVo = new HarborQuotaVo();
 		harborQuotaVo.setCountLimit(Double.valueOf(hardCount).intValue());
 		harborQuotaVo.setUsedCount(Double.valueOf(usedCount).intValue());
-		harborQuotaVo.setStorageLimit(Double.valueOf(hardStorage).intValue());
-		harborQuotaVo.setUsedStorage(Double.valueOf(usedStorage).intValue());
+		harborQuotaVo.setStorageLimit(hardStorage);
+		harborQuotaVo.setUsedStorage(usedStorage);
 
-		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(Double.valueOf(hardStorage).intValue());
-		harborQuotaVo.setStorageNum((Integer) storageLimitMap.get("storageNum"));
+		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(hardStorage);
+		harborQuotaVo.setStorageNum(((Long) storageLimitMap.get("storageNum")).intValue());
 		harborQuotaVo.setStorageUnit((String) storageLimitMap.get("storageUnit"));
-		Map<String,Object> usedStorageMap = HarborUtil.getUsedStorageNumUnit(Double.valueOf(usedStorage).intValue());
+		Map<String,Object> usedStorageMap = HarborUtil.getUsedStorageNumUnit(usedStorage);
 		harborQuotaVo.setUsedStorageNum((BigDecimal) usedStorageMap.get("storageNum"));
 		harborQuotaVo.setUsedStorageUnit((String) usedStorageMap.get("storageUnit"));
 
@@ -106,14 +106,14 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		Map<String,Object> countMap = (Map<String, Object>) quotaMap.get("count_per_project");
 		Map<String,Object> storageMap = (Map<String, Object>) quotaMap.get("storage_per_project");
 		Double hardCount = (Double) countMap.get("value");
-		Double hardStorage = (Double) storageMap.get("value");
+		Long hardStorage = ((Double) storageMap.get("value")).longValue();
 
 		HarborQuotaVo harborQuotaVo = new HarborQuotaVo();
 		harborQuotaVo.setCountLimit(Double.valueOf(hardCount).intValue());
-		harborQuotaVo.setStorageLimit(Double.valueOf(hardStorage).intValue());
+		harborQuotaVo.setStorageLimit(hardStorage.longValue());
 
-		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(Double.valueOf(hardStorage).intValue());
-		harborQuotaVo.setStorageNum((Integer) storageLimitMap.get("storageNum"));
+		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(hardStorage);
+		harborQuotaVo.setStorageNum(((Long) storageLimitMap.get("storageNum")).intValue());
 		harborQuotaVo.setStorageUnit((String) storageLimitMap.get("storageUnit"));
 
 		return harborQuotaVo;

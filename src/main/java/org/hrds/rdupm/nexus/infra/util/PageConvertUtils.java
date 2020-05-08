@@ -70,4 +70,30 @@ public class PageConvertUtils {
         }
         return pageInfo;
     }
+
+	/**
+	 * 部分数据转换为猪齿鱼分页,部分数据即为当前页数据
+	 * @return PageInfo
+	 */
+	public static <T> PageInfo<T> convert(int pageNum, int pageSize,int totalSize, List<T> partContent) {
+		if (pageNum == 0) {
+			// 没传的时候，hzero默认0是第一页; Choerodon 第一页是1
+			pageNum = 1;
+		}
+		com.github.pagehelper.Page<T> page = new com.github.pagehelper.Page<>(pageNum, pageSize);
+		PageInfo<T> pageInfo = new PageInfo<>(page);
+		if (pageNum < 0) {
+			int total = totalSize;
+			page.addAll(partContent);
+			page.setTotal(total);
+			pageInfo.setTotal(total);
+		} else {
+			int currentNum = (pageNum - 1) * pageSize;
+			int total = totalSize;
+			page.addAll(partContent);
+			page.setTotal(total);
+			pageInfo.setTotal(total);
+		}
+		return pageInfo;
+	}
 }

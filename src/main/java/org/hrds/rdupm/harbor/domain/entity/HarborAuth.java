@@ -7,6 +7,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.constraints.NotBlank;
@@ -22,6 +23,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelColumn;
 import org.hzero.export.annotation.ExcelSheet;
 import org.hzero.export.render.ValueRenderer;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 制品库-harbor权限表
@@ -93,6 +95,8 @@ public class HarborAuth extends AuditDomain {
 	@ExcelColumn(title = "有效期",pattern = BaseConstants.Pattern.DATE ,order = 7)
 	@ApiModelProperty(value = "有效期，必输")
     @NotNull
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
 	@ApiModelProperty(value = "harbor权限ID")

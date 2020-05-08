@@ -92,10 +92,10 @@ public class HarborProjectVo {
 	private Integer usedCount;
 
 	@ApiModelProperty("存储容量限制值")
-	private Integer storageLimit;
+	private Long storageLimit;
 
 	@ApiModelProperty("存储容量已使用值")
-	private Integer usedStorage;
+	private Long usedStorage;
 
 	@ApiModelProperty(value = "已使用存储容量数值")
 	private BigDecimal usedStorageNum;
