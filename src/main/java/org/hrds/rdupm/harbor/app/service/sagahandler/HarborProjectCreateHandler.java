@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.SagaTask;
@@ -79,8 +80,8 @@ public class HarborProjectCreateHandler {
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = HarborProjectVo.class)
-	private HarborProjectVo createProjectRepoSaga(String message){
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
+	private String createProjectRepoSaga(String message) throws JsonProcessingException {
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -112,12 +113,12 @@ public class HarborProjectCreateHandler {
 			throw new CommonException("error.harbor.project.get.harborId");
 		}
 		harborProjectVo.setHarborId(harborId);
-		return harborProjectVo;
+		return objectMapper.writeValueAsString(harborProjectVo);
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：保存镜像仓库到数据库",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = HarborProjectVo.class)
-	private HarborProjectVo createProjectDbSaga(String message){
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = String.class)
+	private String createProjectDbSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -128,7 +129,7 @@ public class HarborProjectCreateHandler {
 		Integer harborId = harborProjectVo.getHarborId();
 		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),new Long(harborId),projectDTO.getOrganizationId());
 		harborRepositoryRepository.insertSelective(harborRepository);
-		return harborProjectVo;
+		return message;
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_QUOTA,description = "创建Docker镜像仓库：保存存储容量配置",
