@@ -60,12 +60,11 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Integer totalSize = harborProjectDTO.getRepoCount();
 		String repoName = harborProjectDTO.getName();
 		if(totalSize <= 0){
-			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), new ArrayList<>());
+			return PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), new ArrayList<>());
 		}
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageVoList);
-		pageInfo.setTotal(totalSize);
+		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(),totalSize, harborImageVoList);
 		return pageInfo;
 	}
 
@@ -73,7 +72,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Map<String,Object> paramMap = new HashMap<>(4);
 		paramMap.put("project_id",harborId);
 		paramMap.put("q",imageName);
-		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage());
+		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage()+1);
 		paramMap.put("page_size",pageRequest.getSize());
 		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null,true);
 		List<HarborImageVo> harborImageVoList = new ArrayList<>();
@@ -98,7 +97,8 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(CollectionUtils.isEmpty(projectList)){
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), new ArrayList<>());
 		}
-		//获得镜像头像
+
+		//获得镜像仓库图标等
 		Set<Long> projectIdSet = projectList.stream().map(dto->dto.getProjectId()).collect(Collectors.toSet());
 		ResponseEntity<List<ProjectDTO>> projectResponseEntity = baseFeignClient.queryByIds(projectIdSet);
 		Map<Long,ProjectDTO> projectDtoMap = projectResponseEntity == null ? new HashMap<>(1) : projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId,dto->dto));
@@ -121,8 +121,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 			totalSize += harborProjectDTO.getRepoCount();
 		}
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageVoList);
-		pageInfo.setTotal(totalSize);
+		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;
 	}
 

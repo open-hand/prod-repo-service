@@ -82,7 +82,7 @@ public class HarborProjectDTO {
 	* 存储容量限制
 	* */
 	@SerializedName("storage_limit")
-	private Integer storageLimit;
+	private Long storageLimit;
 
 	@SerializedName("metadata")
 	private HarborMetadataDTO metadata;

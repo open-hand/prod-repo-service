@@ -165,6 +165,7 @@ public class HarborHttpClient {
 					case 403: throw new CommonException("Forbiden as quota exceeded.");
 					case 404: throw new CommonException("Project or repository not found.");
 					case 409: throw new CommonException("Target tag already exists.");
+					case 412: throw new CommonException("error.harbor.image.tag.copy.412");
 					default: throw new CommonException(e.getMessage());
 				}
 			case CHECK_PROJECT_NAME:
