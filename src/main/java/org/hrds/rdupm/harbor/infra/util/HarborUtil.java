@@ -1,21 +1,11 @@
 package org.hrds.rdupm.harbor.infra.util;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
-import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
-import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hzero.export.vo.ExportParam;
 
@@ -186,16 +176,6 @@ public class HarborUtil {
 		if(!flag){
 			throw new CommonException(errorMsgCode,fieldName,str);
 		}
-	}
-
-	public static void main(String[] args){
-		Map<String,Object> map = getUsedStorageNumUnit(762907);
-		HarborQuotaVo harborQuotaVo = new HarborQuotaVo();
-		harborQuotaVo.setUsedStorageNum((BigDecimal) map.get("storageNum"));
-		harborQuotaVo.setUsedStorageUnit((String) map.get("storageUnit"));
-
-		System.out.println(map.get("storageNum"));
-		System.out.println(map.get("storageUnit"));
 	}
 
 

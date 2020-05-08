@@ -94,8 +94,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			sql.andEqualTo(HarborRepository.FIELD_NAME,projectName);
 		}
 		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
-		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
-		List<HarborRepository> projectList = page.getContent();
+		List<HarborRepository> projectList = harborRepositoryRepository.selectByCondition(condition);
 		if(CollectionUtils.isEmpty(projectList)){
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), new ArrayList<>());
 		}

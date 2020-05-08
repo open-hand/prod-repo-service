@@ -8,10 +8,8 @@ import io.choerodon.core.enums.ResourceType;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.config.SwaggerTags;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -105,5 +103,4 @@ public class HarborProjectController extends BaseController {
 	public ResponseEntity<List<HarborRepository>> listAll(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId) {
 		return Results.success(harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId));
 	}
-
 }
