@@ -219,10 +219,12 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(HarborConstants.TRUE.equals(harborProjectVo.getUseProjectCveFlag())){
 			Map<String,Object> map = new HashMap<>(4);
 			List<Map<String,String >> cveMapList = new ArrayList<>();
-			for(String cve : harborProjectVo.getCveNoList()){
-				Map<String,String> cveMap = new HashMap<>(2);
-				cveMap.put("cve_id",cve);
-				cveMapList.add(cveMap);
+			if(CollectionUtils.isNotEmpty(harborProjectVo.getCveNoList())){
+				for(String cve : harborProjectVo.getCveNoList()){
+					Map<String,String> cveMap = new HashMap<>(2);
+					cveMap.put("cve_id",cve);
+					cveMapList.add(cveMap);
+				}
 			}
 			map.put("items",cveMapList);
 			map.put("expires_at",HarborUtil.dateToTimestamp(harborProjectVo.getEndDate()));
@@ -247,7 +249,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		if(!publicFlag.equals(harborRepository.getPublicFlag())){
-			harborRepository.setPublicFlag(harborRepository.getPublicFlag());
+			harborRepository.setPublicFlag(publicFlag);
 			harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
 
 			Map<String,Object> bodyMap = new HashMap<>(1);

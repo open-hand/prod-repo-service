@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
@@ -35,7 +37,7 @@ public class HarborQuotaVo {
 	private Integer usedStorage;
 
 	@ApiModelProperty(value = "已使用存储容量--数值")
-	private Integer usedStorageNum;
+	private BigDecimal usedStorageNum;
 
 	@ApiModelProperty(value = "已使用存储容量--单位")
 	private String usedStorageUnit;

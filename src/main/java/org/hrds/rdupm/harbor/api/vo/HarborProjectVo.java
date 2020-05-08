@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class HarborProjectVo {
 	private Integer usedStorage;
 
 	@ApiModelProperty(value = "已使用存储容量数值")
-	private Integer usedStorageNum;
+	private BigDecimal usedStorageNum;
 
 	@ApiModelProperty(value = "已使用存储容量单位")
 	private String usedStorageUnit;
