@@ -238,6 +238,15 @@ public interface HarborConstants {
 
 		String roleName;
 
+		public static Long getIdByName(String harborRoleName) {
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (harborRoleName.equals(authorityEnum.getRoleName())) {
+					return authorityEnum.getRoleId();
+				}
+			}
+			return null;
+		}
+
 		public Long getRoleId() {
 			return roleId;
 		}

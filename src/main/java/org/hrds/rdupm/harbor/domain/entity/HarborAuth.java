@@ -121,18 +121,20 @@ public class HarborAuth extends AuditDomain {
 
 	public HarborAuth(){}
 
-	public HarborAuth(Long projectId, @NotBlank String loginName, String realName) {
+	public HarborAuth(Long projectId, @NotBlank String loginName, String realName,String harborRoleName) {
 		this.projectId = projectId;
 		this.loginName = loginName;
 		this.realName = realName;
+		this.harborRoleId = HarborConstants.HarborRoleEnum.getIdByName(harborRoleName);
 	}
 
-	public HarborAuth(@NotBlank String loginName, String realName, Long organizationId, String code, String name) {
+	public HarborAuth(@NotBlank String loginName, String realName, Long organizationId, String code, String name,String harborRoleName) {
 		this.loginName = loginName;
 		this.realName = realName;
 		this.organizationId = organizationId;
 		this.code = code;
 		this.name = name;
+		this.harborRoleId = HarborConstants.HarborRoleEnum.getIdByName(harborRoleName);
 	}
 
 	public void setHarborRoleValue(String value){

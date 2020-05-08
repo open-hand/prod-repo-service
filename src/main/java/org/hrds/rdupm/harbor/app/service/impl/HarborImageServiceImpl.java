@@ -91,7 +91,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			sql.andEqualTo(HarborRepository.FIELD_CODE,projectCode);
 		}
 		if(!StringUtils.isEmpty(projectName)){
-			sql.andLike(HarborRepository.FIELD_NAME,projectName);
+			sql.andEqualTo(HarborRepository.FIELD_NAME,projectName);
 		}
 		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
 		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
@@ -105,19 +105,25 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Map<Long,ProjectDTO> projectDtoMap = projectResponseEntity == null ? new HashMap<>(1) : projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId,dto->dto));
 
 		//查询镜像列表
+		Integer totalSize = 0;
 		List<HarborImageVo> harborImageVoList = new ArrayList<>();
 		for(HarborRepository harborRepository : projectList){
 			List<HarborImageVo> dtoList = getImageList(harborRepository.getHarborId(),imageName,pageRequest,harborRepository.getCode());
+			harborImageVoList.addAll(dtoList);
 			dtoList.forEach(dto->{
 				ProjectDTO projectDTO = projectDtoMap.get(harborRepository.getProjectId());
-				if(projectDTO == null){
-					dto.setProjectName(projectDTO.getName());
-					dto.setProjectImageUrl(projectDTO.getImageUrl());
-				}
+				dto.setProjectCode(projectDTO == null ? null : projectDTO.getCode());
+				dto.setProjectName(projectDTO == null ? null : projectDTO.getName());
+				dto.setProjectImageUrl(projectDTO == null ? null : projectDTO.getImageUrl());
 			});
-			harborImageVoList.addAll(dtoList);
+
+			//获得镜像数
+			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborRepository.getHarborId());
+			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+			totalSize += harborProjectDTO.getRepoCount();
 		}
 		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageVoList);
+		pageInfo.setTotal(totalSize);
 		return pageInfo;
 	}
 

@@ -2,6 +2,7 @@ package org.hrds.rdupm.harbor.infra.util;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -12,7 +13,9 @@ import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hzero.export.vo.ExportParam;
 
@@ -37,6 +40,11 @@ public class HarborUtil {
 		return storageLimit;
 	}
 
+	/***
+	 * 获得整数
+	 * @param size
+	 * @return
+	 */
 	public static Map<String,Object> getStorageNumUnit(Integer size) {
 		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
 		if (size < 1024) {
@@ -62,6 +70,43 @@ public class HarborUtil {
 			return storageMap(size,"GB");
 		} else {
 			size = size / 1024;
+		}
+
+		return storageMap(size,"TB");
+	}
+
+	/***
+	 * 保存两位小数
+	 * @param num
+	 * @return
+	 */
+	public static Map<String,Object> getUsedStorageNumUnit(Integer num) {
+		BigDecimal size = new BigDecimal(num);
+
+		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"B");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		//如果原字节数除于1024之后，少于1024，则可以直接以KB作为单位
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"KB");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"MB");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"GB");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
 		}
 
 		return storageMap(size,"TB");
@@ -142,5 +187,16 @@ public class HarborUtil {
 			throw new CommonException(errorMsgCode,fieldName,str);
 		}
 	}
+
+	public static void main(String[] args){
+		Map<String,Object> map = getUsedStorageNumUnit(762907);
+		HarborQuotaVo harborQuotaVo = new HarborQuotaVo();
+		harborQuotaVo.setUsedStorageNum((BigDecimal) map.get("storageNum"));
+		harborQuotaVo.setUsedStorageUnit((String) map.get("storageUnit"));
+
+		System.out.println(map.get("storageNum"));
+		System.out.println(map.get("storageUnit"));
+	}
+
 
 }

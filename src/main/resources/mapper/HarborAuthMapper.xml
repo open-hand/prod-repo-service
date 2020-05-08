@@ -47,6 +47,9 @@
             <bind name="nameLike" value=" '%'+ name + '%'" />
             and rhr.NAME like #{nameLike}
         </if>
+        <if test=" harborRoleId != null ">
+            and rha.harbor_role_id = #{harborRoleId}
+        </if>
         <if test=" projectId != null ">
             and rha.project_id = #{projectId}
         </if>

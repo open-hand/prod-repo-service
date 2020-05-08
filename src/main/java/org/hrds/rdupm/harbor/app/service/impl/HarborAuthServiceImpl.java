@@ -75,7 +75,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 		//校验是否已分配权限
 		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,dtoList.get(0).getProjectId());
-		Map<String,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getLoginName,dto->dto));
+		Map<Long,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getUserId,dto->dto));
 
 		//设置loginName、realName
 		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
@@ -83,17 +83,18 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		Map<Long,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
 
 		dtoList.forEach(dto->{
-			if(harborAuthMap.get(dto.getLoginName()) != null){
+			UserDTO userDTO = userDtoMap.get(dto.getUserId());
+			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
+			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
+
+			if(harborAuthMap.get(dto.getUserId()) != null){
 				throw new CommonException("error.harbor.auth.already.exist",dto.getLoginName(),dto.getRealName());
 			}
+
 			dto.setProjectId(projectId);
 			dto.setOrganizationId(harborRepository.getOrganizationId());
 			dto.setHarborId(harborRepository.getHarborId());
 			dto.setHarborRoleValue(dto.getHarborRoleValue());
-
-			UserDTO userDTO = userDtoMap.get(dto.getUserId());
-			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
-			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
 		});
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()

@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,8 +92,8 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(Double.valueOf(hardStorage).intValue());
 		harborQuotaVo.setStorageNum((Integer) storageLimitMap.get("storageNum"));
 		harborQuotaVo.setStorageUnit((String) storageLimitMap.get("storageUnit"));
-		Map<String,Object> usedStorageMap = HarborUtil.getStorageNumUnit(Double.valueOf(usedStorage).intValue());
-		harborQuotaVo.setUsedStorageNum((Integer) usedStorageMap.get("storageNum"));
+		Map<String,Object> usedStorageMap = HarborUtil.getUsedStorageNumUnit(Double.valueOf(usedStorage).intValue());
+		harborQuotaVo.setUsedStorageNum((BigDecimal) usedStorageMap.get("storageNum"));
 		harborQuotaVo.setUsedStorageUnit((String) usedStorageMap.get("storageUnit"));
 
 		return harborQuotaVo;

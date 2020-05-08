@@ -34,8 +34,8 @@ public class HarborProjectUpdateHandler {
 	private HarborQuotaService harborQuotaService;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_REPO,description = "更新Docker镜像仓库：保存仓库元数据",
-			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PROJECT,seq = 1,maxRetryCount = 3)
-	private HarborProjectVo updateProjectRepoSaga(String message){
+			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
+	private String updateProjectRepoSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -44,7 +44,7 @@ public class HarborProjectUpdateHandler {
 		}
 		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT,null,harborProjectDTO,false,harborProjectVo.getHarborId());
-		return harborProjectVo;
+		return message;
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_QUOTA,description = "更新Docker镜像仓库：保存存储容量配置",
