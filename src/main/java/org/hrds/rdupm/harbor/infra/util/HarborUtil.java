@@ -133,9 +133,9 @@ public class HarborUtil {
 		if(doubleExpire == null){
 			return null;
 		}
+		String expire = String.valueOf((doubleExpire).longValue());
 
-		String expires = String.valueOf(new Double(doubleExpire).intValue()*1000);
-		Date endDate = new Date(Long.parseLong(expires));
+		Date endDate = new Date(Long.parseLong(expire + "000"));
 		return endDate;
 	}
 
@@ -201,6 +201,9 @@ public class HarborUtil {
 	}
 
 	public static void main(String[] args){
+		String expire = "1589596151000";
+		String expires = String.valueOf(expire + "000");
+		Date endDate = new Date(Long.parseLong(expire));
 		System.out.println(readableFileSize(300000230));
 	}
 
