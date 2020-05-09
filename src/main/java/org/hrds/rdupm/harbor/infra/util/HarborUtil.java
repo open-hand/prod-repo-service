@@ -1,13 +1,20 @@
 package org.hrds.rdupm.harbor.infra.util;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hzero.core.jackson.JacksonConstant;
 import org.hzero.export.vo.ExportParam;
 
 /**
@@ -111,8 +118,8 @@ public class HarborUtil {
 	}
 
 	public static String getTagSizeDesc(Long size) {
-		Map<String,Object> sizeMap = getStorageNumUnit(size);
-		Integer storageNum = (Integer) sizeMap.get("storageNum");
+		Map<String,Object> sizeMap = getUsedStorageNumUnit(size);
+		BigDecimal storageNum = (BigDecimal) sizeMap.get("storageNum");
 		String storageUnit = (String) sizeMap.get("storageUnit");
 		return storageNum+storageUnit;
 	}
@@ -178,9 +185,6 @@ public class HarborUtil {
 			throw new CommonException(errorMsgCode,fieldName,str);
 		}
 	}
-	public static void main(String[] args){
-		System.out.println(readableFileSize(300000230));
-	}
 
 	/***
 	 * size转GB、TB等
@@ -194,6 +198,10 @@ public class HarborUtil {
 		final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
 		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
 		return new DecimalFormat("#,##0.##").format(size / Math.pow(1024, digitGroups)) + "/" + units[digitGroups];
+	}
+
+	public static void main(String[] args){
+		System.out.println(readableFileSize(300000230));
 	}
 
 }
