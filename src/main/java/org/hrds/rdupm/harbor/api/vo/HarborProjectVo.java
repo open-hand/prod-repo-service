@@ -81,8 +81,8 @@ public class HarborProjectVo {
 	private List<String> cveNoList;
 
 	@ApiModelProperty("有效期至")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date endDate;
 
 	@ApiModelProperty("镜像数量")
