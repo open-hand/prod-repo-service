@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.infra.constant;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 
 /**
@@ -28,6 +29,12 @@ public interface HarborConstants {
 	String UPDATE_AUTH = "update";
 
 	String REVOKE_AUTH = "revoke";
+
+	String LOWER_CREATE = "create";
+
+	String HARBOR_UI = "harbor-ui";
+
+	String DEFAULT_DATE = "0001-01-01T00:00:00Z";
 
 	/**
 	* 危害等级
@@ -232,6 +239,18 @@ public interface HarborConstants {
 
 		String roleName;
 
+		public static Long getIdByName(String harborRoleName) {
+			if(StringUtils.isEmpty(harborRoleName)){
+				return null;
+			}
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (harborRoleName.equals(authorityEnum.getRoleName())) {
+					return authorityEnum.getRoleId();
+				}
+			}
+			return null;
+		}
+
 		public Long getRoleId() {
 			return roleId;
 		}
@@ -262,7 +281,22 @@ public interface HarborConstants {
 			this.roleName = roleName;
 		}
 
+		public static String getValueById(Long roleId){
+			if(roleId == null){
+				return null;
+			}
+			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
+				if (roleId.equals(authorityEnum.getRoleId())) {
+					return authorityEnum.getRoleValue();
+				}
+			}
+			return null;
+		}
+
 		public static String getNameById(Long roleId){
+			if(roleId == null){
+				return null;
+			}
 			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
 				if (roleId.equals(authorityEnum.getRoleId())) {
 					return authorityEnum.getRoleName();
@@ -272,6 +306,9 @@ public interface HarborConstants {
 		}
 
 		public static Long getIdByValue(String value){
+			if(StringUtils.isEmpty(value)){
+				return null;
+			}
 			for (HarborRoleEnum authorityEnum : HarborRoleEnum.values()) {
 				if (value.equals(authorityEnum.getRoleValue())) {
 					return authorityEnum.getRoleId();

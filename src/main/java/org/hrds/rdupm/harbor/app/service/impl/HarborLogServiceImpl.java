@@ -96,7 +96,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 	}
 
 	@Override
-	public PageInfo<HarborImageLog> listImageLog(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
+	public PageInfo<HarborImageLog> listImageLogByProject(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
@@ -104,7 +104,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 		Map<String,Object> paramMap = getParamMap(pageRequest,imageName,loginName,tagName,operateType,startDate,endDate);
 		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,false,harborRepository.getHarborId());
 		List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
-		List<HarborImageLog> harborImageLogList = dataList.stream().filter(dto->!"create".equals(dto.getOperateType()) ).collect(Collectors.toList());
+		List<HarborImageLog> harborImageLogList = dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList());
 
 		processImageLogList(harborImageLogList);
 		return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageLogList);
@@ -112,20 +112,27 @@ public class HarborLogServiceImpl implements HarborLogService {
 
 	@Override
 	public PageInfo<HarborImageLog> listImageLogByOrg(PageRequest pageRequest, Long organizationId, String code, String name, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
-		List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
-		if(CollectionUtils.isEmpty(harborRepositoryList)){
-			throw new CommonException("error.harbor.project.not.exist");
+		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
+		if(!StringUtils.isEmpty(code)){
+			sql.andEqualTo(HarborRepository.FIELD_CODE,code);
 		}
+		if(!StringUtils.isEmpty(name)){
+			sql.andEqualTo(HarborRepository.FIELD_NAME,name);
+		}
+		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
+		List<HarborRepository> harborRepositoryList = harborRepositoryRepository.selectByCondition(condition);
+		if(CollectionUtils.isEmpty(harborRepositoryList)){
+			PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),new ArrayList<>());
+		}
+
 		List<HarborImageLog> harborImageLogList = new ArrayList<>();
 		for(HarborRepository harborRepository : harborRepositoryList){
 			Map<String,Object> paramMap = getParamMap(pageRequest,imageName,loginName,tagName,operateType,startDate,endDate);
 			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,false,harborRepository.getHarborId());
 			List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
-			harborImageLogList.addAll(dataList.stream().filter(dto->!"create".equals(dto.getOperateType()) ).collect(Collectors.toList()));
-
+			harborImageLogList.addAll(dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList()));
 		}
 		processImageLogList(harborImageLogList);
-
 		return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageLogList);
 	}
 
@@ -160,11 +167,14 @@ public class HarborLogServiceImpl implements HarborLogService {
 		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
 		Map<String,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName,dto->dto));
 		harborImageLogList.stream().forEach(dto->{
-			UserDTO userDTO = userDtoMap.get(dto.getLoginName());
-			if(userDTO != null){
-				dto.setUserImageUrl(userDTO.getImageUrl());
-				dto.setContent(String.format("%s(%s) %s 镜像【%s:%s】",userDTO.getRealName(),userDTO.getLoginName(),HarborConstants.HarborImageOperateEnum.getNameByValue(dto.getOperateType()),dto.getRepoName(),dto.getTagName()));
-			}
+			String loginName = dto.getLoginName();
+			UserDTO userDTO = userDtoMap.get(loginName);
+			String realName = userDTO == null ? loginName : userDTO.getRealName();
+			String operateTypeName = HarborConstants.HarborImageOperateEnum.getNameByValue(dto.getOperateType());
+			String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
+
+			dto.setUserImageUrl(userImageUrl);
+			dto.setContent(String.format("%s(%s) %s 镜像【%s:%s】",realName,loginName,operateTypeName,dto.getRepoName(),dto.getTagName()));
 		});
 	}
 }

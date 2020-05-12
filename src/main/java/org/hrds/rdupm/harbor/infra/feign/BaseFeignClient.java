@@ -106,6 +106,9 @@ public interface BaseFeignClient {
 
 	/***
 	 * 根据多个id查询用户（包括用户信息以及所分配的项目角色信息以及GitlabUserId）
+	 * @param projectId
+	 * @param userIds
+	 * @return
 	 */
 	@PostMapping(value = "/v1/projects/{project_id}/users/list_by_ids")
 	ResponseEntity<List<UserWithGitlabIdDTO>> listUsersWithRolesAndGitlabUserIdByIds(

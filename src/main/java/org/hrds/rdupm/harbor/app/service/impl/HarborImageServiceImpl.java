@@ -60,19 +60,19 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Integer totalSize = harborProjectDTO.getRepoCount();
 		String repoName = harborProjectDTO.getName();
 		if(totalSize <= 0){
-			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), new ArrayList<>());
+			return PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), new ArrayList<>());
 		}
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageVoList);
+		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(),totalSize, harborImageVoList);
 		return pageInfo;
 	}
 
 	private List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest,String projectCode){
-		Map<String,Object> paramMap = new HashMap<>();
+		Map<String,Object> paramMap = new HashMap<>(4);
 		paramMap.put("project_id",harborId);
 		paramMap.put("q",imageName);
-		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage());
+		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage()+1);
 		paramMap.put("page_size",pageRequest.getSize());
 		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null,true);
 		List<HarborImageVo> harborImageVoList = new ArrayList<>();
@@ -90,33 +90,38 @@ public class HarborImageServiceImpl implements HarborImageService {
 			sql.andEqualTo(HarborRepository.FIELD_CODE,projectCode);
 		}
 		if(!StringUtils.isEmpty(projectName)){
-			sql.andLike(HarborRepository.FIELD_NAME,projectName);
+			sql.andEqualTo(HarborRepository.FIELD_NAME,projectName);
 		}
 		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
-		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
-		List<HarborRepository> projectList = page.getContent();
+		List<HarborRepository> projectList = harborRepositoryRepository.selectByCondition(condition);
 		if(CollectionUtils.isEmpty(projectList)){
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), new ArrayList<>());
 		}
-		//获得镜像头像
+
+		//获得镜像仓库图标等
 		Set<Long> projectIdSet = projectList.stream().map(dto->dto.getProjectId()).collect(Collectors.toSet());
 		ResponseEntity<List<ProjectDTO>> projectResponseEntity = baseFeignClient.queryByIds(projectIdSet);
 		Map<Long,ProjectDTO> projectDtoMap = projectResponseEntity == null ? new HashMap<>(1) : projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId,dto->dto));
 
 		//查询镜像列表
+		Integer totalSize = 0;
 		List<HarborImageVo> harborImageVoList = new ArrayList<>();
 		for(HarborRepository harborRepository : projectList){
 			List<HarborImageVo> dtoList = getImageList(harborRepository.getHarborId(),imageName,pageRequest,harborRepository.getCode());
+			harborImageVoList.addAll(dtoList);
 			dtoList.forEach(dto->{
 				ProjectDTO projectDTO = projectDtoMap.get(harborRepository.getProjectId());
-				if(projectDTO == null){
-					dto.setProjectName(projectDTO.getName());
-					dto.setProjectImageUrl(projectDTO.getImageUrl());
-				}
+				dto.setProjectCode(projectDTO == null ? null : projectDTO.getCode());
+				dto.setProjectName(projectDTO == null ? null : projectDTO.getName());
+				dto.setProjectImageUrl(projectDTO == null ? null : projectDTO.getImageUrl());
 			});
-			harborImageVoList.addAll(dtoList);
+
+			//获得镜像数
+			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborRepository.getHarborId());
+			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+			totalSize += harborProjectDTO.getRepoCount();
 		}
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageVoList);
+		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;
 	}
 
@@ -135,7 +140,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(StringUtils.isEmpty(repoName)){
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
-		Map<String,String> bodyMap = new HashMap<>();
+		Map<String,String> bodyMap = new HashMap<>(1);
 		bodyMap.put("description",harborImageVo.getDescription());
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,false,repoName);
 	}

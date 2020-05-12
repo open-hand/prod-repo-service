@@ -2,17 +2,19 @@ package org.hrds.rdupm.harbor.infra.util;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hzero.core.jackson.JacksonConstant;
 import org.hzero.export.vo.ExportParam;
 
 /**
@@ -22,21 +24,26 @@ import org.hzero.export.vo.ExportParam;
  */
 public class HarborUtil {
 
-	public static Integer getStorageLimit(Integer storageNum,String storageUnit){
-		Integer storageLimit = -1;
+	public static Long getStorageLimit(Integer storageNum,String storageUnit){
+		Long storageLimit = -1L;
 		if(storageNum == -1){
 			return storageLimit;
 		}
 		switch (storageUnit){
-			case HarborConstants.MB: storageLimit = storageNum*1024*1024;break;
-			case HarborConstants.GB: storageLimit = storageNum*1024*1024*1024;break;
-			case HarborConstants.TB: storageLimit = storageNum*1024*1024*1024*1024;break;
+			case HarborConstants.MB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(2))).longValue();break;
+			case HarborConstants.GB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(3))).longValue();break;
+			case HarborConstants.TB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(4))).longValue();break;
 			default: break;
 		}
 		return storageLimit;
 	}
 
-	public static Map<String,Object> getStorageNumUnit(Integer size) {
+	/***
+	 * 获得整数
+	 * @param size
+	 * @return
+	 */
+	public static Map<String,Object> getStorageNumUnit(Long size) {
 		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
 		if (size < 1024) {
 			return storageMap(size,"B");
@@ -66,6 +73,43 @@ public class HarborUtil {
 		return storageMap(size,"TB");
 	}
 
+	/***
+	 * 保存两位小数
+	 * @param num
+	 * @return
+	 */
+	public static Map<String,Object> getUsedStorageNumUnit(Long num) {
+		BigDecimal size = new BigDecimal(num);
+
+		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"B");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		//如果原字节数除于1024之后，少于1024，则可以直接以KB作为单位
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"KB");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"MB");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		if (size.doubleValue() < 1024) {
+			return storageMap(size,"GB");
+		} else {
+			size = size.divide(new BigDecimal(1024),2,BigDecimal.ROUND_HALF_UP);
+		}
+
+		return storageMap(size,"TB");
+	}
+
 	public static Map<String,Object> storageMap(Object storageNum,Object storageUnit){
 		Map<String,Object> map = new HashMap<>();
 		map.put("storageNum",storageNum);
@@ -73,9 +117,9 @@ public class HarborUtil {
 		return map;
 	}
 
-	public static String getTagSizeDesc(Integer size) {
-		Map<String,Object> sizeMap = getStorageNumUnit(size);
-		Integer storageNum = (Integer) sizeMap.get("storageNum");
+	public static String getTagSizeDesc(Long size) {
+		Map<String,Object> sizeMap = getUsedStorageNumUnit(size);
+		BigDecimal storageNum = (BigDecimal) sizeMap.get("storageNum");
 		String storageUnit = (String) sizeMap.get("storageUnit");
 		return storageNum+storageUnit;
 	}
@@ -89,9 +133,9 @@ public class HarborUtil {
 		if(doubleExpire == null){
 			return null;
 		}
+		String expire = String.valueOf((doubleExpire).longValue());
 
-		String expires = String.valueOf(new Double(doubleExpire).intValue()*1000);
-		Date endDate = new Date(Long.parseLong(expires));
+		Date endDate = new Date(Long.parseLong(expire + "000"));
 		return endDate;
 	}
 
@@ -142,39 +186,25 @@ public class HarborUtil {
 		}
 	}
 
-	public static String getPrintSize(long size) {
-		//如果字节数少于1024，则直接以B为单位，否则先除于1024，后3位因太少无意义
-		if (size < 1024) {
-			return String.valueOf(size) + "B";
-		} else {
-			size = size / 1024;
+	/***
+	 * size转GB、TB等
+	 * @param size
+	 * @return
+	 */
+	public static String readableFileSize(long size) {
+		if (size <= 0) {
+			return "0";
 		}
-		//如果原字节数除于1024之后，少于1024，则可以直接以KB作为单位
-		//因为还没有到达要使用另一个单位的时候
-		//接下去以此类推
-		if (size < 1024) {
-			return String.valueOf(size) + "KB";
-		} else {
-			size = size / 1024;
-		}
-		if (size < 1024) {
-			//因为如果以MB为单位的话，要保留最后1位小数，
-			//因此，把此数乘以100之后再取余
-			size = size * 100;
-			return String.valueOf((size / 100)) + "."
-					+ String.valueOf((size % 100)) + "MB";
-		} else {
-			//否则如果要以GB为单位的，先除于1024再作同样的处理
-			size = size * 100 / 1024;
-			return String.valueOf((size / 100)) + "." + String.valueOf((size % 100)) + "GB";
-		}
+		final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+		return new DecimalFormat("#,##0.##").format(size / Math.pow(1024, digitGroups)) + "/" + units[digitGroups];
 	}
 
-	public static void main(String[] args) {
-		System.out.println(getPrintSize(200));
-		System.out.println(getPrintSize(200000));
-		System.out.println(getPrintSize(200000000));
-		System.out.println(getPrintSize(2000000000));
+	public static void main(String[] args){
+		String expire = "1589596151000";
+		String expires = String.valueOf(expire + "000");
+		Date endDate = new Date(Long.parseLong(expire));
+		System.out.println(readableFileSize(300000230));
 	}
 
 }

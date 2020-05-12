@@ -1,10 +1,12 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.Saga;
@@ -15,6 +17,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
@@ -219,10 +222,12 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(HarborConstants.TRUE.equals(harborProjectVo.getUseProjectCveFlag())){
 			Map<String,Object> map = new HashMap<>(4);
 			List<Map<String,String >> cveMapList = new ArrayList<>();
-			for(String cve : harborProjectVo.getCveNoList()){
-				Map<String,String> cveMap = new HashMap<>(2);
-				cveMap.put("cve_id",cve);
-				cveMapList.add(cveMap);
+			if(CollectionUtils.isNotEmpty(harborProjectVo.getCveNoList())){
+				for(String cve : harborProjectVo.getCveNoList()){
+					Map<String,String> cveMap = new HashMap<>(2);
+					cveMap.put("cve_id",cve);
+					cveMapList.add(cveMap);
+				}
 			}
 			map.put("items",cveMapList);
 			map.put("expires_at",HarborUtil.dateToTimestamp(harborProjectVo.getEndDate()));
@@ -247,7 +252,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		if(!publicFlag.equals(harborRepository.getPublicFlag())){
-			harborRepository.setPublicFlag(harborRepository.getPublicFlag());
+			harborRepository.setPublicFlag(publicFlag);
 			harborRepositoryRepository.updateByPrimaryKeySelective(harborRepository);
 
 			Map<String,Object> bodyMap = new HashMap<>(1);
@@ -311,5 +316,4 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			throw new CommonException("error.harbor.project.exist");
 		}
 	}
-
 }

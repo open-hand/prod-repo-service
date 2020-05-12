@@ -130,11 +130,14 @@ public class OperateLogAspect {
 	 * @return
 	 */
 	private String getUserParms(Long userId) {
-		ResponseEntity<UserDTO> userResponseEntity = baseFeignClient.queryInfo(userId);
+		Long[] array = new Long[1];
+		array[0] = userId;
+
+		ResponseEntity<List<UserDTO>> userResponseEntity = baseFeignClient.listUsersByIds(array,true);
 		if(userResponseEntity == null){
 			return userId.toString();
 		}else {
-			UserDTO userDTO = userResponseEntity.getBody();
+			UserDTO userDTO = userResponseEntity.getBody().get(0);
 			return userDTO.getRealName() + "(" + userDTO.getLoginName() + ")";
 		}
 	}

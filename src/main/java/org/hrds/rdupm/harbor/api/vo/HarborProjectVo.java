@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Map;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,6 +24,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * description
@@ -78,7 +81,8 @@ public class HarborProjectVo {
 	private List<String> cveNoList;
 
 	@ApiModelProperty("有效期至")
-	@Future
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date endDate;
 
 	@ApiModelProperty("镜像数量")
@@ -88,13 +92,13 @@ public class HarborProjectVo {
 	private Integer usedCount;
 
 	@ApiModelProperty("存储容量限制值")
-	private Integer storageLimit;
+	private Long storageLimit;
 
 	@ApiModelProperty("存储容量已使用值")
-	private Integer usedStorage;
+	private Long usedStorage;
 
 	@ApiModelProperty(value = "已使用存储容量数值")
-	private Integer usedStorageNum;
+	private BigDecimal usedStorageNum;
 
 	@ApiModelProperty(value = "已使用存储容量单位")
 	private String usedStorageUnit;

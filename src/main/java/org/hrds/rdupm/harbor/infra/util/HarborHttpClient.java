@@ -165,6 +165,7 @@ public class HarborHttpClient {
 					case 403: throw new CommonException("Forbiden as quota exceeded.");
 					case 404: throw new CommonException("Project or repository not found.");
 					case 409: throw new CommonException("Target tag already exists.");
+					case 412: throw new CommonException("error.harbor.image.tag.copy.412");
 					default: throw new CommonException(e.getMessage());
 				}
 			case CHECK_PROJECT_NAME:
@@ -177,6 +178,19 @@ public class HarborHttpClient {
 					case 400: throw new CommonException("Illegal format of project member or project id is invalid, or LDAP DN is invalid.");
 					case 403: throw new CommonException("User in session does not have permission to the project.");
 					case 409: throw new CommonException("A user group with same group name already exist or an LDAP user group with same DN already exist.");
+					default: throw new CommonException(e.getMessage());
+				}
+			case UPDATE_PROJECT_QUOTA:
+				switch (statusCode){
+					case 400: throw new CommonException("Illegal format of quota update request.");
+					default: throw new CommonException(e.getMessage());
+				}
+			case DELETE_PROJECT:
+				switch (statusCode){
+					case 400: throw new CommonException("Invalid project id.");
+					case 403: throw new CommonException("User need to log in first.");
+					case 404: throw new CommonException("Project does not exist.");
+					case 412: throw new CommonException("error.delete.project.412");
 					default: throw new CommonException(e.getMessage());
 				}
 			default: throw new CommonException(e.getMessage());

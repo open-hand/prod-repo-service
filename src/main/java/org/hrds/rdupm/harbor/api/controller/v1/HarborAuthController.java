@@ -58,8 +58,10 @@ public class HarborAuthController extends BaseController {
 												 @ApiParam("登录名") @RequestParam(required = false) String loginName,
 												 @ApiParam("用户名") @RequestParam(required = false) String realName,
 												 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
+												 @ApiParam("权限角色") @RequestParam(required = false) String harborRoleValue,
 												 @ApiIgnore @SortDefault(value = HarborAuth.FIELD_AUTH_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName);
+		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
+		harborAuth.setHarborRoleValue(harborRoleValue);
     	PageInfo<HarborAuth> list = PageConvertUtils.convert(harborAuthService.pageList(pageRequest, harborAuth));
         return Results.success(list);
     }
@@ -74,7 +76,7 @@ public class HarborAuthController extends BaseController {
 													 @ApiParam("用户名") @RequestParam(required = false) String realName,
 													 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
 													 @ApiIgnore @SortDefault(value = HarborAuth.FIELD_AUTH_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name);
+		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
 		PageInfo<HarborAuth> list = PageConvertUtils.convert(harborAuthService.pageList(pageRequest, harborAuth));
 		return Results.success(list);
 	}
@@ -87,7 +89,7 @@ public class HarborAuthController extends BaseController {
         return Results.success(harborAuth);
     }
 
-    @ApiOperation(value = "项目层--分配权限,必输字段endDate、harborRoleId、userId、loginName、realName")
+    @ApiOperation(value = "项目层--分配权限,必输字段endDate、harborRoleValue、userId")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
     @PostMapping("/create/{projectId}")
     public ResponseEntity<List<HarborAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
@@ -135,7 +137,7 @@ public class HarborAuthController extends BaseController {
 														  @ApiParam("导出，输入exportType=DATA即可") ExportParam exportParam,
 														   HttpServletResponse response) {
 		HarborUtil.setIds(exportParam);
-		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName);
+		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		return Results.success(harborAuthService.export(pageRequest, harborAuth, exportParam, response));
 	}
 
@@ -150,7 +152,7 @@ public class HarborAuthController extends BaseController {
 															   @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
 													           @ApiParam("导出，输入exportType=DATA即可") ExportParam exportParam, HttpServletResponse response, PageRequest pageRequest) {
 		HarborUtil.setIds(exportParam);
-		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name);
+		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
 		return Results.success(harborAuthService.export(pageRequest, harborAuth, exportParam, response));
 	}
 }
