@@ -26,6 +26,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,9 @@ public class HarborProjectCreateHandler {
 
 	@Autowired
 	private HarborProjectService harborProjectService;
+
+	@Resource
+	private HarborRepositoryMapper harborRepositoryMapper;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
@@ -116,7 +120,7 @@ public class HarborProjectCreateHandler {
 		return objectMapper.writeValueAsString(harborProjectVo);
 	}
 
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：保存镜像仓库到数据库",
+	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：更新harbor_id字段到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectDbSaga(String message){
 		HarborProjectVo harborProjectVo = null;
@@ -127,8 +131,8 @@ public class HarborProjectCreateHandler {
 		}
 		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
 		Integer harborId = harborProjectVo.getHarborId();
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),new Long(harborId),projectDTO.getOrganizationId());
-		harborRepositoryRepository.insertSelective(harborRepository);
+		Long projectId = projectDTO.getId();
+		harborRepositoryMapper.updateHarborIdByProjectId(projectId,harborId);
 		return message;
 	}
 

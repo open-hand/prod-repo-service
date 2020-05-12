@@ -27,11 +27,11 @@ public class HarborImageController {
 
 	@ApiOperation(value = "项目层--镜像列表")
 	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
-	@GetMapping(value = "/list-project/{harborId}")
-	public ResponseEntity<PageInfo<HarborImageVo>> getByProject(@PathVariable(value = "harborId") @ApiParam(value = "镜像仓库ID") Long harborId,
+	@GetMapping(value = "/list-project/{projectId}")
+	public ResponseEntity<PageInfo<HarborImageVo>> getByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 																@ApiParam(value = "镜像名称") @RequestParam(required = false) String imageName,
 																@ApiIgnore PageRequest pageRequest) {
-		return Results.success(harborImageService.getByProject(harborId,imageName,pageRequest));
+		return Results.success(harborImageService.getByProject(projectId,imageName,pageRequest));
 	}
 
 	@ApiOperation(value = "组织层--镜像列表")

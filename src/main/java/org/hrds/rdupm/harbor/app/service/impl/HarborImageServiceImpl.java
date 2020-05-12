@@ -51,8 +51,13 @@ public class HarborImageServiceImpl implements HarborImageService {
 	private BaseFeignClient baseFeignClient;
 
 	@Override
-	public PageInfo<HarborImageVo> getByProject(Long harborId, String imageName, PageRequest pageRequest) {
+	public PageInfo<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
 		Gson gson = new Gson();
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		Long harborId = harborRepository.getHarborId();
 
 		//获得镜像数
 		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,harborId);

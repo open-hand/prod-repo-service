@@ -1,20 +1,13 @@
 package org.hrds.rdupm.harbor.infra.util;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hzero.core.jackson.JacksonConstant;
 import org.hzero.export.vo.ExportParam;
 
 /**
@@ -111,7 +104,7 @@ public class HarborUtil {
 	}
 
 	public static Map<String,Object> storageMap(Object storageNum,Object storageUnit){
-		Map<String,Object> map = new HashMap<>();
+		Map<String,Object> map = new HashMap<>(2);
 		map.put("storageNum",storageNum);
 		map.put("storageUnit",storageUnit);
 		return map;

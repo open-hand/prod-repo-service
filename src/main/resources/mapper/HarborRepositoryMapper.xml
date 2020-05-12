@@ -17,4 +17,8 @@
         <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
         <result column="LAST_UPDATE_LOGIN" property="lastUpdateLogin" jdbcType="DECIMAL"/>
     </resultMap>
+
+    <update id="updateHarborIdByProjectId" >
+        update rdupm_harbor_repository set harbor_id = #{harborId} where project_id = #{projectId}
+    </update>
 </mapper>

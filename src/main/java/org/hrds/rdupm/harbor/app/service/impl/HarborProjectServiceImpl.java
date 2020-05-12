@@ -31,6 +31,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -66,6 +67,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Autowired
 	private HarborQuotaService harborQuotaService;
 
+	@Resource
+	private HarborRepositoryMapper harborRepositoryMapper;
+
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
 	public void createSaga(Long projectId, HarborProjectVo harborProjectVo) {
@@ -92,8 +96,11 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 									.withLevel(ResourceLevel.PROJECT)
 									.withRefType("dockerRepo")
 									.withSourceId(projectId),
-								startSagaBuilder -> { startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withSourceId(projectId); }
-		);
+								startSagaBuilder -> {
+			HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
+			harborRepositoryRepository.insertSelective(harborRepository);
+			startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withSourceId(projectId);
+		});
 	}
 
 	@Override
@@ -105,7 +112,10 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 		//获取镜像仓库名称
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborId).stream().findFirst().orElse(null);
-		harborProjectVo.setName(harborRepository == null ? null : harborRepository.getName());
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		harborProjectVo.setName(harborRepository.getName());
 
 		//获取存储容量
 		HarborQuotaVo harborQuotaVo = harborQuotaService.getProjectQuota(harborRepository.getProjectId());
@@ -309,7 +319,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			throw new CommonException("error.harbor.project.exist");
 		}
 
-		Map<String,Object> checkProjectParamMap = new HashMap<>();
+		Map<String,Object> checkProjectParamMap = new HashMap<>(1);
 		checkProjectParamMap.put("project_name",harborProjectVo.getCode());
 		ResponseEntity<String> checkProjectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHECK_PROJECT_NAME,checkProjectParamMap,null,true);
 		if(checkProjectResponse != null && checkProjectResponse.getStatusCode().value() == 200){

@@ -109,9 +109,9 @@ public class HarborHttpClient {
 			return url;
 		}
 		StringBuilder newUrl = new StringBuilder().append(url).append(BaseConstants.Symbol.QUESTION);
-		for (String key : paramMap.keySet()) {
-			if(paramMap.get(key) != null){
-				newUrl.append(key).append(BaseConstants.Symbol.EQUAL).append(paramMap.get(key)).append(BaseConstants.Symbol.AND);
+		for (Map.Entry<String,Object> entry : paramMap.entrySet()) {
+			if(entry.getValue() != null){
+				newUrl.append(entry.getKey()).append(BaseConstants.Symbol.EQUAL).append(entry.getValue()).append(BaseConstants.Symbol.AND);
 			}
 		}
 		return newUrl.toString().substring(0, newUrl.length() - 1);

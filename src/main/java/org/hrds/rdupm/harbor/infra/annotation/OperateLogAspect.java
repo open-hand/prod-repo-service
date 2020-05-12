@@ -153,7 +153,7 @@ public class OperateLogAspect {
 	}
 
 	private Map<Object, Object> processParameters(String[] parameterNames, Object[] args) {
-		Map<Object, Object> objectMap = new HashMap<>();
+		Map<Object, Object> objectMap = new HashMap<>(16);
 		for (int i = 0; i < parameterNames.length; i++) {
 			objectMap.put(parameterNames[i], args[i]);
 		}

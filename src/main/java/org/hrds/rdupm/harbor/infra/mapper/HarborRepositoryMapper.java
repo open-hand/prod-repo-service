@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.infra.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import io.choerodon.mybatis.common.BaseMapper;
 
@@ -10,4 +11,10 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface HarborRepositoryMapper extends BaseMapper<HarborRepository> {
 
+	/***
+	 * 根据projectId更新harborId
+	 * @param projectId
+	 * @param harborId
+	 */
+	void updateHarborIdByProjectId(@Param("projectId") Long projectId, @Param("harborId") Integer harborId);
 }

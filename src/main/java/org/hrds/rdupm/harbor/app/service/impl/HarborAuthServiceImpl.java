@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
@@ -15,6 +18,7 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -95,6 +99,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			dto.setOrganizationId(harborRepository.getOrganizationId());
 			dto.setHarborId(harborRepository.getHarborId());
 			dto.setHarborRoleValue(dto.getHarborRoleValue());
+			dto.setHarborAuthId(-1L);
 		});
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
@@ -102,8 +107,22 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 						.withLevel(ResourceLevel.PROJECT)
 						.withRefType("dockerRepo")
 						.withSourceId(projectId),
-				startSagaBuilder -> startSagaBuilder.withPayloadAndSerialize(dtoList).withSourceId(projectId)
-		);
+				startSagaBuilder -> {
+
+				//保存到数据库
+				Long harborId = dtoList.get(0).getHarborId();
+				ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
+				List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+				Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
+				dtoList.stream().forEach(dto->{
+					if(harborAuthVoMap.get(dto.getLoginName()) != null){
+						throw new CommonException("error.harbor.auth.find.harborAuthId");
+					}
+				});
+				repository.batchInsert(dtoList);
+
+				startSagaBuilder.withPayloadAndSerialize(dtoList).withSourceId(projectId);
+		});
 	}
 
 	@Override
@@ -134,8 +153,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		//分项目查询成员角色
 		Map<Long,List<HarborAuth>> dataListMap = dataList.stream().collect(Collectors.groupingBy(HarborAuth::getProjectId));
 		Map<Long,UserWithGitlabIdDTO> userDtoMap = new HashMap<>(16);
-		for(Long projectId : dataListMap.keySet()){
-			Set<Long> userIdSet = dataListMap.get(projectId).stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
+		for(Map.Entry<Long,List<HarborAuth>> entry : dataListMap.entrySet()){
+			Long projectId = entry.getKey();
+			List<HarborAuth> list = entry.getValue();
+			Set<Long> userIdSet = list.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
 			ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
 			userDtoMap.putAll(responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto)));
 		}

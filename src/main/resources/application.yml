@@ -129,6 +129,8 @@ choerodon:
 
 harbor:
   baseUrl: https://192.168.17.187
+  ip: 192.168.17.187
+  domain: harbor.cn
   username: admin
   password: Harbor12345
 

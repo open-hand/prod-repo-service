@@ -25,11 +25,12 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 
 	@Override
 	public HarborGuideVo getProjectGuide(Long projectId) {
-		String harborBaseUrl = harborInfoConfiguration.getBaseUrl();
+		String harborBaseUrl = harborInfoConfiguration.getDomain();
 
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		String code = harborRepository == null ? null : harborRepository.getCode();
 
+		String vimHostCmd = harborInfoConfiguration.getIp() +" " +harborInfoConfiguration.getDomain();
 		String loginCmd = String.format("docker login %s -u userName",harborBaseUrl);
 		String dockerFile = HarborVelocityUtils.getJsonString(null,HarborVelocityUtils.DOCKER_FILE_NAME);
 		String buildCmd = String.format("docker build -t %s/%s/imageName:tagName .",harborBaseUrl,code);

@@ -15,12 +15,12 @@ public interface HarborImageService {
 
 	/***
 	 * 项目层--获取镜像列表
-	 * @param harborId
+	 * @param projectId
 	 * @param imageName
 	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborImageVo> getByProject(Long harborId, String imageName, PageRequest pageRequest);
+	PageInfo<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest);
 
 	/***
 	 * 组织层--获取镜像列表
