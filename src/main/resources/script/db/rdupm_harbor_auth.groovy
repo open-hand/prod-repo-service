@@ -19,7 +19,7 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_auth.groovy') {
             column(name: "real_name", type: "varchar(" + 100 * weight + ")",  remarks: "")   
             column(name: "harbor_role_id", type: "bigint(20)",  remarks: "harbor角色ID")  {constraints(nullable:"false")}  
             column(name: "harbor_auth_id", type: "bigint(20)",  remarks: "harbor权限ID")  {constraints(nullable:"false")}  
-            column(name: "end_date", type: "date",  remarks: "有效期")  {constraints(nullable:"false")}  
+            column(name: "end_date", type: "datetime",  remarks: "有效期")  {constraints(nullable:"false")}
             column(name: "organization_id", type: "bigint(20)",  remarks: "组织ID")  {constraints(nullable:"false")}  
             column(name: "object_version_number", type: "bigint(20)",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "CREATION_DATE", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  
