@@ -193,11 +193,4 @@ public class HarborUtil {
 		return new DecimalFormat("#,##0.##").format(size / Math.pow(1024, digitGroups)) + "/" + units[digitGroups];
 	}
 
-	public static void main(String[] args){
-		String expire = "1589596151000";
-		String expires = String.valueOf(expire + "000");
-		Date endDate = new Date(Long.parseLong(expire));
-		System.out.println(readableFileSize(300000230));
-	}
-
 }
