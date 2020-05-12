@@ -59,7 +59,7 @@ public class NexusInitServiceImpl implements NexusInitService {
 
 		Condition condition = Condition.builder(NexusRepository.class)
 				.where(Sqls.custom()
-						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 1))
+						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 0))
 				.build();
 		List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
 		repositoryNames.removeAll(repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList()));

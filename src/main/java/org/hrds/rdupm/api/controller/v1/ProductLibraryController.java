@@ -13,6 +13,8 @@ import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,8 @@ import java.util.List;
 @RestController("ProductLibraryController.v1")
 @RequestMapping("/v1/product-library")
 public class ProductLibraryController extends BaseController {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProductLibraryController.class);
+
 
 	@Autowired
 	private NexusRepositoryService nexusRepositoryService;
@@ -41,9 +45,21 @@ public class ProductLibraryController extends BaseController {
 	public ResponseEntity<List<ProductLibraryDTO>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 
 		// harbor
-		List<HarborRepository> harborRepositoryList = harborProjectService.listByProject(projectId, new HarborRepository());
+		List<HarborRepository> harborRepositoryList = null;
+		try {
+			harborRepositoryList = harborProjectService.listByProject(projectId, new HarborRepository());
+		} catch (Exception e) {
+			LOGGER.error("query harbor error", e);
+			harborRepositoryList = new ArrayList<>();
+		}
 		// maven
-		List<NexusRepositoryDTO> nexusRepositoryDTOList = nexusRepositoryService.listMavenRepoAll(new NexusRepositoryQueryDTO().setProjectId(projectId), NexusConstants.RepoQueryData.REPO_PROJECT);
+		List<NexusRepositoryDTO> nexusRepositoryDTOList = null;
+		try {
+			nexusRepositoryDTOList = nexusRepositoryService.listMavenRepoAll(new NexusRepositoryQueryDTO().setProjectId(projectId), NexusConstants.RepoQueryData.REPO_PROJECT);
+		} catch (Exception e) {
+			LOGGER.error("query maven error", e);
+			nexusRepositoryDTOList = new ArrayList<>();
+		}
 
 		// 返回
 		List<ProductLibraryDTO> productLibraryDTOList = new ArrayList<>();

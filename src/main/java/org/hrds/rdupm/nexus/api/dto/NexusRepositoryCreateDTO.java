@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class NexusRepositoryCreateDTO {
 	public static Pattern URL_PATTERN = Pattern.compile("(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
 	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);
+	private static final String BLOB_DEFAULT = "default";
 
 	/**
 	 * 参数信息校验
@@ -103,7 +104,7 @@ public class NexusRepositoryCreateDTO {
 		request.setOnline(Boolean.TRUE);
 
 		RepositoryStorage storage = new RepositoryStorage();
-		storage.setBlobStoreName(this.blobStoreName);
+		storage.setBlobStoreName(this.blobStoreName == null ? BLOB_DEFAULT : this.blobStoreName);
 		storage.setStrictContentTypeValidation(Boolean.TRUE);
 		storage.setWritePolicy(this.writePolicy);
 		request.setStorage(storage);
@@ -124,7 +125,7 @@ public class NexusRepositoryCreateDTO {
 		NexusServerMavenProxy nexusMavenProxy = new NexusServerMavenProxy();
 		nexusMavenProxy.setName(this.name);
 		nexusMavenProxy.setRemoteUrl(this.remoteUrl);
-		nexusMavenProxy.setBlobStoreName(this.blobStoreName);
+		nexusMavenProxy.setBlobStoreName(this.blobStoreName == null ? BLOB_DEFAULT : this.blobStoreName);
 		nexusMavenProxy.setStrictContentValidation(Boolean.TRUE);
 		nexusMavenProxy.setVersionPolicy(this.versionPolicy);
 		nexusMavenProxy.setLayoutPolicy("STRICT");
@@ -140,7 +141,7 @@ public class NexusRepositoryCreateDTO {
 	public NexusServerMavenGroup convertMavenGroupRequest(){
 		NexusServerMavenGroup nexusMavenGroup = new NexusServerMavenGroup();
 		nexusMavenGroup.setName(this.name);
-		nexusMavenGroup.setBlobStoreName(this.blobStoreName);
+		nexusMavenGroup.setBlobStoreName(this.blobStoreName == null ? BLOB_DEFAULT : this.blobStoreName);
 		nexusMavenGroup.setMembers(this.getRepoMemberList());
 		return nexusMavenGroup;
 	}
@@ -154,7 +155,6 @@ public class NexusRepositoryCreateDTO {
 	@NotBlank
 	private String name;
 	@ApiModelProperty(value = "存储器",required = true)
-	@NotBlank
 	private String blobStoreName;
 
 	/**
