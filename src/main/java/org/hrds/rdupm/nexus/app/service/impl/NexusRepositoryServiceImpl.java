@@ -782,54 +782,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		if (nexusServerRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-		Map<String, Object> map = new HashMap<>(16);
-		map.put("versionPolicy", nexusServerRepository.getVersionPolicy());
-		map.put("repositoryName", nexusServerRepository.getName());
-		map.put("url", nexusServerRepository.getUrl());
-		map.put("type", nexusServerRepository.getType());
 
+		// 返回信息
 		NexusGuideDTO nexusGuideDTO = new NexusGuideDTO();
-
-		// 拉取信息
-		nexusGuideDTO.setPullServerFlag(nexusRepository != null && nexusRepository.getAllowAnonymous() != 1);
-		if (nexusGuideDTO.getPullServerFlag() && nexusUser != null) {
-			// 要显示的时候，返回数据
-
-			String nePullUserPassword = DESEncryptUtil.decode(nexusUser.getNePullUserPassword());
-
-			map.put("username", nexusUser.getNePullUserId());
-			nexusGuideDTO.setPullServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
-			nexusGuideDTO.setPullPassword(nePullUserPassword);
-			nexusGuideDTO.setPullServerInfoPassword(nexusGuideDTO.getPullServerInfo().replace("[password]", nexusGuideDTO.getPullPassword()));
-		}
-		// pom 仓库配置
-		nexusGuideDTO.setPullPomRepoInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_REPO_FILE_NAME));
-
-		// 发布信息
-		if (nexusServerRepository.getType().equals(NexusApiConstants.RepositoryType.GROUP)
-				|| nexusServerRepository.getType().equals(NexusApiConstants.RepositoryType.PROXY)) {
-			// group 与 proxy 不需要
-			nexusGuideDTO.setShowPushFlag(false);
-		} else {
-			nexusGuideDTO.setShowPushFlag(showPushFlag);
-			if (showPushFlag) {
-				// 为true时，处理发布的信息
-				if (nexusUser == null) {
-					throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-				}
-
-				String neUserPassword = DESEncryptUtil.decode(nexusUser.getNeUserPassword());
-
-				map.put("username", nexusUser.getNeUserId());
-				nexusGuideDTO.setPushPassword(neUserPassword);
-				nexusGuideDTO.setPushServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
-				nexusGuideDTO.setPushServerInfoPassword(nexusGuideDTO.getPushServerInfo().replace("[password]", nexusGuideDTO.getPushPassword()));
-
-				nexusGuideDTO.setPushPomManageInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_MANGE_FILE_NAME));
-				nexusGuideDTO.setPushCmd(NexusGuideDTO.PUSH_CMD);
-			}
-		}
-
+		// 设置拉取配置信息
+		nexusGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser);
+		// 设置发布配置信息
+		nexusGuideDTO.handlePushGuideValue(nexusServerRepository, nexusRepository, nexusUser, showPushFlag);
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusGuideDTO;
