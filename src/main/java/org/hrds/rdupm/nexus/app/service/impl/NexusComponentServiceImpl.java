@@ -3,7 +3,6 @@ package org.hrds.rdupm.nexus.app.service.impl;
 import com.github.pagehelper.PageInfo;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
@@ -11,10 +10,12 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
-import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
+import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 制品库_nexus 包信息应用服务默认实现
@@ -45,6 +44,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	private NexusServerConfigService configService;
 	@Autowired
 	private NexusRepositoryRepository nexusRepositoryRepository;
+	@Autowired
+	private NexusUserRepository nexusUserRepository;
 
 	@Override
 	public PageInfo<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -141,12 +142,32 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 	@Override
 	public NexusComponentGuideDTO componentGuide(NexusServerComponentInfo componentInfo) {
-		Map<String, Object> map = new HashMap<>(16);
-		map.put("groupId", componentInfo.getGroup());
-		map.put("name", componentInfo.getName());
-		map.put("version", componentInfo.getVersion());
+
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		NexusRepository query = new NexusRepository();
+		query.setNeRepositoryName(componentInfo.getRepository());
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
+		NexusUser nexusUser = null;
+		if (nexusRepository != null) {
+			NexusUser queryUser = new NexusUser();
+			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+			nexusUser = nexusUserRepository.selectOne(queryUser);
+		}
+		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(componentInfo.getRepository());
+		if (nexusServerRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		// 返回数据
 		NexusComponentGuideDTO componentGuideDTO = new NexusComponentGuideDTO();
-		componentGuideDTO.setPullPomDep(VelocityUtils.getJsonString(map, VelocityUtils.POM_DEPENDENCY_FILE_NAME));
+
+		componentGuideDTO.handleDepGuideValue(componentInfo);
+
+		// 设置拉取配置信息
+		componentGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser);
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
 		return componentGuideDTO;
 	}
 }
