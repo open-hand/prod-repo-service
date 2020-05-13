@@ -26,4 +26,8 @@ public class HarborInfoConfiguration {
 
 	private String domain;
 
+	private String certUrl;
+
+	private String keyUrl;
+
 }
