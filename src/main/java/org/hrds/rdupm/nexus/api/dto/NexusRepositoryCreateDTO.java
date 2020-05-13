@@ -25,8 +25,21 @@ import java.util.stream.Collectors;
  */
 @ApiModel("maven 仓库创建")
 public class NexusRepositoryCreateDTO {
-	public static Pattern URL_PATTERN = Pattern.compile("(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
+
 	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);
+	/**
+	 * url检验
+	 */
+	public static Pattern URL_PATTERN = Pattern.compile("(https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
+	/**
+	 * 仓库名称校验: 仅允许英文、数字、下划线、中划线、点(.)
+	 */
+    public static Pattern NAME_PATTERN = Pattern.compile("^[\\w\\d\\_\\-\\.]+");
+
+
+	/**
+	 * 默认存储器
+	 */
 	private static final String BLOB_DEFAULT = "default";
 
 	/**
@@ -43,15 +56,20 @@ public class NexusRepositoryCreateDTO {
 				Boolean nameSuffixFlag = false;
 				for (LookupVO lookupVO : lookupVOList) {
 					logger.info("suffix  value: " + lookupVO.getValue());
-					if (this.getName().toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
+					if (this.name.toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
 						nameSuffixFlag = true;
 					}
 				}
-				if (!nameSuffixFlag) {
-					String name = StringUtils.join(",", lookupVOList.stream().map(LookupVO::getValue).collect(Collectors.toList()));
+                String nameStr = StringUtils.join(",", lookupVOList.stream().map(LookupVO::getValue).collect(Collectors.toList()));
+                if (!nameSuffixFlag) {
 					// 仓库名后缀限制为以下数据：{0}
-					throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, name);
+					throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, nameStr);
 				}
+                if (!NAME_PATTERN.matcher(this.name).matches()) {
+                    // 仅允许英文、数字、下划线、中划线、点(.)组成
+                    throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, nameStr);
+                }
+
 			}
 		}
 
