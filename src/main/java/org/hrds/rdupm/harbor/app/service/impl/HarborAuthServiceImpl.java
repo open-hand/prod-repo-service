@@ -79,7 +79,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		}
 
 		//校验是否已分配权限
-		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,dtoList.get(0).getProjectId());
+		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,projectId);
 		Map<Long,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getUserId,dto->dto));
 
 		//设置loginName、realName

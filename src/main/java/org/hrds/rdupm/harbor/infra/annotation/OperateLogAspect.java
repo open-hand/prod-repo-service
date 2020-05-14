@@ -112,6 +112,7 @@ public class OperateLogAspect {
 		try {
 			object = point.proceed();
 		} catch (Throwable e) {
+			e.printStackTrace();
 			throw new CommonException(e.getMessage());
 		}
 
