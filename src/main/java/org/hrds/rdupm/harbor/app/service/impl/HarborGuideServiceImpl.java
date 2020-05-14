@@ -30,7 +30,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		String code = harborRepository == null ? null : harborRepository.getCode();
 
-		String vimHostCmd = String.format("vim /etc/hosts \n %s %s",harborInfoConfiguration.getIp(),harborInfoConfiguration.getDomain());
+		String vimHostCmd = String.format("vim /etc/hosts \n%s %s",harborInfoConfiguration.getIp(),harborInfoConfiguration.getDomain());
 		String mkdirCertCmd = String.format("mkdir -p /etc/docker/certs.d/%s/",harborInfoConfiguration.getDomain());
 		String certUrl = harborInfoConfiguration.getCertUrl();
 		String keyUrl = harborInfoConfiguration.getKeyUrl();
