@@ -1,6 +1,8 @@
 package org.hrds.rdupm.harbor.app.service.sagahandler;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -157,6 +160,11 @@ public class HarborProjectCreateHandler {
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setUserId(userId);
 		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
+		try {
+			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		authList.add(harborAuth);
 		harborAuthService.save(projectId,authList);
 		return message;
