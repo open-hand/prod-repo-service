@@ -145,7 +145,7 @@ public class HarborProjectCreateHandler {
 
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存用户权限",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = String.class)
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectAuthSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
@@ -171,7 +171,7 @@ public class HarborProjectCreateHandler {
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_QUOTA,description = "创建Docker镜像仓库：保存存储容量配置",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3)
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 5,maxRetryCount = 3)
 	private void createProjectQuotaSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
@@ -183,7 +183,7 @@ public class HarborProjectCreateHandler {
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_CVE,description = "创建Docker镜像仓库：保存cve白名单",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3)
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 5,maxRetryCount = 3)
 	private void createProjectCveSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
