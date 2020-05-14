@@ -22,6 +22,7 @@ import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.entity.User;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
@@ -203,5 +204,29 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	public Page<HarborAuth> export(PageRequest pageRequest, HarborAuth harborAuth, ExportParam exportParam, HttpServletResponse response) {
 		Page<HarborAuth> page = this.pageList(pageRequest,harborAuth);
 		return page;
+	}
+
+	@Override
+	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
+	public void saveOwnerAuth(Long projectId, Long organizationId, Integer harborId, List<HarborAuth> dtoList) {
+		dtoList.forEach(dto->{
+			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(dto.getLoginName());
+			UserDTO userDTO = userDTOResponseEntity.getBody();
+			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
+			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
+			dto.setUserId(userDTO == null ? null : userDTO.getId());
+			dto.setProjectId(projectId);
+			dto.setOrganizationId(organizationId);
+			dto.setHarborRoleValue(dto.getHarborRoleValue());
+
+			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
+			List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
+			if(harborAuthVoMap.get(dto.getLoginName()) != null){
+				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
+			}
+
+			repository.insertSelective(dto);
+		});
 	}
 }

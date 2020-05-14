@@ -154,11 +154,10 @@ public class HarborProjectCreateHandler {
 			throw new CommonException(e);
 		}
 		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
-		Long projectId = projectDTO.getId();
 
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();
-		harborAuth.setUserId(userId);
+		harborAuth.setLoginName(userName);
 		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
 		try {
 			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
@@ -166,7 +165,7 @@ public class HarborProjectCreateHandler {
 			e.printStackTrace();
 		}
 		authList.add(harborAuth);
-		harborAuthService.save(projectId,authList);
+		harborAuthService.saveOwnerAuth(projectDTO.getId(),projectDTO.getOrganizationId(),harborProjectVo.getHarborId(),authList);
 		return message;
 	}
 

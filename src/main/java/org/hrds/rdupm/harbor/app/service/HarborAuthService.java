@@ -8,6 +8,8 @@ import com.github.pagehelper.PageInfo;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hzero.export.vo.ExportParam;
 
 /**
@@ -53,4 +55,13 @@ public interface HarborAuthService {
 	 * @return
 	 */
 	Page<HarborAuth> export(PageRequest pageRequest, HarborAuth harborAuth, ExportParam exportParam, HttpServletResponse response);
+
+	/***
+	 * 保存制品库创建者的权限
+	 * @param projectId
+	 * @param organizationId
+	 * @param harborId
+	 * @param dtoList
+	 */
+	void saveOwnerAuth(Long projectId, Long organizationId, Integer harborId, List<HarborAuth> dtoList);
 }
