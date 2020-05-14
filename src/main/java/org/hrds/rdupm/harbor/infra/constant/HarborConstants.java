@@ -67,6 +67,8 @@ public interface HarborConstants {
 
 		String CREATE_PROJECT_DB = "rdupm-docker-repo-create.db";
 
+		String CREATE_PROJECT_AUTH = "rdupm-docker-repo-create.auth";
+
 		/**
 		* 更新Docke仓库
 		* */

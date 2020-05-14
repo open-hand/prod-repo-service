@@ -94,9 +94,9 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(!StringUtils.isEmpty(projectCode)){
 			sql.andEqualTo(HarborRepository.FIELD_CODE,projectCode);
 		}
-		if(!StringUtils.isEmpty(projectName)){
+		/*if(!StringUtils.isEmpty(projectName)){
 			sql.andEqualTo(HarborRepository.FIELD_NAME,projectName);
-		}
+		}*/
 		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
 		List<HarborRepository> projectList = harborRepositoryRepository.selectByCondition(condition);
 		if(CollectionUtils.isEmpty(projectList)){

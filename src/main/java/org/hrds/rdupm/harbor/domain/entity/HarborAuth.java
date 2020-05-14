@@ -94,7 +94,6 @@ public class HarborAuth extends AuditDomain {
 
 	@ExcelColumn(title = "有效期",pattern = BaseConstants.Pattern.DATE ,order = 7)
 	@ApiModelProperty(value = "有效期，必输")
-    @NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;

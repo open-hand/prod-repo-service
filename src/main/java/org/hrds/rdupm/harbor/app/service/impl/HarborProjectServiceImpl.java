@@ -24,8 +24,12 @@ import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.harbor.domain.entity.HarborLog;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
@@ -68,7 +72,10 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	private HarborQuotaService harborQuotaService;
 
 	@Resource
-	private HarborRepositoryMapper harborRepositoryMapper;
+	private HarborAuthRepository harborAuthRepository;
+
+	@Autowired
+	private HarborLogRepository harborLogRepository;
 
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
@@ -190,6 +197,15 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		harborRepositoryRepository.deleteByPrimaryKey(harborRepository.getId());
+
+		HarborAuth harborAuth = new HarborAuth();
+		harborAuth.setProjectId(projectId);
+		harborAuthRepository.delete(harborAuth);
+
+		HarborLog harborLog = new HarborLog();
+		harborLog.setProjectId(projectId);
+		harborLogRepository.delete(harborLog);
+
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_PROJECT,null,null,false,harborRepository.getHarborId());
 	}
 

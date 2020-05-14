@@ -92,7 +92,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
 
 			if(harborAuthMap.get(dto.getUserId()) != null){
-				throw new CommonException("error.harbor.auth.already.exist",dto.getLoginName(),dto.getRealName());
+				throw new CommonException("error.harbor.auth.already.exist",dto.getRealName());
 			}
 
 			dto.setProjectId(projectId);
@@ -189,6 +189,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
+		}
+		if(harborRepository.getCreatedBy().equals(harborAuth.getUserId())){
+			throw new CommonException("error.harbor.auth.owner.not.delete");
 		}
 		Long harborId = harborRepository.getHarborId();
 		repository.deleteByPrimaryKey(harborAuth);

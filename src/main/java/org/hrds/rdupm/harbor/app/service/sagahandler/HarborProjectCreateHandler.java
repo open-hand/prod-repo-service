@@ -1,6 +1,7 @@
 package org.hrds.rdupm.harbor.app.service.sagahandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +17,10 @@ import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.entity.User;
@@ -46,7 +49,7 @@ public class HarborProjectCreateHandler {
 	private BaseFeignClient baseFeignClient;
 
 	@Autowired
-	private HarborRepositoryRepository harborRepositoryRepository;
+	private HarborAuthService harborAuthService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -55,7 +58,8 @@ public class HarborProjectCreateHandler {
 	private HarborQuotaService harborQuotaService;
 
 	//TODO
-	private String userName = "15367";
+	private String userName = "lfqrlx8pfg";
+	private Long userId = 21193L;
 
 	@Autowired
 	private HarborProjectService harborProjectService;
@@ -133,6 +137,28 @@ public class HarborProjectCreateHandler {
 		Integer harborId = harborProjectVo.getHarborId();
 		Long projectId = projectDTO.getId();
 		harborRepositoryMapper.updateHarborIdByProjectId(projectId,harborId);
+		return message;
+	}
+
+
+	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存用户权限",
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = String.class)
+	private String createProjectAuthSaga(String message){
+		HarborProjectVo harborProjectVo = null;
+		try {
+			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
+		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
+		Long projectId = projectDTO.getId();
+
+		List<HarborAuth> authList = new ArrayList<>();
+		HarborAuth harborAuth = new HarborAuth();
+		harborAuth.setUserId(userId);
+		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
+		authList.add(harborAuth);
+		harborAuthService.save(projectId,authList);
 		return message;
 	}
 

@@ -74,7 +74,7 @@ public class HarborHttpClient {
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
 			//TODO 使用当前登陆用户账号
-			buildBasicAuth("15367","Abcd1234");
+			buildBasicAuth("lfqrlx8pfg","Abcd1234");
 		}
 
 		HttpHeaders headers = new HttpHeaders();
