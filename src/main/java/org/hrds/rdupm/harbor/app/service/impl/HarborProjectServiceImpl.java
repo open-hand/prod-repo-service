@@ -91,16 +91,16 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		checkParam(harborProjectVo);
 		checkProject(harborProjectVo,projectId);
 
-		transactionalProducer.applyAndReturn(StartSagaBuilder.newBuilder()
+		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
+		harborRepositoryRepository.insertSelective(harborRepository);
+
+		transactionalProducer.apply(StartSagaBuilder.newBuilder()
 									.withSagaCode(HarborConstants.HarborSagaCode.CREATE_PROJECT)
 									.withLevel(ResourceLevel.PROJECT)
 									.withRefType("dockerRepo")
 									.withSourceId(projectId),
 								startSagaBuilder -> {
-			HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
-			harborRepositoryRepository.insertSelective(harborRepository);
 			startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withSourceId(projectId);
-			return harborRepository;
 		});
 	}
 
