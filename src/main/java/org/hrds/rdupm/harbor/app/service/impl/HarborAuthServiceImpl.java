@@ -210,8 +210,13 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	public void saveOwnerAuth(Long projectId, Long organizationId, Integer harborId, List<HarborAuth> dtoList) {
 		dtoList.forEach(dto->{
-			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(dto.getLoginName());
-			UserDTO userDTO = userDTOResponseEntity.getBody();
+			Long[] array = new Long[1];
+			array[0] = dto.getUserId();
+			ResponseEntity<List<UserDTO>> userResponseEntity = baseFeignClient.listUsersByIds(array,true);
+			if(userResponseEntity == null || CollectionUtils.isEmpty(userResponseEntity.getBody())){
+				throw new CommonException("error.feign.user.select.empty");
+			}
+			UserDTO userDTO = userResponseEntity.getBody().get(0);
 			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
 			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
 			dto.setUserId(userDTO == null ? null : userDTO.getId());

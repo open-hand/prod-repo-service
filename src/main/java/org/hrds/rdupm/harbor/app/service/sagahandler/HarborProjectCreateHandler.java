@@ -157,7 +157,7 @@ public class HarborProjectCreateHandler {
 
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();
-		harborAuth.setLoginName(userName);
+		harborAuth.setUserId(userId);
 		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
 		try {
 			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
