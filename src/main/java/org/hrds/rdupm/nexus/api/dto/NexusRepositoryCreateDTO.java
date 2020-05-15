@@ -65,11 +65,10 @@ public class NexusRepositoryCreateDTO {
 					// 仓库名后缀限制为以下数据：{0}
 					throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, nameStr);
 				}
-                if (!NAME_PATTERN.matcher(this.name).matches()) {
-                    // 仅允许英文、数字、下划线、中划线、点(.)组成
-                    throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_SUFFIX, nameStr);
-                }
-
+			}
+			if (!NAME_PATTERN.matcher(this.name).matches()) {
+				// 仅允许英文、数字、下划线、中划线、点(.)组成
+				throw new CommonException(NexusMessageConstants.NEXUS_REPO_NAME_VALID);
 			}
 		}
 
