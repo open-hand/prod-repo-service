@@ -10,6 +10,7 @@ public class NexusServerAsset {
 	private String path;
 	private String repository;
 	private String format;
+	private String extension;
 
 	public String getId() {
 		return id;
@@ -53,6 +54,15 @@ public class NexusServerAsset {
 
 	public NexusServerAsset setFormat(String format) {
 		this.format = format;
+		return this;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public NexusServerAsset setExtension(String extension) {
+		this.extension = extension;
 		return this;
 	}
 }

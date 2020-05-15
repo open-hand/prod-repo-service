@@ -11,4 +11,14 @@
         <url>${url}</url>
     </snapshotRepository>
 #end
+#if($versionPolicy == "MIXED")
+    <repository>
+        <id>${repositoryName}</id>
+        <url>${url}</url>
+    </repository>
+    <snapshotRepository>
+        <id>${repositoryName}</id>
+        <url>${url}</url>
+    </snapshotRepository>
+#end
 </distributionManagement>

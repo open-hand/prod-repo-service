@@ -2,4 +2,7 @@
     <groupId>${groupId}</groupId>
     <artifactId>${name}</artifactId>
     <version>${version}</version>
+#if($extension != "" && $extension != "jar")
+    <type>${extension}</type>
+#end
 </dependency>

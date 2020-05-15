@@ -32,6 +32,8 @@ public class NexusServerComponent {
 	private List<String> componentIds;
 	@ApiModelProperty(value = "是否允许删除")
 	private Boolean deleteFlag;
+	@ApiModelProperty(value = "extension: pom、jar、war等")
+	private String extension;
 
 
 	public String getId() {
@@ -121,6 +123,15 @@ public class NexusServerComponent {
 
 	public NexusServerComponent setDeleteFlag(Boolean deleteFlag) {
 		this.deleteFlag = deleteFlag;
+		return this;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public NexusServerComponent setExtension(String extension) {
+		this.extension = extension;
 		return this;
 	}
 }

@@ -27,6 +27,7 @@ public class NexusComponentGuideDTO extends NexusBaseGuideDTO {
 		map.put("groupId", componentInfo.getGroup());
 		map.put("name", componentInfo.getName());
 		map.put("version", componentInfo.getVersion());
+		map.put("extension", componentInfo.getExtension() == null ? "" : componentInfo.getExtension());
 		this.setPullPomDep(VelocityUtils.getJsonString(map, VelocityUtils.POM_DEPENDENCY_FILE_NAME));
 	}
 

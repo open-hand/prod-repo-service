@@ -28,6 +28,10 @@ public interface NexusMessageConstants {
 	 * 仓库名后缀限制为以下数据：{0}
 	 */
 	String NEXUS_REPO_NAME_SUFFIX = "error.nexus.repo.name.suffix";
+	/**
+	 * 仅允许英文、数字、下划线、中划线、点(.)组成
+	 */
+	String NEXUS_REPO_NAME_VALID = "error.nexus.repo.name.valid";
 
 	/**
 	 * 是否允许匿名访问不能为空
