@@ -51,7 +51,7 @@ public class NexusUserServiceImpl implements NexusUserService {
 			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_ERROR);
 		}
 
-		String neUserPassword = existUser.getNeUserPassword();
+		String neUserPassword = nexusUser.getNeUserPassword();
 
 		nexusUser.setNeUserPassword(DESEncryptUtil.encode(neUserPassword));
 		nexusUserRepository.updateOptional(nexusUser, NexusUser.FIELD_NE_USER_PASSWORD);
