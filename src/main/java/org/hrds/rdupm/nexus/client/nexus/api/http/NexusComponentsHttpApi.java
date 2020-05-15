@@ -179,8 +179,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 				// extension处理
 				List<String> extensionList = new ArrayList<>();
 				assetList.forEach(nexusServerAsset -> {
-					String lastPath = StringUtils.substringAfterLast(asset.getPath(), "/");
-					String prePath = nexusComponent.getName() + "-" + nexusComponent.getVersion();
+					String lastPath = StringUtils.substringAfterLast(nexusServerAsset.getPath(), "/");
+					String prePath = nexusComponent.getName() + "-" + nexusComponent.getVersion() + ".";
 					String extension = StringUtils.substringAfterLast(lastPath, prePath);
 					nexusServerAsset.setExtension(extension);
 					extensionList.add(extension);
