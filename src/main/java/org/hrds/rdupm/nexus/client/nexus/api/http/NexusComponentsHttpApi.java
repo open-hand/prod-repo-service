@@ -175,10 +175,34 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			if (CollectionUtils.isNotEmpty(assetList)) {
 				NexusServerAsset asset = assetList.get(0);
 				nexusComponent.setUseVersion(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(asset.getPath(), "/"), "/"));
+
+				// extension处理
+				List<String> extensionList = new ArrayList<>();
+				assetList.forEach(nexusServerAsset -> {
+					String lastPath = StringUtils.substringAfterLast(asset.getPath(), "/");
+					String prePath = nexusComponent.getName() + "-" + nexusComponent.getVersion();
+					String extension = StringUtils.substringAfterLast(lastPath, prePath);
+					nexusServerAsset.setExtension(extension);
+					extensionList.add(extension);
+				});
+				nexusComponent.setExtension(this.handleExtension(extensionList));
 			}
 			nexusComponent.setComponentIds(Collections.singletonList(nexusComponent.getId()));
 			// assets 前端不需要，数据量太大
 			nexusComponent.setAssets(new ArrayList<>());
 		});
+	}
+
+	private String handleExtension(List<String> extensionList){
+		List<String> extensionLowerList = extensionList.stream().map(String::toLowerCase).collect(Collectors.toList());
+		if (extensionLowerList.contains(NexusApiConstants.packageType.JAR)) {
+			return NexusApiConstants.packageType.JAR;
+		} else if (extensionLowerList.contains(NexusApiConstants.packageType.WAR)) {
+			return NexusApiConstants.packageType.WAR;
+		} else if (extensionLowerList.contains(NexusApiConstants.packageType.POM)) {
+			return NexusApiConstants.packageType.POM;
+		} else {
+			return null;
+		}
 	}
 }

@@ -10,6 +10,15 @@ import java.util.List;
 public interface NexusApiConstants {
 
 	/**
+	 * 发布类型
+	 */
+	interface packageType {
+		String JAR = "jar";
+		String WAR = "war";
+		String POM = "pom";
+	}
+
+	/**
 	 * format类型
 	 */
 	interface NexusRepoFormat {

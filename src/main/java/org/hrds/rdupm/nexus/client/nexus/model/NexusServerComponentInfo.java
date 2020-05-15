@@ -29,6 +29,8 @@ public class NexusServerComponentInfo {
 	private String useVersion;
 	@ApiModelProperty(value = "是否允许删除")
 	private Boolean deleteFlag;
+	@ApiModelProperty(value = "extension: pom、jar、war等")
+	private String extension;
 	private List<NexusServerComponent> components;
 
 	public String getRepository() {
@@ -127,6 +129,15 @@ public class NexusServerComponentInfo {
 
 	public NexusServerComponentInfo setVersion(String version) {
 		this.version = version;
+		return this;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public NexusServerComponentInfo setExtension(String extension) {
+		this.extension = extension;
 		return this;
 	}
 }
