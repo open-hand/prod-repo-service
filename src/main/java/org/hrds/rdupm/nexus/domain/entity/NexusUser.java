@@ -110,6 +110,10 @@ public class NexusUser extends AuditDomain {
 	@Transient
 	private String oldNeUserPassword;
 
+	@ApiModelProperty(value = "是否可编辑-项目层")
+	@Transient
+	private Boolean editFlag;
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------
@@ -244,6 +248,15 @@ public class NexusUser extends AuditDomain {
 
 	public NexusUser setNeRoleId(String neRoleId) {
 		this.neRoleId = neRoleId;
+		return this;
+	}
+
+	public Boolean getEditFlag() {
+		return editFlag;
+	}
+
+	public NexusUser setEditFlag(Boolean editFlag) {
+		this.editFlag = editFlag;
 		return this;
 	}
 }
