@@ -15,12 +15,20 @@ import java.util.List;
 public interface NexusUserRepository extends BaseRepository<NexusUser> {
 
 	/**
-	 * 发布权限列表查询
+	 * 发布权限列表查询-组织层
 	 * @param nexusUser 查询参数
 	 * @param pageRequest 分页参数
 	 * @return PageInfo<NexusUserDTO>
 	 */
 	PageInfo<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest);
+
+	/**
+	 * 发布权限列表查询-项目层
+	 * @param nexusUser 查询参数
+	 * @param pageRequest 分页参数
+	 * @return PageInfo<NexusUserDTO>
+	 */
+	PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest);
 
 	/**
 	 * 查询用户其它仓库

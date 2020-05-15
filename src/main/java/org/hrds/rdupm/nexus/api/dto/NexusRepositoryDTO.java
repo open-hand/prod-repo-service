@@ -44,7 +44,7 @@ public class NexusRepositoryDTO implements SecurityToken {
 			this.versionPolicy = nexusServerRepository.getVersionPolicy();
 			this.writePolicy = nexusServerRepository.getWritePolicy();
 			this.online = nexusServerRepository.getOnline();
-			this.url = nexusServerRepository.getUrl();
+			this.url = nexusServerRepository.getUrl() + "/";
 
 			this.blobStoreName = nexusServerRepository.getBlobStoreName();
 			this.repoMemberList = nexusServerRepository.getRepoMemberList();

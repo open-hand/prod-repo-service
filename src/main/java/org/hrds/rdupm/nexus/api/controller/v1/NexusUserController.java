@@ -39,7 +39,7 @@ public class NexusUserController extends BaseController {
                                                         @ApiIgnore PageRequest pageRequest) {
         nexusUser.setOrganizationId(organizationId);
         nexusUser.setProjectId(projectId);
-        return Results.success(nexusUserRepository.listUser(nexusUser, pageRequest));
+        return Results.success(nexusUserRepository.listUserPro(nexusUser, pageRequest));
     }
 
     @ApiOperation(value = "项目层-修改密码")

@@ -46,6 +46,46 @@
         </if>
 
     </select>
+    <select id="selectListPro" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
+        SELECT
+            nr.repository_id,
+            nr.ne_repository_name,
+            nu_o_def.user_id,
+            nu_o_def.ne_user_id,
+            nu_o_def.ne_user_password,
+            nu_o_def.object_version_number
+        FROM
+            rdupm_nexus_repository nr
+        INNER JOIN rdupm_nexus_user nu ON nu.repository_id = nr.repository_id
+        INNER JOIN rdupm_nexus_user nu_o_def ON nr.repository_id = nu_o_def.repository_id
+        AND nu_o_def.is_default = 1
+        WHERE 1 = 1
+        <if test="organizationId != null">
+            AND nr.organization_id = #{organizationId}
+        </if>
+        <if test="projectId != null">
+            AND nr.project_id = #{projectId}
+        </if>
+        AND nu.ne_user_id = (
+            SELECT
+                nu_def.ne_user_id
+            FROM
+                rdupm_nexus_repository nr_def
+            INNER JOIN rdupm_nexus_user nu_def ON nr_def.repository_id = nu_def.repository_id
+            WHERE nu_def.is_default = 1
+            <if test="repositoryId != null">
+                AND nr_def.repository_id = #{repositoryId}
+            </if>
+            <if test="organizationId != null">
+                AND nr_def.organization_id = #{organizationId}
+            </if>
+            <if test="projectId != null">
+                AND nr_def.project_id = #{projectId}
+            </if>
+        )
+        ORDER BY nu.is_default DESC, nu.user_id
+    </select>
+
     <select id="getOtherRepositoryNames" resultType="java.lang.String">
         SELECT
             nr.ne_repository_name

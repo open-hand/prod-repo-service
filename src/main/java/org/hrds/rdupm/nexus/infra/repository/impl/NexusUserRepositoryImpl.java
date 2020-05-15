@@ -35,6 +35,20 @@ public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> imple
 	}
 
 	@Override
+	public PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest) {
+		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectListPro(nexusUser));
+		page.getContent().forEach(user -> {
+			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
+			if (user.getRepositoryId().equals(nexusUser.getRepositoryId())) {
+				user.setEditFlag(true);
+			} else {
+				user.setEditFlag(false);
+			}
+		});
+		return PageConvertUtils.convert(page);
+	}
+
+	@Override
 	public List<String> getOtherRepositoryNames(String neUserId) {
 		return nexusUserMapper.getOtherRepositoryNames(neUserId);
 	}

@@ -21,6 +21,13 @@ public interface NexusUserMapper extends BaseMapper<NexusUser> {
 	List<NexusUser> selectList(NexusUser nexusUser);
 
 	/**
+	 * 发布权限列表查询-项目层
+	 * @param nexusUser 查询参数
+	 * @return List<NexusUserDTO>
+	 */
+	List<NexusUser> selectListPro(NexusUser nexusUser);
+
+	/**
 	 * 查询用户其它仓库
 	 * @param neUserId 用户Id
 	 * @return 仓库名列表
