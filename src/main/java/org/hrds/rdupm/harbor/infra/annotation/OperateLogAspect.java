@@ -118,6 +118,7 @@ public class OperateLogAspect {
 
 		//保存日志记录
 		contentList.forEach(str->{
+			harborLog.setLogId(null);
 			harborLog.setContent(str);
 			harborLogRepository.insertSelective(harborLog);
 		});

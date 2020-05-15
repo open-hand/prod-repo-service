@@ -46,7 +46,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 
 	@Override
 	public HarborGuideVo getTagGuide(String repoName, String tagName) {
-		String harborBaseUrl = harborInfoConfiguration.getBaseUrl();
+		String harborBaseUrl = harborInfoConfiguration.getDomain();
 		String loginCmd = String.format("docker login %s -u userName",harborBaseUrl);
 		String pullCmd = String.format("docker pull %s/%s:%s",harborBaseUrl,repoName,tagName);
 		return new HarborGuideVo(loginCmd,null,null,null,pullCmd);

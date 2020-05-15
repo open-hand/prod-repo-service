@@ -134,6 +134,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
+		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		harborAuth.setHarborRoleId(HarborConstants.HarborRoleEnum.getIdByValue(harborAuth.getHarborRoleValue()));
 		repository.updateByPrimaryKey(harborAuth);
@@ -194,9 +195,18 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(harborRepository.getCreatedBy().equals(harborAuth.getUserId())){
 			throw new CommonException("error.harbor.auth.owner.not.delete");
 		}
+		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		repository.deleteByPrimaryKey(harborAuth);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,false,harborId,harborAuth.getHarborAuthId());
+	}
+
+	private void processHarborAuthId(HarborAuth harborAuth){
+		if(harborAuth.getHarborAuthId() == null || harborAuth.getHarborAuthId().intValue() == -1){
+			HarborAuth dbAuth = harborAuthMapper.selectByPrimaryKey(harborAuth.getAuthId());
+			harborAuth.setObjectVersionNumber(dbAuth.getObjectVersionNumber());
+			harborAuth.setHarborAuthId(dbAuth.getHarborAuthId());
+		}
 	}
 
 	@Override
