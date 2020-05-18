@@ -66,29 +66,20 @@ public class HarborAuthCreateHandler {
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 2,maxRetryCount = 3,outputSchemaClass = List.class)
 	private List<HarborAuth> insertToHarbor(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
-		Long harborId = dtoList.get(0).getHarborId();
-
-		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
-		List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
-		Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
 		for(HarborAuth dto : dtoList){
-			if(harborAuthVoMap.get(dto.getLoginName()) == null){
-				Map<String,Object> bodyMap = new HashMap<>(2);
-				Map<String,Object> memberMap = new HashMap<>(1);
-				memberMap.put("username",dto.getLoginName());
-				bodyMap.put("role_id",dto.getHarborRoleId());
-				bodyMap.put("member_user",memberMap);
-				harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,dto.getHarborId());
-			}else {
-				dto.setHarborRoleId(harborAuthVoMap.get(dto.getLoginName()).getRoleId());
-			}
+			Map<String,Object> bodyMap = new HashMap<>(2);
+			Map<String,Object> memberMap = new HashMap<>(1);
+			memberMap.put("username",dto.getLoginName());
+			bodyMap.put("role_id",dto.getHarborRoleId());
+			bodyMap.put("member_user",memberMap);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,dto.getHarborId());
 		}
 		return dtoList;
 	}
 
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_DB,description = "分配权限：保存权限到数据库",
+	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_DB,description = "分配权限：更新harbor_auth_id到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 3,maxRetryCount = 3)
-	private void insertToDb(String message){
+	private void updateToDb(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
 		Long harborId = dtoList.get(0).getHarborId();
 
@@ -98,11 +89,9 @@ public class HarborAuthCreateHandler {
 		dtoList.stream().forEach(dto->{
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
 				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
-			}else {
-				throw new CommonException("error.harbor.auth.find.harborAuthId");
 			}
 		});
-		repository.batchInsert(dtoList);
+		repository.batchUpdateOptional(dtoList,HarborAuth.FIELD_HARBOR_AUTH_ID);
 	}
 
 }

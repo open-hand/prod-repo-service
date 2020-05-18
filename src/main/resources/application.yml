@@ -129,8 +129,12 @@ choerodon:
 
 harbor:
   baseUrl: https://192.168.17.187
+  ip: 192.168.17.187
+  domain: harbor.cn
   username: admin
   password: Harbor12345
+  certUrl: http://minio.staging.saas.hand-china.com/minio/rdupm-service/harbor.cn.cert
+  keyUrl: http://minio.staging.saas.hand-china.com/rdupm-service/harbor.cn.key
 
 DesEncrypt:
   # DES 加解密密钥

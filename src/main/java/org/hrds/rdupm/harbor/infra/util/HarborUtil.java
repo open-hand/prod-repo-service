@@ -1,20 +1,13 @@
 package org.hrds.rdupm.harbor.infra.util;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hzero.core.jackson.JacksonConstant;
 import org.hzero.export.vo.ExportParam;
 
 /**
@@ -111,7 +104,7 @@ public class HarborUtil {
 	}
 
 	public static Map<String,Object> storageMap(Object storageNum,Object storageUnit){
-		Map<String,Object> map = new HashMap<>();
+		Map<String,Object> map = new HashMap<>(2);
 		map.put("storageNum",storageNum);
 		map.put("storageUnit",storageUnit);
 		return map;
@@ -198,13 +191,6 @@ public class HarborUtil {
 		final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
 		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
 		return new DecimalFormat("#,##0.##").format(size / Math.pow(1024, digitGroups)) + "/" + units[digitGroups];
-	}
-
-	public static void main(String[] args){
-		String expire = "1589596151000";
-		String expires = String.valueOf(expire + "000");
-		Date endDate = new Date(Long.parseLong(expire));
-		System.out.println(readableFileSize(300000230));
 	}
 
 }

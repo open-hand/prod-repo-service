@@ -1,6 +1,9 @@
 package org.hrds.rdupm.harbor.app.service.sagahandler;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +19,10 @@ import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.entity.User;
@@ -26,7 +31,9 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -45,7 +52,7 @@ public class HarborProjectCreateHandler {
 	private BaseFeignClient baseFeignClient;
 
 	@Autowired
-	private HarborRepositoryRepository harborRepositoryRepository;
+	private HarborAuthService harborAuthService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -54,10 +61,14 @@ public class HarborProjectCreateHandler {
 	private HarborQuotaService harborQuotaService;
 
 	//TODO
-	private String userName = "15367";
+	private String userName = "lfqrlx8pfg";
+	private Long userId = 21193L;
 
 	@Autowired
 	private HarborProjectService harborProjectService;
+
+	@Resource
+	private HarborRepositoryMapper harborRepositoryMapper;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
@@ -116,7 +127,7 @@ public class HarborProjectCreateHandler {
 		return objectMapper.writeValueAsString(harborProjectVo);
 	}
 
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：保存镜像仓库到数据库",
+	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：更新harbor_id字段到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectDbSaga(String message){
 		HarborProjectVo harborProjectVo = null;
@@ -127,13 +138,39 @@ public class HarborProjectCreateHandler {
 		}
 		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
 		Integer harborId = harborProjectVo.getHarborId();
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),new Long(harborId),projectDTO.getOrganizationId());
-		harborRepositoryRepository.insertSelective(harborRepository);
+		Long projectId = projectDTO.getId();
+		harborRepositoryMapper.updateHarborIdByProjectId(projectId,harborId);
+		return message;
+	}
+
+
+	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存用户权限",
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3, outputSchemaClass = String.class)
+	private String createProjectAuthSaga(String message){
+		HarborProjectVo harborProjectVo = null;
+		try {
+			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
+		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
+
+		List<HarborAuth> authList = new ArrayList<>();
+		HarborAuth harborAuth = new HarborAuth();
+		harborAuth.setUserId(userId);
+		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
+		try {
+			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		authList.add(harborAuth);
+		harborAuthService.saveOwnerAuth(projectDTO.getId(),projectDTO.getOrganizationId(),harborProjectVo.getHarborId(),authList);
 		return message;
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_QUOTA,description = "创建Docker镜像仓库：保存存储容量配置",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3)
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 5,maxRetryCount = 3)
 	private void createProjectQuotaSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
@@ -145,7 +182,7 @@ public class HarborProjectCreateHandler {
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_CVE,description = "创建Docker镜像仓库：保存cve白名单",
-			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3)
+			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 5,maxRetryCount = 3)
 	private void createProjectCveSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {

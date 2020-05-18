@@ -20,7 +20,7 @@ spec:
       - command:
         - sh
         - -c
-        - cp -rf /var/choerodon/* /tools
+        - cp -rfp /var/choerodon/* /tools
         image: {{ .Values.preJob.image }}
         imagePullPolicy: IfNotPresent
         name: tools
@@ -34,7 +34,7 @@ spec:
         - /bin/sh
         - -c
         - >
-          java
+          java 
           -Dconfig.type={{ .Values.preJob.preConfig.configType }}
           -Dconfig.updatePolicy={{ .Values.preJob.preConfig.updatePolicy }}
           -Dspring.datasource.url={{ .Values.preJob.preConfig.datasource.url | quote }}

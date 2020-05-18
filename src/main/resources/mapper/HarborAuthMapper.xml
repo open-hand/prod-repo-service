@@ -10,7 +10,7 @@
         <result column="real_name" property="realName" jdbcType="VARCHAR"/>
         <result column="harbor_role_id" property="harborRoleId" jdbcType="DECIMAL"/>
         <result column="harbor_auth_id" property="harborAuthId" jdbcType="DECIMAL"/>
-        <result column="end_date" property="endDate" jdbcType="DATE"/>
+        <result column="end_date" property="endDate" jdbcType="TIMESTAMP"/>
         <result column="organization_id" property="organizationId" jdbcType="DECIMAL"/>
         <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
         <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>

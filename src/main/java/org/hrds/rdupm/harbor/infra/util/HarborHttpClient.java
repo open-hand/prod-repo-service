@@ -74,7 +74,7 @@ public class HarborHttpClient {
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
 			//TODO 使用当前登陆用户账号
-			buildBasicAuth("15367","Abcd1234");
+			buildBasicAuth("lfqrlx8pfg","Abcd1234");
 		}
 
 		HttpHeaders headers = new HttpHeaders();
@@ -109,9 +109,9 @@ public class HarborHttpClient {
 			return url;
 		}
 		StringBuilder newUrl = new StringBuilder().append(url).append(BaseConstants.Symbol.QUESTION);
-		for (String key : paramMap.keySet()) {
-			if(paramMap.get(key) != null){
-				newUrl.append(key).append(BaseConstants.Symbol.EQUAL).append(paramMap.get(key)).append(BaseConstants.Symbol.AND);
+		for (Map.Entry<String,Object> entry : paramMap.entrySet()) {
+			if(entry.getValue() != null){
+				newUrl.append(entry.getKey()).append(BaseConstants.Symbol.EQUAL).append(entry.getValue()).append(BaseConstants.Symbol.AND);
 			}
 		}
 		return newUrl.toString().substring(0, newUrl.length() - 1);

@@ -112,11 +112,13 @@ public class OperateLogAspect {
 		try {
 			object = point.proceed();
 		} catch (Throwable e) {
+			e.printStackTrace();
 			throw new CommonException(e.getMessage());
 		}
 
 		//保存日志记录
 		contentList.forEach(str->{
+			harborLog.setLogId(null);
 			harborLog.setContent(str);
 			harborLogRepository.insertSelective(harborLog);
 		});
@@ -153,7 +155,7 @@ public class OperateLogAspect {
 	}
 
 	private Map<Object, Object> processParameters(String[] parameterNames, Object[] args) {
-		Map<Object, Object> objectMap = new HashMap<>();
+		Map<Object, Object> objectMap = new HashMap<>(16);
 		for (int i = 0; i < parameterNames.length; i++) {
 			objectMap.put(parameterNames[i], args[i]);
 		}
