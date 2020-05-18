@@ -726,7 +726,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoPush(Long projectId, String currentRepoName) {
+	public List<NexusRepositoryDTO> listRepoPush(Long projectId, List<String> currentRepoName) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 
@@ -741,7 +741,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 当前项目仓库数据
 		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId);
 		// 排除当前仓库
-		repositoryNameList.remove(currentRepoName);
+		repositoryNameList.removeAll(currentRepoName);
 		if (CollectionUtils.isEmpty(repositoryNameList)) {
 			return new ArrayList<>();
 		}

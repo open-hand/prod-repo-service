@@ -177,7 +177,7 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/push")
     public ResponseEntity<List<NexusRepositoryDTO>> listRepoPush(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                                 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName) {
+                                                                 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") List<String> repositoryName) {
         return Results.success(nexusRepositoryService.listRepoPush(projectId, repositoryName));
     }
 
