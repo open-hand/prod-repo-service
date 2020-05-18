@@ -114,7 +114,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			body.add(NexusServerComponentUpload.GENERATE_POM, false);
 		}
 
-		if (extensionList.contains(NexusServerAssetUpload.JAR)) {
+		if (!extensionList.contains(NexusServerAssetUpload.POM)) {
 			body.add(NexusServerComponentUpload.GROUP_ID, componentUpload.getGroupId());
 			body.add(NexusServerComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
 			body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
