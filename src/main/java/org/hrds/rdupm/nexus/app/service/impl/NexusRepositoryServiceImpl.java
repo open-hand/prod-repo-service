@@ -773,6 +773,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		if (nexusRepository != null) {
 			NexusUser queryUser = new NexusUser();
 			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+			queryUser.setIsDefault(1);
 			nexusUser = nexusUserRepository.selectOne(queryUser);
 		}
 
