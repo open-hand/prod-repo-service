@@ -61,7 +61,18 @@ public class ProductLibraryDTO extends AuditDomain {
 	private Long repositoryId;
 	@ApiModelProperty(value = "仓库名称")
 	private String repositoryName;
-
+	@ApiModelProperty(value = "仓库类型")
+	private String type;
+	@ApiModelProperty(value = "仓库策略")
+	private String versionPolicy;
+	@ApiModelProperty(value = "版本策略")
+	private String writePolicy;
+	@ApiModelProperty(value = "在线状态")
+	private Boolean online;
+	@ApiModelProperty(value = "访问url")
+	private String url;
+	@ApiModelProperty(value = "是否允许匿名访问")
+	private Integer allowAnonymous;
 
 
 	public ProductLibraryDTO() {
