@@ -296,14 +296,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		});
 
 		List<String> errorNameList = new ArrayList<>();
-		// TODO 注释放开
-//		repositoryList.forEach(repositoryName -> {
-//			try {
-//				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO, repositoryName, serverConfig);
-//			} catch (Exception e) {
-//				errorNameList.add(repositoryName);
-//			}
-//		});
+		repositoryList.forEach(repositoryName -> {
+			try {
+				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO, repositoryName, serverConfig);
+			} catch (Exception e) {
+				errorNameList.add(repositoryName);
+			}
+		});
 		if (CollectionUtils.isNotEmpty(errorNameList)) {
 			throw new CommonException(NexusMessageConstants.NEXUS_REPO_RELATED_ERROR, StringUtils.join(errorNameList, ", "));
 		}
