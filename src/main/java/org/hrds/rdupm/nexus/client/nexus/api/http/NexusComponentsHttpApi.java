@@ -10,6 +10,7 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,9 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		}
 
 		if (!extensionList.contains(NexusServerAssetUpload.POM)) {
+			AssertUtils.notNull(componentUpload.getGroupId(), "groupId not null");
+			AssertUtils.notNull(componentUpload.getArtifactId(), "artifactId not null");
+			AssertUtils.notNull(componentUpload.getVersion(), "version not null");
 			body.add(NexusServerComponentUpload.GROUP_ID, componentUpload.getGroupId());
 			body.add(NexusServerComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
 			body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
