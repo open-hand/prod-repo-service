@@ -46,9 +46,11 @@ public interface NexusUserApi {
 	 * 校验改用户是否有仓库对应发布权限
 	 * @param repositoryList 仓库名列表
 	 * @param userName 用户名称（ID）
+	 * @param ruleList 发布权限规则列表,一组规则有多个时用逗号隔开
+	 *                  如：nx-repository-view-*-*-*    nx-repository-view-*-*-add,nx-repository-view-*-*-edit
 	 * @return 返回repositoryList中该用户有发布权限的仓库
 	 */
-	List<String> validPush(List<String> repositoryList, String userName);
+	List<String> validPush(List<String> repositoryList, String userName, List<String> ruleList);
 
 	/**
 	 * 校验用户与用户名是否正确

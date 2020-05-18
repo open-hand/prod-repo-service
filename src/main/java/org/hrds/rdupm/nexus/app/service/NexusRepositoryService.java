@@ -137,7 +137,7 @@ public interface NexusRepositoryService {
 	 * @param currentRepoName 当前默认仓库名称
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoPush(Long projectId, String currentRepoName);
+	List<NexusRepositoryDTO> listRepoPush(Long projectId, List<String> currentRepoName);
 
 	/**
 	 * 查询maven 仓库配置指引信息

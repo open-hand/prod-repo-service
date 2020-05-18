@@ -24,10 +24,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
+import static org.codehaus.groovy.runtime.DefaultGroovyMethods.tr;
 
 /**
  * @author weisen.yang@hand-china.com 2020/3/18
@@ -93,7 +94,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	}
 
 	@Override
-	public List<String> validPush(List<String> repositoryList, String userName) {
+	public List<String> validPush(List<String> repositoryList, String userName, List<String> ruleList) {
 		List<NexusServerUser> nexusServerUserList = this.getUsers(userName);
 		if (CollectionUtils.isEmpty(nexusServerUserList)) {
 			throw new CommonException("用户不存在");
@@ -109,10 +110,52 @@ public class NexusUserHttpApi implements NexusUserApi{
 				userPrivileges.addAll(nexusServerRole.getPrivileges());
 			}
 		});
+		if (CollectionUtils.isEmpty(userPrivileges)) {
+			return new ArrayList<>();
+		}
 
+		List<String> result = new ArrayList<>();
 
-		// TODO 返回与校验
-		return repositoryList;
+		// 遍历仓库，分仓库校验
+		repositoryList.forEach(repositoryName -> {
+			Boolean flag = this.validRule(userPrivileges, ruleList, repositoryName);
+			if (flag) {
+				result.add(repositoryName);
+			}
+		});
+
+		return result;
+	}
+
+	/**
+	 * 发布规则校验
+	 * @param userPrivileges 该用户拥有的所有权限
+	 * @param ruleList 规则列表
+	 * @param repositoryName 仓库名
+	 * @return true: 当前权限里，有该仓库的发布权限     false: 当前权限里，无该仓库的发布权限
+	 */
+	private Boolean validRule(List<String> userPrivileges, List<String> ruleList, String repositoryName){
+		for (String ruleArray : ruleList) {
+			List<String> rules = Arrays.asList(StringUtils.split(ruleArray, ","));
+			List<String> rulesNew = rules.stream().map(rule -> {return rule.replaceAll("\\{repositoryName}", repositoryName);}).collect(Collectors.toList());
+
+			Boolean flag = this.includeRule(userPrivileges, rulesNew);
+			if (flag) {
+				// 为true,表明已经匹配了某个规则
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Boolean includeRule(List<String> userPrivileges, List<String> rules){
+		for(String rule : rules) {
+			if (!userPrivileges.contains(rule)) {
+				// 当前已有规则里，不包含该规则
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
