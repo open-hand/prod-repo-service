@@ -63,6 +63,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	private BaseServiceFeignClient baseServiceFeignClient;
 	@Autowired
 	private TransactionalProducer producer;
+	@Autowired
+	private NexusPushRepository nexusPushRepository;
 
 	@Override
 	public NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -260,12 +262,17 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 		// 校验权限
-		List<String> pushRepoList = nexusClient.getNexusUserApi().validPush(nexusRepositoryRelatedDTO.getRepositoryList(), nexusRepositoryRelatedDTO.getUserName());
+
+		NexusPush nexusPush = new NexusPush();
+		nexusPush.setType("MAVEN");
+		List<NexusPush> nexusPushList = nexusPushRepository.select(nexusPush);
+
+		List<String> pushRepoList = nexusClient.getNexusUserApi().validPush(nexusRepositoryRelatedDTO.getRepositoryList(), nexusRepositoryRelatedDTO.getUserName(),
+				nexusPushList.stream().map(NexusPush::getRule).collect(Collectors.toList()));
 
 		List<String> remainderRepo = new ArrayList<>(nexusRepositoryRelatedDTO.getRepositoryList());
 		remainderRepo.removeAll(pushRepoList);
 		if (CollectionUtils.isNotEmpty(remainderRepo)) {
-			// TODO 用户{0}，对以下仓库没有发布权限：{1}
 			throw new CommonException("用户：" + nexusRepositoryRelatedDTO.getUserName() + ",对以下仓库没有发布权限：" + StringUtils.join(",", remainderRepo));
 		}
 
@@ -289,13 +296,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		});
 
 		List<String> errorNameList = new ArrayList<>();
-		repositoryList.forEach(repositoryName -> {
-			try {
-				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO, repositoryName, serverConfig);
-			} catch (Exception e) {
-				errorNameList.add(repositoryName);
-			}
-		});
+		// TODO 注释放开
+//		repositoryList.forEach(repositoryName -> {
+//			try {
+//				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO, repositoryName, serverConfig);
+//			} catch (Exception e) {
+//				errorNameList.add(repositoryName);
+//			}
+//		});
 		if (CollectionUtils.isNotEmpty(errorNameList)) {
 			throw new CommonException(NexusMessageConstants.NEXUS_REPO_RELATED_ERROR, StringUtils.join(errorNameList, ", "));
 		}
