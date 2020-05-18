@@ -48,26 +48,26 @@
     </select>
     <select id="selectListPro" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
         SELECT
-            (
-                SELECT
-                    nr_def.repository_id
-                FROM
-                    rdupm_nexus_repository nr_def
-                INNER JOIN rdupm_nexus_user nu_def ON nr_def.repository_id = nu_def.repository_id
-                WHERE
-                    nu_def.ne_user_id = nu.ne_user_id
-                AND nu_def.is_default = 1
-            ) AS repository_id,
-            (
-                SELECT
-                    nr_def.ne_repository_name
-                FROM
-                    rdupm_nexus_repository nr_def
-                INNER JOIN rdupm_nexus_user nu_def ON nr_def.repository_id = nu_def.repository_id
-                WHERE
-                    nu_def.ne_user_id = nu.ne_user_id
-                AND nu_def.is_default = 1
-            ) AS ne_repository_name,
+--             (
+--                 SELECT
+--                     nr_def.repository_id
+--                 FROM
+--                     rdupm_nexus_repository nr_def
+--                 INNER JOIN rdupm_nexus_user nu_def ON nr_def.repository_id = nu_def.repository_id
+--                 WHERE
+--                     nu_def.ne_user_id = nu.ne_user_id
+--                 AND nu_def.is_default = 1
+--             ) AS repository_id,
+--             (
+--                 SELECT
+--                     nr_def.ne_repository_name
+--                 FROM
+--                     rdupm_nexus_repository nr_def
+--                 INNER JOIN rdupm_nexus_user nu_def ON nr_def.repository_id = nu_def.repository_id
+--                 WHERE
+--                     nu_def.ne_user_id = nu.ne_user_id
+--                 AND nu_def.is_default = 1
+--             ) AS ne_repository_name,
             nu.user_id,
             nu.ne_user_id,
             nu.ne_user_password,
@@ -109,6 +109,17 @@
             nu.is_default = 0
         AND nu.ne_user_id = #{neUserId}
     </select>
+    <select id="getDefaultRepositoryNames" resultType="java.lang.String">
+        SELECT
+            nr.ne_repository_name
+        FROM
+            rdupm_nexus_user nu
+        INNER JOIN rdupm_nexus_repository nr ON nu.repository_id = nr.repository_id
+        WHERE
+            nu.is_default = 1
+        AND nu.ne_user_id = #{neUserId}
+    </select>
+
     <select id="selectByUserId" resultType="org.hrds.rdupm.nexus.domain.entity.NexusUser">
         SELECT
             <include refid="nexusUserDefInfo"></include>

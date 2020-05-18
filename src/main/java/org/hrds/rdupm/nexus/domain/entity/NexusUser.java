@@ -97,6 +97,10 @@ public class NexusUser extends AuditDomain {
 	@Transient
 	private List<String> otherRepositoryName;
 
+	@ApiModelProperty(value = "默认管理仓库名称")
+	@Transient
+	private List<String> defaultRepositoryNames;
+
 	@ApiModelProperty(value = "组织Id")
 	@Transient
 	private Long organizationId;
@@ -258,5 +262,13 @@ public class NexusUser extends AuditDomain {
 	public NexusUser setEditFlag(Boolean editFlag) {
 		this.editFlag = editFlag;
 		return this;
+	}
+
+	public List<String> getDefaultRepositoryNames() {
+		return defaultRepositoryNames;
+	}
+
+	public void setDefaultRepositoryNames(List<String> defaultRepositoryNames) {
+		this.defaultRepositoryNames = defaultRepositoryNames;
 	}
 }
