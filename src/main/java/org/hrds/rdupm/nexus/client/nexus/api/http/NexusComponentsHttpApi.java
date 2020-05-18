@@ -97,9 +97,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		paramMap.put(NexusServerComponentUpload.REPOSITORY_NAME, componentUpload.getRepositoryName());
 
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-		body.add(NexusServerComponentUpload.GROUP_ID, componentUpload.getGroupId());
-		body.add(NexusServerComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
-		body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
+
 
 		// 上传文件类型
 		List<String> extensionList = new ArrayList<>();
@@ -114,6 +112,12 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			body.add(NexusServerComponentUpload.GENERATE_POM, true);
 		} else {
 			body.add(NexusServerComponentUpload.GENERATE_POM, false);
+		}
+
+		if (extensionList.contains(NexusServerAssetUpload.JAR)) {
+			body.add(NexusServerComponentUpload.GROUP_ID, componentUpload.getGroupId());
+			body.add(NexusServerComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
+			body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
 		}
 
 		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
@@ -153,7 +157,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			List<NexusServerComponent> components = componentInfo.getComponents();
 			if (components.size() == 1){
 				NexusServerComponent nexusServerComponent = components.get(0);
-				if (nexusServerComponent.getUseVersion().equals(nexusServerComponent.getVersion())) {
+				if (nexusServerComponent.getVersion().equals(nexusServerComponent.getUseVersion())) {
 					// 版本相同时，不用再有下级； 如 RELEASE 版本的jar包
 					componentInfo.setComponents(new ArrayList<>());
 				}
