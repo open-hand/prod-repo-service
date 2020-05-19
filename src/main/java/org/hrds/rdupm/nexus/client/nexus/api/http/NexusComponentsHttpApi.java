@@ -178,6 +178,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	 * @param componentList 组件（包）信息
 	 */
 	private void handleVersion(List<NexusServerComponent> componentList){
+		componentList = componentList.stream().filter(nexusServerComponent -> CollectionUtils.isNotEmpty(nexusServerComponent.getAssets())).collect(Collectors.toList());
 		componentList.forEach(nexusComponent -> {
 			List<NexusServerAsset> assetList = nexusComponent.getAssets();
 			if (CollectionUtils.isNotEmpty(assetList)) {
