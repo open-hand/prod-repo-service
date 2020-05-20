@@ -62,7 +62,7 @@ public class NexusComponentController extends BaseController {
 											  NexusServerComponentUpload componentUpload,
 											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
 											  @ApiParam(value = "pom文件") @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
-		validObject(componentUpload);
+		// validObject(componentUpload);
 		if (assetJar == null && assetPom == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
 		}

@@ -10,6 +10,7 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,9 +98,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		paramMap.put(NexusServerComponentUpload.REPOSITORY_NAME, componentUpload.getRepositoryName());
 
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-		body.add(NexusServerComponentUpload.GROUP_ID, componentUpload.getGroupId());
-		body.add(NexusServerComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
-		body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
+
 
 		// 上传文件类型
 		List<String> extensionList = new ArrayList<>();
@@ -114,6 +113,15 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			body.add(NexusServerComponentUpload.GENERATE_POM, true);
 		} else {
 			body.add(NexusServerComponentUpload.GENERATE_POM, false);
+		}
+
+		if (!extensionList.contains(NexusServerAssetUpload.POM)) {
+			AssertUtils.notNull(componentUpload.getGroupId(), "groupId not null");
+			AssertUtils.notNull(componentUpload.getArtifactId(), "artifactId not null");
+			AssertUtils.notNull(componentUpload.getVersion(), "version not null");
+			body.add(NexusServerComponentUpload.GROUP_ID, componentUpload.getGroupId());
+			body.add(NexusServerComponentUpload.ARTIFACT_ID, componentUpload.getArtifactId());
+			body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
 		}
 
 		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
@@ -153,7 +161,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			List<NexusServerComponent> components = componentInfo.getComponents();
 			if (components.size() == 1){
 				NexusServerComponent nexusServerComponent = components.get(0);
-				if (nexusServerComponent.getUseVersion().equals(nexusServerComponent.getVersion())) {
+				if (nexusServerComponent.getVersion().equals(nexusServerComponent.getUseVersion())) {
 					// 版本相同时，不用再有下级； 如 RELEASE 版本的jar包
 					componentInfo.setComponents(new ArrayList<>());
 				}
@@ -170,6 +178,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	 * @param componentList 组件（包）信息
 	 */
 	private void handleVersion(List<NexusServerComponent> componentList){
+		componentList = componentList.stream().filter(nexusServerComponent -> CollectionUtils.isNotEmpty(nexusServerComponent.getAssets())).collect(Collectors.toList());
 		componentList.forEach(nexusComponent -> {
 			List<NexusServerAsset> assetList = nexusComponent.getAssets();
 			if (CollectionUtils.isNotEmpty(assetList)) {

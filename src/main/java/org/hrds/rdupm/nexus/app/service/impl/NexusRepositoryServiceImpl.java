@@ -63,6 +63,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	private BaseServiceFeignClient baseServiceFeignClient;
 	@Autowired
 	private TransactionalProducer producer;
+	@Autowired
+	private NexusPushRepository nexusPushRepository;
 
 	@Override
 	public NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -260,12 +262,17 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 		// 校验权限
-		List<String> pushRepoList = nexusClient.getNexusUserApi().validPush(nexusRepositoryRelatedDTO.getRepositoryList(), nexusRepositoryRelatedDTO.getUserName());
+
+		NexusPush nexusPush = new NexusPush();
+		nexusPush.setType("MAVEN");
+		List<NexusPush> nexusPushList = nexusPushRepository.select(nexusPush);
+
+		List<String> pushRepoList = nexusClient.getNexusUserApi().validPush(nexusRepositoryRelatedDTO.getRepositoryList(), nexusRepositoryRelatedDTO.getUserName(),
+				nexusPushList.stream().map(NexusPush::getRule).collect(Collectors.toList()));
 
 		List<String> remainderRepo = new ArrayList<>(nexusRepositoryRelatedDTO.getRepositoryList());
 		remainderRepo.removeAll(pushRepoList);
 		if (CollectionUtils.isNotEmpty(remainderRepo)) {
-			// TODO 用户{0}，对以下仓库没有发布权限：{1}
 			throw new CommonException("用户：" + nexusRepositoryRelatedDTO.getUserName() + ",对以下仓库没有发布权限：" + StringUtils.join(",", remainderRepo));
 		}
 
@@ -726,7 +733,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoPush(Long projectId, String currentRepoName) {
+	public List<NexusRepositoryDTO> listRepoPush(Long projectId, List<String> currentRepoName) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 
@@ -741,7 +748,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 当前项目仓库数据
 		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId);
 		// 排除当前仓库
-		repositoryNameList.remove(currentRepoName);
+		repositoryNameList.removeAll(currentRepoName);
 		if (CollectionUtils.isEmpty(repositoryNameList)) {
 			return new ArrayList<>();
 		}
@@ -773,6 +780,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		if (nexusRepository != null) {
 			NexusUser queryUser = new NexusUser();
 			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+			queryUser.setIsDefault(1);
 			nexusUser = nexusUserRepository.selectOne(queryUser);
 		}
 

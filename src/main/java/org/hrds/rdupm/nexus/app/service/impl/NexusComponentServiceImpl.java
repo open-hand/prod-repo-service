@@ -153,6 +153,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		if (nexusRepository != null) {
 			NexusUser queryUser = new NexusUser();
 			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+			queryUser.setIsDefault(1);
 			nexusUser = nexusUserRepository.selectOne(queryUser);
 		}
 		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(componentInfo.getRepository());

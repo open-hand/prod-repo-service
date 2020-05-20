@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.apache.commons.lang.StringUtils;
 import org.hrds.rdupm.nexus.infra.mapper.NexusUserMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
@@ -30,6 +31,18 @@ public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> imple
 		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectList(nexusUser));
 		page.getContent().forEach(user -> {
 			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
+		});
+		return PageConvertUtils.convert(page);
+	}
+
+	@Override
+	public PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest) {
+		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectListPro(nexusUser));
+		page.getContent().forEach(user -> {
+			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
+			user.setDefaultRepositoryNames(nexusUserMapper.getDefaultRepositoryNames(user.getNeUserId()));
+			user.setNeRepositoryName(StringUtils.join(user.getDefaultRepositoryNames(), ","));
+			user.setEditFlag(user.getIsDefault().equals(1));
 		});
 		return PageConvertUtils.convert(page);
 	}
