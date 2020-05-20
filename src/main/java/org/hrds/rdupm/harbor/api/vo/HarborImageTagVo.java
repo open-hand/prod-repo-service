@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * description
@@ -60,4 +61,14 @@ public class HarborImageTagVo {
 
 	@ApiModelProperty("TAG大小显示：19MB")
 	private String sizeDesc;
+
+	@ApiModelProperty("登录名")
+	private String loginName;
+
+	@ApiModelProperty("用户姓名")
+	private String realName;
+
+	@ApiModelProperty("用户头像地址")
+	private String userImageUrl;
+
 }

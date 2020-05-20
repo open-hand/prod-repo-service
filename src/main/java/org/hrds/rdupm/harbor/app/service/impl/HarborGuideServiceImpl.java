@@ -5,6 +5,7 @@ import org.hrds.rdupm.harbor.app.service.HarborGuideService;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborVelocityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 		String certUrl = harborInfoConfiguration.getCertUrl();
 		String keyUrl = harborInfoConfiguration.getKeyUrl();
 		String configRegistryCmd = String.format("{\n  \"insecure-registries\": [\"http://%s\"]\n }",harborInfoConfiguration.getDomain());
-		String loginCmd = String.format("docker login %s -u userName",harborBaseUrl);
+		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  #默认密码是%s",harborBaseUrl,HarborConstants.DEFAULT_PASSWORD);
 		String dockerFile = HarborVelocityUtils.getJsonString(null,HarborVelocityUtils.DOCKER_FILE_NAME);
 		String buildCmd = String.format("docker build -t %s/%s/imageName:tagName .",harborBaseUrl,code);
 		String pushCmd = String.format("docker push %s/%s/imageName:tagName",harborBaseUrl,code);
@@ -47,7 +48,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 	@Override
 	public HarborGuideVo getTagGuide(String repoName, String tagName) {
 		String harborBaseUrl = harborInfoConfiguration.getDomain();
-		String loginCmd = String.format("docker login %s -u userName",harborBaseUrl);
+		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  #默认密码是%s",harborBaseUrl,HarborConstants.DEFAULT_PASSWORD);
 		String pullCmd = String.format("docker pull %s/%s:%s",harborBaseUrl,repoName,tagName);
 		return new HarborGuideVo(loginCmd,null,null,null,pullCmd);
 	}

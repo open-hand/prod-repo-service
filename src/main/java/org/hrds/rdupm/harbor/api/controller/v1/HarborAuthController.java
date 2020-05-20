@@ -59,7 +59,7 @@ public class HarborAuthController extends BaseController {
 												 @ApiParam("用户名") @RequestParam(required = false) String realName,
 												 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
 												 @ApiParam("权限角色") @RequestParam(required = false) String harborRoleValue,
-												 @ApiIgnore @SortDefault(value = HarborAuth.FIELD_AUTH_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+												 @ApiIgnore PageRequest pageRequest) {
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		harborAuth.setHarborRoleValue(harborRoleValue);
     	PageInfo<HarborAuth> list = PageConvertUtils.convert(harborAuthService.pageList(pageRequest, harborAuth));
@@ -75,7 +75,7 @@ public class HarborAuthController extends BaseController {
 													 @ApiParam("登录名") @RequestParam(required = false) String loginName,
 													 @ApiParam("用户名") @RequestParam(required = false) String realName,
 													 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
-													 @ApiIgnore @SortDefault(value = HarborAuth.FIELD_AUTH_ID, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+													 @ApiIgnore PageRequest pageRequest) {
 		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
 		PageInfo<HarborAuth> list = PageConvertUtils.convert(harborAuthService.pageList(pageRequest, harborAuth));
 		return Results.success(list);
