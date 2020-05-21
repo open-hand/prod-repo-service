@@ -47,11 +47,4 @@ public class ProdUserController extends BaseController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "制品库-修改默认密码")
-	@Permission(type = ResourceType.ORGANIZATION,permissionPublic = true)
-	@PostMapping("/saveOneUser")
-	public ResponseEntity<ProdUser> save(@RequestBody ProdUser prodUser) {
-		prodUserService.saveOneUser(prodUser);
-		return Results.success();
-	}
 }
