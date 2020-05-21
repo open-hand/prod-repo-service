@@ -57,6 +57,9 @@ public class HarborImageVo {
 	@SerializedName("update_time")
 	private String updateTime;
 
+	@ApiModelProperty("猪齿鱼项目ID")
+	private Long projectId;
+
 	@ApiModelProperty("项目编码")
 	private String projectCode;
 

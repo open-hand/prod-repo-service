@@ -116,6 +116,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			harborImageVoList.addAll(dtoList);
 			dtoList.forEach(dto->{
 				ProjectDTO projectDTO = projectDtoMap.get(harborRepository.getProjectId());
+				dto.setProjectId(projectDTO.getId());
 				dto.setProjectCode(projectDTO == null ? null : projectDTO.getCode());
 				dto.setProjectName(projectDTO == null ? null : projectDTO.getName());
 				dto.setProjectImageUrl(projectDTO == null ? null : projectDTO.getImageUrl());
