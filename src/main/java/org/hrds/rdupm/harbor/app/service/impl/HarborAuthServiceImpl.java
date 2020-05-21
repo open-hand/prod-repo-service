@@ -18,6 +18,8 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
@@ -33,6 +35,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -226,6 +229,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			if(userResponseEntity == null || CollectionUtils.isEmpty(userResponseEntity.getBody())){
 				throw new CommonException("error.feign.user.select.empty");
 			}
+			//获取用户详情
 			UserDTO userDTO = userResponseEntity.getBody().get(0);
 			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
 			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
@@ -234,14 +238,16 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			dto.setOrganizationId(organizationId);
 			dto.setHarborRoleValue(dto.getHarborRoleValue());
 
+			//获取harborAuthId，然后保存用户权限到数据库
 			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
 			List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
 			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
 				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
 			}
-
 			repository.insertSelective(dto);
 		});
+
+
 	}
 }

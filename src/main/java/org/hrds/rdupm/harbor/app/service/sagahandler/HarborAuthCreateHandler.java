@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.app.service.sagahandler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,9 @@ import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.User;
@@ -21,6 +25,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -41,24 +46,36 @@ public class HarborAuthCreateHandler {
 	@Autowired
 	private HarborAuthRepository repository;
 
+	@Autowired
+	private ProdUserService prodUserService;
+
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_USER,description = "分配权限：插入用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String insertUser(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
+		List<ProdUser> prodUserList = new ArrayList<>();
 		for(HarborAuth harborAuth : dtoList){
+			//数据库插入制品库用户
+			String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+			ProdUser prodUser = new ProdUser(harborAuth.getUserId(),harborAuth.getLoginName(),password,0);
+			prodUserList.add(prodUser);
+
+			//校验Harbor中是否已存在用户
 			Map<String,Object> paramMap = new HashMap<>(1);
 			paramMap.put("username",harborAuth.getLoginName());
 			ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
 			List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
 			Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(1) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
 
+			//Harbor系统插入用户
 			if(userMap.get(harborAuth.getLoginName()) == null){
 				ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(harborAuth.getLoginName());
 				UserDTO userDTO = userDTOResponseEntity.getBody();
-				User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
+				User user = new User(userDTO.getLoginName(),userDTO.getEmail(),password,userDTO.getRealName());
 				harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 			}
 		}
+		prodUserService.saveMultiUser(prodUserList);
 		return message;
 	}
 

@@ -36,7 +36,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 		String certUrl = harborInfoConfiguration.getCertUrl();
 		String keyUrl = harborInfoConfiguration.getKeyUrl();
 		String configRegistryCmd = String.format("{\n  \"insecure-registries\": [\"http://%s\"]\n }",harborInfoConfiguration.getDomain());
-		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  #默认密码是%s",harborBaseUrl,HarborConstants.DEFAULT_PASSWORD);
+		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  #\"个人信息-->个人设置-->制品库设置\"中可查看默认密码",harborBaseUrl);
 		String dockerFile = HarborVelocityUtils.getJsonString(null,HarborVelocityUtils.DOCKER_FILE_NAME);
 		String buildCmd = String.format("docker build -t %s/%s/imageName:tagName .",harborBaseUrl,code);
 		String pushCmd = String.format("docker push %s/%s/imageName:tagName",harborBaseUrl,code);
@@ -48,7 +48,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 	@Override
 	public HarborGuideVo getTagGuide(String repoName, String tagName) {
 		String harborBaseUrl = harborInfoConfiguration.getDomain();
-		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  #默认密码是%s",harborBaseUrl,HarborConstants.DEFAULT_PASSWORD);
+		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  #\"个人信息-->个人设置-->制品库设置\"中可查看默认密码",harborBaseUrl);
 		String pullCmd = String.format("docker pull %s/%s:%s",harborBaseUrl,repoName,tagName);
 		return new HarborGuideVo(loginCmd,null,null,null,pullCmd);
 	}
