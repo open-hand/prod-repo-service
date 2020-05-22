@@ -2,6 +2,7 @@ package org.hrds.rdupm.common.app.service.impl;
 
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -17,6 +18,7 @@ import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.AssertUtils;
@@ -38,6 +40,11 @@ public class ProdUserServiceImpl implements ProdUserService {
 
 	@Resource
 	private TransactionalProducer transactionalProducer;
+
+	/***
+	 * 最少八个字符，至少一个大写字母，一个小写字母和一个数字
+	 */
+	public static Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$");
 
 	@Override
 	public void saveMultiUser(List<ProdUser> prodUserList) {
@@ -104,6 +111,12 @@ public class ProdUserServiceImpl implements ProdUserService {
 		AssertUtils.notNull(prodUser.getRePassword(), "loginName is not null");
 		if(!prodUser.getPassword().equals(prodUser.getRePassword())){
 			throw new CommonException("error.user.newPwd.not.same.rePwd");
+		}
+		if(prodUser.getPassword().equals(prodUser.getOldPassword())){
+			throw new CommonException("error.user.newPwd.same.oldPwd");
+		}
+		if (!PWD_PATTERN.matcher(prodUser.getPassword()).matches()) {
+			throw new CommonException("error.user.pwd.pattern");
 		}
 	}
 

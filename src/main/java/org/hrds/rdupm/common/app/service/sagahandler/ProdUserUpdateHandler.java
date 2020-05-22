@@ -57,9 +57,8 @@ public class ProdUserUpdateHandler {
 
 		//更新Harbor中用户密码
 		String password = DESEncryptUtil.decode(prodUser.getPassword());
-		Map<String,Object> bodyMap = new HashMap<>(2);
+		Map<String,Object> bodyMap = new HashMap<>(1);
 		bodyMap.put("new_password",password);
-		bodyMap.put("old_password",password);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD,null,bodyMap,true,harborUser.getUserId());
 
 		return message;
