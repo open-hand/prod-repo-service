@@ -2,7 +2,7 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.List;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -49,7 +49,7 @@ public interface HarborProjectService {
 	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborRepository> listByOrg( HarborRepository harborRepository,PageRequest pageRequest);
+	Page<HarborRepository> listByOrg( HarborRepository harborRepository,PageRequest pageRequest);
 
 	/***
 	 * 删除镜像仓库

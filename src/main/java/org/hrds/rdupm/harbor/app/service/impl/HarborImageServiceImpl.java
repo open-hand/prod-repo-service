@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.choerodon.core.domain.Page;
@@ -51,7 +51,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 	private BaseFeignClient baseFeignClient;
 
 	@Override
-	public PageInfo<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
+	public Page<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
 		Gson gson = new Gson();
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
@@ -69,7 +69,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		}
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(),totalSize, harborImageVoList);
+		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(),totalSize, harborImageVoList);
 		return pageInfo;
 	}
 
@@ -89,7 +89,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 	}
 
 	@Override
-	public PageInfo<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest) {
+	public Page<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest) {
 		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
 		if(!StringUtils.isEmpty(projectCode)){
 			sql.andEqualTo(HarborRepository.FIELD_CODE,projectCode);
@@ -127,7 +127,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 			totalSize += harborProjectDTO.getRepoCount();
 		}
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), totalSize,harborImageVoList);
+		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;
 	}
 

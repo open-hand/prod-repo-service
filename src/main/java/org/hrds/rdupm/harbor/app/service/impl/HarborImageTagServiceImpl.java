@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
@@ -51,7 +51,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	private BaseFeignClient baseFeignClient;
 
 	@Override
-	public PageInfo<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
+	public Page<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
 		ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,null,null,false,repoName);
 		List<HarborImageTagVo> harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
 		if(StringUtils.isNotEmpty(tagName)){
@@ -64,7 +64,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			setTagAuthor(projectId,repoName,tagName,dto);
 		});
 		processImageLogList(harborImageTagVoList);
-		PageInfo<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
+		Page<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
 		return pageInfo;
 	}
 

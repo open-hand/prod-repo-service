@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
@@ -172,7 +172,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	}
 
 	@Override
-	public PageInfo<HarborRepository> listByOrg(HarborRepository harborRepository,PageRequest pageRequest) {
+	public Page<HarborRepository> listByOrg(HarborRepository harborRepository,PageRequest pageRequest) {
 		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,harborRepository.getOrganizationId());
 		if(!StringUtils.isEmpty(harborRepository.getPublicFlag())){
 			sql.andEqualTo(HarborRepository.FIELD_PUBLIC_FLAG,harborRepository.getPublicFlag());
@@ -186,7 +186,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
 		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
 		processHarborRepositoryList(page.getContent());
-		return PageConvertUtils.convert(page);
+		return page;
 	}
 
 	@Override

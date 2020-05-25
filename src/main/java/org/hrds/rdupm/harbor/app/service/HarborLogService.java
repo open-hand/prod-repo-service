@@ -2,7 +2,7 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.Date;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.domain.entity.HarborLog;
@@ -20,7 +20,7 @@ public interface HarborLogService {
 	 * @param harborLog
 	 * @return
 	 */
-	PageInfo<HarborLog> listAuthLog(PageRequest pageRequest, HarborLog harborLog);
+	Page<HarborLog> listAuthLog(PageRequest pageRequest, HarborLog harborLog);
 
 	/***
 	 * 项目层-查询镜像操作日志列表
@@ -34,7 +34,7 @@ public interface HarborLogService {
 	 * @param endDate
 	 * @return
 	 */
-	PageInfo<HarborImageLog> listImageLogByProject(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
+	Page<HarborImageLog> listImageLogByProject(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
 
 	/***
 	 * 组织层-查询镜像操作日志列表
@@ -50,5 +50,5 @@ public interface HarborLogService {
 	 * @param endDate
 	 * @return
 	 */
-	PageInfo<HarborImageLog> listImageLogByOrg(PageRequest pageRequest, Long organizationId, String code, String name, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
+	Page<HarborImageLog> listImageLogByOrg(PageRequest pageRequest, Long organizationId, String code, String name, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate);
 }

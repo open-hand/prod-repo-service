@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import io.choerodon.core.domain.Page;
@@ -55,7 +55,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 	private HarborRepositoryRepository harborRepositoryRepository;
 
 	@Override
-	public PageInfo<HarborLog> listAuthLog(PageRequest pageRequest, HarborLog harborLog) {
+	public Page<HarborLog> listAuthLog(PageRequest pageRequest, HarborLog harborLog) {
 		Sqls sqls = Sqls.custom();
 		if(harborLog.getProjectId() != null){
 			sqls.andEqualTo(HarborLog.FIELD_PROJECT_ID,harborLog.getProjectId());
@@ -92,11 +92,11 @@ public class HarborLogServiceImpl implements HarborLogService {
 			});
 		}
 
-		return PageConvertUtils.convert(page);
+		return page;
 	}
 
 	@Override
-	public PageInfo<HarborImageLog> listImageLogByProject(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
+	public Page<HarborImageLog> listImageLogByProject(PageRequest pageRequest, Long projectId, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
@@ -111,7 +111,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 	}
 
 	@Override
-	public PageInfo<HarborImageLog> listImageLogByOrg(PageRequest pageRequest, Long organizationId, String code, String name, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
+	public Page<HarborImageLog> listImageLogByOrg(PageRequest pageRequest, Long organizationId, String code, String name, String imageName, String loginName, String tagName, String operateType, Date startDate, Date endDate) {
 		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
 		if(!StringUtils.isEmpty(code)){
 			sql.andEqualTo(HarborRepository.FIELD_CODE,code);

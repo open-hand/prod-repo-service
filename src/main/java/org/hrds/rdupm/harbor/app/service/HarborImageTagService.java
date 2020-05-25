@@ -1,6 +1,6 @@
 package org.hrds.rdupm.harbor.app.service;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
@@ -19,7 +19,7 @@ public interface HarborImageTagService {
 	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest);
+	Page<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest);
 
 	/***
 	 * 获取构建日志

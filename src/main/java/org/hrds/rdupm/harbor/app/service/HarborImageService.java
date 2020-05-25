@@ -2,7 +2,7 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.List;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 
@@ -20,7 +20,7 @@ public interface HarborImageService {
 	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest);
+	Page<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest);
 
 	/***
 	 * 组织层--获取镜像列表
@@ -31,7 +31,7 @@ public interface HarborImageService {
 	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest);
+	Page<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest);
 
 	/***
 	 * 删除镜像
