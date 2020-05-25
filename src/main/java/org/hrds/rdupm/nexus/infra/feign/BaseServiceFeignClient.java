@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * @author weisen.yang@hand-china.com 2020/3/31
  */
-@FeignClient(value = "base-service", fallbackFactory = BaseServiceFeignClientFallBackFactory.class)
+@FeignClient(value = "hzero-iam", path = "/choerodon", fallbackFactory = BaseServiceFeignClientFallBackFactory.class)
 public interface BaseServiceFeignClient {
 
 	/***
