@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.app.service;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
@@ -26,9 +26,9 @@ public interface NexusComponentService {
 	 * @param deleteFlag 删除判断flag  true：需要返回是否允许删除标识  false: 不返回
 	 * @param componentQuery 查询参数
 	 * @param pageRequest 分页参数
-	 * @return PageInfo<NexusServerComponentInfo>
+	 * @return Page<NexusServerComponentInfo>
 	 */
-	PageInfo<NexusServerComponentInfo> listComponents(Long organizationId,
+	Page<NexusServerComponentInfo> listComponents(Long organizationId,
 													  Long projectId,
 													  Boolean deleteFlag,
 													  NexusComponentQuery componentQuery,

@@ -1,7 +1,7 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
 import org.hrds.rdupm.nexus.app.service.NexusInitService;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
@@ -26,7 +26,7 @@ public class NexusInitController extends BaseController {
     private NexusInitService nexusInitService;
 
     @ApiOperation(value = "脚本初始化与更新")
-    @Permission(type = ResourceType.SITE, permissionPublic = true)
+    @Permission(level = ResourceLevel.SITE)
     @GetMapping("/script")
     public ResponseEntity<?> initScript() {
         nexusInitService.initScript();
@@ -34,7 +34,7 @@ public class NexusInitController extends BaseController {
     }
 
     @ApiOperation(value = "匿名用户-拉取权限初始化：默认给予所有仓库拉取权限")
-    @Permission(type = ResourceType.SITE, permissionPublic = true)
+    @Permission(level = ResourceLevel.SITE)
     @PostMapping("/anonymous")
     public ResponseEntity<?> initAnonymous(@RequestBody List<String> repositoryNames) {
         nexusInitService.initAnonymous(repositoryNames);

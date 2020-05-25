@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.domain.repository;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hzero.mybatis.base.BaseRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
@@ -18,17 +18,17 @@ public interface NexusUserRepository extends BaseRepository<NexusUser> {
 	 * 发布权限列表查询-组织层
 	 * @param nexusUser 查询参数
 	 * @param pageRequest 分页参数
-	 * @return PageInfo<NexusUserDTO>
+	 * @return Page<NexusUserDTO>
 	 */
-	PageInfo<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest);
+	Page<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest);
 
 	/**
 	 * 发布权限列表查询-项目层
 	 * @param nexusUser 查询参数
 	 * @param pageRequest 分页参数
-	 * @return PageInfo<NexusUserDTO>
+	 * @return Page<NexusUserDTO>
 	 */
-	PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest);
+	Page<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest);
 
 	/**
 	 * 查询用户其它仓库

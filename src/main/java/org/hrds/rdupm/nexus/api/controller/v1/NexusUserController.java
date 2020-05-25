@@ -1,8 +1,8 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.domain.Page;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.app.service.NexusUserService;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
@@ -31,9 +31,9 @@ public class NexusUserController extends BaseController {
     private NexusUserService nexusUserService;
 
     @ApiOperation(value = "项目层-发布权限列表列表查询")
-    @Permission(type = ResourceType.PROJECT, permissionPublic = true)
+    @Permission(level = ResourceLevel.PROJECT)
     @GetMapping("/{organizationId}/project/{projectId}")
-    public ResponseEntity<PageInfo<NexusUser>> listUser(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+    public ResponseEntity<Page<NexusUser>> listUser(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
                                                         NexusUser nexusUser,
                                                         @ApiIgnore PageRequest pageRequest) {
@@ -43,7 +43,7 @@ public class NexusUserController extends BaseController {
     }
 
     @ApiOperation(value = "项目层-修改密码")
-    @Permission(type = ResourceType.PROJECT,permissionPublic = true)
+    @Permission(level = ResourceLevel.PROJECT)
     @PostMapping("/{organizationId}/project/{projectId}/password/update")
     public ResponseEntity<?> updatePassword(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                             @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
@@ -56,7 +56,7 @@ public class NexusUserController extends BaseController {
     }
 
     @ApiOperation(value = "项目层-修改发布权限")
-    @Permission(type = ResourceType.PROJECT,permissionPublic = true)
+    @Permission(level = ResourceLevel.PROJECT)
     @PostMapping("/{organizationId}/project/{projectId}/auth/update")
     public ResponseEntity<?> updatePushAuth(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                             @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,

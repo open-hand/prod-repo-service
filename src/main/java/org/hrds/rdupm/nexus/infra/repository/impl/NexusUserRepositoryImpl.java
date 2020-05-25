@@ -1,6 +1,5 @@
 package org.hrds.rdupm.nexus.infra.repository.impl;
 
-import com.github.pagehelper.PageInfo;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -27,16 +26,16 @@ public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> imple
 	private NexusUserMapper nexusUserMapper;
 
 	@Override
-	public PageInfo<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest) {
+	public Page<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest) {
 		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectList(nexusUser));
 		page.getContent().forEach(user -> {
 			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
 		});
-		return PageConvertUtils.convert(page);
+		return page;
 	}
 
 	@Override
-	public PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest) {
+	public Page<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest) {
 		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectListPro(nexusUser));
 		page.getContent().forEach(user -> {
 			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
@@ -44,7 +43,7 @@ public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> imple
 			user.setNeRepositoryName(StringUtils.join(user.getDefaultRepositoryNames(), ","));
 			user.setEditFlag(user.getIsDefault().equals(1));
 		});
-		return PageConvertUtils.convert(page);
+		return page;
 	}
 
 	@Override

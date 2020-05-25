@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.app.service;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
@@ -82,18 +82,18 @@ public interface NexusRepositoryService {
 //	 * 查询maven仓库列表，自建或关联的
 //	 * @param pageRequest 分页参数
 //	 * @param queryDTO 查询参数
-//	 * @return PageInfo<NexusRepositoryDTO>
+//	 * @return Page<NexusRepositoryDTO>
 //	 */
-//	PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
+//	Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
 
 	/**
 	 * 查询maven仓库列表
 	 * @param pageRequest 分页参数
 	 * @param queryDTO 查询参数
 	 * @param queryData  查看： NexusConstants.RepoQueryData
-	 * @return PageInfo<NexusRepositoryDTO>
+	 * @return Page<NexusRepositoryDTO>
 	 */
-	PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
+	Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
 
 	/**
 	 * 查询maven仓库列表, 不分页

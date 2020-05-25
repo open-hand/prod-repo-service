@@ -1,6 +1,6 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
@@ -48,24 +48,20 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	private NexusUserRepository nexusUserRepository;
 
 	@Override
-	public PageInfo<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
-															 NexusComponentQuery componentQuery, PageRequest pageRequest) {
+	public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
+														 NexusComponentQuery componentQuery, PageRequest pageRequest) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 
 		// 查询所有数据
 		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().searchComponentInfo(componentQuery);
 		// 分页
-		PageInfo<NexusServerComponentInfo> componentInfoPageInfo = PageConvertUtils.convert(pageRequest.getPage() + 1, pageRequest.getSize(), componentInfoList);
+		Page<NexusServerComponentInfo> componentInfoPage = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfoList);
 
 		if (deleteFlag && projectId != null) {
 			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId);
-			componentInfoPageInfo.getList().forEach(nexusServerComponentInfo -> {
-				if (proRepoList.contains(nexusServerComponentInfo.getRepository())) {
-					nexusServerComponentInfo.setDeleteFlag(true);
-				} else {
-					nexusServerComponentInfo.setDeleteFlag(false);
-				}
+			componentInfoPage.getContent().forEach(nexusServerComponentInfo -> {
+				nexusServerComponentInfo.setDeleteFlag(proRepoList.contains(nexusServerComponentInfo.getRepository()));
 				nexusServerComponentInfo.getComponents().forEach(nexusServerComponent -> {
 					nexusServerComponent.setDeleteFlag(nexusServerComponentInfo.getDeleteFlag());
 				});
@@ -75,7 +71,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
-		return componentInfoPageInfo;
+		return componentInfoPage;
 	}
 
 	@Override
