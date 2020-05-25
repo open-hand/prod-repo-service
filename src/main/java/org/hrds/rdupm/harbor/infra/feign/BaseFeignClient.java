@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * FeignDemo
  * @author chenxiuhong
  */
-@FeignClient(value = "base-service", fallback = BaseFeignClientFallBack.class)
+@FeignClient(value = "hzero-iam",path = "/choerodon", fallback = BaseFeignClientFallBack.class)
 public interface BaseFeignClient {
 
 	/***
