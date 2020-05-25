@@ -1,7 +1,7 @@
 package org.hrds.rdupm.common.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hzero.core.util.Results;
@@ -29,7 +29,7 @@ public class ProdUserController extends BaseController {
 	private ProdUserService prodUserService;
 
     @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
-	@Permission(type = ResourceType.ORGANIZATION,permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId).stream().findFirst().orElse(null);
@@ -40,7 +40,7 @@ public class ProdUserController extends BaseController {
     }
 
 	@ApiOperation(value = "制品库-修改默认密码")
-	@Permission(type = ResourceType.ORGANIZATION,permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
 		prodUserService.updatePwd(prodUser);

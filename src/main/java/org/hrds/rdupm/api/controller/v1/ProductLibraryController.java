@@ -1,7 +1,7 @@
 package org.hrds.rdupm.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.api.vo.ProductLibraryDTO;
@@ -40,7 +40,7 @@ public class ProductLibraryController extends BaseController {
 	private HarborProjectService harborProjectService;
 
 	@ApiOperation(value = "项目层-制品库库列表")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping(value = "/list/{projectId}")
 	public ResponseEntity<List<ProductLibraryDTO>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 
