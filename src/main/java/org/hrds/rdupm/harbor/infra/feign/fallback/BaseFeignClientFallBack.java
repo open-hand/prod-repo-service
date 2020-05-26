@@ -24,11 +24,6 @@ public class BaseFeignClientFallBack implements BaseFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<UserDTO> queryInfo(Long id) {
-		throw new CommonException("error.feign.user.select");
-	}
-
-	@Override
 	public ResponseEntity<List<UserDTO>> listUsersByIds(Long[] ids, Boolean onlyEnabled) {
 		throw new CommonException("error.feign.user.batch.select");
 	}
@@ -44,16 +39,6 @@ public class BaseFeignClientFallBack implements BaseFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<List<ProjectDTO>> listProjectsWithLimit(Long organizationId, String name) {
-		throw new CommonException("error.feign.project.select");
-	}
-
-	@Override
-	public ResponseEntity<List<ProjectDTO>> listProjectsByOrgId(Long organizationId) {
-		throw new CommonException("error.feign.project.select");
-	}
-
-	@Override
 	public ResponseEntity<ProjectDTO> query(Long id) {
 		throw new CommonException("error.feign.project.select");
 	}
@@ -61,11 +46,6 @@ public class BaseFeignClientFallBack implements BaseFeignClient {
 	@Override
 	public ResponseEntity<List<ProjectDTO>> queryByIds(Set<Long> ids) {
 		throw new CommonException("error.feign.project.select");
-	}
-
-	@Override
-	public ResponseEntity<List<UserDTO>> listProjectOwnerById(Long projectId) {
-		throw new CommonException("error.feign.user.select");
 	}
 
 	@Override

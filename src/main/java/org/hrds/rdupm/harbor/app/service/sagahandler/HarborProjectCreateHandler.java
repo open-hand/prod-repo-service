@@ -17,21 +17,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
-import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.entity.User;
-import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
@@ -51,8 +50,8 @@ public class HarborProjectCreateHandler {
 	@Autowired
 	private HarborHttpClient harborHttpClient;
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Autowired
 	private HarborAuthService harborAuthService;
@@ -62,10 +61,6 @@ public class HarborProjectCreateHandler {
 
 	@Autowired
 	private HarborQuotaService harborQuotaService;
-
-	//TODO
-	private String userName = "lfqrlx8pfg";
-	private Long userId = 21193L;
 
 	@Autowired
 	private HarborProjectService harborProjectService;
@@ -79,6 +74,9 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String createProjectUserSaga(String message){
+		String userName = DetailsHelper.getUserDetails().getUsername();
+		Long userId = DetailsHelper.getUserDetails().getUserId();
+
 		//数据库插入制品库用户
 		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
 		ProdUser prodUser = new ProdUser(userId,userName,password,0);
@@ -93,9 +91,7 @@ public class HarborProjectCreateHandler {
 
 		//Harbor中新建用户
 		if(userMap.get(userName) == null){
-			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(userName);
-			UserDTO userDTO = userDTOResponseEntity.getBody();
-			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),password,userDTO.getRealName());
+			User user = new User(DetailsHelper.getUserDetails().getUsername(),DetailsHelper.getUserDetails().getEmail(),password,DetailsHelper.getUserDetails().getRealName());
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 		}
 
@@ -105,6 +101,7 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectRepoSaga(String message) throws JsonProcessingException {
+		String userName = DetailsHelper.getUserDetails().getUsername();
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -159,6 +156,7 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存用户权限",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectAuthSaga(String message){
+		Long userId = DetailsHelper.getUserDetails().getUserId();
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);

@@ -22,6 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
@@ -32,7 +33,6 @@ import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
@@ -59,8 +59,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Autowired
 	private HarborHttpClient harborHttpClient;
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Autowired
 	private HarborRepositoryRepository harborRepositoryRepository;
@@ -88,8 +88,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* 5.数据库保存harbor项目，并关联猪齿鱼ID
 		* */
 		//获取猪齿鱼项目信息
-		ResponseEntity<ProjectDTO> projectDTOResponseEntity = baseFeignClient.query(projectId);
-		ProjectDTO projectDTO = projectDTOResponseEntity.getBody();
+		ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
 		String code = projectDTO.getCode();
 		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
@@ -218,11 +217,8 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			return;
 		}
 
-		//创建人ID去重，并获得创建人详细信息
 		Set<Long> userIdSet = harborRepositoryList.stream().map(dto->dto.getCreatedBy()).collect(Collectors.toSet());
-		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
-		Map<Long,UserDTO> userDtoMap = responseEntity == null ? new HashMap<>(1) : responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
-
+		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
 		harborRepositoryList.forEach(dto->{
 			//获得镜像数
 			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,dto.getHarborId());

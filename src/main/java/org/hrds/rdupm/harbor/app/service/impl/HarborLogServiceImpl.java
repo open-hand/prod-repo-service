@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 import io.choerodon.core.domain.Page;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -17,19 +16,18 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborLogService;
 import org.hrds.rdupm.harbor.domain.entity.HarborLog;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
-import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +43,8 @@ public class HarborLogServiceImpl implements HarborLogService {
 	@Autowired
 	private HarborLogRepository repository;
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Autowired
 	private HarborHttpClient harborHttpClient;
@@ -80,8 +78,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 
 		if(harborLog.getOrganizationId() != null){
 			Set<Long> projectIdSet = page.getContent().stream().map(dto->dto.getProjectId()).collect(Collectors.toSet());
-			ResponseEntity<List<ProjectDTO>> projectResponseEntity = baseFeignClient.queryByIds(projectIdSet);
-			Map<Long,ProjectDTO> projectDtoMap = projectResponseEntity == null ? new HashMap<>(1) : projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId, dto->dto));
+			Map<Long,ProjectDTO> projectDtoMap = c7nBaseService.queryProjectByIds(projectIdSet);
 			page.getContent().forEach(dto->{
 				ProjectDTO projectDTO = projectDtoMap.get(dto.getProjectId());
 				if(projectDTO != null){
@@ -162,10 +159,8 @@ public class HarborLogServiceImpl implements HarborLogService {
 	}
 
 	public void processImageLogList(List<HarborImageLog> harborImageLogList){
-		//创建人ID去重，并获得创建人详细信息
 		Set<String> userNameSet = harborImageLogList.stream().map(dto->dto.getLoginName()).collect(Collectors.toSet());
-		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
-		Map<String,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName,dto->dto));
+		Map<String,UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
 		harborImageLogList.stream().forEach(dto->{
 			String loginName = dto.getLoginName();
 			UserDTO userDTO = userDtoMap.get(loginName);
