@@ -13,12 +13,13 @@ import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 public interface HarborImageTagService {
 	/***
 	 * 查询镜像TAG列表
+	 * @param projectId
 	 * @param repoName
 	 * @param tagName
 	 * @param pageRequest
 	 * @return
 	 */
-	PageInfo<HarborImageTagVo> list(String repoName, String tagName, PageRequest pageRequest);
+	PageInfo<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest);
 
 	/***
 	 * 获取构建日志

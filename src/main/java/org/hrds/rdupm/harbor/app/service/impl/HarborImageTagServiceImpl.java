@@ -3,17 +3,28 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 import com.github.pagehelper.PageInfo;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -33,19 +44,76 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	@Autowired
 	private HarborHttpClient harborHttpClient;
 
+	@Autowired
+	private HarborRepositoryRepository harborRepositoryRepository;
+
+	@Resource
+	private BaseFeignClient baseFeignClient;
+
 	@Override
-	public PageInfo<HarborImageTagVo> list(String repoName, String tagName, PageRequest pageRequest) {
+	public PageInfo<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
 		ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,null,null,false,repoName);
 		List<HarborImageTagVo> harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
 		if(StringUtils.isNotEmpty(tagName)){
 			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().equals(tagName)).collect(Collectors.toList());
 		}
+
 		harborImageTagVoList.stream().forEach(dto->{
 			dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
 			dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
+			setTagAuthor(projectId,repoName,tagName,dto);
 		});
+		processImageLogList(harborImageTagVoList);
 		PageInfo<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
 		return pageInfo;
+	}
+
+	/***
+	 * 获取镜像推送者
+	 * @param projectId
+	 * @param repoName
+	 * @param tagName
+	 * @param tagVo
+	 */
+	public void setTagAuthor(Long projectId,String repoName, String tagName,HarborImageTagVo tagVo){
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		Long harborId = harborRepository.getHarborId();
+		Map<String,Object> param = new HashMap<>(16);
+		param.put("project_id",harborId);
+		param.put("project_id",harborId);
+		param.put("repository",repoName);
+		param.put("operation","push");
+		if(StringUtils.isNotEmpty(tagName)){
+			param.put("tag",tagName);
+		}
+		ResponseEntity<String> logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,param,null,false,harborId);
+		List<HarborImageLog> logListResult = new Gson().fromJson(logsResponseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
+		Map<String,List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto->dto.getRepoName()+dto.getTagName()));
+
+		List<HarborImageLog> logList = logListMap.get(repoName+tagVo.getTagName());
+		if(CollectionUtils.isNotEmpty(logList)){
+			tagVo.setAuthor(logList.get(0).getLoginName());
+		}
+	}
+
+	public void processImageLogList(List<HarborImageTagVo> harborImageTagVoList){
+		//创建人ID去重，并获得创建人详细信息
+		Set<String> userNameSet = harborImageTagVoList.stream().map(dto->dto.getAuthor()).collect(Collectors.toSet());
+		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
+		Map<String,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName,dto->dto));
+		harborImageTagVoList.stream().forEach(dto->{
+			String loginName = dto.getAuthor();
+			UserDTO userDTO = userDtoMap.get(loginName);
+			String realName = userDTO == null ? loginName : userDTO.getRealName();
+			String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
+
+			dto.setLoginName(loginName);
+			dto.setRealName(realName);
+			dto.setUserImageUrl(userImageUrl);
+		});
 	}
 
 	@Override

@@ -92,6 +92,12 @@ public interface HarborConstants {
 		String CREATE_AUTH_AUTH = "rdupm-docker-auth-create.auth";
 
 		String CREATE_AUTH_DB = "rdupm-docker-auth-create.db";
+
+		String UPDATE_PWD = "rdupm-docker-user-update";
+
+		String UPDATE_PWD_HARBOR = "rdupm-docker-user-update.harbor";
+
+		String UPDATE_PWD_NEXUS = "rdupm-docker-user-update.nexus";
 	}
 
 	enum HarborApiEnum{
@@ -188,7 +194,12 @@ public interface HarborConstants {
 		* */
 		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID"),
 
-		LIST_LOGS("/api/logs", HttpMethod.GET,"查询全局日志");
+		LIST_LOGS("/api/logs", HttpMethod.GET,"查询全局日志"),
+
+		/**
+		 * 修改密码
+		 * */
+		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID");
 
 		String apiUrl;
 

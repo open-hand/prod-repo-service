@@ -56,5 +56,6 @@
         <if test=" organizationId != null ">
             and rha.organization_id = #{organizationId}
         </if>
+        order by rhr.CODE,rha.login_name
     </select>
 </mapper>

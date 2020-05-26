@@ -18,6 +18,9 @@ import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
@@ -70,9 +73,17 @@ public class HarborProjectCreateHandler {
 	@Resource
 	private HarborRepositoryMapper harborRepositoryMapper;
 
+	@Autowired
+	private ProdUserService prodUserService;
+
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String createProjectUserSaga(String message){
+		//数据库插入制品库用户
+		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+		ProdUser prodUser = new ProdUser(userId,userName,password,0);
+		prodUserService.saveOneUser(prodUser);
+
 		//判断是否存在当前用户
 		Map<String,Object> paramMap = new HashMap<>(1);
 		paramMap.put("username",userName);
@@ -80,10 +91,11 @@ public class HarborProjectCreateHandler {
 		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
 		Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
 
+		//Harbor中新建用户
 		if(userMap.get(userName) == null){
 			ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(userName);
 			UserDTO userDTO = userDTOResponseEntity.getBody();
-			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),HarborConstants.DEFAULT_PASSWORD,userDTO.getRealName());
+			User user = new User(userDTO.getLoginName(),userDTO.getEmail(),password,userDTO.getRealName());
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 		}
 
