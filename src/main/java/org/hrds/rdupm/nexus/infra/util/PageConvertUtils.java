@@ -80,11 +80,13 @@ public class PageConvertUtils {
 
 		pageResult.setSize(size);
 		// 默认page 0
-		pageResult.setNumber(page <= totalPage && page > 0 ? page : 0);
+		page = page <= totalPage && page > 0 ? page : 0;
+		pageResult.setNumber(page);
 		pageResult.setTotalPages(totalPage);
 		pageResult.setTotalElements(count);
 		int currentNum = page * size;
 		pageResult.setContent(allContent.stream().skip(currentNum).limit(size).collect(Collectors.toList()));
+		pageResult.setNumberOfElements(pageResult.getContent().size());
 
 		return pageResult;
     }
@@ -121,11 +123,13 @@ public class PageConvertUtils {
 
 		pageResult.setSize(size);
 		// 默认page 0
-		pageResult.setNumber(page <= totalPage && page > 0 ? page : 0);
+		page = page <= totalPage && page > 0 ? page : 0;
+		pageResult.setNumber(page);
 		pageResult.setTotalPages(totalPage);
 		pageResult.setTotalElements(count);
 		int currentNum = page * size;
 		pageResult.setContent(partContent.stream().skip(currentNum).limit(size).collect(Collectors.toList()));
+		pageResult.setNumberOfElements(pageResult.getContent().size());
 
 		return pageResult;
 	}
