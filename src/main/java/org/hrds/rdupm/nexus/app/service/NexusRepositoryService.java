@@ -146,4 +146,14 @@ public interface NexusRepositoryService {
 	 * @return NexusGuideDTO
 	 */
 	NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag);
+
+	/**
+	 * 查询maven仓库列表
+	 *
+	 * @param pageRequest 分页参数
+	 * @param queryDTO    查询参数
+	 * @param queryData   查看： NexusConstants.RepoQueryData
+	 * @return Page<NexusRepositoryDTO>
+	 */
+	Page<NexusRepositoryDTO> listNpmRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
 }

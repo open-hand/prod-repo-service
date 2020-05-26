@@ -4,7 +4,6 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
-import io.choerodon.core.domain.PageInfo;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -27,14 +26,12 @@ import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
-import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -801,5 +798,71 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusGuideDTO;
+	}
+
+	@Override
+	public Page<NexusRepositoryDTO> listNpmRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+		List<NexusRepositoryDTO> resultAll = this.queryRepo(queryDTO, queryData, NexusApiConstants.NexusRepoFormat.NPM_FORMAT);
+		if (CollectionUtils.isEmpty(resultAll)) {
+			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+		}
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+	}
+
+	private List<NexusRepositoryDTO> queryRepo(NexusRepositoryQueryDTO queryDTO, String queryData, String nexusRepoFormat) {
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(nexusRepoFormat);
+		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
+			return new ArrayList<>();
+		}
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		switch (queryData) {
+			case NexusConstants.RepoQueryData.REPO_ALL:
+				this.mavenRepoAll(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			case NexusConstants.RepoQueryData.REPO_EXCLUDE_PROJECT:
+				this.mavenRepoExcludeProject(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			case NexusConstants.RepoQueryData.REPO_ORG:
+				this.mavenRepoOrg(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			case NexusConstants.RepoQueryData.REPO_PROJECT:
+				this.mavenRepoProject(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			default:
+				break;
+		}
+
+		// 项目名称查询
+		Set<Long> projectIdSet = resultAll.stream().map(NexusRepositoryDTO::getProjectId).collect(Collectors.toSet());
+		List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
+		Map<Long, ProjectVO> projectVOMap = projectVOList.stream().collect(Collectors.toMap(ProjectVO::getId, a -> a, (k1, k2) -> k1));
+		resultAll.forEach(nexusRepositoryDTO -> {
+			ProjectVO projectVO = projectVOMap.get(nexusRepositoryDTO.getProjectId());
+			if (projectVO != null) {
+				nexusRepositoryDTO.setProjectName(projectVO.getName());
+				nexusRepositoryDTO.setProjectImgUrl(projectVO.getImageUrl());
+			}
+		});
+
+		// 查询参数
+		if (queryDTO.getRepositoryName() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
+					nexusRepositoryDTO.getName().toLowerCase().contains(queryDTO.getRepositoryName().toLowerCase())).collect(Collectors.toList());
+		}
+		if (queryDTO.getType() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
+					nexusRepositoryDTO.getType().toLowerCase().contains(queryDTO.getType().toLowerCase())).collect(Collectors.toList());
+		}
+		if (queryDTO.getVersionPolicy() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
+					nexusRepositoryDTO.getVersionPolicy() != null && nexusRepositoryDTO.getVersionPolicy().toLowerCase().contains(queryDTO.getVersionPolicy().toLowerCase())).collect(Collectors.toList());
+		}
+		return resultAll;
 	}
 }

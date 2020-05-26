@@ -45,4 +45,13 @@ public class NexusRepositoryOrgController extends BaseController {
     }
 
 
+    @ApiOperation(value = "组织层-npm仓库列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/npm/repo")
+    public ResponseEntity<Page<NexusRepositoryDTO>> listNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                NexusRepositoryQueryDTO queryDTO,
+                                                                @ApiIgnore PageRequest pageRequest) {
+        queryDTO.setOrganizationId(organizationId);
+        return Results.success(nexusRepositoryService.listNpmRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
+    }
 }

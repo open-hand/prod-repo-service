@@ -63,7 +63,11 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		String response = responseEntity.getBody();
 		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
 		List<NexusServerComponent> componentList = componentResponse.getItems();
-		this.handleVersion(componentList);
+		if (StringUtils.equals(componentQuery.getFormat(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)) {
+			this.handleVersion(componentList);
+		} else {
+			componentList.forEach(c -> c.setUseVersion(c.getVersion()));
+		}
 		return componentList;
 	}
 
