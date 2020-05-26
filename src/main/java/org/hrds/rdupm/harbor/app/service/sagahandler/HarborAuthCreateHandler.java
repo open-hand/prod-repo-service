@@ -18,11 +18,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.User;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hzero.core.base.BaseConstants;
@@ -37,8 +37,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class HarborAuthCreateHandler {
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Autowired
 	private HarborHttpClient harborHttpClient;
@@ -69,8 +69,7 @@ public class HarborAuthCreateHandler {
 
 			//Harbor系统插入用户
 			if(userMap.get(harborAuth.getLoginName()) == null){
-				ResponseEntity<UserDTO> userDTOResponseEntity = baseFeignClient.query(harborAuth.getLoginName());
-				UserDTO userDTO = userDTOResponseEntity.getBody();
+				UserDTO userDTO = c7nBaseService.queryByLoginName(harborAuth.getLoginName());
 				User user = new User(userDTO.getLoginName(),userDTO.getEmail(),password,userDTO.getRealName());
 				harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 			}

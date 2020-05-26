@@ -6,9 +6,13 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.config.DisableSSLCertificateCheck;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,8 @@ public class HarborHttpClient {
 
 	@Autowired
 	private HarborInfoConfiguration harborInfo;
+	@Autowired
+	private ProdUserRepository prodUserRepository;
 
 	public HarborHttpClient buildBasicAuth(String userName,String password){
 		this.userName = userName;
@@ -66,6 +72,8 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public ResponseEntity<String> exchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body,boolean adminAccountFlag, Object... pathParam){
+		String userName = DetailsHelper.getUserDetails().getUsername();
+
 		String url = harborInfo.getBaseUrl() + apiEnum.getApiUrl();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
@@ -73,8 +81,9 @@ public class HarborHttpClient {
 		if(adminAccountFlag){
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
-			//TODO 使用当前登陆用户账号
-			buildBasicAuth("lfqrlx8pfg","Abcd1234");
+			ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,userName).stream().findFirst().orElse(null);
+			String passwd = prodUser == null ? null : DESEncryptUtil.decode(prodUser.getPassword());
+			buildBasicAuth(userName,passwd);
 		}
 
 		HttpHeaders headers = new HttpHeaders();
