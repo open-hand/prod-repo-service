@@ -127,8 +127,7 @@ public class PageConvertUtils {
 		pageResult.setNumber(page);
 		pageResult.setTotalPages(totalPage);
 		pageResult.setTotalElements(count);
-		int currentNum = page * size;
-		pageResult.setContent(partContent.stream().skip(currentNum).limit(size).collect(Collectors.toList()));
+		pageResult.setContent(partContent);
 		pageResult.setNumberOfElements(pageResult.getContent().size());
 
 		return pageResult;

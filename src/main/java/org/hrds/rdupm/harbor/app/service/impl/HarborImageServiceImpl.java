@@ -69,7 +69,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		}
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
-		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(),totalSize, harborImageVoList);
+		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(),totalSize, harborImageVoList);
 		return pageInfo;
 	}
 
@@ -127,7 +127,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 			totalSize += harborProjectDTO.getRepoCount();
 		}
-		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), totalSize,harborImageVoList);
+		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;
 	}
 

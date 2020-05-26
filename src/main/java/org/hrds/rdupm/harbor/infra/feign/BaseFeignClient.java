@@ -26,7 +26,7 @@ public interface BaseFeignClient {
 	 * @return
 	 */
 	@GetMapping(value = "/v1/users")
-	ResponseEntity<UserDTO> query(@RequestParam(name = "login_name") String loginName);
+	ResponseEntity<UserDTO> query(@RequestParam(value = "login_name") String loginName);
 
 	/***
 	 * 根据id查询用户信息
@@ -34,7 +34,7 @@ public interface BaseFeignClient {
 	 * @return
 	 */
 	@GetMapping(value = "/v1/users/{id}/info")
-	ResponseEntity<UserDTO> queryInfo(@PathVariable Long id) ;
+	ResponseEntity<UserDTO> queryInfo(@PathVariable(value = "id") Long id) ;
 
 	/***
 	 * 根据id批量查询用户信息列表
@@ -61,7 +61,7 @@ public interface BaseFeignClient {
 	 * @return
 	 */
 	@GetMapping(value = "/v1/projects/{project_id}/users/search_by_name")
-	ResponseEntity<List<UserDTO>> listUsersByName(@PathVariable(name = "project_id") Long projectId, @RequestParam(required = false) String param);
+	ResponseEntity<List<UserDTO>> listUsersByName(@PathVariable(name = "project_id") Long projectId, @RequestParam(value = "param", required = false) String param);
 
 	/***
 	 * 查询组织下项目（最多20个）
@@ -70,7 +70,7 @@ public interface BaseFeignClient {
 	 * @return
 	 */
 	@GetMapping("/v1/organizations/{organization_id}/projects/with_limit")
-	ResponseEntity<List<ProjectDTO>> listProjectsWithLimit(@PathVariable(name = "organization_id") Long organizationId, @RequestParam(required = false) String name) ;
+	ResponseEntity<List<ProjectDTO>> listProjectsWithLimit(@PathVariable(name = "organization_id") Long organizationId, @RequestParam(value = "name", required = false) String name) ;
 
 	/***
 	 * 查询组织下所有项目
