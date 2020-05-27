@@ -87,12 +87,12 @@ public class NexusLogController extends BaseController {
                                                        @ApiParam("仓库类型") @RequestParam String repoType,
                                                        @ApiParam("猪齿鱼项目ID") @RequestParam(required = false) Long projectId,
                                                        @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
-                                                       @ApiParam("操作人登录名") @RequestParam(required = false) String loginName,
+                                                       @ApiParam("操作人用户名") @RequestParam(required = false) String realName,
                                                        @ApiParam("操作类型") @RequestParam(required = false) String operateType,
                                                        @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
                                                        @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
                                                        @ApiIgnore @SortDefault(value = NexusLog.FIELD_OPERATE_TIME, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        return Results.success(nexusLogService.listLogByOrg(organizationId, repoType, projectId, neRepositoryName, loginName, operateType, startDate, endDate, pageRequest));
+        return Results.success(nexusLogService.listLogByOrg(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, pageRequest));
     }
 
 }

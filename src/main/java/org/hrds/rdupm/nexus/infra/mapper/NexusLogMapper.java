@@ -20,13 +20,13 @@ public interface NexusLogMapper extends BaseMapper<NexusLog> {
      * @param repoType
      * @param projectId
      * @param neRepositoryName
-     * @param loginName
+     * @param realName
      * @param operateType
      * @param startDate
      * @param endDate
      * @return List<NexusLog>
      */
     List<NexusLog> listNpmLogByOrg(@Param("organizationId") Long organizationId, @Param("repoType") String repoType, @Param("projectId") Long projectId, @Param("neRepositoryName") String neRepositoryName,
-                                   @Param("loginName") String loginName, @Param("operateType") String operateType, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+                                   @Param("realName") String realName, @Param("operateType") String operateType, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
 }

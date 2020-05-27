@@ -32,7 +32,8 @@
         rnl.created_by,
         rnl.last_updated_by,
         rnl.last_update_date,
-        rna.login_name
+        rna.login_name,
+        rna.real_name
         FROM rdupm_nexus_log rnl
         LEFT JOIN rdupm_nexus_repository rnr ON rnl.repository_id = rnr.repository_id
         LEFT JOIN rdupm_nexus_auth rna ON rnl.operator_id = rna.user_id
@@ -50,9 +51,9 @@
             <bind name="neRepositoryNameLike" value="'%' + neRepositoryName + '%'" />
             AND rnr.ne_repository_name = #{neRepositoryNameLike}
         </if>
-        <if test="loginName != null and loginName != ''">
-            <bind name="loginNameLike" value="'%' + loginName + '%'"/>
-            AND rna.login_name = #{loginNameLike}
+        <if test="realName != null and realName != ''">
+            <bind name="realNameLike" value="'%' + realName + '%'"/>
+            AND rna.real_name = #{realNameLike}
         </if>
         <if test="operateType != null and operateType != ''">
             AND rnl.operate_type = #{operateType}
