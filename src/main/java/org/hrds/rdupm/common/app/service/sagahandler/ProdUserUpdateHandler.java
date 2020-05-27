@@ -15,6 +15,9 @@ import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.domain.entity.User;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
+import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,11 @@ public class ProdUserUpdateHandler {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	@Autowired
+	private NexusServerConfigService configService;
+	@Autowired
+	private NexusClient nexusClient;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PWD_HARBOR,description = "更新用户：harbor",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PWD,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
@@ -69,8 +77,16 @@ public class ProdUserUpdateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		//密码需要解密
-		//TODO 更新nexus密码逻辑
+
+		configService.setNexusInfo(nexusClient);
+		List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(prodUser.getLoginName());
+		if (CollectionUtils.isNotEmpty(existUserList)) {
+			// 密码解密
+			String password = DESEncryptUtil.decode(prodUser.getPassword());
+			nexusClient.getNexusUserApi().changePassword(prodUser.getLoginName(), password);
+		}
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
 
 		return message;
 	}

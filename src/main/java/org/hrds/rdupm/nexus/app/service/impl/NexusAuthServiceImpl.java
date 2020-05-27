@@ -25,6 +25,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
+import org.hrds.rdupm.nexus.app.job.ExpiredNexusAuthJob;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -40,12 +41,17 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper;
+import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
+import org.hzero.mybatis.domian.Condition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
@@ -58,7 +64,8 @@ import java.util.stream.Collectors;
  * @author weisen.yang@hand-china.com 2020-05-26 22:55:13
  */
 @Service
-public class NexusAuthServiceImpl implements NexusAuthService {
+public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAuthService> {
+    private static final Logger logger = LoggerFactory.getLogger(NexusAuthServiceImpl.class);
 
     @Autowired
     private NexusAuthMapper nexusAuthMapper;
@@ -126,9 +133,9 @@ public class NexusAuthServiceImpl implements NexusAuthService {
             }
 
             // 项目名
-            ProjectDTO projectDTO = projectDtoMap.get(nexusAuth.getProjectId());
+            ProjectDTO projectDTO = projectDtoMap.get(auth.getProjectId());
             if (projectDTO != null) {
-                nexusAuth.setProjectName(projectDTO.getName());
+                auth.setProjectName(projectDTO.getName());
             }
         });
 
@@ -146,7 +153,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     @Saga(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, description = "nexus分配权限", inputSchemaClass = List.class)
     @Transactional(rollbackFor = Exception.class)
     public void create(Long projectId, List<NexusAuth> nexusAuthList) {
-        if (CollectionUtils.isEmpty(nexusAuthList)){
+        if (CollectionUtils.isEmpty(nexusAuthList)) {
             return;
         }
         List<Long> repositoryIds = nexusAuthList.stream().map(NexusAuth::getRepositoryId).distinct().collect(Collectors.toList());
@@ -155,7 +162,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
         }
         Long repositoryId = repositoryIds.get(0);
         NexusRepository nexusRepository = nexusRepositoryRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
-        if (nexusRepository == null){
+        if (nexusRepository == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
 
@@ -266,4 +273,33 @@ public class NexusAuthServiceImpl implements NexusAuthService {
         nexusClient.removeNexusServerInfo();
     }
 
+    @Override
+    public void expiredBatchNexusAuth() {
+        // 数据查询
+        Condition condition = new Condition(NexusAuth.class);
+        condition.createCriteria().andLessThanOrEqualTo(NexusAuth.FIELD_END_DATE, new Date());
+        List<NexusAuth> nexusAuthList = nexusAuthRepository.selectByCondition(condition);
+
+        nexusAuthList.forEach(nexusAuth -> {
+            try {
+                self().expiredNexusAuth(nexusAuth);
+            } catch (Exception e) {
+                logger.error("expired nexus auth error, authId: " + nexusAuth.getAuthId(), e);
+            }
+        });
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+    public void expiredNexusAuth(NexusAuth nexusAuth) {
+        nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
+        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
+        if (CollectionUtils.isNotEmpty(existUserList)) {
+            // 更新用户
+            NexusServerUser nexusServerUser = existUserList.get(0);
+            // 删除旧角色
+            nexusServerUser.getRoles().remove(nexusAuth.getNeRoleId());
+            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
+        }
+    }
 }

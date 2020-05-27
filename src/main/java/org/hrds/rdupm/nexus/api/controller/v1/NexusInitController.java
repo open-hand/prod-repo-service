@@ -26,7 +26,7 @@ public class NexusInitController extends BaseController {
     private NexusInitService nexusInitService;
 
     @ApiOperation(value = "脚本初始化与更新")
-    @Permission(level = ResourceLevel.SITE)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/script")
     public ResponseEntity<?> initScript() {
         nexusInitService.initScript();
@@ -34,7 +34,7 @@ public class NexusInitController extends BaseController {
     }
 
     @ApiOperation(value = "匿名用户-拉取权限初始化：默认给予所有仓库拉取权限")
-    @Permission(level = ResourceLevel.SITE)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/anonymous")
     public ResponseEntity<?> initAnonymous(@RequestBody List<String> repositoryNames) {
         nexusInitService.initAnonymous(repositoryNames);

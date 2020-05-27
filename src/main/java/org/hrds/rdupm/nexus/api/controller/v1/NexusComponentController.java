@@ -33,7 +33,7 @@ public class NexusComponentController extends BaseController {
 	private NexusComponentService nexusComponentService;
 
 	@ApiOperation(value = "项目层-包列表查询")
-	@Permission(level = ResourceLevel.PROJECT)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
@@ -43,7 +43,7 @@ public class NexusComponentController extends BaseController {
 	}
 
 	@ApiOperation(value = "项目层-包删除")
-	@Permission(level = ResourceLevel.PROJECT)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@DeleteMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<?> deleteComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
@@ -55,7 +55,7 @@ public class NexusComponentController extends BaseController {
 
 
 	@ApiOperation(value = "项目层-包上传")
-	@Permission(level = ResourceLevel.PROJECT)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/{organizationId}/project/{projectId}/upload")
 	public ResponseEntity<?> componentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
@@ -73,7 +73,7 @@ public class NexusComponentController extends BaseController {
 	}
 
 	@ApiOperation(value = "配置指引信息，查询")
-	@Permission(permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/guide")
 	public ResponseEntity<NexusComponentGuideDTO> componentGuide(NexusServerComponentInfo componentInfo) {
 		return Results.success(nexusComponentService.componentGuide(componentInfo));

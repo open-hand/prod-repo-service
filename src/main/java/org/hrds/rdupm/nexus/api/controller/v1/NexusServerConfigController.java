@@ -35,7 +35,7 @@ public class NexusServerConfigController extends BaseController {
 //    }
 
     @ApiOperation(value = "nexus服务信息配置更新")
-    @Permission(level = ResourceLevel.SITE)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @PutMapping
     public ResponseEntity<NexusServerConfig> updateServerConfig(@RequestBody NexusServerConfig nexusServerConfig) {
         validObject(nexusServerConfig);
@@ -43,7 +43,7 @@ public class NexusServerConfigController extends BaseController {
     }
 
     @ApiOperation(value = "查询 nexus服务信息配置")
-    @Permission(level = ResourceLevel.SITE)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping
     public ResponseEntity<NexusServerConfig> queryServerConfig() {
         return Results.success(nexusServerConfigService.queryServerConfig());
