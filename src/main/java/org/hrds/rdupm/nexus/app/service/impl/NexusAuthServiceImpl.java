@@ -15,12 +15,15 @@ import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
+import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.RoleDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
+import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
@@ -35,15 +38,17 @@ import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
 import org.hrds.rdupm.nexus.infra.annotation.NexusOperateLog;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.export.annotation.ExcelExport;
+import org.hzero.export.vo.ExportParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.RollbackException;
-import java.beans.Transient;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +65,9 @@ public class NexusAuthServiceImpl implements NexusAuthService {
 
     @Autowired
     private BaseFeignClient baseFeignClient;
+    @Autowired
+    private C7nBaseService c7nBaseService;
+
     @Autowired
     private NexusRepositoryRepository nexusRepositoryRepository;
     @Autowired
@@ -97,6 +105,10 @@ public class NexusAuthServiceImpl implements NexusAuthService {
             userDtoMap.putAll(Objects.requireNonNull(responseEntity.getBody()).stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId, dto->dto)));
         }
 
+        // 项目名称查询
+        Set<Long> projectIdSet = dataList.stream().map(NexusAuth::getProjectId).collect(Collectors.toSet());
+        Map<Long, ProjectDTO> projectDtoMap = c7nBaseService.queryProjectByIds(projectIdSet);
+
         dataList.forEach(auth->{
             UserWithGitlabIdDTO userDto = userDtoMap.get(auth.getUserId());
             if(userDto != null){
@@ -112,8 +124,21 @@ public class NexusAuthServiceImpl implements NexusAuthService {
                     auth.setMemberRole(memberRole.toString());
                 }
             }
+
+            // 项目名
+            ProjectDTO projectDTO = projectDtoMap.get(nexusAuth.getProjectId());
+            if (projectDTO != null) {
+                nexusAuth.setProjectName(projectDTO.getName());
+            }
         });
+
         return authPage;
+    }
+
+    @Override
+    @ExcelExport(NexusAuth.class)
+    public Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
+        return this.pageList(pageRequest, nexusAuth);
     }
 
     @Override
@@ -228,18 +253,16 @@ public class NexusAuthServiceImpl implements NexusAuthService {
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
 
 
-        nexusClient.getNexusUserApi().deleteUser(existAuth.getLoginName());
-        // TODO
-//        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-//        if (CollectionUtils.isNotEmpty(existUserList)) {
-//            // 更新用户
-//            NexusServerUser nexusServerUser = existUserList.get(0);
-//            // 删除旧角色
-//            nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
-//            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-//        } else {
-//            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
-//        }
+        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
+        if (CollectionUtils.isNotEmpty(existUserList)) {
+            // 更新用户
+            NexusServerUser nexusServerUser = existUserList.get(0);
+            // 删除旧角色
+            nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
+            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
+        } else {
+            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
+        }
         nexusClient.removeNexusServerInfo();
     }
 
