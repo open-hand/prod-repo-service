@@ -25,15 +25,15 @@ public class HarborGuideController {
 	@Autowired
 	private HarborGuideService harborGuideService;
 
-	@ApiOperation(value = "项目层-配置指引")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层--配置指引")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/project/{projectId}")
 	public ResponseEntity<HarborGuideVo> getProjectGuid(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 		return Results.success(harborGuideService.getProjectGuide(projectId));
 	}
 
-	@ApiOperation(value = "镜像TAG-版本拉取指引")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层/组织层--镜像版本拉取指引")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/tag")
 	public ResponseEntity<HarborGuideVo> getTagGuide(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 													 @ApiParam(value = "版本号") @RequestParam String tagName) {

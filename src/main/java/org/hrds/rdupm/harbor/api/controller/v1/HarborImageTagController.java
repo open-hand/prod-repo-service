@@ -31,8 +31,8 @@ public class HarborImageTagController {
 	@Autowired
 	private HarborImageTagService harborImageTagService;
 
-	@ApiOperation(value = "镜像TAG列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层/组织层--镜像TAG列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list/{projectId}")
 	public ResponseEntity<Page<HarborImageTagVo>> list(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 														   @ApiParam(value = "仓库名称") @RequestParam String repoName,
@@ -41,16 +41,16 @@ public class HarborImageTagController {
 		return Results.success(harborImageTagService.list(projectId,repoName,tagName,pageRequest));
 	}
 
-	@ApiOperation(value = "镜像TAG构建日志")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层/组织层--镜像TAG构建日志")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/build/log")
 	public ResponseEntity<String> buildLog(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 										   @ApiParam(value = "版本号") @RequestParam String tagName) {
 		return Results.success(harborImageTagService.buildLog(repoName,tagName));
 	}
 
-	@ApiOperation(value = "删除镜像TAG")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层/组织层--删除镜像TAG")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@DeleteMapping(value = "/delete")
 	public ResponseEntity delete(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 								 @ApiParam(value = "版本号") @RequestParam String tagName) {
@@ -58,7 +58,7 @@ public class HarborImageTagController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "复制镜像TAG")
+	@ApiOperation(value = "组织层--复制镜像TAG")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/copy")
 	public ResponseEntity<String> copyTag(@RequestBody HarborImageReTag harborImageReTag){
