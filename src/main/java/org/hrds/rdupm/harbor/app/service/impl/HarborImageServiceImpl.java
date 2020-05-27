@@ -54,7 +54,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Long harborId = harborRepository.getHarborId();
 
 		//获得镜像数
-		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,harborId);
+		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 		Integer totalSize = harborProjectDTO.getRepoCount();
 		String repoName = harborProjectDTO.getName();
@@ -140,7 +140,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		}
 		Map<String,String> bodyMap = new HashMap<>(1);
 		bodyMap.put("description",harborImageVo.getDescription());
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,false,repoName);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,true,repoName);
 	}
 
 	/***

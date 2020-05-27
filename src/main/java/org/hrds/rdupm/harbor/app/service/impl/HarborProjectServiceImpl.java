@@ -113,7 +113,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	public HarborProjectVo detail(Long harborId) {
 		Gson gson = new Gson();
-		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,harborId);
+		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 		HarborProjectVo harborProjectVo = new HarborProjectVo(harborProjectDTO);
 

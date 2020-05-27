@@ -99,7 +99,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		Map<String,Object> paramMap = getParamMap(pageRequest,imageName,loginName,tagName,operateType,startDate,endDate);
-		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,false,harborRepository.getHarborId());
+		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,true,harborRepository.getHarborId());
 		List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
 		List<HarborImageLog> harborImageLogList = dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList());
 
@@ -125,7 +125,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 		List<HarborImageLog> harborImageLogList = new ArrayList<>();
 		for(HarborRepository harborRepository : harborRepositoryList){
 			Map<String,Object> paramMap = getParamMap(pageRequest,imageName,loginName,tagName,operateType,startDate,endDate);
-			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,false,harborRepository.getHarborId());
+			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,paramMap,null,true,harborRepository.getHarborId());
 			List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
 			harborImageLogList.addAll(dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList()));
 		}

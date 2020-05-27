@@ -52,7 +52,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 
 	@Override
 	public Page<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
-		ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,null,null,false,repoName);
+		ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,null,null,true,repoName);
 		List<HarborImageTagVo> harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
 		if(StringUtils.isNotEmpty(tagName)){
 			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().equals(tagName)).collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		if(StringUtils.isNotEmpty(tagName)){
 			param.put("tag",tagName);
 		}
-		ResponseEntity<String> logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,param,null,false,harborId);
+		ResponseEntity<String> logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,param,null,true,harborId);
 		List<HarborImageLog> logListResult = new Gson().fromJson(logsResponseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
 		Map<String,List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto->dto.getRepoName()+dto.getTagName()));
 
@@ -119,7 +119,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		StringBuffer sb = new StringBuffer();
 
 		Gson gson = new Gson();
-		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG,null,null,false,repoName,tagName);
+		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG,null,null,true,repoName,tagName);
 		Map<String,Object> map = gson.fromJson(responseEntity.getBody(),Map.class);
 		String config = (String) map.get("config");
 		Map<String,Object> configMap = gson.fromJson(config,Map.class);
@@ -132,7 +132,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 
 	@Override
 	public void delete(String repoName, String tagName) {
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG,null,null,true,repoName,tagName);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG,null,null,false,repoName,tagName);
 	}
 
 	@Override
