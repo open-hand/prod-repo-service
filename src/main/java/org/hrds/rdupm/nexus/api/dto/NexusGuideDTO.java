@@ -62,7 +62,7 @@ public class NexusGuideDTO extends NexusBaseGuideDTO{
 				//map.put("username", );
 				//this.setPushPassword(neUserPassword);
 				this.setPushServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
-				//this.setPushServerInfoPassword(this.getPushServerInfo().replace("[password]", this.getPushPassword()));
+				this.setPushServerInfoPassword(this.getPushServerInfo());
 
 				this.setPushPomManageInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_MANGE_FILE_NAME));
 				this.setPushCmd(NexusGuideDTO.PUSH_CMD);
