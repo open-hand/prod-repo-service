@@ -119,6 +119,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     @Override
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 分配 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Saga(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, description = "nexus分配权限", inputSchemaClass = List.class)
+    @Transactional(rollbackFor = Exception.class)
     public void create(Long projectId, List<NexusAuth> nexusAuthList) {
         if (CollectionUtils.isEmpty(nexusAuthList)){
             return;
@@ -197,7 +198,18 @@ public class NexusAuthServiceImpl implements NexusAuthService {
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
         nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE, NexusAuth.FIELD_NE_ROLE_ID);
 
-        // TODO
+        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
+        if (CollectionUtils.isNotEmpty(existUserList)) {
+            // 更新用户
+            NexusServerUser nexusServerUser = existUserList.get(0);
+            // 添加新角色
+            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
+            // 删除旧角色
+            nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
+            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
+        } else {
+            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
+        }
 
         nexusClient.removeNexusServerInfo();
     }
@@ -214,7 +226,21 @@ public class NexusAuthServiceImpl implements NexusAuthService {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
+
+
         nexusClient.getNexusUserApi().deleteUser(existAuth.getLoginName());
+        // TODO
+//        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
+//        if (CollectionUtils.isNotEmpty(existUserList)) {
+//            // 更新用户
+//            NexusServerUser nexusServerUser = existUserList.get(0);
+//            // 删除旧角色
+//            nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
+//            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
+//        } else {
+//            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
+//        }
         nexusClient.removeNexusServerInfo();
     }
+
 }
