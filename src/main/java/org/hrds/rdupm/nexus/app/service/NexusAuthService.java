@@ -1,6 +1,5 @@
 package org.hrds.rdupm.nexus.app.service;
 
-import com.github.pagehelper.PageInfo;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
