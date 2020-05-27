@@ -1,8 +1,11 @@
 package org.hrds.rdupm.nexus.app.eventhandler.payload;
 
+import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRole;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
+
+import java.util.List;
 
 /**
  * nexus maven 仓库删除
@@ -12,6 +15,7 @@ public class NexusRepositoryDeletePayload {
 	private NexusRepository nexusRepository;
 	private NexusRole nexusRole;
 	private NexusUser nexusUser;
+	private List<NexusAuth> nexusAuthList;
 
 	public NexusRepository getNexusRepository() {
 		return nexusRepository;
@@ -38,5 +42,13 @@ public class NexusRepositoryDeletePayload {
 	public NexusRepositoryDeletePayload setNexusUser(NexusUser nexusUser) {
 		this.nexusUser = nexusUser;
 		return this;
+	}
+
+	public List<NexusAuth> getNexusAuthList() {
+		return nexusAuthList;
+	}
+
+	public void setNexusAuthList(List<NexusAuth> nexusAuthList) {
+		this.nexusAuthList = nexusAuthList;
 	}
 }

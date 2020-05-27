@@ -13,22 +13,24 @@ public class NexusServerRole {
 	/**
 	 * 仓库发布权限
 	 */
-	private static final String DEFAULT_PRI = "nx-repository-view-maven2-{repositoryName}-*";
+	private static final String DEFAULT_PRI = "nx-repository-view-{format}-{repositoryName}-*";
 
 	/**
 	 * 拉取权限
 	 */
-	private static final String DEFAULT_ANONYMOUS_READ = "nx-repository-view-maven2-{repositoryName}-read";
-	private static final String DEFAULT_ANONYMOUS_BROWSE = "nx-repository-view-maven2-{repositoryName}-browse";
+	private static final String DEFAULT_ANONYMOUS_READ = "nx-repository-view-{format}-{repositoryName}-read";
+	private static final String DEFAULT_ANONYMOUS_BROWSE = "nx-repository-view-{format}-{repositoryName}-browse";
 
 	/**
 	 * 生成默认发布权限列表
 	 * @param repositoryName 仓库名称（Id）
+	 * @param format 类型： maven2、npm
 	 * @return 描述信息
+	 *
 	 */
-	private List<String> createDefPushPri(String repositoryName){
+	private List<String> createDefPushPri(String repositoryName, String format){
 		List<String> privilegeList = new ArrayList<>();
-		privilegeList.add(DEFAULT_PRI.replace("{repositoryName}", repositoryName));
+		privilegeList.add(DEFAULT_PRI.replace("{repositoryName}", repositoryName).replace("{format}", format));
 		return privilegeList;
 	}
 
@@ -53,8 +55,9 @@ public class NexusServerRole {
 	 * @param repositoryName 仓库名称（Id）
 	 * @param pushFlag 是否赋予发布权限
 	 * @param id 角色Id
+	 * @param format 类型： maven2、npm
 	 */
-	public void createDefPushRole(String repositoryName, Boolean pushFlag, String id){
+	public void createDefPushRole(String repositoryName, Boolean pushFlag, String id, String format){
 		if (id == null) {
 			this.setId(repositoryName + "-defRole");
 		} else {
@@ -63,7 +66,7 @@ public class NexusServerRole {
 		this.setName(this.getId());
 		this.setDescription(repositoryName + " 仓库, 默认发布角色");
 		if (pushFlag) {
-			this.setPrivileges(this.createDefPushPri(repositoryName));
+			this.setPrivileges(this.createDefPushPri(repositoryName, format));
 		} else {
 			this.setPrivileges(new ArrayList<>());
 		}
@@ -74,8 +77,9 @@ public class NexusServerRole {
 	 * 创建仓库默认拉取角色
 	 * @param repositoryName 仓库名称（Id）
 	 * @param id 角色Id
+	 * @param format 类型： maven2、npm
 	 */
-	public void createDefPullRole(String repositoryName, String id){
+	public void createDefPullRole(String repositoryName, String id, String format){
 		if (id == null) {
 			this.setId(repositoryName + "-defPullRole");
 		} else {
@@ -84,17 +88,18 @@ public class NexusServerRole {
 		this.setName(this.getId());
 		this.setDescription(repositoryName + " 仓库, 默认拉取角色");
 		this.setPrivileges(new ArrayList<>());
-		this.setPullPri(repositoryName, 1);
+		this.setPullPri(repositoryName, 1, format);
 	}
 
 	/**
 	 * 访问，权限设置
 	 * @param repositoryName 仓库列表
 	 * @param allowPull  是否允许访问  1：允许  0：不允许
+	 * @param format 类型： maven2、npm
 	 */
-	public void setPullPri(String repositoryName, Integer allowPull){
-		String readPri = DEFAULT_ANONYMOUS_READ.replace("{repositoryName}", repositoryName);
-		String browsePri = DEFAULT_ANONYMOUS_BROWSE.replace("{repositoryName}", repositoryName);
+	public void setPullPri(String repositoryName, Integer allowPull, String format){
+		String readPri = DEFAULT_ANONYMOUS_READ.replace("{repositoryName}", repositoryName).replace("{format}", format);
+		String browsePri = DEFAULT_ANONYMOUS_BROWSE.replace("{repositoryName}", repositoryName).replace("{format}", format);
 		if (allowPull == 1) {
 			// 允许访问，添加权限
 			this.privileges.add(readPri);

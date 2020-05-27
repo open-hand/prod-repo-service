@@ -19,6 +19,8 @@ public class NexusRepositoryQueryDTO {
 	private Long projectId;
 	@ApiModelProperty(value = "组织Id", hidden = true)
 	private Long organizationId;
+	@ApiModelProperty(value = "制品库-类型", hidden = true)
+	private String repoType;
 
 	public String getRepositoryName() {
 		return repositoryName;
@@ -63,5 +65,13 @@ public class NexusRepositoryQueryDTO {
 	public NexusRepositoryQueryDTO setVersionPolicy(String versionPolicy) {
 		this.versionPolicy = versionPolicy;
 		return this;
+	}
+
+	public String getRepoType() {
+		return repoType;
+	}
+
+	public void setRepoType(String repoType) {
+		this.repoType = repoType;
 	}
 }

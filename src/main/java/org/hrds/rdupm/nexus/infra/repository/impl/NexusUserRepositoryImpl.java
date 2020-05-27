@@ -23,38 +23,38 @@ import java.util.List;
 @Component
 public class NexusUserRepositoryImpl extends BaseRepositoryImpl<NexusUser> implements NexusUserRepository {
 
-	@Autowired
-	private NexusUserMapper nexusUserMapper;
-
-	@Override
-	public PageInfo<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest) {
-		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectList(nexusUser));
-		page.getContent().forEach(user -> {
-			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
-		});
-		return PageConvertUtils.convert(page);
-	}
-
-	@Override
-	public PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest) {
-		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectListPro(nexusUser));
-		page.getContent().forEach(user -> {
-			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
-			user.setDefaultRepositoryNames(nexusUserMapper.getDefaultRepositoryNames(user.getNeUserId()));
-			user.setNeRepositoryName(StringUtils.join(user.getDefaultRepositoryNames(), ","));
-			user.setEditFlag(user.getIsDefault().equals(1));
-		});
-		return PageConvertUtils.convert(page);
-	}
-
-	@Override
-	public List<String> getOtherRepositoryNames(String neUserId) {
-		return nexusUserMapper.getOtherRepositoryNames(neUserId);
-	}
-
-	@Override
-	public NexusUser selectByUserId(Long userId) {
-		return nexusUserMapper.selectByUserId(userId);
-	}
+//	@Autowired
+//	private NexusUserMapper nexusUserMapper;
+//
+//	@Override
+//	public PageInfo<NexusUser> listUser(NexusUser nexusUser, PageRequest pageRequest) {
+//		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectList(nexusUser));
+//		page.getContent().forEach(user -> {
+//			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
+//		});
+//		return PageConvertUtils.convert(page);
+//	}
+//
+//	@Override
+//	public PageInfo<NexusUser> listUserPro(NexusUser nexusUser, PageRequest pageRequest) {
+//		Page<NexusUser> page =  PageHelper.doPageAndSort(pageRequest, () -> nexusUserMapper.selectListPro(nexusUser));
+//		page.getContent().forEach(user -> {
+//			user.setOtherRepositoryName(nexusUserMapper.getOtherRepositoryNames(user.getNeUserId()));
+//			user.setDefaultRepositoryNames(nexusUserMapper.getDefaultRepositoryNames(user.getNeUserId()));
+//			user.setNeRepositoryName(StringUtils.join(user.getDefaultRepositoryNames(), ","));
+//			user.setEditFlag(user.getIsDefault().equals(1));
+//		});
+//		return PageConvertUtils.convert(page);
+//	}
+//
+//	@Override
+//	public List<String> getOtherRepositoryNames(String neUserId) {
+//		return nexusUserMapper.getOtherRepositoryNames(neUserId);
+//	}
+//
+//	@Override
+//	public NexusUser selectByUserId(Long userId) {
+//		return nexusUserMapper.selectByUserId(userId);
+//	}
 
 }

@@ -59,7 +59,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		PageInfo<NexusServerComponentInfo> componentInfoPageInfo = PageConvertUtils.convert(pageRequest.getPage() + 1, pageRequest.getSize(), componentInfoList);
 
 		if (deleteFlag && projectId != null) {
-			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId);
+			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId, null);
 			componentInfoPageInfo.getList().forEach(nexusServerComponentInfo -> {
 				if (proRepoList.contains(nexusServerComponentInfo.getRepository())) {
 					nexusServerComponentInfo.setDeleteFlag(true);
@@ -153,7 +153,6 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		if (nexusRepository != null) {
 			NexusUser queryUser = new NexusUser();
 			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
-			queryUser.setIsDefault(1);
 			nexusUser = nexusUserRepository.selectOne(queryUser);
 		}
 		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(componentInfo.getRepository());
