@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.nexus.app.service.NexusLogService;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Service;
 public class NexusLogServiceImpl implements NexusLogService {
 
     @Autowired
-    private BaseServiceFeignClient baseServiceFeignClient;
+    private C7nBaseService c7nBaseService;
     @Autowired
     private NexusLogRepository nexusLogRepository;
     @Autowired
@@ -41,16 +42,14 @@ public class NexusLogServiceImpl implements NexusLogService {
         List<NexusLog> nexusLogList = nexusLogMapper.listNpmLogByOrg(organizationId, repoType, projectId, neRepositoryName, loginName, operateType, startDate, endDate);
 
         Set<Long> projectIdSet = nexusLogList.stream().map(NexusLog::getProjectId).collect(Collectors.toSet());
-        List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
-        Map<Long, List<ProjectVO>> projectDataMap = projectVOList.stream().collect(Collectors.groupingBy(ProjectVO::getId));
+        Map<Long, ProjectDTO> projectDataMap = c7nBaseService.queryProjectByIds(projectIdSet);
         for (NexusLog log : nexusLogList
              ) {
-            List<ProjectVO> projectVOS = projectDataMap.get(log.getProjectId());
-            if (CollectionUtils.isNotEmpty(projectVOS)) {
-                ProjectVO projectVO = projectVOS.get(0);
-                log.setProjectCode(projectVO.getCode());
-                log.setProjectName(projectVO.getName());
-                log.setProjectImageUrl(projectVO.getImageUrl());
+            ProjectDTO projectDTO = projectDataMap.get(log.getProjectId());
+            if (null != projectDTO) {
+                log.setProjectCode(projectDTO.getCode());
+                log.setProjectName(projectDTO.getName());
+                log.setProjectImageUrl(projectDTO.getImageUrl());
             }
         }
         return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),nexusLogList);
