@@ -34,10 +34,11 @@ public class NexusUser extends AuditDomain {
 	 * 密码更改校验
 	 */
 	public void validChangePassword(){
+		// TODO 密码更改
 		AssertUtils.notNull(this.userId, "userId is not null");
-		if (StringUtils.isEmpty(this.neUserPassword)) {
-			throw new CommonException(NexusMessageConstants.NEXUS_NEW_PASSWORD_NOT_NULL);
-		}
+//		if (StringUtils.isEmpty(this.neUserPassword)) {
+//			throw new CommonException(NexusMessageConstants.NEXUS_NEW_PASSWORD_NOT_NULL);
+//		}
 		if (StringUtils.isEmpty(this.oldNeUserPassword)) {
 			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_NOT_NULL);
 		}
@@ -45,9 +46,6 @@ public class NexusUser extends AuditDomain {
 
     public static final String FIELD_USER_ID = "userId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
-    public static final String FIELD_NE_USER_ID = "neUserId";
-    public static final String FIELD_NE_USER_PASSWORD = "neUserPassword";
-    public static final String FIELD_IS_DEFAULT = "isDefault";
     public static final String FIELD_TENANT_ID = "tenantId";
 
     //
@@ -66,18 +64,10 @@ public class NexusUser extends AuditDomain {
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
     private Long repositoryId;
-    @ApiModelProperty(value = "nexus 发布用户Id",required = true)
-    @NotBlank
-    private String neUserId;
-    @ApiModelProperty(value = "nexus 发布用户密码")
-    private String neUserPassword;
-	@ApiModelProperty(value = "nexus 拉取用户Id")
+	@ApiModelProperty(value = "仓库默认拉取用户Id")
 	private String nePullUserId;
-	@ApiModelProperty(value = "nexus 拉取用户密码")
+	@ApiModelProperty(value = "仓库默认拉取用户密码")
 	private String nePullUserPassword;
-    @ApiModelProperty(value = "是否是该仓库默认管理用户",required = true)
-    @NotNull
-    private Integer isDefault;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
 
@@ -141,36 +131,6 @@ public class NexusUser extends AuditDomain {
 
 	public void setRepositoryId(Long repositoryId) {
 		this.repositoryId = repositoryId;
-	}
-    /**
-     * @return nexus用户Id
-     */
-	public String getNeUserId() {
-		return neUserId;
-	}
-
-	public void setNeUserId(String neUserId) {
-		this.neUserId = neUserId;
-	}
-    /**
-     * @return nexus用户密码
-     */
-	public String getNeUserPassword() {
-		return neUserPassword;
-	}
-
-	public void setNeUserPassword(String neUserPassword) {
-		this.neUserPassword = neUserPassword;
-	}
-    /**
-     * @return 是否是该仓库默认管理用户
-     */
-	public Integer getIsDefault() {
-		return isDefault;
-	}
-
-	public void setIsDefault(Integer isDefault) {
-		this.isDefault = isDefault;
 	}
     /**
      * @return 租户Id

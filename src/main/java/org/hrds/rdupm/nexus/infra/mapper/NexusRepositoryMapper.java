@@ -16,7 +16,8 @@ public interface NexusRepositoryMapper extends BaseMapper<NexusRepository> {
 	/**
 	 * 查询项目关联或自建的仓库
 	 * @param projectId 项目Id
+	 * @param repoType 制品库类型
 	 * @return 仓库名称列表
 	 */
-	List<String> getRepositoryByProject(@Param("projectId") Long projectId);
+	List<String> getRepositoryByProject(@Param("projectId") Long projectId, @Param("repoType") String repoType);
 }

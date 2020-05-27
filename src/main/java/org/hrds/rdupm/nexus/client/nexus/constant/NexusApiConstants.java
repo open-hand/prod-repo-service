@@ -23,6 +23,7 @@ public interface NexusApiConstants {
 	 */
 	interface NexusRepoFormat {
 		String MAVEN_FORMAT = "maven2";
+		String NPM_FORMAT = "npm";
 	}
 
 	/**

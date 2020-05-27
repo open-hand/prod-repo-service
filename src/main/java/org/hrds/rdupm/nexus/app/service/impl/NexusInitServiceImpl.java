@@ -5,11 +5,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.app.service.NexusInitService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -62,10 +65,17 @@ public class NexusInitServiceImpl implements NexusInitService {
 						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 0))
 				.build();
 		List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
+		Map<String, String> map = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, NexusRepository::getRepoType));
 		repositoryNames.removeAll(repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList()));
 		if (CollectionUtils.isNotEmpty(repositoryNames)) {
 			repositoryNames.forEach(repositoryName -> {
-				anonymousRole.setPullPri(repositoryName, 1);
+				String repoType = map.get(repositoryName);
+				if (repoType.equals(NexusConstants.RepoType.MAVEN)) {
+					anonymousRole.setPullPri(repositoryName, 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+				} else if (repoType.equals(NexusConstants.RepoType.NPM)) {
+					anonymousRole.setPullPri(repositoryName, 1, NexusApiConstants.NexusRepoFormat.NPM_FORMAT);
+				}
+
 			});
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
