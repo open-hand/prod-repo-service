@@ -38,8 +38,8 @@ public class NexusLogServiceImpl implements NexusLogService {
     private NexusLogMapper nexusLogMapper;
 
     @Override
-    public Page<NexusLog> listLogByOrg(Long organizationId, String repoType, Long projectId, String neRepositoryName, String loginName, String operateType, Date startDate, Date endDate, PageRequest pageRequest) {
-        List<NexusLog> nexusLogList = nexusLogMapper.listNpmLogByOrg(organizationId, repoType, projectId, neRepositoryName, loginName, operateType, startDate, endDate);
+    public Page<NexusLog> listLogByOrg(Long organizationId, String repoType, Long projectId, String neRepositoryName, String realName, String operateType, Date startDate, Date endDate, PageRequest pageRequest) {
+        List<NexusLog> nexusLogList = nexusLogMapper.listNpmLogByOrg(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate);
 
         Set<Long> projectIdSet = nexusLogList.stream().map(NexusLog::getProjectId).collect(Collectors.toSet());
         Map<Long, ProjectDTO> projectDataMap = c7nBaseService.queryProjectByIds(projectIdSet);

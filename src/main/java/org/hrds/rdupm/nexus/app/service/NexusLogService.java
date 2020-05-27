@@ -18,7 +18,7 @@ public interface NexusLogService {
      * @param repoType
      * @param projectId
      * @param neRepositoryName
-     * @param loginName
+     * @param realName
      * @param operateType
      * @param startDate
      * @param endDate
@@ -26,7 +26,7 @@ public interface NexusLogService {
      * @return Page<NexusLog>
      */
     Page<NexusLog> listLogByOrg(Long organizationId, String repoType, Long projectId,
-                                String neRepositoryName, String loginName, String operateType,
+                                String neRepositoryName, String realName, String operateType,
                                 Date startDate, Date endDate, PageRequest pageRequest);
 
 }
