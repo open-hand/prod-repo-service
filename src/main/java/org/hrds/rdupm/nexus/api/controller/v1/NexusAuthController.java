@@ -42,7 +42,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层-权限列表")
     @Permission(level = ResourceLevel.PROJECT)
     @GetMapping(value = "/{projectId}/list-project")
-    public ResponseEntity<Page<NexusAuth>> listByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
+    public ResponseEntity<Page<NexusAuth>> listByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
                                                              @ApiParam("仓库Id") @RequestParam Long repositoryId,
                                                              @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                              @ApiParam("用户名") @RequestParam(required = false) String realName,
@@ -60,7 +60,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层--导出权限")
     @Permission(level = ResourceLevel.PROJECT)
     @GetMapping("/{projectId}/export/project")
-    public ResponseEntity<Page<NexusAuth>> projectExport(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
+    public ResponseEntity<Page<NexusAuth>> projectExport(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
                                                          @ApiParam("仓库Id") @RequestParam Long repositoryId,
                                                          @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                          @ApiParam("用户名") @RequestParam(required = false) String realName,
@@ -83,7 +83,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "组织层-权限列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping(value = "/{organizationId}/list-org")
-    public ResponseEntity<Page<NexusAuth>> listByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+    public ResponseEntity<Page<NexusAuth>> listByOrg(@ApiParam(value = "猪齿鱼组织ID", required = true) @PathVariable Long organizationId,
                                                          @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
                                                          @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                          @ApiParam("用户名") @RequestParam(required = false) String realName,
@@ -102,7 +102,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "组织层--导出权限")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/export/organization")
-    public ResponseEntity<Page<NexusAuth>> orgExport(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+    public ResponseEntity<Page<NexusAuth>> orgExport(@ApiParam(value = "猪齿鱼组织ID", required = true) @PathVariable Long organizationId,
                                                      @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
                                                      @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                      @ApiParam("用户名") @RequestParam(required = false) String realName,
@@ -128,7 +128,7 @@ public class NexusAuthController extends BaseController {
         return Results.success(nexusAuth);
     }
 
-    @ApiOperation(value = "项目层--分配权限, 必输字段 endDate、roleCode、userId、repositoryId")
+    @ApiOperation(value = "项目层--分配权限, 必输字段 endDate、roleCode 、userId、repositoryId")
     @Permission(level = ResourceLevel.PROJECT)
     @PostMapping("/{projectId}/create")
     public ResponseEntity<List<NexusAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,

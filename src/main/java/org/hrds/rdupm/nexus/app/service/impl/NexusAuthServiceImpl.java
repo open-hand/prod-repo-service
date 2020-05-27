@@ -23,6 +23,8 @@ import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hrds.rdupm.nexus.infra.annotation.NexusOperateLog;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper;
 import org.hzero.core.base.BaseConstants;
@@ -96,14 +98,13 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     }
 
     @Override
-    // TODO 日志
-    // @OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
+    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 分配 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Saga(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, description = "nexus分配权限", inputSchemaClass = List.class)
     public void create(Long projectId, List<NexusAuth> nexusAuthList) {
         if(CollectionUtils.isEmpty(nexusAuthList)){
             return;
         }
-        List<Long> repositoryIds = nexusAuthList.stream().map(NexusAuth::getRepositoryId).collect(Collectors.toList());
+        List<Long> repositoryIds = nexusAuthList.stream().map(NexusAuth::getRepositoryId).distinct().collect(Collectors.toList());
         if (repositoryIds.size() > 1) {
             throw new CommonException(NexusMessageConstants.NEXUS_AUTH_REPOSITORY_ID_IS_NOT_UNIQUE);
         }
@@ -151,8 +152,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     }
 
     @Override
-    // TODO 日志
-    // @OperateLog(operateType = HarborConstants.UPDATE_AUTH,content = "%s 更新 %s 权限角色为 【%s】,过期日期为【%s】")
+    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 更新 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void update(NexusAuth nexusAuth) {
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
@@ -164,8 +164,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     }
 
     @Override
-    // TODO 日志
-    // @OperateLog(operateType = HarborConstants.UPDATE_AUTH,content = "%s 更新 %s 权限角色为 【%s】,过期日期为【%s】")
+    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 删除 %s 【%s】仓库的的权限角色 【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void delete(NexusAuth nexusAuth) {
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);

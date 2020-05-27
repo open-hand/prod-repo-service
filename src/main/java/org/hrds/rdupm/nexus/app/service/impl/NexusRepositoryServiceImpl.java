@@ -608,7 +608,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 查询某个项目项目数据
 		Condition.Builder builder = Condition.builder(NexusRepository.class)
 				.where(Sqls.custom()
-						.andEqualTo(NexusRepository.FIELD_ORGANIZATION_ID, queryDTO.getOrganizationId()));
+						.andEqualTo(NexusRepository.FIELD_PROJECT_ID, queryDTO.getProjectId()));
 		if (queryDTO.getRepoType() != null) {
 			builder.where(Sqls.custom()
 					.andEqualTo(NexusRepository.FIELD_REPO_TYPE, queryDTO.getRepoType()));
