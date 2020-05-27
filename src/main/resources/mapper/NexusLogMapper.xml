@@ -47,10 +47,12 @@
             AND rnl.project_id = #{projectId}
         </if>
         <if test="neRepositoryName != null and neRepositoryName != ''">
-            AND rnr.ne_repository_name = #{neRepositoryName}
+            <bind name="neRepositoryNameLike" value="'%' + neRepositoryName + '%'" />
+            AND rnr.ne_repository_name = #{neRepositoryNameLike}
         </if>
         <if test="loginName != null and loginName != ''">
-            AND rna.login_name = #{loginName}
+            <bind name="loginNameLike" value="'%' + loginName + '%'"/>
+            AND rna.login_name = #{loginNameLike}
         </if>
         <if test="operateType != null and operateType != ''">
             AND rnl.operate_type = #{operateType}
