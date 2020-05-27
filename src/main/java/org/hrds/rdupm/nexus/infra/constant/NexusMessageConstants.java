@@ -118,4 +118,14 @@ public interface NexusMessageConstants {
 	 * {0}仓库对应关联角色不存在
 	 */
 	String NEXUS_DEFAULT_ROLE_IS_NULL = "error.nexus.default.role.is.null";
+
+	/**
+	 * 只能同时分配同一仓库下的权限
+	 */
+	String NEXUS_AUTH_REPOSITORY_ID_IS_NOT_UNIQUE = "error.nexus.auth.repository.id.is.not.null";
+
+	/**
+	 * 权限已存在，请勿重复分配: {0}
+	 */
+	String NEXUS_AUTH_ALREADY_EXIST = "error.nexus.auth.already.exist";
 }

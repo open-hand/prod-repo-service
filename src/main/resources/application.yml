@@ -116,7 +116,7 @@ choerodon:
       skip-services: config**, **register-server, **gateway**, zipkin**, hystrix**, oauth**
   saga:
     consumer:
-      enabled: true # 启动消费端
+      enabled: false # 启动消费端
       thread-num: 2 # saga消息消费线程池大小
       max-poll-size: 200 # 每次拉取消息最大数量
       poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒

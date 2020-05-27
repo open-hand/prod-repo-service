@@ -113,16 +113,18 @@ public interface NexusRepositoryService {
 	 * 获取仓库名列表
 	 * @param projectId 项目Id
 	 * @param excludeRelated 是否排除所有项目已关联或新建的  true:需要 false:不需要
+	 * @param repoType 制品库类型
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated);
+	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated, String repoType);
 
 	/**
 	 * 获取仓库名列表 - 当前项目关联的
 	 * @param projectId 项目Id
+	 * @param repoType 制品库类型
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoNameByProjectId(Long projectId);
+	List<NexusRepositoryDTO> listRepoNameByProjectId(Long projectId, String repoType);
 
 	/**
 	 * 包上传 - 仓库列表
@@ -131,13 +133,13 @@ public interface NexusRepositoryService {
 	 */
 	List<NexusRepositoryDTO> listComponentRepo(Long projectId);
 
-	/**
-	 * 发布权限编辑，仓库列表
-	 * @param projectId 项目Id
-	 * @param currentRepoName 当前默认仓库名称
-	 * @return List<NexusRepositoryDTO>
-	 */
-	List<NexusRepositoryDTO> listRepoPush(Long projectId, List<String> currentRepoName);
+//	/**
+//	 * 发布权限编辑，仓库列表
+//	 * @param projectId 项目Id
+//	 * @param currentRepoName 当前默认仓库名称
+//	 * @return List<NexusRepositoryDTO>
+//	 */
+//	List<NexusRepositoryDTO> listRepoPush(Long projectId, List<String> currentRepoName);
 
 	/**
 	 * 查询maven 仓库配置指引信息

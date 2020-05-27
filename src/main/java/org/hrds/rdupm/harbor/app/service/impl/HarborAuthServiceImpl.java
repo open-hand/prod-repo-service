@@ -21,6 +21,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -29,7 +30,6 @@ import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.RoleDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
@@ -54,8 +54,8 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Autowired
 	private HarborRepositoryRepository harborRepositoryRepository;
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Autowired
 	private HarborHttpClient harborHttpClient;
@@ -85,11 +85,8 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,projectId);
 		Map<Long,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getUserId,dto->dto));
 
-		//设置loginName、realName
 		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
-		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
-		Map<Long,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId,dto->dto));
-
+		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
 		dtoList.forEach(dto->{
 			UserDTO userDTO = userDtoMap.get(dto.getUserId());
 			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
@@ -162,8 +159,8 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			Long projectId = entry.getKey();
 			List<HarborAuth> list = entry.getValue();
 			Set<Long> userIdSet = list.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
-			ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
-			userDtoMap.putAll(responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto)));
+			Map<Long,UserWithGitlabIdDTO> map = c7nBaseService.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
+			userDtoMap.putAll(map);
 		}
 
 		dataList.forEach(dto->{
@@ -223,14 +220,8 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	public void saveOwnerAuth(Long projectId, Long organizationId, Integer harborId, List<HarborAuth> dtoList) {
 		dtoList.forEach(dto->{
-			Long[] array = new Long[1];
-			array[0] = dto.getUserId();
-			ResponseEntity<List<UserDTO>> userResponseEntity = baseFeignClient.listUsersByIds(array,true);
-			if(userResponseEntity == null || CollectionUtils.isEmpty(userResponseEntity.getBody())){
-				throw new CommonException("error.feign.user.select.empty");
-			}
 			//获取用户详情
-			UserDTO userDTO = userResponseEntity.getBody().get(0);
+			UserDTO userDTO = c7nBaseService.listUserById(dto.getUserId());
 			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
 			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
 			dto.setUserId(userDTO == null ? null : userDTO.getId());

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hrds.rdupm.nexus.domain.entity.NexusAuth">
+        <result column="auth_id" property="authId" jdbcType="DECIMAL"/>
+        <result column="project_id" property="projectId" jdbcType="DECIMAL"/>
+        <result column="organization_id" property="organizationId" jdbcType="DECIMAL"/>
+        <result column="repository_id" property="repositoryId" jdbcType="DECIMAL"/>
+        <result column="user_id" property="userId" jdbcType="DECIMAL"/>
+        <result column="login_name" property="loginName" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="role_code" property="roleCode" jdbcType="VARCHAR"/>
+        <result column="ne_role_id" property="neRoleId" jdbcType="VARCHAR"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+    <select id="list" resultType="org.hrds.rdupm.nexus.domain.entity.NexusAuth">
+        SELECT
+            rna.*,
+            rna.repository_id,
+            rnr.ne_repository_name
+        FROM
+            rdupm_nexus_auth rna
+            LEFT JOIN rdupm_nexus_repository rnr ON rnr.repository_id = rna.repository_id
+        WHERE 1 = 1
+        <if test="repositoryId != null">
+            rna.repository_id = #{repositoryId}
+        </if>
+        <if test=" loginName != null and loginName != '' ">
+            <bind name="loginNameLike" value=" '%'+loginName + '%'" />
+            AND rna.login_name LIKE #{loginNameLike}
+        </if>
+        <if test=" realName != null and realName != '' ">
+            <bind name="realNameLike" value=" '%'+realName + '%'" />
+            AND rna.real_name LIKE #{realNameLike}
+        </if>
+        <if test=" roleCode != null">
+            AND rna.role_code = #{roleCode}
+        </if>
+        <if test=" projectId != null ">
+            AND rnr.project_id = #{projectId}
+        </if>
+        <if test=" organizationId != null ">
+            AND rnr.organization_id = #{organizationId}
+        </if>
+        <if test=" neRepositoryName != null and neRepositoryName != '' ">
+            <bind name="neRepositoryNameLike" value=" '%'+neRepositoryName + '%'" />
+            AND rnr.ne_repository_name LIKE #{neRepositoryNameLike}
+        </if>
+        ORDER BY
+            rnr.ne_repository_name,
+            rna.login_name
+    </select>
+</mapper>

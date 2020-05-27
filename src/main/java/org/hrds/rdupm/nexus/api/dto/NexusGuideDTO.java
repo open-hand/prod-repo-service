@@ -1,10 +1,12 @@
 package org.hrds.rdupm.nexus.api.dto;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
@@ -55,12 +57,12 @@ public class NexusGuideDTO extends NexusBaseGuideDTO{
 					throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 				}
 
-				String neUserPassword = DESEncryptUtil.decode(nexusUser.getNeUserPassword());
+				//String neUserPassword = DESEncryptUtil.decode(nexusUser.getNeUserPassword());
 
-				map.put("username", nexusUser.getNeUserId());
-				this.setPushPassword(neUserPassword);
+				//map.put("username", );
+				//this.setPushPassword(neUserPassword);
 				this.setPushServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
-				this.setPushServerInfoPassword(this.getPushServerInfo().replace("[password]", this.getPushPassword()));
+				//this.setPushServerInfoPassword(this.getPushServerInfo().replace("[password]", this.getPushPassword()));
 
 				this.setPushPomManageInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_MANGE_FILE_NAME));
 				this.setPushCmd(NexusGuideDTO.PUSH_CMD);

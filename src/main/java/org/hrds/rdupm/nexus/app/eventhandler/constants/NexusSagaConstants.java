@@ -54,10 +54,31 @@ public interface NexusSagaConstants {
 		/**
 		 * 关联maven仓库   Saga code
 		 */
-		String MAVEN_REPO_RELATED = "rdupm-maven-related ";
+		String MAVEN_REPO_RELATED = "rdupm-maven-related";
 		/**
 		 * 关联maven仓库   SagaTask code
 		 */
 		String MAVEN_REPO_RELATED_REPO = "rdupm-maven-related.repo";
+	}
+
+	interface NexusAuthCreate {
+		/**
+		 * 分配权限  Saga code
+		 */
+		String NEXUS_AUTH_CREATE = "rdupm-maven-auth-create";
+		/**
+		 * 分配权限  SagaTask code
+		 */
+		String NEXUS_AUTH_CREATE_USER = "rdupm-maven-auth-create.user";
+	}
+	interface NexusAuthDelete {
+		/**
+		 * 删除权限  Saga code
+		 */
+		String NEXUS_AUTH_DELETE = "rdupm-maven-auth-delete";
+		/**
+		 * 删除权限  SagaTask code
+		 */
+		String NEXUS_AUTH_DELETE_USER = "rdupm-maven-auth-delete.user";
 	}
 }

@@ -11,11 +11,10 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
-import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
@@ -44,8 +43,8 @@ public class HarborAuthController extends BaseController {
     @Autowired
     private HarborAuthRepository harborAuthRepository;
 
-    @Resource
-	private BaseFeignClient baseFeignClient;
+    @Autowired
+	private C7nBaseService c7nBaseService;
 
     @Autowired
 	private HarborAuthService harborAuthService;
@@ -121,7 +120,7 @@ public class HarborAuthController extends BaseController {
 	@GetMapping("/list-project-member/{projectId}")
 	public ResponseEntity<List<UserDTO>> getUserList(@PathVariable Long projectId,
 													 @ApiParam("条件模糊查询") @RequestParam(required = false) String param) {
-		List<UserDTO> userDTOList = baseFeignClient.listUsersByName(projectId,null).getBody();
+		List<UserDTO> userDTOList = c7nBaseService.listProjectUsersByIdName(projectId,null);
 		return Results.success(userDTOList);
 	}
 

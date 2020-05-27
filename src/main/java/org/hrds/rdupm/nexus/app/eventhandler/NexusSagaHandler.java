@@ -13,10 +13,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
-import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
-import org.hrds.rdupm.nexus.domain.entity.NexusRole;
-import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
-import org.hrds.rdupm.nexus.domain.entity.NexusUser;
+import org.hrds.rdupm.nexus.domain.entity.*;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
@@ -130,19 +127,11 @@ public class NexusSagaHandler {
 		NexusRole nexusRole = roleList.get(0);
 
 		// 角色
-		// 发布角色
-		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId());
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId());
+		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 
 		// 创建角色
-		NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
-		if (pushExist == null) {
-			// 角色不存在，创建
-			nexusClient.getNexusRoleApi().createRole(nexusServerRole);
-		}
 		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
 		if (pullExist == null) {
 			// 角色不存在，创建
@@ -156,7 +145,7 @@ public class NexusSagaHandler {
 			if (anonymousRole == null) {
 				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 			}
-			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1);
+			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 
@@ -197,8 +186,7 @@ public class NexusSagaHandler {
 
 		Condition userCondition = Condition.builder(NexusUser.class)
 				.where(Sqls.custom()
-						.andEqualTo(NexusUser.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId())
-						.andEqualTo(NexusUser.FIELD_IS_DEFAULT, 1))
+						.andEqualTo(NexusUser.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()))
 				.build();
 		List<NexusUser> userList = nexusUserRepository.selectByCondition(userCondition);
 		if (CollectionUtils.isEmpty(userList)) {
@@ -207,20 +195,12 @@ public class NexusSagaHandler {
 		NexusUser nexusUser = userList.get(0);
 
 		// 用户
-		// 发布用户
-		NexusServerUser nexusServerUser = new NexusServerUser();
-		nexusServerUser.createDefPushUser(nexusRepository.getNeRepositoryName(), nexusRole.getNeRoleId(), nexusUser.getNeUserId());
-		nexusServerUser.setPassword(DESEncryptUtil.decode(nexusUser.getNeUserPassword()));
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
 		pullNexusServerUser.createDefPullUser(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusUser.getNePullUserId());
 		pullNexusServerUser.setPassword(DESEncryptUtil.decode(nexusUser.getNePullUserPassword()));
 
 		// 创建用户
-		List<NexusServerUser> pushExistUserList = nexusClient.getNexusUserApi().getUsers(nexusServerUser.getUserId());
-		if (CollectionUtils.isEmpty(pushExistUserList)) {
-			nexusClient.getNexusUserApi().createUser(nexusServerUser);
-		}
 		List<NexusServerUser> pullExistUserList = nexusClient.getNexusUserApi().getUsers(pullNexusServerUser.getUserId());
 		if (CollectionUtils.isEmpty(pullExistUserList)) {
 			nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
@@ -267,7 +247,7 @@ public class NexusSagaHandler {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 		}
-		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous());
+		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息
@@ -291,6 +271,7 @@ public class NexusSagaHandler {
 		NexusRepository nexusRepository = deletePayload.getNexusRepository();
 		NexusRole nexusRole = deletePayload.getNexusRole();
 		NexusUser nexusUser = deletePayload.getNexusUser();
+		List<NexusAuth> nexusAuthList = deletePayload.getNexusAuthList();
 
 		// nexus数据删除
 		// 设置并返回当前nexus服务信息
@@ -300,30 +281,21 @@ public class NexusSagaHandler {
 			// 创建的仓库
 			// 仓库
 			nexusClient.getRepositoryApi().deleteRepository(nexusRepository.getNeRepositoryName());
-			// 角色
+			// 默认角色
 			if (nexusRole.getNePullRoleId() != null) {
 				nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNePullRoleId());
 			}
-			if (nexusRole.getNeRoleId() != null) {
-				nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNeRoleId());
-			}
-			// 用户
+			// 默认用户
 			if (nexusUser.getNePullUserId() != null) {
 				nexusClient.getNexusUserApi().deleteUser(nexusUser.getNePullUserId());
 			}
-			if (nexusUser.getNeUserId() != null) {
-				nexusClient.getNexusUserApi().deleteUser(nexusUser.getNeUserId());
-			}
 		} else {
 			// 关联的仓库
-			// 角色
-			if (nexusRole.getNeRoleId() != null) {
-				nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNeRoleId());
-			}
+			// 默认角色
 			if (nexusRole.getNePullRoleId() != null) {
 				nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNePullRoleId());
 			}
-			// 用户
+			// 默认用户
 			if (nexusUser.getNePullUserId() != null) {
 				nexusClient.getNexusUserApi().deleteUser(nexusUser.getNePullUserId());
 			}
@@ -338,6 +310,7 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = 1)
 	public String relatedMavenRepoSaga(String message) {
+		// TODO 关联仓库
 		NexusRepository nexusRepository = null;
 		try {
 			nexusRepository = objectMapper.readValue(message, NexusRepository.class);
@@ -365,18 +338,18 @@ public class NexusSagaHandler {
 		NexusRole nexusRole = roleList.get(0);
 
 		// 发布角色
-		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId());
+		//NexusServerRole nexusServerRole = new NexusServerRole();
+		//nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId());
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId());
+		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 
 		// 创建角色
-		NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
+		/*NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
 		if (pushExist == null) {
 			// 角色不存在，创建
 			nexusClient.getNexusRoleApi().createRole(nexusServerRole);
-		}
+		}*/
 		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
 		if (pullExist == null) {
 			// 角色不存在，创建
@@ -386,8 +359,7 @@ public class NexusSagaHandler {
 		// 2. 用户
 		Condition userCondition = Condition.builder(NexusUser.class)
 				.where(Sqls.custom()
-						.andEqualTo(NexusUser.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId())
-						.andEqualTo(NexusUser.FIELD_IS_DEFAULT, 1))
+						.andEqualTo(NexusUser.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()))
 				.build();
 		List<NexusUser> userList = nexusUserRepository.selectByCondition(userCondition);
 		if (CollectionUtils.isEmpty(userList)) {
@@ -397,14 +369,14 @@ public class NexusSagaHandler {
 
 		// 发布用户
 		// 为发布用户赋予发布角色
-		List<NexusServerUser> nexusServerUserList = nexusClient.getNexusUserApi().getUsers(nexusUser.getNeUserId());
+		/*List<NexusServerUser> nexusServerUserList = nexusClient.getNexusUserApi().getUsers(nexusUser.getNeUserId());
 		if (CollectionUtils.isNotEmpty(nexusServerUserList)) {
 			NexusServerUser nexusServerUser = nexusServerUserList.get(0);
 			nexusServerUser.getRoles().add(nexusServerRole.getId());
 			nexusClient.getNexusUserApi().updateUser(nexusServerUser);
 		} else {
 			throw new CommonException(NexusMessageConstants.NEXUS_REPO_RELATED_EFAULT_USER_IS_NULL, nexusRepository.getNeRepositoryName());
-		}
+		}*/
 
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
@@ -421,7 +393,7 @@ public class NexusSagaHandler {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 		}
-		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1);
+		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息

@@ -4,26 +4,24 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import javax.annotation.Resource;
-
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborLog;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Exception.class)
 public class OperateLogAspect {
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Autowired
 	private HarborRepositoryRepository harborRepositoryRepository;
@@ -57,8 +55,7 @@ public class OperateLogAspect {
 
 	@Around("logPointCut()")
 	public Object around(ProceedingJoinPoint point){
-		//TODO
-		Long operateId = 6345L;
+		Long operateId = DetailsHelper.getUserDetails().getUserId();
 		String operatorInfo = getUserParms(operateId);
 		SimpleDateFormat sdf = new SimpleDateFormat(BaseConstants.Pattern.DATE);
 
@@ -132,16 +129,8 @@ public class OperateLogAspect {
 	 * @return
 	 */
 	private String getUserParms(Long userId) {
-		Long[] array = new Long[1];
-		array[0] = userId;
-
-		ResponseEntity<List<UserDTO>> userResponseEntity = baseFeignClient.listUsersByIds(array,true);
-		if(userResponseEntity == null){
-			return userId.toString();
-		}else {
-			UserDTO userDTO = userResponseEntity.getBody().get(0);
-			return userDTO.getRealName() + "(" + userDTO.getLoginName() + ")";
-		}
+		UserDTO userDTO = c7nBaseService.listUserById(userId);
+		return userDTO.getRealName() + "(" + userDTO.getLoginName() + ")";
 	}
 
 	/***

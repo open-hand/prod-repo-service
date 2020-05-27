@@ -25,7 +25,7 @@ public class NexusRole extends AuditDomain {
 
     public static final String FIELD_ROLE_ID = "roleId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
-    public static final String FIELD_NE_ROLE_ID = "neRoleId";
+    public static final String FIELD_NE_PULL_ROLE_ID = "nePullRoleId";
     public static final String FIELD_TENANT_ID = "tenantId";
 
     //
@@ -44,11 +44,7 @@ public class NexusRole extends AuditDomain {
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
     private Long repositoryId;
-    @ApiModelProperty(value = "nexus 发布角色Id",required = true)
-    //@NotBlank
-    private String neRoleId;
-	@ApiModelProperty(value = "nexus 拉取角色Id",required = true)
-	//@NotBlank
+	@ApiModelProperty(value = "仓库默认拉取角色Id",required = true)
 	private String nePullRoleId;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
@@ -80,16 +76,6 @@ public class NexusRole extends AuditDomain {
 
 	public void setRepositoryId(Long repositoryId) {
 		this.repositoryId = repositoryId;
-	}
-    /**
-     * @return nexus角色Id
-     */
-	public String getNeRoleId() {
-		return neRoleId;
-	}
-
-	public void setNeRoleId(String neRoleId) {
-		this.neRoleId = neRoleId;
 	}
     /**
      * @return 租户Id

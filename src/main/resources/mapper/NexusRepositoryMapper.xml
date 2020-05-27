@@ -25,6 +25,9 @@
             <if test="projectId != null">
                 project_id = #{projectId}
             </if>
+            <if test="repoType != null">
+                AND repo_type = #{repoType}
+            </if>
         </where>
     </select>
 </mapper>

@@ -31,6 +31,7 @@ public class NexusRepository extends AuditDomain {
     public static final String FIELD_PROJECT_ID = "projectId";
     public static final String FIELD_ALLOW_ANONYMOUS = "allowAnonymous";
     public static final String FIELD_TENANT_ID = "tenantId";
+	public static final String FIELD_REPO_TYPE = "repoType";
 
     //
     // 业务方法(按public protected private顺序排列)
@@ -64,6 +65,9 @@ public class NexusRepository extends AuditDomain {
 	private Integer isRelated;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
+	@ApiModelProperty(value = "制品库类型")
+	@NotNull
+	private String repoType;
 
 	@Transient
 	private String creatorImageUrl;
@@ -198,5 +202,13 @@ public class NexusRepository extends AuditDomain {
 	public NexusRepository setCreatorRealName(String creatorRealName) {
 		this.creatorRealName = creatorRealName;
 		return this;
+	}
+
+	public String getRepoType() {
+		return repoType;
+	}
+
+	public void setRepoType(String repoType) {
+		this.repoType = repoType;
 	}
 }

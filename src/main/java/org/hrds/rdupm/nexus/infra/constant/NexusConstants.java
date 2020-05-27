@@ -36,5 +36,13 @@ public interface NexusConstants {
 		String REPO_ORG = "org";
 	}
 
+	/**
+	 * 制品库-仓库类型
+	 */
+	interface RepoType {
+		String MAVEN = "MAVEN";
+		String NPM = "NPM";
+	}
+
 
 }
