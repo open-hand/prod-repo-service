@@ -34,7 +34,8 @@
         rnl.last_updated_by,
         rnl.last_update_date,
         rna.login_name,
-        rna.real_name
+        rna.real_name,
+        rnr.ne_repository_name
         FROM rdupm_nexus_log rnl
         LEFT JOIN rdupm_nexus_repository rnr ON rnl.repository_id = rnr.repository_id
         LEFT JOIN rdupm_nexus_auth rna ON rnl.operator_id = rna.user_id
