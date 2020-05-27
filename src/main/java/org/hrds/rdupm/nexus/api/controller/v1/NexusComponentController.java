@@ -1,8 +1,8 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.domain.Page;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
@@ -33,17 +33,17 @@ public class NexusComponentController extends BaseController {
 	private NexusComponentService nexusComponentService;
 
 	@ApiOperation(value = "项目层-包列表查询")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping("/{organizationId}/project/{projectId}")
-	public ResponseEntity<PageInfo<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																			 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-																			 NexusComponentQuery componentQuery,
-																			 @ApiIgnore PageRequest pageRequest) {
+	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+																		 NexusComponentQuery componentQuery,
+																		 @ApiIgnore PageRequest pageRequest) {
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true,componentQuery, pageRequest));
 	}
 
 	@ApiOperation(value = "项目层-包删除")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@DeleteMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<?> deleteComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
@@ -55,7 +55,7 @@ public class NexusComponentController extends BaseController {
 
 
 	@ApiOperation(value = "项目层-包上传")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@PostMapping("/{organizationId}/project/{projectId}/upload")
 	public ResponseEntity<?> componentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,

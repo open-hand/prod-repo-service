@@ -7,15 +7,14 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.domain.Page;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
-import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
@@ -26,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.hzero.mybatis.helper.SecurityTokenHelper;
 
-import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
@@ -45,16 +43,16 @@ public class HarborAuthController extends BaseController {
     @Autowired
     private HarborAuthRepository harborAuthRepository;
 
-    @Resource
-	private BaseFeignClient baseFeignClient;
+    @Autowired
+	private C7nBaseService c7nBaseService;
 
     @Autowired
 	private HarborAuthService harborAuthService;
 
     @ApiOperation(value = "项目层-权限列表")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping(value = "/list-project/{projectId}")
-	public ResponseEntity<PageInfo<HarborAuth>> listByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
+	public ResponseEntity<Page<HarborAuth>> listByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
 												 @ApiParam("登录名") @RequestParam(required = false) String loginName,
 												 @ApiParam("用户名") @RequestParam(required = false) String realName,
 												 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
@@ -62,14 +60,14 @@ public class HarborAuthController extends BaseController {
 												 @ApiIgnore PageRequest pageRequest) {
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		harborAuth.setHarborRoleValue(harborRoleValue);
-    	PageInfo<HarborAuth> list = PageConvertUtils.convert(harborAuthService.pageList(pageRequest, harborAuth));
+    	Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
         return Results.success(list);
     }
 
 	@ApiOperation(value = "组织层-权限列表")
-	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list-org/{organizationId}")
-	public ResponseEntity<PageInfo<HarborAuth>> listByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+	public ResponseEntity<Page<HarborAuth>> listByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
 													 @ApiParam("镜像仓库编码") @RequestParam(required = false) String code,
 													 @ApiParam("镜像仓库名称") @RequestParam(required = false) String name,
 													 @ApiParam("登录名") @RequestParam(required = false) String loginName,
@@ -77,12 +75,12 @@ public class HarborAuthController extends BaseController {
 													 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
 													 @ApiIgnore PageRequest pageRequest) {
 		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
-		PageInfo<HarborAuth> list = PageConvertUtils.convert(harborAuthService.pageList(pageRequest, harborAuth));
+		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
 		return Results.success(list);
 	}
 
     @ApiOperation(value = "项目层--权限明细")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
     @GetMapping("/detail/{authId}")
     public ResponseEntity<HarborAuth> detail(@PathVariable Long authId) {
         HarborAuth harborAuth = harborAuthRepository.selectByPrimaryKey(authId);
@@ -90,7 +88,7 @@ public class HarborAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--分配权限,必输字段endDate、harborRoleValue、userId")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
     @PostMapping("/create/{projectId}")
     public ResponseEntity<List<HarborAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
 											 @RequestBody List<HarborAuth> dtoList) {
@@ -100,7 +98,7 @@ public class HarborAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--更新权限")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
     @PutMapping
     public ResponseEntity<HarborAuth> update(@RequestBody HarborAuth harborAuth) {
         SecurityTokenHelper.validToken(harborAuth);
@@ -109,7 +107,7 @@ public class HarborAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--删除权限")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
     @DeleteMapping
     public ResponseEntity<?> remove(@RequestBody HarborAuth harborAuth) {
         SecurityTokenHelper.validToken(harborAuth);
@@ -118,16 +116,16 @@ public class HarborAuthController extends BaseController {
     }
 
 	@ApiOperation(value = "猪齿鱼接口--根据projectId查询项目下的团队成员")
-	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping("/list-project-member/{projectId}")
 	public ResponseEntity<List<UserDTO>> getUserList(@PathVariable Long projectId,
 													 @ApiParam("条件模糊查询") @RequestParam(required = false) String param) {
-		List<UserDTO> userDTOList = baseFeignClient.listUsersByName(projectId,null).getBody();
+		List<UserDTO> userDTOList = c7nBaseService.listProjectUsersByIdName(projectId,null);
 		return Results.success(userDTOList);
 	}
 
 	@ApiOperation(value = "项目层--导出权限")
-	@Permission(type = ResourceType.PROJECT,permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping("/export/project/{projectId}")
 	public ResponseEntity<Page<HarborAuth>> projectExport(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
 														   @ApiParam("登录名") @RequestParam(required = false) String loginName,
@@ -142,7 +140,7 @@ public class HarborAuthController extends BaseController {
 	}
 
 	@ApiOperation(value = "组织层--导出权限")
-	@Permission(type = ResourceType.ORGANIZATION,permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/export/organization/{organizationId}")
 	public ResponseEntity<Page<HarborAuth>> orgExport(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
 															   @ApiParam("镜像仓库编码") @RequestParam(required = false) String code,

@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
@@ -18,12 +18,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
@@ -47,11 +47,11 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	@Autowired
 	private HarborRepositoryRepository harborRepositoryRepository;
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Override
-	public PageInfo<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
+	public Page<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
 		ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,null,null,false,repoName);
 		List<HarborImageTagVo> harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
 		if(StringUtils.isNotEmpty(tagName)){
@@ -64,7 +64,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			setTagAuthor(projectId,repoName,tagName,dto);
 		});
 		processImageLogList(harborImageTagVoList);
-		PageInfo<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
+		Page<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
 		return pageInfo;
 	}
 
@@ -100,10 +100,8 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	}
 
 	public void processImageLogList(List<HarborImageTagVo> harborImageTagVoList){
-		//创建人ID去重，并获得创建人详细信息
 		Set<String> userNameSet = harborImageTagVoList.stream().map(dto->dto.getAuthor()).collect(Collectors.toSet());
-		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
-		Map<String,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(1) : userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName,dto->dto));
+		Map<String,UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
 		harborImageTagVoList.stream().forEach(dto->{
 			String loginName = dto.getAuthor();
 			UserDTO userDTO = userDtoMap.get(loginName);

@@ -3,28 +3,22 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborCountVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
@@ -47,11 +41,11 @@ public class HarborImageServiceImpl implements HarborImageService {
 	@Autowired
 	private HarborRepositoryRepository harborRepositoryRepository;
 
-	@Resource
-	private BaseFeignClient baseFeignClient;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@Override
-	public PageInfo<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
+	public Page<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
 		Gson gson = new Gson();
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
@@ -69,7 +63,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		}
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(),totalSize, harborImageVoList);
+		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(),totalSize, harborImageVoList);
 		return pageInfo;
 	}
 
@@ -89,7 +83,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 	}
 
 	@Override
-	public PageInfo<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest) {
+	public Page<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest) {
 		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
 		if(!StringUtils.isEmpty(projectCode)){
 			sql.andEqualTo(HarborRepository.FIELD_CODE,projectCode);
@@ -103,10 +97,8 @@ public class HarborImageServiceImpl implements HarborImageService {
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), new ArrayList<>());
 		}
 
-		//获得镜像仓库图标等
 		Set<Long> projectIdSet = projectList.stream().map(dto->dto.getProjectId()).collect(Collectors.toSet());
-		ResponseEntity<List<ProjectDTO>> projectResponseEntity = baseFeignClient.queryByIds(projectIdSet);
-		Map<Long,ProjectDTO> projectDtoMap = projectResponseEntity == null ? new HashMap<>(1) : projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId,dto->dto));
+		Map<Long,ProjectDTO> projectDtoMap = c7nBaseService.queryProjectByIds(projectIdSet);
 
 		//查询镜像列表
 		Integer totalSize = 0;
@@ -127,7 +119,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 			totalSize += harborProjectDTO.getRepoCount();
 		}
-		PageInfo<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), totalSize,harborImageVoList);
+		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;
 	}
 

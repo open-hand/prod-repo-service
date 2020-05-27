@@ -25,7 +25,7 @@ env:
     # 是否自动刷新服务权限
     CHOERODON_EUREKA_EVENT_PARSE_PERMISSION: true
     # Eureka 注册中心地址
-    EUREKA_DEFAULT_ZONE: http://dev.hzero.org:8000/eureka/
+    EUREKA_DEFAULT_ZONE: http://hzero-register.staging.saas.hand-china.com/
     # 服务以IP地址注册
     EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
     # 是否启用配置中心

@@ -1,8 +1,8 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.domain.Page;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -32,9 +32,9 @@ public class HarborImageTagController {
 	private HarborImageTagService harborImageTagService;
 
 	@ApiOperation(value = "镜像TAG列表")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping(value = "/list/{projectId}")
-	public ResponseEntity<PageInfo<HarborImageTagVo>> list(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+	public ResponseEntity<Page<HarborImageTagVo>> list(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 														   @ApiParam(value = "仓库名称") @RequestParam String repoName,
 														   @ApiParam(value = "版本号") @RequestParam(required = false) String tagName,
 														   @ApiIgnore PageRequest pageRequest) {
@@ -42,7 +42,7 @@ public class HarborImageTagController {
 	}
 
 	@ApiOperation(value = "镜像TAG构建日志")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@GetMapping(value = "/build/log")
 	public ResponseEntity<String> buildLog(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 										   @ApiParam(value = "版本号") @RequestParam String tagName) {
@@ -50,7 +50,7 @@ public class HarborImageTagController {
 	}
 
 	@ApiOperation(value = "删除镜像TAG")
-	@Permission(type = ResourceType.PROJECT, permissionPublic = true)
+	@Permission(level = ResourceLevel.PROJECT)
 	@DeleteMapping(value = "/delete")
 	public ResponseEntity delete(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 								 @ApiParam(value = "版本号") @RequestParam String tagName) {
@@ -59,7 +59,7 @@ public class HarborImageTagController {
 	}
 
 	@ApiOperation(value = "复制镜像TAG")
-	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/copy")
 	public ResponseEntity<String> copyTag(@RequestBody HarborImageReTag harborImageReTag){
 		harborImageTagService.copyTag(harborImageReTag);

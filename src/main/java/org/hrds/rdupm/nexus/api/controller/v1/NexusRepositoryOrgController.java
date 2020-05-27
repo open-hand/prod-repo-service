@@ -1,8 +1,8 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.domain.Page;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -35,9 +35,9 @@ public class NexusRepositoryOrgController extends BaseController {
     private NexusRepositoryService nexusRepositoryService;
 
     @ApiOperation(value = "组织层-maven仓库列表")
-    @Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/maven/repo")
-    public ResponseEntity<PageInfo<NexusRepositoryDTO>> listOtherMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+    public ResponseEntity<Page<NexusRepositoryDTO>> listOtherMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                            NexusRepositoryQueryDTO queryDTO,
                                                                            @ApiIgnore PageRequest pageRequest) {
         queryDTO.setOrganizationId(organizationId);

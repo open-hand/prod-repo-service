@@ -2,7 +2,7 @@ package org.hrds.rdupm.harbor.infra.annotation;
 
 import java.lang.annotation.*;
 
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.iam.ResourceLevel;
 
 /**
  * description

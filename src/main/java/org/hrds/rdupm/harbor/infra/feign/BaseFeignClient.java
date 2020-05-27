@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * FeignDemo
  * @author chenxiuhong
  */
-@FeignClient(value = "base-service", fallback = BaseFeignClientFallBack.class)
+@FeignClient(value = "hzero-iam",path = "/choerodon", fallback = BaseFeignClientFallBack.class)
 public interface BaseFeignClient {
 
 	/***
@@ -26,15 +26,7 @@ public interface BaseFeignClient {
 	 * @return
 	 */
 	@GetMapping(value = "/v1/users")
-	ResponseEntity<UserDTO> query(@RequestParam(name = "login_name") String loginName);
-
-	/***
-	 * 根据id查询用户信息
-	 * @param id 用户ID
-	 * @return
-	 */
-	@GetMapping(value = "/v1/users/{id}/info")
-	ResponseEntity<UserDTO> queryInfo(@PathVariable Long id) ;
+	ResponseEntity<UserDTO> query(@RequestParam(value = "login_name") String loginName);
 
 	/***
 	 * 根据id批量查询用户信息列表
@@ -61,24 +53,7 @@ public interface BaseFeignClient {
 	 * @return
 	 */
 	@GetMapping(value = "/v1/projects/{project_id}/users/search_by_name")
-	ResponseEntity<List<UserDTO>> listUsersByName(@PathVariable(name = "project_id") Long projectId, @RequestParam(required = false) String param);
-
-	/***
-	 * 查询组织下项目（最多20个）
-	 * @param organizationId 组织ID
-	 * @param name 项目名称，模糊查询
-	 * @return
-	 */
-	@GetMapping("/v1/organizations/{organization_id}/projects/with_limit")
-	ResponseEntity<List<ProjectDTO>> listProjectsWithLimit(@PathVariable(name = "organization_id") Long organizationId, @RequestParam(required = false) String name) ;
-
-	/***
-	 * 查询组织下所有项目
-	 * @param organizationId 组织ID
-	 * @return
-	 */
-	@GetMapping(value = "/v1/organizations/{organization_id}/projects/all")
-	ResponseEntity<List<ProjectDTO>> listProjectsByOrgId(@PathVariable(name = "organization_id") Long organizationId);
+	ResponseEntity<List<UserDTO>> listUsersByName(@PathVariable(name = "project_id") Long projectId, @RequestParam(value = "param", required = false) String param);
 
 	/***
 	 * 按照项目Id查询项目
@@ -95,14 +70,6 @@ public interface BaseFeignClient {
 	 */
 	@PostMapping("/v1/projects/ids")
 	ResponseEntity<List<ProjectDTO>> queryByIds(@RequestBody Set<Long> ids);
-
-	/***
-	 * 根据项目id查询项目下的项目所有者
-	 * @param projectId
-	 * @return
-	 */
-	@GetMapping("/v1/projects/{project_id}/owner/list")
-	ResponseEntity<List<UserDTO>> listProjectOwnerById(@PathVariable(name = "project_id") Long projectId);
 
 	/***
 	 * 根据多个id查询用户（包括用户信息以及所分配的项目角色信息以及GitlabUserId）

@@ -1,9 +1,10 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
-import com.github.pagehelper.PageInfo;
+import io.choerodon.core.domain.Page;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
+import io.choerodon.core.domain.PageInfo;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.domain.AuditDomain;
@@ -378,7 +379,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 //	@Override
-//	public PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
+//	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
 //		configService.setNexusInfo(nexusClient);
 //
 //		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
@@ -416,17 +417,17 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 //	}
 
 	@Override
-	public PageInfo<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
+	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
 		if (CollectionUtils.isEmpty(resultAll)) {
-			return PageConvertUtils.convert();
+			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 
-		return PageConvertUtils.convert(pageRequest.getPage() + 1, pageRequest.getSize(), resultAll);
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 	}
 
 	@Override

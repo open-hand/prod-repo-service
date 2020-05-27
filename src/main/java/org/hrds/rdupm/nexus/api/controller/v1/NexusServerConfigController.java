@@ -1,7 +1,7 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hzero.core.util.Results;
@@ -27,7 +27,7 @@ public class NexusServerConfigController extends BaseController {
     private NexusServerConfigService nexusServerConfigService;
 
 //    @ApiOperation(value = "nexus服务信息配置")
-//    @Permission(type = ResourceType.SITE, permissionPublic = true)
+//    @Permission(level = ResourceLevel.SITE)
 //    @PostMapping
 //    public ResponseEntity<NexusServerConfig> createServerConfig(@RequestBody NexusServerConfig nexusServerConfig) {
 //        validObject(nexusServerConfig);
@@ -35,7 +35,7 @@ public class NexusServerConfigController extends BaseController {
 //    }
 
     @ApiOperation(value = "nexus服务信息配置更新")
-    @Permission(type = ResourceType.SITE, permissionPublic = true)
+    @Permission(level = ResourceLevel.SITE)
     @PutMapping
     public ResponseEntity<NexusServerConfig> updateServerConfig(@RequestBody NexusServerConfig nexusServerConfig) {
         validObject(nexusServerConfig);
@@ -43,7 +43,7 @@ public class NexusServerConfigController extends BaseController {
     }
 
     @ApiOperation(value = "查询 nexus服务信息配置")
-    @Permission(type = ResourceType.SITE, permissionPublic = true)
+    @Permission(level = ResourceLevel.SITE)
     @GetMapping
     public ResponseEntity<NexusServerConfig> queryServerConfig() {
         return Results.success(nexusServerConfigService.queryServerConfig());

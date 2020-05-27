@@ -1,8 +1,8 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import com.github.pagehelper.PageInfo;
-import io.choerodon.core.annotation.Permission;
-import io.choerodon.core.enums.ResourceType;
+import io.choerodon.core.domain.Page;
+import io.choerodon.swagger.annotation.Permission;
+import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
@@ -35,9 +35,9 @@ public class NexusComponentOrgController extends BaseController {
 	private NexusComponentService nexusComponentService;
 
 	@ApiOperation(value = "组织层-包列表查询")
-	@Permission(type = ResourceType.ORGANIZATION, permissionPublic = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}")
-	public ResponseEntity<PageInfo<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																			 NexusComponentQuery componentQuery,
 																			 @ApiIgnore PageRequest pageRequest) {
 		return Results.success(nexusComponentService.listComponents(organizationId, null, false,componentQuery, pageRequest));
