@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.domain.entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -80,6 +81,21 @@ public class NexusLog extends AuditDomain {
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
+    @Transient
+    @ApiModelProperty("项目编码")
+    private String projectCode;
+
+    @Transient
+    @ApiModelProperty("项目名称")
+    private String projectName;
+
+    @Transient
+    @ApiModelProperty("项目图标url")
+    private String projectImageUrl;
+
+    @Transient
+    @ApiModelProperty("登录名")
+    private String loginName;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
