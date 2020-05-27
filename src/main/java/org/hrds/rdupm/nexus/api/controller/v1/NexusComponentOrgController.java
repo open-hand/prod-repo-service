@@ -14,6 +14,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerAssetUpload;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
@@ -41,7 +42,7 @@ public class NexusComponentOrgController extends BaseController {
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																			 NexusComponentQuery componentQuery,
 																			 @ApiIgnore PageRequest pageRequest) {
-		componentQuery.setFormat(NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		componentQuery.setFormat(NexusConstants.RepoType.MAVEN);
 		return Results.success(nexusComponentService.listComponents(organizationId, null, false,componentQuery, pageRequest));
 	}
 
@@ -51,7 +52,7 @@ public class NexusComponentOrgController extends BaseController {
 	public ResponseEntity<Page<NexusServerComponentInfo>> listNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																			NexusComponentQuery componentQuery,
 																			@ApiIgnore PageRequest pageRequest) {
-		componentQuery.setFormat(NexusApiConstants.NexusRepoFormat.NPM_FORMAT);
+		componentQuery.setFormat(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponents(organizationId, null, false, componentQuery, pageRequest));
 	}
 

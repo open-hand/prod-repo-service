@@ -10,6 +10,7 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		String response = responseEntity.getBody();
 		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
 		List<NexusServerComponent> componentList = componentResponse.getItems();
-		if (StringUtils.equals(componentQuery.getFormat(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)) {
+		if (StringUtils.equals(componentQuery.getFormat(), NexusConstants.RepoType.MAVEN)) {
 			this.handleVersion(componentList);
 		} else {
 			componentList.forEach(c -> c.setUseVersion(c.getVersion()));
