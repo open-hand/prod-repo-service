@@ -10,6 +10,10 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
@@ -19,10 +23,15 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
+import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
+import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusRole;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
 import org.hrds.rdupm.nexus.infra.annotation.NexusOperateLog;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
@@ -57,6 +66,16 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     private NexusAuthRepository nexusAuthRepository;
     @Autowired
     private TransactionalProducer producer;
+    @Autowired
+    private ProdUserRepository prodUserRepository;
+    @Autowired
+    private ProdUserService prodUserService;
+    @Autowired
+    private NexusRoleRepository nexusRoleRepository;
+    @Autowired
+    private NexusClient nexusClient;
+    @Autowired
+    private NexusServerConfigService configService;
 
 
     @Override
@@ -101,7 +120,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 分配 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Saga(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, description = "nexus分配权限", inputSchemaClass = List.class)
     public void create(Long projectId, List<NexusAuth> nexusAuthList) {
-        if(CollectionUtils.isEmpty(nexusAuthList)){
+        if (CollectionUtils.isEmpty(nexusAuthList)){
             return;
         }
         List<Long> repositoryIds = nexusAuthList.stream().map(NexusAuth::getRepositoryId).distinct().collect(Collectors.toList());
@@ -110,9 +129,12 @@ public class NexusAuthServiceImpl implements NexusAuthService {
         }
         Long repositoryId = repositoryIds.get(0);
         NexusRepository nexusRepository = nexusRepositoryRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
-        if(nexusRepository == null){
+        if (nexusRepository == null){
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+
+        // 仓库角色查询
+        NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
 
         //校验是否已分配权限
         List<NexusAuth> existList = nexusAuthRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId);
@@ -122,6 +144,8 @@ public class NexusAuthServiceImpl implements NexusAuthService {
         ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(nexusAuthList.stream().map(NexusAuth::getUserId).distinct().toArray(Long[]::new),true);
         Map<Long,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(2) : Objects.requireNonNull(userDtoResponseEntity.getBody()).stream().collect(Collectors.toMap(UserDTO::getId, dto->dto));
 
+        List<ProdUser> prodUserList = new ArrayList<>();
+
         nexusAuthList.forEach(nexusAuth -> {
             UserDTO userDTO = userDtoMap.get(nexusAuth.getUserId());
             nexusAuth.setLoginName(userDTO == null ? null : userDTO.getLoginName());
@@ -130,16 +154,21 @@ public class NexusAuthServiceImpl implements NexusAuthService {
             if (nexusAuth.getLoginName() == null) {
                 throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
             }
-            if(nexusAuthMap.get(nexusAuth.getUserId()) != null) {
+            if (nexusAuthMap.get(nexusAuth.getUserId()) != null) {
                 throw new CommonException(NexusMessageConstants.NEXUS_AUTH_ALREADY_EXIST, nexusAuth.getRealName());
             }
 
             nexusAuth.setProjectId(projectId);
             nexusAuth.setOrganizationId(nexusRepository.getOrganizationId());
-            // TODO neRoleId
-            nexusAuth.setNeRoleId(nexusAuth.getLoginName() + "-role");
+            // 设置角色
+            nexusAuth.setNeRoleIdByRoleCode(nexusRole);
 
+            String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+            ProdUser prodUser = new ProdUser(nexusAuth.getUserId(), nexusAuth.getLoginName(), password,0);
+            prodUserList.add(prodUser);
         });
+
+
         producer.apply(StartSagaBuilder.newBuilder()
                         .withSagaCode(NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE)
                         .withLevel(ResourceLevel.PROJECT)
@@ -147,6 +176,7 @@ public class NexusAuthServiceImpl implements NexusAuthService {
                         .withSourceId(projectId),
                 startSagaBuilder -> {
                     nexusAuthRepository.batchInsert(nexusAuthList);
+                    prodUserService.saveMultiUser(prodUserList);
                     startSagaBuilder.withPayloadAndSerialize(nexusAuthList).withSourceId(projectId);
                 });
     }
@@ -155,23 +185,36 @@ public class NexusAuthServiceImpl implements NexusAuthService {
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 更新 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void update(NexusAuth nexusAuth) {
+        // 设置并返回当前nexus服务信息
+        configService.setNexusInfo(nexusClient);
+
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
-        if(existAuth == null){
+        if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
-        nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE);
-        // TODO nexus更新
+        // 仓库角色查询
+        NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, existAuth.getRepositoryId()).stream().findFirst().orElse(null);
+        nexusAuth.setNeRoleIdByRoleCode(nexusRole);
+        nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE, NexusAuth.FIELD_NE_ROLE_ID);
+
+        // TODO
+
+        nexusClient.removeNexusServerInfo();
     }
 
     @Override
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 删除 %s 【%s】仓库的的权限角色 【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void delete(NexusAuth nexusAuth) {
+        // 设置并返回当前nexus服务信息
+        configService.setNexusInfo(nexusClient);
+
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
         if(existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
-        // TODO nexus删除
+        nexusClient.getNexusUserApi().deleteUser(existAuth.getLoginName());
+        nexusClient.removeNexusServerInfo();
     }
 }

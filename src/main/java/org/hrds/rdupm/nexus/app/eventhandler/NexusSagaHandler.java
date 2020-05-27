@@ -131,11 +131,21 @@ public class NexusSagaHandler {
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
 		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 
-		// 创建角色
+		// 发布角色
+		NexusServerRole nexusServerRole = new NexusServerRole();
+		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+
+		// 创建拉取角色
 		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
 		if (pullExist == null) {
 			// 角色不存在，创建
 			nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
+		}
+		// 创建发布角色
+		NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
+		if (pushExist == null) {
+			// 角色不存在，创建
+			nexusClient.getNexusRoleApi().createRole(nexusServerRole);
 		}
 
 		// 匿名访问

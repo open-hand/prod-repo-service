@@ -129,8 +129,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		// 角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		// // 发布角色
-		//nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		// 发布角色
+		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
 		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
@@ -138,6 +138,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
 		nexusRole.setNePullRoleId(pullNexusServerRole.getId());
+		nexusRole.setNeRoleId(nexusServerRole.getId());
 		nexusRoleRepository.insertSelective(nexusRole);
 
 		// 用户
