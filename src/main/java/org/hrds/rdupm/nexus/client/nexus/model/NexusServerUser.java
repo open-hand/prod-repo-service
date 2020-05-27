@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class NexusServerUser {
 
+	private static String STATUS_ACTIVE = "active";
+
 	/**
 	 * 生成默认密码
 	 * @return 生成的密码
@@ -29,6 +31,7 @@ public class NexusServerUser {
 		this.lastName = userId;
 		this.emailAddress = this.getUserId() + "@default.com";
 		this.roles = roles;
+		this.status = STATUS_ACTIVE;
 	}
 
 	/**
@@ -47,7 +50,7 @@ public class NexusServerUser {
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());
 		this.setEmailAddress(this.getUserId() + "@default.com");
-		this.setStatus("active");
+		this.setStatus(STATUS_ACTIVE);
 		this.setRoles(Collections.singletonList(roleId));
 	}
 
@@ -67,7 +70,7 @@ public class NexusServerUser {
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());
 		this.setEmailAddress(this.getUserId() + "@default.com");
-		this.setStatus("active");
+		this.setStatus(STATUS_ACTIVE);
 		this.setRoles(Collections.singletonList(roleId));
 	}
 

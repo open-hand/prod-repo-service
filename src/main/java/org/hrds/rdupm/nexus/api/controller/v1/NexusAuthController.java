@@ -4,13 +4,12 @@ package org.hrds.rdupm.nexus.api.controller.v1;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
-import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
+import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,9 @@ import io.swagger.annotations.ApiOperation;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 制品库_nexus权限表 管理 API
@@ -68,14 +69,14 @@ public class NexusAuthController extends BaseController {
                                                          @ApiIgnore PageRequest pageRequest,
                                                          @ApiParam("导出，输入exportType=DATA即可") ExportParam exportParam,
                                                          HttpServletResponse response) {
-        HarborUtil.setIds(exportParam);
+        this.setIds(exportParam);
         NexusAuth nexusAuth = new NexusAuth();
         nexusAuth.setRepositoryId(repositoryId);
         nexusAuth.setProjectId(projectId);
         nexusAuth.setLoginName(loginName);
         nexusAuth.setRealName(realName);
         nexusAuth.setRoleCode(roleCode);
-        return Results.success(nexusAuthService.pageList(pageRequest, nexusAuth));
+        return Results.success(nexusAuthService.export(pageRequest, nexusAuth, exportParam, response));
     }
 
 
@@ -110,14 +111,14 @@ public class NexusAuthController extends BaseController {
                                                      @ApiIgnore PageRequest pageRequest,
                                                      @ApiParam("导出，输入exportType=DATA即可") ExportParam exportParam,
                                                      HttpServletResponse response) {
-        HarborUtil.setIds(exportParam);
+        this.setIds(exportParam);
         NexusAuth nexusAuth = new NexusAuth();
         nexusAuth.setOrganizationId(organizationId);
         nexusAuth.setLoginName(loginName);
         nexusAuth.setRealName(realName);
         nexusAuth.setRoleCode(roleCode);
-        nexusAuth.setRoleCode(neRepositoryName);
-        return Results.success(nexusAuthService.pageList(pageRequest, nexusAuth));
+        nexusAuth.setNeRepositoryName(neRepositoryName);
+        return Results.success(nexusAuthService.export(pageRequest, nexusAuth, exportParam, response));
     }
 
     @ApiOperation(value = "项目层--权限明细")
@@ -154,5 +155,20 @@ public class NexusAuthController extends BaseController {
         SecurityTokenHelper.validToken(nexusAuth);
         nexusAuthService.delete(nexusAuth);
         return Results.success();
+    }
+
+
+    /***
+     * 设置导出全部列
+     * @param exportParam
+     */
+    private void setIds(ExportParam exportParam){
+        //无需在前台指定"列ids"
+        Set<Long> ids = new HashSet<>(16);
+        exportParam.setIds(ids);
+        int fieldLength = NexusAuth.class.getDeclaredFields().length;
+        for(int i = 1; i <= fieldLength + 1; i++){
+            ids.add((long)i);
+        }
     }
 }
