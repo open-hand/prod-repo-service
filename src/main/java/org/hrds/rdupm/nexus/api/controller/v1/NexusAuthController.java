@@ -43,7 +43,7 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.PROJECT)
     @GetMapping(value = "/{projectId}/list-project")
     public ResponseEntity<Page<NexusAuth>> listByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
-                                                             @ApiParam("仓库Id") @RequestParam Long repositoryId,
+                                                             @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
                                                              @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                              @ApiParam("用户名") @RequestParam(required = false) String realName,
                                                              @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
@@ -61,7 +61,7 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.PROJECT)
     @GetMapping("/{projectId}/export/project")
     public ResponseEntity<Page<NexusAuth>> projectExport(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
-                                                         @ApiParam("仓库Id") @RequestParam Long repositoryId,
+                                                         @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
                                                          @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                          @ApiParam("用户名") @RequestParam(required = false) String realName,
                                                          @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
