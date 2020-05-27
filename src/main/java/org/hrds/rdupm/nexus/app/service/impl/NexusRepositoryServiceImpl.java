@@ -373,11 +373,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 				});
 	}
 
-	@Override
-	public List<NexusServerRepository> listRelatedMavenRepo(Long organizationId, Long projectId) {
-		// TODO
-		return null;
-	}
 
 //	@Override
 //	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {

@@ -41,7 +41,7 @@ public class NexusAuthController extends BaseController {
     private NexusAuthService nexusAuthService;
 
     @ApiOperation(value = "项目层-权限列表")
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping(value = "/{projectId}/list-project")
     public ResponseEntity<Page<NexusAuth>> listByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
                                                              @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
@@ -59,7 +59,7 @@ public class NexusAuthController extends BaseController {
         return Results.success(list);
     }
     @ApiOperation(value = "项目层--导出权限")
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{projectId}/export/project")
     public ResponseEntity<Page<NexusAuth>> projectExport(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
                                                          @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
@@ -122,7 +122,7 @@ public class NexusAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--权限明细")
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
     public ResponseEntity<NexusAuth> detail(@PathVariable Long authId) {
         NexusAuth nexusAuth = nexusAuthRepository.selectByPrimaryKey(authId);
@@ -130,7 +130,7 @@ public class NexusAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--分配权限, 必输字段 endDate、roleCode 、userId、repositoryId")
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/{projectId}/create")
     public ResponseEntity<List<NexusAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
                                                    @RequestBody List<NexusAuth> nexusAuthList) {
@@ -140,7 +140,7 @@ public class NexusAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--更新权限")
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @PutMapping
     public ResponseEntity<NexusAuth> update(@RequestBody NexusAuth nexusAuth) {
         SecurityTokenHelper.validToken(nexusAuth);
@@ -149,7 +149,7 @@ public class NexusAuthController extends BaseController {
     }
 
     @ApiOperation(value = "项目层--删除权限")
-    @Permission(level = ResourceLevel.PROJECT)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping
     public ResponseEntity<?> remove(@RequestBody NexusAuth nexusAuth) {
         SecurityTokenHelper.validToken(nexusAuth);

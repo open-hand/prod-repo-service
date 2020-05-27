@@ -51,4 +51,15 @@ public interface NexusAuthService {
      * @param nexusAuth 权限数据
      */
     void delete(NexusAuth nexusAuth);
+
+    /**
+     * 定时任务移除过期权限
+     */
+    void expiredBatchNexusAuth();
+
+    /**
+     * 移除过期权限
+     */
+    void expiredNexusAuth(NexusAuth nexusAuth);
+
 }
