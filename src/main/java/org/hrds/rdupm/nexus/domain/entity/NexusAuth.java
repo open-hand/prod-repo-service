@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.constraints.NotBlank;
+
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
@@ -18,6 +20,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelColumn;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -52,6 +55,20 @@ public class NexusAuth extends AuditDomain {
     //
     // 业务方法(按public protected private顺序排列)
     // ------------------------------------------------------------------------------
+
+
+    public void setNeRoleIdByRoleCode(NexusRole nexusRole){
+        if (this.roleCode.equals(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())
+                || this.roleCode.equals(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode())) {
+            this.neRoleId = nexusRole.getNeRoleId();
+        } else if (this.roleCode.equals(NexusConstants.NexusRoleEnum.GUEST.getRoleCode())
+                || this.roleCode.equals(NexusConstants.NexusRoleEnum.LIMITED_GUEST.getRoleCode())) {
+            this.neRoleId = nexusRole.getNePullRoleId();
+        } else {
+            throw new CommonException("权限角色有误");
+        }
+    }
+
 
     //
     // 数据库字段

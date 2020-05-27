@@ -21,6 +21,17 @@ public class NexusServerRole {
 	private static final String DEFAULT_ANONYMOUS_READ = "nx-repository-view-{format}-{repositoryName}-read";
 	private static final String DEFAULT_ANONYMOUS_BROWSE = "nx-repository-view-{format}-{repositoryName}-browse";
 
+	public NexusServerRole() {
+	}
+
+	public NexusServerRole(String id, String name, String description, List<String> privileges, List<String> roles) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.privileges = privileges;
+		this.roles = roles;
+	}
+
 	/**
 	 * 生成默认发布权限列表
 	 * @param repositoryName 仓库名称（Id）
@@ -28,6 +39,7 @@ public class NexusServerRole {
 	 * @return 描述信息
 	 *
 	 */
+
 	private List<String> createDefPushPri(String repositoryName, String format){
 		List<String> privilegeList = new ArrayList<>();
 		privilegeList.add(DEFAULT_PRI.replace("{repositoryName}", repositoryName).replace("{format}", format));
@@ -37,17 +49,19 @@ public class NexusServerRole {
 	/**
 	 * 添加仓库发布权限
 	 * @param repositoryName 仓库名称（Id）
+	 * @param format 类型： maven2、npm
 	 */
-	public void addDefPushPri(String repositoryName) {
-		this.privileges.add(DEFAULT_PRI.replace("{repositoryName}", repositoryName));
+	public void addDefPushPri(String repositoryName, String format) {
+		this.privileges.add(DEFAULT_PRI.replace("{repositoryName}", repositoryName).replace("{format}", format));
 	}
 
 	/**
 	 * 删除仓库发布权限
 	 * @param repositoryName 仓库名称（Id）
+	 * @param format 类型： maven2、npm
 	 */
-	public void removeDefPushPri(String repositoryName) {
-		this.privileges.remove(DEFAULT_PRI.replace("{repositoryName}", repositoryName));
+	public void removeDefPushPri(String repositoryName, String format) {
+		this.privileges.remove(DEFAULT_PRI.replace("{repositoryName}", repositoryName).replace("{format}", format));
 	}
 
 	/**

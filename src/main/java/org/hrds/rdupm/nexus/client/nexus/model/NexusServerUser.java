@@ -19,13 +19,25 @@ public class NexusServerUser {
 		return UUIDUtils.generateUUID().substring(0, 8);
 	}
 
+	public NexusServerUser() {
+	}
+
+	public NexusServerUser(String userId, String password, List<String> roles) {
+		this.userId = userId;
+		this.password = password;
+		this.firstName = userId;
+		this.lastName = userId;
+		this.emailAddress = this.getUserId() + "@default.com";
+		this.roles = roles;
+	}
+
 	/**
 	 * 创建仓库默认发布用户
 	 * @param repositoryName 仓库名称（Id）
 	 * @param roleId 角色Id
 	 * @param id 用户Id
 	 */
-	public void createDefPushUser(String repositoryName, String roleId, String id){
+	public void createDefPushUser(String repositoryName, String roleId, String id) {
 		if (id == null) {
 			this.setUserId(repositoryName + "-defUser");
 		} else {

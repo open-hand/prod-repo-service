@@ -11,6 +11,8 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 制品库_nexus仓库角色信息表
@@ -21,10 +23,13 @@ import io.swagger.annotations.ApiModelProperty;
 @VersionAudit
 @ModifyAudit
 @Table(name = "rdupm_nexus_role")
+@Getter
+@Setter
 public class NexusRole extends AuditDomain {
 
     public static final String FIELD_ROLE_ID = "roleId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
+    public static final String FIELD_NE_ROLE_ID = "neRoleId";
     public static final String FIELD_NE_PULL_ROLE_ID = "nePullRoleId";
     public static final String FIELD_TENANT_ID = "tenantId";
 
@@ -44,6 +49,8 @@ public class NexusRole extends AuditDomain {
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
     private Long repositoryId;
+	@ApiModelProperty(value = "仓库默认发布角色Id",required = true)
+    private String neRoleId;
 	@ApiModelProperty(value = "仓库默认拉取角色Id",required = true)
 	private String nePullRoleId;
     @ApiModelProperty(value = "租户Id")
@@ -56,44 +63,4 @@ public class NexusRole extends AuditDomain {
     //
     // getter/setter
     // ------------------------------------------------------------------------------
-
-    /**
-     * @return 表ID，主键，供其他表做外键
-     */
-	public Long getRoleId() {
-		return roleId;
-	}
-
-	public void setRoleId(Long roleId) {
-		this.roleId = roleId;
-	}
-    /**
-     * @return rdupm_nexus_repository表主键
-     */
-	public Long getRepositoryId() {
-		return repositoryId;
-	}
-
-	public void setRepositoryId(Long repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-    /**
-     * @return 租户Id
-     */
-	public Long getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
-
-	public String getNePullRoleId() {
-		return nePullRoleId;
-	}
-
-	public NexusRole setNePullRoleId(String nePullRoleId) {
-		this.nePullRoleId = nePullRoleId;
-		return this;
-	}
 }
