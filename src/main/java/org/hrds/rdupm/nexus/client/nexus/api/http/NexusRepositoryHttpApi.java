@@ -37,26 +37,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	private NexusScriptApi nexusScriptApi;
 
 	@Override
-	public List<NexusServerRepository> getRepository() {
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.GET_REPOSITORY_MANAGE_LIST, HttpMethod.GET, null, null);
-		String response = responseEntity.getBody();
-		List<RepositoryMavenInfo> repositoryMavenInfoList = JSONObject.parseArray(response, RepositoryMavenInfo.class);
-
-		List<NexusServerRepository> nexusServerRepositoryList = new ArrayList<>();
-		repositoryMavenInfoList.forEach(repositoryMavenInfo -> {
-			NexusServerRepository nexusServerRepository = repositoryMavenInfo.covertNexusServerRepository();
-			if (nexusServerRepository.getFormat().equals(NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)) {
-				// 过滤为maven2类型
-				nexusServerRepositoryList.add(nexusServerRepository);
-			}
-
-
-		});
-		return nexusServerRepositoryList;
-	}
-
-	@Override
-	public List<NexusServerRepository> getRepositoryByFormat(String nexusFormat) {
+	public List<NexusServerRepository> getRepository(String nexusFormat) {
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.GET_REPOSITORY_MANAGE_LIST, HttpMethod.GET, null, null);
 		String response = responseEntity.getBody();
 
@@ -66,8 +47,12 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		if (CollectionUtils.isNotEmpty(repositoryMavenInfoList)) {
 			repositoryMavenInfoList.forEach(repositoryMavenInfo -> {
 				NexusServerRepository nexusServerRepository = repositoryMavenInfo.covertNexusServerRepository();
-				if (StringUtils.isNotEmpty(nexusFormat) && nexusServerRepository.getFormat().equals(nexusFormat)) {
-					// 过滤为npm类型
+				if (nexusFormat != null) {
+					if (nexusServerRepository.getFormat().equals(nexusFormat)) {
+						// 过滤类型
+						nexusServerRepositoryList.add(nexusServerRepository);
+					}
+				} else {
 					nexusServerRepositoryList.add(nexusServerRepository);
 				}
 			});
@@ -77,7 +62,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 	@Override
 	public NexusServerRepository getRepositoryByName(String repositoryName) {
-		List<NexusServerRepository> repositoryList = this.getRepository();
+		List<NexusServerRepository> repositoryList = this.getRepository(null);
 		List<NexusServerRepository> queryList = repositoryList.stream().filter(nexusRepository -> nexusRepository.getName().equals(repositoryName)).collect(Collectors.toList());
 		if (CollectionUtils.isNotEmpty(queryList)) {
 			return queryList.get(0);
@@ -89,11 +74,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	@Override
 	public Boolean repositoryExists(String repositoryName) {
 		NexusServerRepository nexusRepository = this.getRepositoryByName(repositoryName);
-		if (nexusRepository != null) {
-			return true;
-		} else {
-			return false;
-		}
+		return nexusRepository != null;
 	}
 
 	@Override

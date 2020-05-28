@@ -17,4 +17,53 @@
         <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
+    <select id="listNpmLogByOrg" resultType="org.hrds.rdupm.nexus.domain.entity.NexusLog">
+        SELECT
+        rnl.log_id,
+        rnl.operator_id,
+        rnl.project_id,
+        rnl.organization_id,
+        rnl.repository_id,
+        rnl.operate_type,
+        rnl.content,
+        rnl.operate_time,
+        rnl.object_version_number,
+        rnl.creation_date,
+        rnl.created_by,
+        rnl.last_updated_by,
+        rnl.last_update_date,
+        rna.login_name,
+        rna.real_name
+        FROM rdupm_nexus_log rnl
+        LEFT JOIN rdupm_nexus_repository rnr ON rnl.repository_id = rnr.repository_id
+        LEFT JOIN rdupm_nexus_auth rna ON rnl.operator_id = rna.user_id
+        WHERE 1=1
+        <if test="organizationId != null">
+            AND rnl.organization_id = #{organizationId}
+        </if>
+        <if test="repoType != null and repoType != ''">
+            AND rnr.repo_type = #{repoType}
+        </if>
+        <if test="projectId != null">
+            AND rnl.project_id = #{projectId}
+        </if>
+        <if test="neRepositoryName != null and neRepositoryName != ''">
+            <bind name="neRepositoryNameLike" value="'%' + neRepositoryName + '%'" />
+            AND rnr.ne_repository_name = #{neRepositoryNameLike}
+        </if>
+        <if test="realName != null and realName != ''">
+            <bind name="realNameLike" value="'%' + realName + '%'"/>
+            AND rna.real_name = #{realNameLike}
+        </if>
+        <if test="operateType != null and operateType != ''">
+            AND rnl.operate_type = #{operateType}
+        </if>
+        <if test="startDate != null">
+            AND rnl.operate_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND rnl.operate_time &lt;= #{endDate}
+        </if>
+        ORDER BY rnl.operate_time DESC
+    </select>
 </mapper>

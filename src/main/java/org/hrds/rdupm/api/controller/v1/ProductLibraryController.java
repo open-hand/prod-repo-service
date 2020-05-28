@@ -55,7 +55,7 @@ public class ProductLibraryController extends BaseController {
 		// maven
 		List<NexusRepositoryDTO> nexusRepositoryDTOList = null;
 		try {
-			nexusRepositoryDTOList = nexusRepositoryService.listMavenRepoAll(new NexusRepositoryQueryDTO().setProjectId(projectId), NexusConstants.RepoQueryData.REPO_PROJECT);
+			nexusRepositoryDTOList = nexusRepositoryService.listRepoAll(new NexusRepositoryQueryDTO().setProjectId(projectId), NexusConstants.RepoQueryData.REPO_PROJECT);
 		} catch (Exception e) {
 			LOGGER.error("query maven error", e);
 			nexusRepositoryDTOList = new ArrayList<>();

@@ -9,10 +9,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerAssetUpload;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
@@ -40,7 +42,18 @@ public class NexusComponentOrgController extends BaseController {
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																			 NexusComponentQuery componentQuery,
 																			 @ApiIgnore PageRequest pageRequest) {
+		componentQuery.setFormat(NexusConstants.RepoType.MAVEN);
 		return Results.success(nexusComponentService.listComponents(organizationId, null, false,componentQuery, pageRequest));
+	}
+
+	@ApiOperation(value = "组织层-npm包列表查询")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/{organizationId}/npm")
+	public ResponseEntity<Page<NexusServerComponentInfo>> listNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																			NexusComponentQuery componentQuery,
+																			@ApiIgnore PageRequest pageRequest) {
+		componentQuery.setFormat(NexusConstants.RepoType.NPM);
+		return Results.success(nexusComponentService.listComponents(organizationId, null, false, componentQuery, pageRequest));
 	}
 
 }

@@ -74,7 +74,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	private C7nBaseService c7nBaseService;
 
 	@Override
-	public NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
+	public NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId) {
 		configService.setNexusInfo(nexusClient);
 
 		NexusRepository query = new NexusRepository();
@@ -101,16 +101,16 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Saga(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
 			description = "创建maven仓库",
 			inputSchemaClass = NexusRepositoryCreateDTO.class)
-	public NexusRepositoryCreateDTO createMavenRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+	public NexusRepositoryCreateDTO createRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 步骤
 		// 1. 更新数据库数据
 		// 2. 创建仓库
-		// 3. 创建仓库默认角色，赋予权限：nx-repository-view-maven2-[仓库名]-*
+		// 3. 创建仓库默认拉取角色
 		// 4. 创建仓库默认用户，默认赋予角色，上述创建的角色
 		// 5. 是否允许匿名
-		//     允许，赋予匿名用户权限：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
-		//     不允许，去除匿名用户权限：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
+		//     允许，赋予匿名用户权限，如： nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
+		//     不允许，去除匿名用户权限，如：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
 
 		// 参数校验
 		nexusRepoCreateDTO.validParam(baseServiceFeignClient, true);
@@ -118,7 +118,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 
 
-		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())){
+		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
 		}
 
@@ -130,16 +130,16 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepository.setOrganizationId(organizationId);
 		nexusRepository.setProjectId(projectId);
 		nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
-		nexusRepository.setRepoType(NexusConstants.RepoType.MAVEN);
+		nexusRepository.setRepoType(nexusRepoCreateDTO.getRepoType());
 		nexusRepositoryRepository.insertSelective(nexusRepository);
 
 		// 角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
 		// 发布角色
-		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, nexusRepoCreateDTO.getFormat());
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null, nexusRepoCreateDTO.getFormat());
 
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
@@ -267,7 +267,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Saga(code = NexusSagaConstants.NexusMavenRepoUpdate.MAVEN_REPO_UPDATE,
 			description = "更新maven仓库",
 			inputSchemaClass = NexusRepositoryCreateDTO.class)
-	public NexusRepositoryCreateDTO updateMavenRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+	public NexusRepositoryCreateDTO updateRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 参数校验
 		nexusRepoCreateDTO.validParam(baseServiceFeignClient, false);
@@ -308,7 +308,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Saga(code = NexusSagaConstants.NexusMavenRepoDelete.MAVEN_REPO_DELETE,
 			description = "删除maven仓库",
 			inputSchemaClass = NexusRepositoryDeletePayload.class)
-	public void deleteMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
+	public void deleteRepo(Long organizationId, Long projectId, Long repositoryId) {
 		// 仓库
 		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
 		if (nexusRepository == null) {
@@ -463,50 +463,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 				});
 	}
 
-
-//	@Override
-//	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
-//		configService.setNexusInfo(nexusClient);
-//
-//		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
-//		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
-//			return PageConvertUtils.convert();
-//		}
-//		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, a -> a, (k1, k2) -> k1));
-//
-//		NexusRepository query = new NexusRepository();
-//		query.setProjectId(queryDTO.getProjectId());
-//		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
-//
-//		// 数据筛选
-//		nexusRepositoryList = nexusRepositoryList.stream().filter(nexusRepository ->
-//				nexusServerRepositoryMap.keySet().contains(nexusRepository.getNeRepositoryName())).collect(Collectors.toList());
-//
-//
-//		// 查询参数
-//		if (queryDTO.getName() != null) {
-//			nexusRepositoryList = nexusRepositoryList.stream().filter(nexusRepository ->
-//					nexusRepository.getNeRepositoryName().contains(queryDTO.getName())).collect(Collectors.toList());
-//		}
-//
-//		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
-//		nexusRepositoryList.forEach(nexusRepository -> {
-//			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
-//			nexusRepositoryDTO.convert(nexusRepository, nexusServerRepositoryMap.get(nexusRepository.getNeRepositoryName()));
-//			resultAll.add(nexusRepositoryDTO);
-//		});
-//
-//		// remove配置信息
-//		nexusClient.removeNexusServerInfo();
-//
-//		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
-//	}
-
 	@Override
-	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
+	public Page<NexusRepositoryDTO> listRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
-		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
+		List<NexusRepositoryDTO> resultAll = this.queryRepo(queryDTO, queryData, this.convertRepoTypeToFormat(queryDTO.getRepoType()));
 		if (CollectionUtils.isEmpty(resultAll)) {
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 		}
@@ -566,66 +527,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 	}
 
+
 	@Override
-	public List<NexusRepositoryDTO> listMavenRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData) {
+	public List<NexusRepositoryDTO> listRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
-		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
+		List<NexusRepositoryDTO> resultAll = this.queryRepo(queryDTO, queryData, this.convertRepoTypeToFormat(queryDTO.getRepoType()));
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
-		return resultAll;
-	}
-
-
-	private List<NexusRepositoryDTO> queryMavenRepo(NexusRepositoryQueryDTO queryDTO, String queryData){
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
-		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
-			return new ArrayList<>();
-		}
-
-		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
-		switch (queryData) {
-			case NexusConstants.RepoQueryData.REPO_ALL:
-				this.mavenRepoAll(nexusServerRepositoryList, queryDTO, resultAll);
-				break;
-			case NexusConstants.RepoQueryData.REPO_EXCLUDE_PROJECT:
-				this.mavenRepoExcludeProject(nexusServerRepositoryList, queryDTO, resultAll);
-				break;
-			case NexusConstants.RepoQueryData.REPO_ORG:
-				this.mavenRepoOrg(nexusServerRepositoryList, queryDTO, resultAll);
-				break;
-			case NexusConstants.RepoQueryData.REPO_PROJECT:
-				this.mavenRepoProject(nexusServerRepositoryList, queryDTO, resultAll);
-				break;
-			default:
-				break;
-		}
-
-		// 项目名称查询
-		Set<Long> projectIdSet = resultAll.stream().map(NexusRepositoryDTO::getProjectId).collect(Collectors.toSet());
-		List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
-		Map<Long, ProjectVO> projectVOMap = projectVOList.stream().collect(Collectors.toMap(ProjectVO::getId, a -> a, (k1, k2) -> k1));
-		resultAll.forEach(nexusRepositoryDTO -> {
-			ProjectVO projectVO = projectVOMap.get(nexusRepositoryDTO.getProjectId());
-			if (projectVO != null) {
-				nexusRepositoryDTO.setProjectName(projectVO.getName());
-				nexusRepositoryDTO.setProjectImgUrl(projectVO.getImageUrl());
-			}
-		});
-
-		// 查询参数
-		if (queryDTO.getRepositoryName() != null) {
-			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
-					nexusRepositoryDTO.getName().toLowerCase().contains(queryDTO.getRepositoryName().toLowerCase())).collect(Collectors.toList());
-		}
-		if (queryDTO.getType() != null) {
-			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
-					nexusRepositoryDTO.getType().toLowerCase().contains(queryDTO.getType().toLowerCase())).collect(Collectors.toList());
-		}
-		if (queryDTO.getVersionPolicy() != null) {
-			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
-					nexusRepositoryDTO.getVersionPolicy() != null && nexusRepositoryDTO.getVersionPolicy().toLowerCase().contains(queryDTO.getVersionPolicy().toLowerCase())).collect(Collectors.toList());
-		}
 		return resultAll;
 	}
 
@@ -794,7 +703,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		configService.setNexusInfo(nexusClient);
 
 		// 所有nexus服务仓库数据
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(repoType));
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return new ArrayList<>();
 		}
@@ -826,7 +735,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		configService.setNexusInfo(nexusClient);
 
 		// nexus服务，仓库数据
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(repoType));
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return new ArrayList<>();
 		}
@@ -857,7 +766,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		configService.setNexusInfo(nexusClient);
 
 		// nexus服务，仓库数据
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository();
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return new ArrayList<>();
 		}
@@ -953,5 +862,85 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusGuideDTO;
+	}
+
+	@Override
+	public Page<NexusRepositoryDTO> listNpmRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+		List<NexusRepositoryDTO> resultAll = this.queryRepo(queryDTO, queryData, NexusApiConstants.NexusRepoFormat.NPM_FORMAT);
+		if (CollectionUtils.isEmpty(resultAll)) {
+			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+		}
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+	}
+
+	private List<NexusRepositoryDTO> queryRepo(NexusRepositoryQueryDTO queryDTO, String queryData, String nexusRepoFormat) {
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(nexusRepoFormat);
+		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
+			return new ArrayList<>();
+		}
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		switch (queryData) {
+			case NexusConstants.RepoQueryData.REPO_ALL:
+				this.mavenRepoAll(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			case NexusConstants.RepoQueryData.REPO_EXCLUDE_PROJECT:
+				this.mavenRepoExcludeProject(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			case NexusConstants.RepoQueryData.REPO_ORG:
+				this.mavenRepoOrg(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			case NexusConstants.RepoQueryData.REPO_PROJECT:
+				this.mavenRepoProject(nexusServerRepositoryList, queryDTO, resultAll);
+				break;
+			default:
+				break;
+		}
+
+		// 项目名称查询
+		Set<Long> projectIdSet = resultAll.stream().map(NexusRepositoryDTO::getProjectId).collect(Collectors.toSet());
+		List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
+		Map<Long, ProjectVO> projectVOMap = projectVOList.stream().collect(Collectors.toMap(ProjectVO::getId, a -> a, (k1, k2) -> k1));
+		resultAll.forEach(nexusRepositoryDTO -> {
+			ProjectVO projectVO = projectVOMap.get(nexusRepositoryDTO.getProjectId());
+			if (projectVO != null) {
+				nexusRepositoryDTO.setProjectName(projectVO.getName());
+				nexusRepositoryDTO.setProjectImgUrl(projectVO.getImageUrl());
+			}
+		});
+
+		// 查询参数
+		if (queryDTO.getRepositoryName() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
+					nexusRepositoryDTO.getName().toLowerCase().contains(queryDTO.getRepositoryName().toLowerCase())).collect(Collectors.toList());
+		}
+		if (queryDTO.getType() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
+					nexusRepositoryDTO.getType().toLowerCase().contains(queryDTO.getType().toLowerCase())).collect(Collectors.toList());
+		}
+		if (queryDTO.getVersionPolicy() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
+					nexusRepositoryDTO.getVersionPolicy() != null && nexusRepositoryDTO.getVersionPolicy().toLowerCase().contains(queryDTO.getVersionPolicy().toLowerCase())).collect(Collectors.toList());
+		}
+		return resultAll;
+	}
+
+	/**
+	 * 制品库类型，转换为nexus format
+	 * @return
+	 */
+	private String convertRepoTypeToFormat(String repoType) {
+		if (NexusConstants.RepoType.MAVEN.equals(repoType)) {
+			return NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT;
+		} else if (NexusConstants.RepoType.NPM.equals(repoType)) {
+			return NexusApiConstants.NexusRepoFormat.NPM_FORMAT;
+		} else {
+			return null;
+		}
 	}
 }
