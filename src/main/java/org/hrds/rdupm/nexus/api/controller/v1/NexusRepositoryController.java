@@ -176,6 +176,14 @@ public class NexusRepositoryController extends BaseController {
         return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId, NexusConstants.RepoType.MAVEN));
     }
 
+    @ApiOperation(value = "npm仓库组创建，获取仓库列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/project/{projectId}/npm/repo/group")
+    public ResponseEntity<List<NexusRepositoryDTO>> groupNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                              @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId, NexusConstants.RepoType.NPM));
+    }
+
     @ApiOperation(value = "maven仓库 关联， 获取仓库列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/related")
