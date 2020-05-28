@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.base.BaseController;
@@ -17,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
-import java.util.List;
 
 /**
  * 组织层 制品库_nexus仓库信息表 管理 API
@@ -41,7 +38,7 @@ public class NexusRepositoryOrgController extends BaseController {
                                                                            NexusRepositoryQueryDTO queryDTO,
                                                                            @ApiIgnore PageRequest pageRequest) {
         queryDTO.setOrganizationId(organizationId);
-        return Results.success(nexusRepositoryService.listMavenRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
+        return Results.success(nexusRepositoryService.listRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
     }
 
 

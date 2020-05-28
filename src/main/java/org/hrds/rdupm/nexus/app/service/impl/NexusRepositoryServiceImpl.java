@@ -72,7 +72,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	private NexusAuthService nexusAuthService;
 
 	@Override
-	public NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
+	public NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId) {
 		configService.setNexusInfo(nexusClient);
 
 		NexusRepository query = new NexusRepository();
@@ -99,16 +99,16 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Saga(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE,
 			description = "创建maven仓库",
 			inputSchemaClass = NexusRepositoryCreateDTO.class)
-	public NexusRepositoryCreateDTO createMavenRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+	public NexusRepositoryCreateDTO createRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 步骤
 		// 1. 更新数据库数据
 		// 2. 创建仓库
-		// 3. 创建仓库默认角色，赋予权限：nx-repository-view-maven2-[仓库名]-*
+		// 3. 创建仓库默认拉取角色
 		// 4. 创建仓库默认用户，默认赋予角色，上述创建的角色
 		// 5. 是否允许匿名
-		//     允许，赋予匿名用户权限：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
-		//     不允许，去除匿名用户权限：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
+		//     允许，赋予匿名用户权限，如： nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
+		//     不允许，去除匿名用户权限，如：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
 
 		// 参数校验
 		nexusRepoCreateDTO.validParam(baseServiceFeignClient, true);
@@ -116,7 +116,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 
 
-		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())){
+		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
 		}
 
@@ -128,16 +128,16 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepository.setOrganizationId(organizationId);
 		nexusRepository.setProjectId(projectId);
 		nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
-		nexusRepository.setRepoType(NexusConstants.RepoType.MAVEN);
+		nexusRepository.setRepoType(nexusRepoCreateDTO.getRepoType());
 		nexusRepositoryRepository.insertSelective(nexusRepository);
 
 		// 角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
 		// 发布角色
-		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, nexusRepoCreateDTO.getFormat());
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null, nexusRepoCreateDTO.getFormat());
 
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
@@ -185,7 +185,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Saga(code = NexusSagaConstants.NexusMavenRepoUpdate.MAVEN_REPO_UPDATE,
 			description = "更新maven仓库",
 			inputSchemaClass = NexusRepositoryCreateDTO.class)
-	public NexusRepositoryCreateDTO updateMavenRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+	public NexusRepositoryCreateDTO updateRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 参数校验
 		nexusRepoCreateDTO.validParam(baseServiceFeignClient, false);
@@ -226,7 +226,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Saga(code = NexusSagaConstants.NexusMavenRepoDelete.MAVEN_REPO_DELETE,
 			description = "删除maven仓库",
 			inputSchemaClass = NexusRepositoryDeletePayload.class)
-	public void deleteMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
+	public void deleteRepo(Long organizationId, Long projectId, Long repositoryId) {
 		// 仓库
 		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
 		if (nexusRepository == null) {
@@ -421,7 +421,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 //	}
 
 	@Override
-	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
+	public Page<NexusRepositoryDTO> listRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
@@ -435,7 +435,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listMavenRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData) {
+	public List<NexusRepositoryDTO> listRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 		List<NexusRepositoryDTO> resultAll = this.queryMavenRepo(queryDTO, queryData);
