@@ -53,6 +53,15 @@ public interface NexusAuthService {
     void delete(NexusAuth nexusAuth);
 
     /**
+     * 创建用户权限-仓库创建与关联时赋权
+     * @param userIds 用户Id
+     * @param repositoryId 仓库Id
+     * @param roleCode 角色code NexusConstants.NexusRoleEnum
+     * @return List<NexusAuth>
+     */
+    List<NexusAuth> createNexusAuth(List<Long> userIds, Long repositoryId, String roleCode);
+
+    /**
      * 定时任务移除过期权限
      */
     void expiredBatchNexusAuth();
