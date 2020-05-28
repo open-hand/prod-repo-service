@@ -15,6 +15,7 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.models.auth.In;
@@ -89,7 +90,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* */
 		//获取猪齿鱼项目信息
 		ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
-		String code = projectDTO.getCode();
+		String code = DetailsHelper.getUserDetails().getTenantNum() + projectDTO.getCode();
 		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
 

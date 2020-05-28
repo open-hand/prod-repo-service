@@ -100,5 +100,15 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 		}
 	}
 
+	@Override
+	public UserDTO listProjectOwnerById(Long projectId) {
+		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listProjectOwnerById(projectId);
+		if (!CollectionUtils.isEmpty(responseEntity.getBody())) {
+			return 	responseEntity.getBody().stream().findFirst().orElse(null);
+		} else {
+			return null;
+		}
+	}
+
 }
 

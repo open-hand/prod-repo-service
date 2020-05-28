@@ -82,4 +82,11 @@ public interface BaseFeignClient {
 			@PathVariable(name = "project_id") Long projectId,
 			@ApiParam(value = "多个用户id", required = true) @RequestBody Set<Long> userIds);
 
+	/***
+	 * 根据项目id查询项目下的项目所有者
+	 * @param projectId
+	 * @return
+	 */
+	@GetMapping("/v1/projects/{project_id}/owner/list")
+	ResponseEntity<List<UserDTO>> listProjectOwnerById(@PathVariable(name = "project_id") Long projectId);
 }

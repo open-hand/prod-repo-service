@@ -13,17 +13,13 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "harbor")
-public class HarborInfoConfiguration {
+@ConfigurationProperties(prefix = "harbor.init")
+public class HarborInitConfiguration {
 
-	private String baseUrl;
+	private String url;
 
 	private String username;
 
 	private String password;
-
-	private String ip;
-
-	private String domain;
 
 }
