@@ -3,7 +3,9 @@ package org.hrds.rdupm.nexus.app.service;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
+import org.hzero.export.vo.ExportParam;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -20,6 +22,16 @@ public interface NexusAuthService {
      * @return Page<NexusAuth>
      */
     Page<NexusAuth> pageList(PageRequest pageRequest, NexusAuth nexusAuth);
+
+    /**
+     * 导出
+     * @param pageRequest 分页参数
+     * @param nexusAuth 查询参数
+     * @param exportParam
+     * @param response
+     * @return
+     */
+    Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response);
 
     /**
      * 分配权限
@@ -39,4 +51,24 @@ public interface NexusAuthService {
      * @param nexusAuth 权限数据
      */
     void delete(NexusAuth nexusAuth);
+
+    /**
+     * 创建用户权限-仓库创建与关联时赋权
+     * @param userIds 用户Id
+     * @param repositoryId 仓库Id
+     * @param roleCode 角色code NexusConstants.NexusRoleEnum
+     * @return List<NexusAuth>
+     */
+    List<NexusAuth> createNexusAuth(List<Long> userIds, Long repositoryId, String roleCode);
+
+    /**
+     * 定时任务移除过期权限
+     */
+    void expiredBatchNexusAuth();
+
+    /**
+     * 移除过期权限
+     */
+    void expiredNexusAuth(NexusAuth nexusAuth);
+
 }

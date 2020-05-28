@@ -5,7 +5,6 @@ package org.hrds.rdupm.nexus.client.nexus.constant;
  */
 public interface NexusUrlConstants {
 
-	// TODO 如何配置，暂时处理
 	/**
 	 * 仓库相关API
 	 */

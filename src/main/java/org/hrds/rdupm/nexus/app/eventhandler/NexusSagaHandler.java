@@ -47,6 +47,8 @@ public class NexusSagaHandler {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+	@Autowired
+	private NexusAuthHandler nexusAuthHandler;
 
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
@@ -93,6 +95,8 @@ public class NexusSagaHandler {
 		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
+
+		nexusRepository.setNexusAuthList(nexusRepoCreateDTO.getNexusAuthList());
 		return nexusRepository;
 	}
 
@@ -131,11 +135,21 @@ public class NexusSagaHandler {
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
 		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 
-		// 创建角色
+		// 发布角色
+		NexusServerRole nexusServerRole = new NexusServerRole();
+		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+
+		// 创建拉取角色
 		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
 		if (pullExist == null) {
 			// 角色不存在，创建
 			nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
+		}
+		// 创建发布角色
+		NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
+		if (pushExist == null) {
+			// 角色不存在，创建
+			nexusClient.getNexusRoleApi().createRole(nexusServerRole);
 		}
 
 		// 匿名访问
@@ -205,6 +219,10 @@ public class NexusSagaHandler {
 		if (CollectionUtils.isEmpty(pullExistUserList)) {
 			nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
 		}
+
+		// 创建用户权限
+		nexusAuthHandler.createUserAuth(nexusRepository.getNexusAuthList());
+
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusRepository;

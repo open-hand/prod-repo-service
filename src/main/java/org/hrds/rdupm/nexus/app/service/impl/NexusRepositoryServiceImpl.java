@@ -6,6 +6,7 @@ import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,6 +15,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
+import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -65,6 +67,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	private NexusPushRepository nexusPushRepository;
 	@Autowired
 	private NexusAuthRepository nexusAuthRepository;
+	@Autowired
+	private NexusAuthService nexusAuthService;
 
 	@Override
 	public NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -128,8 +132,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		// 角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		// // 发布角色
-		//nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		// 发布角色
+		nexusServerRole.createDefPushRole(nexusRepoCreateDTO.getName(), true, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
 		pullNexusServerRole.createDefPullRole(nexusRepoCreateDTO.getName(), null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
@@ -137,6 +141,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusRole nexusRole = new NexusRole();
 		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
 		nexusRole.setNePullRoleId(pullNexusServerRole.getId());
+		nexusRole.setNeRoleId(nexusServerRole.getId());
 		nexusRoleRepository.insertSelective(nexusRole);
 
 		// 用户
@@ -152,6 +157,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusUser.setNePullUserId(pullNexusServerUser.getUserId());
 		nexusUser.setNePullUserPassword(DESEncryptUtil.encode(pullNexusServerUser.getPassword()));
 		nexusUserRepository.insertSelective(nexusUser);
+
+		// 创建用户权限
+		List<NexusAuth> nexusAuthList = nexusAuthService.createNexusAuth(Collections.singletonList(DetailsHelper.getUserDetails().getUserId()), nexusRepository.getRepositoryId(), NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+		nexusRepoCreateDTO.setNexusAuthList(nexusAuthList);
 
 		producer.apply(StartSagaBuilder.newBuilder()
 						.withSagaCode(NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE)
@@ -371,11 +380,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 				});
 	}
 
-	@Override
-	public List<NexusServerRepository> listRelatedMavenRepo(Long organizationId, Long projectId) {
-		// TODO
-		return null;
-	}
 
 //	@Override
 //	public Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
@@ -607,7 +611,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 查询某个项目项目数据
 		Condition.Builder builder = Condition.builder(NexusRepository.class)
 				.where(Sqls.custom()
-						.andEqualTo(NexusRepository.FIELD_ORGANIZATION_ID, queryDTO.getOrganizationId()));
+						.andEqualTo(NexusRepository.FIELD_PROJECT_ID, queryDTO.getProjectId()));
 		if (queryDTO.getRepoType() != null) {
 			builder.where(Sqls.custom()
 					.andEqualTo(NexusRepository.FIELD_REPO_TYPE, queryDTO.getRepoType()));

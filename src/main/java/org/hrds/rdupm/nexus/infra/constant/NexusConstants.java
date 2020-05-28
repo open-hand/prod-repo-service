@@ -1,9 +1,75 @@
 package org.hrds.rdupm.nexus.infra.constant;
-
 /**
  * @author weisen.yang@hand-china.com 2020/3/27
  */
 public interface NexusConstants {
+
+
+	/**
+	 * 日志操作类型: RDUPM.AUTH_OPERATE_TYPE
+	 */
+	interface LogOperateType {
+		String AUTH_CREATE = "assign";
+		String AUTH_UPDATE = "update";
+		String AUTH_DELETE = "revoke";
+	}
+
+	enum NexusRoleEnum {
+		PROJECT_ADMIN("projectAdmin","项目管理员"),
+		DEVELOPER("developer","开发人员"),
+		GUEST("guest","访客"),
+		//MASTER("master","维护人员"),
+		LIMITED_GUEST("limitedGuest","受限访客");
+
+		String roleCode;
+
+		String roleName;
+
+		public String getRoleCode() {
+			return roleCode;
+		}
+
+		public void setRoleCode(String roleCode) {
+			this.roleCode = roleCode;
+		}
+
+		public String getRoleName() {
+			return roleName;
+		}
+
+		public void setRoleName(String roleName) {
+			this.roleName = roleName;
+		}
+
+		NexusRoleEnum(String roleCode, String roleName) {
+			this.roleCode = roleCode;
+			this.roleName = roleName;
+		}
+
+		public static String getNameByCode(String roleCode){
+			if(roleCode == null){
+				return null;
+			}
+			for (NexusRoleEnum nexusRoleEnum : NexusRoleEnum.values()) {
+				if (roleCode.equals(nexusRoleEnum.getRoleCode())) {
+					return nexusRoleEnum.getRoleName();
+				}
+			}
+			return null;
+		}
+
+		public static String getCodeByName(String roleName) {
+			if(roleName == null){
+				return null;
+			}
+			for (NexusRoleEnum nexusRoleEnum : NexusRoleEnum.values()) {
+				if (roleName.equals(nexusRoleEnum.getRoleName())) {
+					return nexusRoleEnum.getRoleCode();
+				}
+			}
+			return null;
+		}
+	}
 
 	interface Lookup {
 		/**

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.constraints.NotBlank;
+
+import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
@@ -17,9 +19,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelColumn;
+import org.hzero.export.annotation.ExcelSheet;
+import org.hzero.export.render.ValueRenderer;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -36,6 +40,7 @@ import java.util.Date;
 @Table(name = "rdupm_nexus_auth")
 @Getter
 @Setter
+@ExcelSheet(title = "仓库用户权限列表")
 public class NexusAuth extends AuditDomain {
 
     public static final String FIELD_AUTH_ID = "authId";
@@ -52,6 +57,20 @@ public class NexusAuth extends AuditDomain {
     //
     // 业务方法(按public protected private顺序排列)
     // ------------------------------------------------------------------------------
+
+
+    public void setNeRoleIdByRoleCode(NexusRole nexusRole){
+        if (this.roleCode.equals(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())
+                || this.roleCode.equals(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode())) {
+            this.neRoleId = nexusRole.getNeRoleId();
+        } else if (this.roleCode.equals(NexusConstants.NexusRoleEnum.GUEST.getRoleCode())
+                || this.roleCode.equals(NexusConstants.NexusRoleEnum.LIMITED_GUEST.getRoleCode())) {
+            this.neRoleId = nexusRole.getNePullRoleId();
+        } else {
+            throw new CommonException("权限角色有误");
+        }
+    }
+
 
     //
     // 数据库字段
@@ -78,7 +97,7 @@ public class NexusAuth extends AuditDomain {
     @ExcelColumn(title = "用户名", order = 4)
     @ApiModelProperty(value = "用户名")
     private String realName;
-    @ExcelColumn(title = "权限角色", renderers = HarborAuth.AuthorityValueRenderer.class, order = 6) // TODO
+    @ExcelColumn(title = "权限角色", renderers = NexusAuth.AuthorityNameRenderer.class, order = 6)
     @ApiModelProperty(value = "角色编码", required = true)
     @NotBlank
     private String roleCode;
@@ -112,6 +131,12 @@ public class NexusAuth extends AuditDomain {
     // getter/setter
     // ------------------------------------------------------------------------------
 
-
+    public static class AuthorityNameRenderer implements ValueRenderer {
+        @Override
+        public Object render(Object value, Object data) {
+            NexusAuth nexusAuth = (NexusAuth) data;
+            return NexusConstants.NexusRoleEnum.getNameByCode(nexusAuth.getRoleCode());
+        }
+    }
 
 }

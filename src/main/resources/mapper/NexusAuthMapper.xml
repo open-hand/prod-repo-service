@@ -28,7 +28,7 @@
             LEFT JOIN rdupm_nexus_repository rnr ON rnr.repository_id = rna.repository_id
         WHERE 1 = 1
         <if test="repositoryId != null">
-            rna.repository_id = #{repositoryId}
+            AND rna.repository_id = #{repositoryId}
         </if>
         <if test=" loginName != null and loginName != '' ">
             <bind name="loginNameLike" value=" '%'+loginName + '%'" />

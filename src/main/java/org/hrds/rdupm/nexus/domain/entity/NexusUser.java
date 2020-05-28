@@ -30,20 +30,6 @@ import java.util.List;
 @Table(name = "rdupm_nexus_user")
 public class NexusUser extends AuditDomain {
 
-	/**
-	 * 密码更改校验
-	 */
-	public void validChangePassword(){
-		// TODO 密码更改
-		AssertUtils.notNull(this.userId, "userId is not null");
-//		if (StringUtils.isEmpty(this.neUserPassword)) {
-//			throw new CommonException(NexusMessageConstants.NEXUS_NEW_PASSWORD_NOT_NULL);
-//		}
-		if (StringUtils.isEmpty(this.oldNeUserPassword)) {
-			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_NOT_NULL);
-		}
-	}
-
     public static final String FIELD_USER_ID = "userId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
     public static final String FIELD_TENANT_ID = "tenantId";

@@ -128,4 +128,9 @@ public interface NexusMessageConstants {
 	 * 权限已存在，请勿重复分配: {0}
 	 */
 	String NEXUS_AUTH_ALREADY_EXIST = "error.nexus.auth.already.exist";
+
+	/**
+	 * nexus对应用户已不存在
+	 */
+	String NEXUS_USER_NOT_EXIST = "error.nexus.user.not.exist";
 }

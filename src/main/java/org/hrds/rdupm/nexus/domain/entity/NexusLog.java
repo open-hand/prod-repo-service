@@ -66,7 +66,7 @@ public class NexusLog extends AuditDomain {
     private Long organizationId;
     @ApiModelProperty(value = "rdupm_nexus_repository 表主键",required = true)
     @NotNull
-    private Integer repositoryId;
+    private Long repositoryId;
     @ApiModelProperty(value = "操作类型",required = true)
     @NotBlank
     private String operateType;

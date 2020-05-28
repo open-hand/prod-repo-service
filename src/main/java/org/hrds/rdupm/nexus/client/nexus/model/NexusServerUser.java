@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class NexusServerUser {
 
+	private static String STATUS_ACTIVE = "active";
+
 	/**
 	 * 生成默认密码
 	 * @return 生成的密码
@@ -19,13 +21,26 @@ public class NexusServerUser {
 		return UUIDUtils.generateUUID().substring(0, 8);
 	}
 
+	public NexusServerUser() {
+	}
+
+	public NexusServerUser(String userId, String password, List<String> roles) {
+		this.userId = userId;
+		this.password = password;
+		this.firstName = userId;
+		this.lastName = userId;
+		this.emailAddress = this.getUserId() + "@default.com";
+		this.roles = roles;
+		this.status = STATUS_ACTIVE;
+	}
+
 	/**
 	 * 创建仓库默认发布用户
 	 * @param repositoryName 仓库名称（Id）
 	 * @param roleId 角色Id
 	 * @param id 用户Id
 	 */
-	public void createDefPushUser(String repositoryName, String roleId, String id){
+	public void createDefPushUser(String repositoryName, String roleId, String id) {
 		if (id == null) {
 			this.setUserId(repositoryName + "-defUser");
 		} else {
@@ -35,7 +50,7 @@ public class NexusServerUser {
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());
 		this.setEmailAddress(this.getUserId() + "@default.com");
-		this.setStatus("active");
+		this.setStatus(STATUS_ACTIVE);
 		this.setRoles(Collections.singletonList(roleId));
 	}
 
@@ -55,7 +70,7 @@ public class NexusServerUser {
 		this.setFirstName(this.getUserId());
 		this.setLastName(this.getUserId());
 		this.setEmailAddress(this.getUserId() + "@default.com");
-		this.setStatus("active");
+		this.setStatus(STATUS_ACTIVE);
 		this.setRoles(Collections.singletonList(roleId));
 	}
 

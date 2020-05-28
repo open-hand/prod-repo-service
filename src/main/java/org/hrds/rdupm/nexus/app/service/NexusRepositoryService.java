@@ -70,13 +70,6 @@ public interface NexusRepositoryService {
 	void selfRelatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO,
 							  String repositoryName, NexusServerConfig nexusServerConfig);
 
-	/**
-	 * maven仓库 关联， 获取仓库列表
-	 * @param organizationId 组织Id
-	 * @param projectId 项目Id
-	 * @return List<NexusServerRepository>
-	 */
-	List<NexusServerRepository> listRelatedMavenRepo(Long organizationId, Long projectId);
 
 //	/**
 //	 * 查询maven仓库列表，自建或关联的
