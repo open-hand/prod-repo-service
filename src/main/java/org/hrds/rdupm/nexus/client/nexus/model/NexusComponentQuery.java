@@ -40,6 +40,16 @@ public class NexusComponentQuery {
 	private String name;
 	@ApiModelProperty(value = "版本")
 	private String version;
+	@ApiModelProperty(value = "制品类型")
+	private String format;
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
+	}
 
 	public String getRepositoryName() {
 		return repositoryName;
