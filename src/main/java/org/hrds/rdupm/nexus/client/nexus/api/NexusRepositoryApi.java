@@ -20,6 +20,14 @@ public interface NexusRepositoryApi {
 	List<NexusServerRepository> getRepository();
 
 	/**
+	 * 根据nexus format获取nexus服务,仓库信息
+	 *
+	 * @param nexusFormat 仓库format
+	 * @return List<NexusRepository>
+	 */
+	List<NexusServerRepository> getRepositoryByFormat(String nexusFormat);
+
+	/**
 	 * 获取仓库信息，通过名称
 	 * @param repositoryName 仓库名称
 	 * @return NexusRepository

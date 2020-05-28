@@ -1,8 +1,8 @@
 package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSONObject;
-import io.choerodon.core.exception.CommonException;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
@@ -52,6 +52,26 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 
 		});
+		return nexusServerRepositoryList;
+	}
+
+	@Override
+	public List<NexusServerRepository> getRepositoryByFormat(String nexusFormat) {
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Repository.GET_REPOSITORY_MANAGE_LIST, HttpMethod.GET, null, null);
+		String response = responseEntity.getBody();
+
+		List<RepositoryMavenInfo> repositoryMavenInfoList = JSONObject.parseArray(response, RepositoryMavenInfo.class);
+
+		List<NexusServerRepository> nexusServerRepositoryList = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(repositoryMavenInfoList)) {
+			repositoryMavenInfoList.forEach(repositoryMavenInfo -> {
+				NexusServerRepository nexusServerRepository = repositoryMavenInfo.covertNexusServerRepository();
+				if (StringUtils.isNotEmpty(nexusFormat) && nexusServerRepository.getFormat().equals(nexusFormat)) {
+					// 过滤为npm类型
+					nexusServerRepositoryList.add(nexusServerRepository);
+				}
+			});
+		}
 		return nexusServerRepositoryList;
 	}
 

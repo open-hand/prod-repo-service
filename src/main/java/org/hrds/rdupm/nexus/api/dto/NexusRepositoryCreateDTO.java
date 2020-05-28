@@ -202,6 +202,8 @@ public class NexusRepositoryCreateDTO {
 	@ApiModelProperty(value = "远程仓库密码")
 	private String remotePassword;
 
+	@ApiModelProperty(value = "制品类型")
+	private String repoType;
 
 	@ApiModelProperty(value = "项目Id", hidden = true)
 	private Long projectId;
