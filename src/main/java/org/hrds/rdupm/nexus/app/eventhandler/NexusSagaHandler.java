@@ -96,6 +96,23 @@ public class NexusSagaHandler {
 					break;
 				default:break;
 			}
+		} else if (nexusRepository.getRepoType().equals(NexusConstants.RepoType.NPM)) {
+			// NPM
+			switch (nexusRepoCreateDTO.getType()) {
+				case NexusApiConstants.RepositoryType.HOSTED:
+					// 创建本地仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmHosted(nexusRepoCreateDTO.convertMavenHostedRequest());
+					break;
+				case NexusApiConstants.RepositoryType.PROXY:
+					// 创建代理仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmProxy(nexusRepoCreateDTO.convertMavenProxyRequest());
+					break;
+				case NexusApiConstants.RepositoryType.GROUP:
+					// 创建仓库组
+					nexusClient.getRepositoryApi().createAndUpdateNpmGroup(nexusRepoCreateDTO.convertMavenGroupRequest());
+					break;
+				default:break;
+			}
 		}
 
 		// remove配置信息
@@ -259,6 +276,23 @@ public class NexusSagaHandler {
 				case NexusApiConstants.RepositoryType.GROUP:
 					// 创建仓库组
 					nexusClient.getRepositoryApi().createAndUpdateMavenGroup(nexusRepoCreateDTO.convertMavenGroupRequest());
+					break;
+				default:break;
+			}
+		} else if (nexusRepoCreateDTO.getRepoType().equals(NexusConstants.RepoType.NPM)) {
+			// NPM
+			switch (nexusRepoCreateDTO.getType()) {
+				case NexusApiConstants.RepositoryType.HOSTED:
+					// 创建本地仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmHosted(nexusRepoCreateDTO.convertMavenHostedRequest());
+					break;
+				case NexusApiConstants.RepositoryType.PROXY:
+					// 创建代理仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmProxy(nexusRepoCreateDTO.convertMavenProxyRequest());
+					break;
+				case NexusApiConstants.RepositoryType.GROUP:
+					// 创建仓库组
+					nexusClient.getRepositoryApi().createAndUpdateNpmGroup(nexusRepoCreateDTO.convertMavenGroupRequest());
 					break;
 				default:break;
 			}
