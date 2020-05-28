@@ -26,7 +26,8 @@ public interface NexusLogMapper extends BaseMapper<NexusLog> {
      * @param endDate
      * @return List<NexusLog>
      */
-    List<NexusLog> listNpmLogByOrg(@Param("organizationId") Long organizationId, @Param("repoType") String repoType, @Param("projectId") Long projectId, @Param("neRepositoryName") String neRepositoryName,
-                                   @Param("realName") String realName, @Param("operateType") String operateType, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    List<NexusLog> listLog(@Param("organizationId") Long organizationId, @Param("repoType") String repoType, @Param("projectId") Long projectId, @Param("neRepositoryName") String neRepositoryName,
+                           @Param("realName") String realName, @Param("operateType") String operateType, @Param("startDate") Date startDate, @Param("endDate") Date endDate,
+                           @Param("repositoryId") Long repositoryId);
 
 }

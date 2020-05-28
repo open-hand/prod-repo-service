@@ -36,50 +36,6 @@ public class NexusLogController extends BaseController {
     @Autowired
     private NexusLogRepository nexusLogRepository;
 
-    @ApiOperation(value = "制品库_nexus日志表列表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping
-    public ResponseEntity<Page<NexusLog>> list(NexusLog nexusLog, @ApiIgnore @SortDefault(value = NexusLog.FIELD_LOG_ID,
-            direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        Page<NexusLog> list = nexusLogRepository.pageAndSort(pageRequest, nexusLog);
-        return Results.success(list);
-    }
-
-    @ApiOperation(value = "制品库_nexus日志表明细")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{logId}")
-    public ResponseEntity<NexusLog> detail(@PathVariable Long logId) {
-        NexusLog nexusLog = nexusLogRepository.selectByPrimaryKey(logId);
-        return Results.success(nexusLog);
-    }
-
-    @ApiOperation(value = "创建制品库_nexus日志表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping
-    public ResponseEntity<NexusLog> create(@RequestBody NexusLog nexusLog) {
-        validObject(nexusLog);
-        nexusLogRepository.insertSelective(nexusLog);
-        return Results.success(nexusLog);
-    }
-
-    @ApiOperation(value = "修改制品库_nexus日志表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<NexusLog> update(@RequestBody NexusLog nexusLog) {
-        SecurityTokenHelper.validToken(nexusLog);
-        nexusLogRepository.updateByPrimaryKeySelective(nexusLog);
-        return Results.success(nexusLog);
-    }
-
-    @ApiOperation(value = "删除制品库_nexus日志表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @DeleteMapping
-    public ResponseEntity<?> remove(@RequestBody NexusLog nexusLog) {
-        SecurityTokenHelper.validToken(nexusLog);
-        nexusLogRepository.deleteByPrimaryKey(nexusLog);
-        return Results.success();
-    }
-
     @ApiOperation(value = "组织层-日志查询接口")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/org-log")
@@ -92,6 +48,22 @@ public class NexusLogController extends BaseController {
                                                        @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
                                                        @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
                                                        @ApiIgnore @SortDefault(value = NexusLog.FIELD_OPERATE_TIME, direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        return Results.success(nexusLogService.listLogByOrg(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, pageRequest));
+        return Results.success(nexusLogService.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, null, pageRequest));
+    }
+
+    @ApiOperation(value = "项目层-日志查询接口")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/org/project")
+    public ResponseEntity<Page<NexusLog>> listLogByProject(@ApiParam("猪齿鱼组织ID") @PathVariable(value = "organizationId") Long organizationId,
+                                                           @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
+                                                           @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
+                                                           @ApiParam("猪齿鱼项目ID") @RequestParam(required = false) Long projectId,
+                                                           @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
+                                                           @ApiParam("操作人用户名") @RequestParam(required = false) String realName,
+                                                           @ApiParam("操作类型") @RequestParam(required = false) String operateType,
+                                                           @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
+                                                           @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
+                                                           @ApiIgnore @SortDefault(value = NexusLog.FIELD_OPERATE_TIME, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+        return Results.success(nexusLogService.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, repositoryId, pageRequest));
     }
 }

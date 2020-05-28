@@ -179,7 +179,7 @@ public class NexusSagaHandler {
 			if (anonymousRole == null) {
 				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 			}
-			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, nexusRepository.getRepoType());
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 
@@ -445,6 +445,24 @@ public class NexusSagaHandler {
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return message;
+	}
+
+	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_ROLE,
+			description = "平台层-仓库分配：创建角色",
+			sagaCode = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
+			maxRetryCount = 3,
+			seq = 1)
+	public NexusRepository repoDistributeRoleSaga(String message) {
+		return this.createRepoRoleSaga(message);
+	}
+
+	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_USER,
+			description = "平台层-仓库分配：创建用户",
+			sagaCode = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
+			maxRetryCount = 3,
+			seq = 2)
+	public NexusRepository repoDistributeUserSaga(String message) {
+		return this.createRepoUserSaga(message);
 	}
 
 }

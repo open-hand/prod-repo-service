@@ -44,11 +44,11 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping(value = "/{projectId}/list-project")
     public ResponseEntity<Page<NexusAuth>> listByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
-                                                             @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
-                                                             @ApiParam("登录名") @RequestParam(required = false) String loginName,
-                                                             @ApiParam("用户名") @RequestParam(required = false) String realName,
-                                                             @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
-                                                             @ApiIgnore PageRequest pageRequest) {
+                                                         @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
+                                                         @ApiParam("登录名") @RequestParam(required = false) String loginName,
+                                                         @ApiParam("用户名") @RequestParam(required = false) String realName,
+                                                         @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
+                                                         @ApiIgnore PageRequest pageRequest) {
         NexusAuth nexusAuth = new NexusAuth();
         nexusAuth.setRepositoryId(repositoryId);
         nexusAuth.setProjectId(projectId);
@@ -85,17 +85,19 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping(value = "/{organizationId}/list-org")
     public ResponseEntity<Page<NexusAuth>> listByOrg(@ApiParam(value = "猪齿鱼组织ID", required = true) @PathVariable Long organizationId,
-                                                         @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
-                                                         @ApiParam("登录名") @RequestParam(required = false) String loginName,
-                                                         @ApiParam("用户名") @RequestParam(required = false) String realName,
-                                                         @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
-                                                         @ApiIgnore PageRequest pageRequest) {
+                                                     @ApiParam(value = "仓库类型: MAVEN NPM", required = true) @RequestParam String repoType,
+                                                     @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
+                                                     @ApiParam("登录名") @RequestParam(required = false) String loginName,
+                                                     @ApiParam("用户名") @RequestParam(required = false) String realName,
+                                                     @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
+                                                     @ApiIgnore PageRequest pageRequest) {
         NexusAuth nexusAuth = new NexusAuth();
         nexusAuth.setOrganizationId(organizationId);
         nexusAuth.setLoginName(loginName);
         nexusAuth.setRealName(realName);
         nexusAuth.setRoleCode(roleCode);
         nexusAuth.setRoleCode(neRepositoryName);
+        nexusAuth.setRepoType(repoType);
         Page<NexusAuth> list = nexusAuthService.pageList(pageRequest, nexusAuth);
         return Results.success(list);
     }
@@ -104,6 +106,7 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/export/organization")
     public ResponseEntity<Page<NexusAuth>> orgExport(@ApiParam(value = "猪齿鱼组织ID", required = true) @PathVariable Long organizationId,
+                                                     @ApiParam(value = "仓库类型: MAVEN NPM", required = true) @RequestParam String repoType,
                                                      @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
                                                      @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                      @ApiParam("用户名") @RequestParam(required = false) String realName,
@@ -118,6 +121,7 @@ public class NexusAuthController extends BaseController {
         nexusAuth.setRealName(realName);
         nexusAuth.setRoleCode(roleCode);
         nexusAuth.setNeRepositoryName(neRepositoryName);
+        nexusAuth.setRepoType(repoType);
         return Results.success(nexusAuthService.export(pageRequest, nexusAuth, exportParam, response));
     }
 

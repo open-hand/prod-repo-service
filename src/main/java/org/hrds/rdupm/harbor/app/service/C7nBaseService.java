@@ -35,4 +35,6 @@ public interface C7nBaseService {
 
 	Map<Long, UserDTO> listProjectOwnerById(Long projectId);
 
+
+	List<UserDTO> listProjectOwnerUsers(Long projectId);
 }
