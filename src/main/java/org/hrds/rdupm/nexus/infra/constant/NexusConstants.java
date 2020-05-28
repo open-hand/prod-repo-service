@@ -1,8 +1,4 @@
 package org.hrds.rdupm.nexus.infra.constant;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-
 /**
  * @author weisen.yang@hand-china.com 2020/3/27
  */
@@ -10,12 +6,12 @@ public interface NexusConstants {
 
 
 	/**
-	 * 日志操作类型
+	 * 日志操作类型: RDUPM.AUTH_OPERATE_TYPE
 	 */
 	interface LogOperateType {
-		String AUTH_CREATE = "auth_create";
-		String AUTH_UPDATE = "auth_update";
-		String AUTH_DELETE = "auth_delete";
+		String AUTH_CREATE = "assign";
+		String AUTH_UPDATE = "update";
+		String AUTH_DELETE = "revoke";
 	}
 
 	enum NexusRoleEnum {
