@@ -21,7 +21,7 @@ public interface NexusRepositoryService {
 	 * @param repositoryId 仓库表Id
 	 * @return NexusRepositoryDTO
 	 */
-	NexusRepositoryDTO getMavenRepo(Long organizationId, Long projectId, Long repositoryId);
+	NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId);
 
 	/**
 	 * 创建maven仓库
@@ -30,7 +30,7 @@ public interface NexusRepositoryService {
 	 * @param nexusRepoCreateDTO 创建信息
 	 * @return NexusRepositoryCreateDTO
 	 */
-	NexusRepositoryCreateDTO createMavenRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO);
+	NexusRepositoryCreateDTO createRepo(Long organizationId, Long projectId, NexusRepositoryCreateDTO nexusRepoCreateDTO);
 
 	/**
 	 * 更新maven仓库
@@ -40,7 +40,7 @@ public interface NexusRepositoryService {
 	 * @param nexusRepoCreateDTO 创建信息
 	 * @return NexusRepositoryCreateDTO
 	 */
-	NexusRepositoryCreateDTO updateMavenRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO);
+	NexusRepositoryCreateDTO updateRepo(Long organizationId, Long projectId, Long repositoryId, NexusRepositoryCreateDTO nexusRepoCreateDTO);
 
 	/**
 	 * 删除maven仓库
@@ -48,7 +48,7 @@ public interface NexusRepositoryService {
 	 * @param projectId 项目Id
 	 * @param repositoryId 仓库主键Id
 	 */
-	void deleteMavenRepo(Long organizationId, Long projectId, Long repositoryId);
+	void deleteRepo(Long organizationId, Long projectId, Long repositoryId);
 
 	/**
 	 * 关联仓库
@@ -86,7 +86,7 @@ public interface NexusRepositoryService {
 	 * @param queryData  查看： NexusConstants.RepoQueryData
 	 * @return Page<NexusRepositoryDTO>
 	 */
-	Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
+	Page<NexusRepositoryDTO> listRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
 
 	/**
 	 * 查询maven仓库列表, 不分页
@@ -94,7 +94,7 @@ public interface NexusRepositoryService {
 	 * @param queryData  查看： NexusConstants.RepoQueryData
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listMavenRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData);
+	List<NexusRepositoryDTO> listRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData);
 
 	/**
 	 * 查询blob

@@ -71,14 +71,4 @@ public interface NexusSagaConstants {
 		 */
 		String NEXUS_AUTH_CREATE_USER = "rdupm-maven-auth-create.user";
 	}
-	interface NexusAuthDelete {
-		/**
-		 * 删除权限  Saga code
-		 */
-		String NEXUS_AUTH_DELETE = "rdupm-maven-auth-delete";
-		/**
-		 * 删除权限  SagaTask code
-		 */
-		String NEXUS_AUTH_DELETE_USER = "rdupm-maven-auth-delete.user";
-	}
 }

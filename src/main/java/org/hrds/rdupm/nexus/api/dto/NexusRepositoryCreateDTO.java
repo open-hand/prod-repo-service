@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class NexusRepositoryCreateDTO {
 		if (validNameSufFlag) {
 			List<LookupVO> lookupVOList = baseServiceFeignClient.queryCodeValueByCode(NexusConstants.Lookup.REPO_NAME_SUFFIX);
 			if (CollectionUtils.isNotEmpty(lookupVOList)) {
-				Boolean nameSuffixFlag = false;
+				boolean nameSuffixFlag = false;
 				for (LookupVO lookupVO : lookupVOList) {
 					logger.info("suffix  value: " + lookupVO.getValue());
 					if (this.name.toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
@@ -83,7 +84,7 @@ public class NexusRepositoryCreateDTO {
 		switch (this.getType()) {
 			case NexusApiConstants.RepositoryType.HOSTED:
 				// 创建本地仓库
-				if (StringUtils.isBlank(this.versionPolicy)) {
+				if (StringUtils.isBlank(this.versionPolicy) && this.repoType.equals(NexusConstants.RepoType.MAVEN)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.writePolicy)) {
@@ -202,6 +203,10 @@ public class NexusRepositoryCreateDTO {
 	@ApiModelProperty(value = "远程仓库密码")
 	private String remotePassword;
 
+	@ApiModelProperty(value = "制品库格式类型： maven2、npm", hidden = true)
+	private String format;
+	@ApiModelProperty(value = "制品库类型", hidden = true)
+	private String repoType;
 
 	@ApiModelProperty(value = "项目Id", hidden = true)
 	private Long projectId;
