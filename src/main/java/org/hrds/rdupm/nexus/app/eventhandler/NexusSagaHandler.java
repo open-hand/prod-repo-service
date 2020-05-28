@@ -47,6 +47,8 @@ public class NexusSagaHandler {
 
 	@Autowired
 	private ObjectMapper objectMapper;
+	@Autowired
+	private NexusAuthHandler nexusAuthHandler;
 
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
@@ -93,6 +95,8 @@ public class NexusSagaHandler {
 		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
+
+		nexusRepository.setNexusAuthList(nexusRepoCreateDTO.getNexusAuthList());
 		return nexusRepository;
 	}
 
@@ -215,6 +219,10 @@ public class NexusSagaHandler {
 		if (CollectionUtils.isEmpty(pullExistUserList)) {
 			nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
 		}
+
+		// 创建用户权限
+		nexusAuthHandler.createUserAuth(nexusRepository.getNexusAuthList());
+
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return nexusRepository;

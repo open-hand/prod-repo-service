@@ -153,54 +153,9 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @Saga(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, description = "nexus分配权限", inputSchemaClass = List.class)
     @Transactional(rollbackFor = Exception.class)
     public void create(Long projectId, List<NexusAuth> nexusAuthList) {
-        if (CollectionUtils.isEmpty(nexusAuthList)) {
-            return;
-        }
-        List<Long> repositoryIds = nexusAuthList.stream().map(NexusAuth::getRepositoryId).distinct().collect(Collectors.toList());
-        if (repositoryIds.size() > 1) {
-            throw new CommonException(NexusMessageConstants.NEXUS_AUTH_REPOSITORY_ID_IS_NOT_UNIQUE);
-        }
-        Long repositoryId = repositoryIds.get(0);
-        NexusRepository nexusRepository = nexusRepositoryRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
-        if (nexusRepository == null) {
-            throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-        }
-
-        // 仓库角色查询
-        NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
-
-        //校验是否已分配权限
-        List<NexusAuth> existList = nexusAuthRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId);
-        Map<Long, NexusAuth> nexusAuthMap = existList.stream().collect(Collectors.toMap(NexusAuth::getUserId, dto->dto));
-
-        //设置loginName、realName
-        ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(nexusAuthList.stream().map(NexusAuth::getUserId).distinct().toArray(Long[]::new),true);
-        Map<Long,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(2) : Objects.requireNonNull(userDtoResponseEntity.getBody()).stream().collect(Collectors.toMap(UserDTO::getId, dto->dto));
-
+        /// 设置用户权限、获取用户信息
         List<ProdUser> prodUserList = new ArrayList<>();
-
-        nexusAuthList.forEach(nexusAuth -> {
-            UserDTO userDTO = userDtoMap.get(nexusAuth.getUserId());
-            nexusAuth.setLoginName(userDTO == null ? null : userDTO.getLoginName());
-            nexusAuth.setRealName(userDTO == null ? null : userDTO.getRealName());
-
-            if (nexusAuth.getLoginName() == null) {
-                throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-            }
-            if (nexusAuthMap.get(nexusAuth.getUserId()) != null) {
-                throw new CommonException(NexusMessageConstants.NEXUS_AUTH_ALREADY_EXIST, nexusAuth.getRealName());
-            }
-
-            nexusAuth.setProjectId(projectId);
-            nexusAuth.setOrganizationId(nexusRepository.getOrganizationId());
-            // 设置角色
-            nexusAuth.setNeRoleIdByRoleCode(nexusRole);
-
-            String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
-            ProdUser prodUser = new ProdUser(nexusAuth.getUserId(), nexusAuth.getLoginName(), password,0);
-            prodUserList.add(prodUser);
-        });
-
+        this.setAuthInfoAndProdUser(nexusAuthList, prodUserList);
 
         producer.apply(StartSagaBuilder.newBuilder()
                         .withSagaCode(NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE)
@@ -274,6 +229,26 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<NexusAuth> createNexusAuth(List<Long> userIds, Long repositoryId, String roleCode) {
+        List<NexusAuth> nexusAuthList = new ArrayList<>();
+        userIds.forEach(userId -> {
+            NexusAuth nexusAuth = new NexusAuth();
+            nexusAuth.setUserId(userId);
+            nexusAuth.setRepositoryId(repositoryId);
+            nexusAuth.setRoleCode(roleCode);
+        });
+        /// 设置用户权限、获取用户信息
+        List<ProdUser> prodUserList = new ArrayList<>();
+        this.setAuthInfoAndProdUser(nexusAuthList, prodUserList);
+
+        // 数据保存
+        nexusAuthRepository.batchInsert(nexusAuthList);
+        prodUserService.saveMultiUser(prodUserList);
+        return nexusAuthList;
+    }
+
+    @Override
     public void expiredBatchNexusAuth() {
         // 数据查询
         Condition condition = new Condition(NexusAuth.class);
@@ -301,5 +276,63 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             nexusServerUser.getRoles().remove(nexusAuth.getNeRoleId());
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
         }
+    }
+
+
+    /**
+     * 设置用户权限与用信息
+     * @param nexusAuthList 权限信息
+     * @param prodUserList 用户信息
+     */
+    private void setAuthInfoAndProdUser(List<NexusAuth> nexusAuthList, List<ProdUser> prodUserList) {
+        if (CollectionUtils.isEmpty(nexusAuthList)) {
+            return;
+        }
+        List<Long> repositoryIds = nexusAuthList.stream().map(NexusAuth::getRepositoryId).distinct().collect(Collectors.toList());
+        if (repositoryIds.size() > 1) {
+            throw new CommonException(NexusMessageConstants.NEXUS_AUTH_REPOSITORY_ID_IS_NOT_UNIQUE);
+        }
+        Long repositoryId = repositoryIds.get(0);
+        NexusRepository nexusRepository = nexusRepositoryRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
+        if (nexusRepository == null) {
+            throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+        }
+
+        // 仓库角色查询
+        NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, repositoryId).stream().findFirst().orElse(null);
+
+        //校验是否已分配权限
+        List<NexusAuth> existList = nexusAuthRepository.select(NexusAuth.FIELD_REPOSITORY_ID, repositoryId);
+        Map<Long, NexusAuth> nexusAuthMap = existList.stream().collect(Collectors.toMap(NexusAuth::getUserId, dto->dto));
+
+        //设置loginName、realName
+        ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(nexusAuthList.stream().map(NexusAuth::getUserId).distinct().toArray(Long[]::new),true);
+        Map<Long,UserDTO> userDtoMap = userDtoResponseEntity == null ? new HashMap<>(2) : Objects.requireNonNull(userDtoResponseEntity.getBody()).stream().collect(Collectors.toMap(UserDTO::getId, dto->dto));
+
+        //List<ProdUser> prodUserList = new ArrayList<>();
+
+        nexusAuthList.forEach(nexusAuth -> {
+            UserDTO userDTO = userDtoMap.get(nexusAuth.getUserId());
+            nexusAuth.setLoginName(userDTO == null ? null : userDTO.getLoginName());
+            nexusAuth.setRealName(userDTO == null ? null : userDTO.getRealName());
+
+            if (nexusAuth.getLoginName() == null) {
+                throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+            }
+
+            NexusAuth existAuth = nexusAuthMap.get(nexusAuth.getUserId());
+            if (existAuth != null) {
+                throw new CommonException(NexusMessageConstants.NEXUS_AUTH_ALREADY_EXIST, existAuth.getRealName());
+            }
+
+            nexusAuth.setProjectId(nexusRepository.getProjectId());
+            nexusAuth.setOrganizationId(nexusRepository.getOrganizationId());
+            // 设置角色
+            nexusAuth.setNeRoleIdByRoleCode(nexusRole);
+
+            String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+            ProdUser prodUser = new ProdUser(nexusAuth.getUserId(), nexusAuth.getLoginName(), password,0);
+            prodUserList.add(prodUser);
+        });
     }
 }
