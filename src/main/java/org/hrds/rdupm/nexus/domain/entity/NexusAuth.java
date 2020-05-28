@@ -125,6 +125,8 @@ public class NexusAuth extends AuditDomain {
     @ExcelColumn(title = "项目名称", order = 2)
     @Transient
     private String projectName;
+    @Transient
+    private String repoType;
 
 
     //
