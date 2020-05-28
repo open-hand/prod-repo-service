@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
@@ -77,6 +78,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 	@Autowired
 	private HarborLogRepository harborLogRepository;
+
+	@Autowired
+	private HarborAuthService harborAuthService;
 
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
@@ -134,6 +138,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT,description = "更新Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
 	public void updateSaga(Long projectId, HarborProjectVo harborProjectVo) {
+		harborAuthService.checkProjectAdmin(projectId);
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
@@ -192,6 +197,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(Long projectId) {
+		harborAuthService.checkProjectAdmin(projectId);
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");

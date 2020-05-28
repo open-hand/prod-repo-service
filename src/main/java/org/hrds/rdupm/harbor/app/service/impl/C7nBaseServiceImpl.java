@@ -27,20 +27,20 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 	@Override
 	public Map<String, UserDTO> listUsersByLoginNames(Set<String> userNameSet) {
 		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
-		if (!CollectionUtils.isEmpty(responseEntity.getBody())) {
-			return responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName, dto->dto));
-		} else {
+		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
 			return Collections.emptyMap();
+		} else {
+			return responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getLoginName, dto->dto));
 		}
 	}
 
 	@Override
 	public Map<Long, ProjectDTO> queryProjectByIds(Set<Long> projectIdSet) {
 		ResponseEntity<List<ProjectDTO>> projectResponseEntity = baseFeignClient.queryByIds(projectIdSet);
-		if (!CollectionUtils.isEmpty(projectResponseEntity.getBody())) {
-			return projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId,dto->dto));
-		} else {
+		if (projectResponseEntity == null || CollectionUtils.isEmpty(projectResponseEntity.getBody())) {
 			return Collections.emptyMap();
+		} else {
+			return projectResponseEntity.getBody().stream().collect(Collectors.toMap(ProjectDTO::getId,dto->dto));
 		}
 	}
 
@@ -57,20 +57,20 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 	@Override
 	public Map<Long, UserDTO> listUsersByIds(Set<Long> userIdSet) {
 		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
-		if (!CollectionUtils.isEmpty(userDtoResponseEntity.getBody())) {
-			return userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId, dto->dto));
-		} else {
+		if (userDtoResponseEntity == null || CollectionUtils.isEmpty(userDtoResponseEntity.getBody())) {
 			return Collections.emptyMap();
+		} else {
+			return userDtoResponseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId, dto->dto));
 		}
 	}
 
 	@Override
 	public Map<Long, UserWithGitlabIdDTO> listUsersWithRolesAndGitlabUserIdByIds(Long projectId, Set<Long> userIdSet) {
 		ResponseEntity<List<UserWithGitlabIdDTO>> responseEntity = baseFeignClient.listUsersWithRolesAndGitlabUserIdByIds(projectId,userIdSet);
-		if (!CollectionUtils.isEmpty(responseEntity.getBody())) {
-			return responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto));
-		} else {
+		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
 			return Collections.emptyMap();
+		} else {
+			return responseEntity.getBody().stream().collect(Collectors.toMap(UserWithGitlabIdDTO::getId,dto->dto));
 		}
 	}
 
@@ -93,20 +93,30 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 	@Override
 	public List<UserDTO> listProjectUsersByIdName(Long projectId, String name) {
 		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByName(projectId,name);
-		if (!CollectionUtils.isEmpty(responseEntity.getBody())) {
-			return responseEntity.getBody();
-		} else {
+		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
 			return Collections.emptyList();
+		} else {
+			return responseEntity.getBody();
 		}
 	}
 
 	@Override
-	public UserDTO listProjectOwnerById(Long projectId) {
+	public UserDTO getProjectOwnerById(Long projectId) {
 		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listProjectOwnerById(projectId);
-		if (!CollectionUtils.isEmpty(responseEntity.getBody())) {
-			return 	responseEntity.getBody().stream().findFirst().orElse(null);
-		} else {
+		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
 			return null;
+		} else {
+			return 	responseEntity.getBody().stream().findFirst().orElse(null);
+		}
+	}
+
+	@Override
+	public Map<Long, UserDTO> listProjectOwnerById(Long projectId) {
+		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listProjectOwnerById(projectId);
+		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
+			return Collections.emptyMap();
+		} else {
+			return responseEntity.getBody().stream().collect(Collectors.toMap(UserDTO::getId, dto->dto));
 		}
 	}
 

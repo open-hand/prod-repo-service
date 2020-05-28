@@ -14,6 +14,7 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -68,6 +69,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_AUTH,description = "分配权限",inputSchemaClass = List.class)
 	public void save(Long projectId,List<HarborAuth> dtoList) {
+		checkProjectAdmin(projectId);
 		if(CollectionUtils.isEmpty(dtoList)){
 			throw new CommonException("error.harbor.auth.param.empty");
 		}
@@ -125,6 +127,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.UPDATE_AUTH,content = "%s 更新 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Transactional(rollbackFor = Exception.class)
 	public void update(HarborAuth harborAuth) {
+		checkProjectAdmin(harborAuth.getProjectId());
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
@@ -141,6 +144,15 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 	@Override
 	public Page<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth) {
+		if(harborAuth.getProjectId() != null){
+			//权限屏蔽：项目所有者查看所有权限、普通成员只查看自己的权限
+			Long userId = DetailsHelper.getUserDetails().getUserId();
+			Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(harborAuth.getProjectId());
+			if(!userDTOMap.containsKey(userId)){
+				harborAuth.setUserId(userId);
+			}
+		}
+
 		Page<HarborAuth> page = PageHelper.doPageAndSort(pageRequest,()->harborAuthMapper.list(harborAuth));
 		List<HarborAuth> dataList = page.getContent();
 		if(CollectionUtils.isEmpty(dataList)){
@@ -183,6 +195,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.REVOKE_AUTH,content = "%s 删除 %s 的权限角色 【%s】")
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(HarborAuth harborAuth) {
+		checkProjectAdmin(harborAuth.getProjectId());
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
@@ -233,7 +246,23 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			}
 			repository.insertSelective(dto);
 		});
+	}
 
-
+	/***
+	 * 检查当前用户是否为项目管理员
+	 */
+	@Override
+	public void checkProjectAdmin(Long projectId){
+		Long userId = DetailsHelper.getUserDetails().getUserId();
+		HarborAuth harborAuth = new HarborAuth();
+		harborAuth.setProjectId(projectId);
+		harborAuth.setUserId(userId);
+		HarborAuth dto = repository.select(harborAuth).stream().findFirst().orElse(null);
+		if(dto == null){
+			throw new CommonException("error.harbor.auth.null");
+		}
+		if(!dto.getHarborRoleId().equals(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId())){
+			throw new CommonException("error.harbor.auth.not.projectAdmin");
+		}
 	}
 }

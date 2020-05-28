@@ -50,6 +50,9 @@
         <if test=" harborRoleId != null ">
             and rha.harbor_role_id = #{harborRoleId}
         </if>
+        <if test=" userId != null ">
+            and rha.user_id = #{userId}
+        </if>
         <if test=" projectId != null ">
             and rha.project_id = #{projectId}
         </if>

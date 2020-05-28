@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.FdProjectDto;
@@ -55,8 +56,13 @@ public class HarborInitServiceImpl implements HarborInitService {
 		HarborCountVo harborCountVo = JSONObject.parseObject(countResponse.getBody(), HarborCountVo.class);
 
 		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,null,null,true);
-		List<HarborProjectDTO> harborProjectList= JSONObject.parseArray(projectResponse.getBody(),HarborProjectDTO.class);
-		Map<String,HarborProjectDTO> map = harborProjectList.stream().collect(Collectors.toMap(HarborProjectDTO::getName,dto->dto));
+		Map<String,HarborProjectDTO> map = new HashMap<>(16);
+		List<String> projectList= JSONObject.parseArray(projectResponse.getBody(),String.class);
+		Gson gson = new Gson();
+		for(String object : projectList){
+			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
+			map.put(projectResponseDto.getName(),projectResponseDto);
+		}
 
 		String selectSql = "SELECT\n" +
 				"\tfp.`CODE` code,fp.`NAME` name,fp.id projectId,fp.ORGANIZATION_ID organizationId,fp.CREATED_BY createdBy,ht.tenant_num tenantNum,ht.tenant_name tenantName,\n" +
@@ -76,7 +82,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 					HarborRepository harborRepository = new HarborRepository(dto.getProjectId(),dto.getTenantProjectCode(),dto.getName(),harborProjectDTO.getMetadata().getPublicFlag(),Long.parseLong(harborProjectDTO.getHarborId().toString()),dto.getOrganizationId());
 					harborRepositoryList.add(harborRepository);
 					if("0".equals(dto.getCreatedBy())){
-						UserDTO userDTO = c7nBaseService.listProjectOwnerById(dto.getProjectId());
+						UserDTO userDTO = c7nBaseService.getProjectOwnerById(dto.getProjectId());
 						userIdSet.add(userDTO.getId());
 						userMap.put(dto.getProjectId(),userDTO.getId());
 					}else {
