@@ -50,8 +50,10 @@ public class NexusInitServiceImpl implements NexusInitService {
 	public void initAnonymous(List<String> repositoryNames) {
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(null);
+		Map<String, String> map = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, NexusServerRepository::getFormat));
+
 		if (CollectionUtils.isEmpty(repositoryNames)) {
-			List<NexusServerRepository> nexusServerRepositoryList =nexusClient.getRepositoryApi().getRepository();
 			repositoryNames = nexusServerRepositoryList.stream().map(NexusServerRepository::getName).collect(Collectors.toList());
 		}
 
@@ -65,17 +67,12 @@ public class NexusInitServiceImpl implements NexusInitService {
 						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 0))
 				.build();
 		List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
-		Map<String, String> map = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, NexusRepository::getRepoType));
+		// Map<String, String> map = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, NexusRepository::getRepoType));
 		repositoryNames.removeAll(repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList()));
 		if (CollectionUtils.isNotEmpty(repositoryNames)) {
 			repositoryNames.forEach(repositoryName -> {
-				String repoType = map.get(repositoryName);
-				if (repoType.equals(NexusConstants.RepoType.MAVEN)) {
-					anonymousRole.setPullPri(repositoryName, 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
-				} else if (repoType.equals(NexusConstants.RepoType.NPM)) {
-					anonymousRole.setPullPri(repositoryName, 1, NexusApiConstants.NexusRepoFormat.NPM_FORMAT);
-				}
-
+				String format = map.get(repositoryName);
+				anonymousRole.setPullPri(repositoryName, 1, format);
 			});
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}

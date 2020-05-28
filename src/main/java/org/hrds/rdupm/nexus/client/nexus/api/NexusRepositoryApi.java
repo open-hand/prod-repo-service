@@ -14,12 +14,6 @@ import java.util.List;
 public interface NexusRepositoryApi {
 
 	/**
-	 * 获取nexus服务,仓库信息
-	 * @return List<NexusRepository>
-	 */
-	List<NexusServerRepository> getRepository();
-
-	/**
 	 * 根据nexus format获取nexus服务,仓库信息
 	 *
 	 * @param nexusFormat 仓库format
