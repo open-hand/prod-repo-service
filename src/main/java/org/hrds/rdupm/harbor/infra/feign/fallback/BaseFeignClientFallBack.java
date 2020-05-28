@@ -53,4 +53,9 @@ public class BaseFeignClientFallBack implements BaseFeignClient {
 		throw new CommonException("error.feign.user.batch.select");
 	}
 
+	@Override
+	public ResponseEntity<List<UserDTO>> listProjectOwnerById(Long projectId) {
+		throw new CommonException("error.feign.project.owner");
+	}
+
 }

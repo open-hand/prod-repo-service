@@ -4,7 +4,6 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
 import java.util.List;
@@ -151,4 +150,21 @@ public interface NexusRepositoryService {
 	 * @return Page<NexusRepositoryDTO>
 	 */
 	Page<NexusRepositoryDTO> listNpmRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
+
+	/**
+	 * 平台层-查询所有的nexus仓库信息
+	 *
+	 * @param pageRequest 分页参数
+	 * @param queryDTO 查询参数
+	 * @return 仓库信息列表
+	 */
+	Page<NexusRepositoryDTO> listNexusRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
+
+	/**
+	 * 平台层-仓库分配
+	 *
+	 * @param nexusRepoCreateDTO 创建关联关系(创建NexusRepository数据)
+	 * @return
+	 */
+	NexusRepositoryCreateDTO repoDistribute(NexusRepositoryCreateDTO nexusRepoCreateDTO);
 }

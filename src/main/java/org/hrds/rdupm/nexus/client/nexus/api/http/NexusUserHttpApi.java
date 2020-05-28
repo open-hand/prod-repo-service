@@ -164,7 +164,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 		// 设置当前访问地址与用户
 		nexusRequest.setNexusServerInfo(nexusServer);
 		try {
-			List<NexusServerRepository> repositoryList = nexusRepositoryApi.getRepository();
+			List<NexusServerRepository> repositoryList = nexusRepositoryApi.getRepository(null);
 		} catch (NexusResponseException e) {
 			// 返回状态为401, 表明用户、密码错误
 			return e.getStatusCode() != HttpStatus.UNAUTHORIZED;

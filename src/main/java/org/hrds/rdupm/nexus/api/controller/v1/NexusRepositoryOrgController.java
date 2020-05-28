@@ -38,6 +38,7 @@ public class NexusRepositoryOrgController extends BaseController {
                                                                            NexusRepositoryQueryDTO queryDTO,
                                                                            @ApiIgnore PageRequest pageRequest) {
         queryDTO.setOrganizationId(organizationId);
+        queryDTO.setRepoType(NexusConstants.RepoType.MAVEN);
         return Results.success(nexusRepositoryService.listRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
     }
 
@@ -49,6 +50,7 @@ public class NexusRepositoryOrgController extends BaseController {
                                                                 NexusRepositoryQueryDTO queryDTO,
                                                                 @ApiIgnore PageRequest pageRequest) {
         queryDTO.setOrganizationId(organizationId);
+        queryDTO.setRepoType(NexusConstants.RepoType.NPM);
         return Results.success(nexusRepositoryService.listNpmRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
     }
 }

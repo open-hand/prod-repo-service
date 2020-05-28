@@ -30,4 +30,6 @@ public interface C7nBaseService {
 	UserDTO queryByLoginName(String loginName);
 
 	List<UserDTO> listProjectUsersByIdName(Long projectId, String name);
+
+	List<UserDTO> listProjectOwnerUsers(Long projectId);
 }

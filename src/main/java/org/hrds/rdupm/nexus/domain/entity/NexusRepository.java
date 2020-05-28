@@ -92,6 +92,7 @@ public class NexusRepository extends AuditDomain {
 	private String projectName;
 
 	@ApiModelProperty(value = "用户权限信息", hidden = true)
+    @Transient
 	private List<NexusAuth> nexusAuthList;
     //
     // getter/setter
