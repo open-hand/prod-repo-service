@@ -23,7 +23,7 @@ import io.choerodon.swagger.annotation.Permission;
  *
  * @author like.zhang@hand-china.com
  */
-@RestController("nexusRepositoryOrgController.v1")
+@RestController("nexusRepositorySiteController.v1")
 @RequestMapping("/v1/nexus-repositorys/site")
 public class NexusRepositorySiteController extends BaseController {
 

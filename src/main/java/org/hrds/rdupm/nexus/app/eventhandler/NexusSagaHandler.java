@@ -419,7 +419,7 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = 1)
 	public NexusRepository repoDistributeRoleSaga(String message) {
-		return this.createMavenRepoRoleSaga(message);
+		return this.createRepoRoleSaga(message);
 	}
 
 	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_USER,
@@ -428,7 +428,7 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = 2)
 	public NexusRepository repoDistributeUserSaga(String message) {
-		return this.createMavenRepoUserSaga(message);
+		return this.createRepoUserSaga(message);
 	}
 
 }

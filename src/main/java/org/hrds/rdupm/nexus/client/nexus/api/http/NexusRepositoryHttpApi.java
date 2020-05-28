@@ -2,7 +2,6 @@ package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
