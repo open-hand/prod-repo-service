@@ -134,4 +134,22 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		String param = JSONObject.toJSONString(nexusMavenProxy);
 		nexusScriptApi.runScript(NexusApiConstants.ScriptName.CREATE_MAVEN_PROXY, param);
 	}
+
+	@Override
+	public void createAndUpdateNpmHosted(RepositoryMavenInfo repositoryRequest) {
+		String param = JSONObject.toJSONString(repositoryRequest);
+		nexusScriptApi.runScript(NexusApiConstants.ScriptName.CREATE_NPM_HOSTED, param);
+	}
+
+	@Override
+	public void createAndUpdateNpmGroup(NexusServerMavenGroup nexusMavenGroup) {
+		String param = JSONObject.toJSONString(nexusMavenGroup);
+		nexusScriptApi.runScript(NexusApiConstants.ScriptName.CREATE_NPM_GROUP, param);
+	}
+
+	@Override
+	public void createAndUpdateNpmProxy(NexusServerMavenProxy nexusMavenProxy) {
+		String param = JSONObject.toJSONString(nexusMavenProxy);
+		nexusScriptApi.runScript(NexusApiConstants.ScriptName.CREATE_NPM_PROXY, param);
+	}
 }

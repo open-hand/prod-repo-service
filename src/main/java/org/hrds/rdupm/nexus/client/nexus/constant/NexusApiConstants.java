@@ -71,15 +71,32 @@ public interface NexusApiConstants {
 		 */
 		List<String> SCRIPT_LIST = Arrays.asList(
 				ScriptName.CREATE_MAVEN_PROXY,
-				ScriptName.CREATE_MAVEN_GROUP);
+				ScriptName.CREATE_MAVEN_GROUP,
+				ScriptName.CREATE_NPM_GROUP,
+				ScriptName.CREATE_NPM_HOSTED,
+				ScriptName.CREATE_NPM_PROXY);
 		/**
-		 * 创建maven仓库组   脚本：groovy包下create_repo_maven_group.groovy
+		 * 创建maven仓库组   脚本：groovy包下create_maven_group.groovy
 		 */
 		String CREATE_MAVEN_GROUP = ScriptName.SCRIPT_PREFIX + "create_maven_group";
 		/**
-		 * 创建maven代理仓库  脚本：groovy包下create_repo_maven_proxy.groovy
+		 * 创建maven代理仓库  脚本：groovy包下create_maven_proxy.groovy
 		 */
 		String CREATE_MAVEN_PROXY = ScriptName.SCRIPT_PREFIX + "create_maven_proxy";
+
+
+		/**
+		 * 创建npm本地仓库   脚本：groovy包下create_npm_hosted.groovy
+		 */
+		String CREATE_NPM_HOSTED = ScriptName.SCRIPT_PREFIX + "create_npm_hosted";
+		/**
+		 * 创建npm仓库组   脚本：groovy包下create_npm_group.groovy
+		 */
+		String CREATE_NPM_GROUP = ScriptName.SCRIPT_PREFIX + "create_npm_group";
+		/**
+		 * 创建npm代理仓库  脚本：groovy包下create_npm_proxy.groovy
+		 */
+		String CREATE_NPM_PROXY = ScriptName.SCRIPT_PREFIX + "create_npm_proxy";
 	}
 
 	interface ErrorMessage {

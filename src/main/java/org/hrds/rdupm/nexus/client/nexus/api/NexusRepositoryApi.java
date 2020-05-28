@@ -70,4 +70,24 @@ public interface NexusRepositoryApi {
 	 * @param nexusMavenProxy 创建信息
 	 */
 	void createAndUpdateMavenProxy(NexusServerMavenProxy nexusMavenProxy);
+
+	/**
+	 * npm仓hosted仓库创建更新
+	 * @param repositoryRequest 创建信息
+	 */
+	void createAndUpdateNpmHosted(RepositoryMavenInfo repositoryRequest);
+
+	/**
+	 * npm仓库组创建与更新
+	 * @param nexusMavenGroup 创建信息
+	 */
+	void createAndUpdateNpmGroup(NexusServerMavenGroup nexusMavenGroup);
+
+	/**
+	 * npm代理仓库创建与更新
+	 * @param nexusMavenProxy 创建信息
+	 */
+	void createAndUpdateNpmProxy(NexusServerMavenProxy nexusMavenProxy);
+
+
 }
