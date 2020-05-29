@@ -119,7 +119,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 			//批量保存项目
 			//创建用户、分配权限
 			harborRepositoryList.forEach(dto->{
-				if(CollectionUtils.isNotEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,dto.getProjectId()))){
+				if(CollectionUtils.isEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,dto.getProjectId()))){
 					harborRepositoryRepository.insertSelective(dto);
 				}
 
