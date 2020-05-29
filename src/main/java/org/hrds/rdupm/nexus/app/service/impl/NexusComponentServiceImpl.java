@@ -13,6 +13,7 @@ import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
@@ -54,12 +55,20 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		configService.setNexusInfo(nexusClient);
 
 		// 查询所有数据
-		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().searchComponentInfo(componentQuery);
+		List<NexusServerComponentInfo> componentInfoList = new ArrayList<>();
+		if (componentQuery.getRepoType().equals(NexusConstants.RepoType.MAVEN)) {
+			componentInfoList = nexusClient.getComponentsApi().searchMavenComponentInfo(componentQuery);
+		} else if (componentQuery.getRepoType().equals(NexusConstants.RepoType.NPM)) {
+			componentInfoList = nexusClient.getComponentsApi().searchNpmComponentInfo(componentQuery);
+		} else {
+			return new Page<>();
+		}
+
 		// 分页
 		Page<NexusServerComponentInfo> componentInfoPage = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfoList);
 
 		if (deleteFlag && projectId != null) {
-			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId, componentQuery.getFormat());
+			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId, componentQuery.getRepoType());
 			componentInfoPage.getContent().forEach(nexusServerComponentInfo -> {
 				nexusServerComponentInfo.setDeleteFlag(proRepoList.contains(nexusServerComponentInfo.getRepository()));
 				nexusServerComponentInfo.getComponents().forEach(nexusServerComponent -> {

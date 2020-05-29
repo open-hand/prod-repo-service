@@ -12,10 +12,10 @@ import java.util.Map;
 public class NexusComponentQuery {
 
 	/**
-	 * 转换查询参数
+	 * 转换查询参数 maven
 	 * @return map
 	 */
-	public Map<String, Object> convertParam(){
+	public Map<String, Object> convertMavenParam(){
 		Map<String, Object> paramMap = new HashMap<>(16);
 		if (this.repositoryName != null) {
 			paramMap.put("repository", this.repositoryName);
@@ -32,6 +32,24 @@ public class NexusComponentQuery {
 		return paramMap;
 	}
 
+	/**
+	 * 转换查询参数 npm
+	 * @return map
+	 */
+	public Map<String, Object> convertNpmParam(){
+		Map<String, Object> paramMap = new HashMap<>(16);
+		if (this.repositoryName != null) {
+			paramMap.put("repository", this.repositoryName);
+		}
+		if (this.name != null) {
+			paramMap.put("name", this.name);
+		}
+		if (this.version != null) {
+			paramMap.put("version", this.version);
+		}
+		return paramMap;
+	}
+
 	@ApiModelProperty(value = "仓库名称", required = true)
 	private String repositoryName;
 	@ApiModelProperty(value = "groupId")
@@ -41,14 +59,14 @@ public class NexusComponentQuery {
 	@ApiModelProperty(value = "版本")
 	private String version;
 	@ApiModelProperty(value = "制品类型")
-	private String format;
+	private String repoType;
 
-	public String getFormat() {
-		return format;
+	public String getRepoType() {
+		return repoType;
 	}
 
-	public void setFormat(String format) {
-		this.format = format;
+	public void setRepoType(String repoType) {
+		this.repoType = repoType;
 	}
 
 	public String getRepositoryName() {
