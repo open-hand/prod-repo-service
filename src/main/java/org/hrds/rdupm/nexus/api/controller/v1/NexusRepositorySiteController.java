@@ -33,8 +33,8 @@ public class NexusRepositorySiteController extends BaseController {
     @ApiOperation(value = "平台层-nexus仓库列表")
     @Permission(level = ResourceLevel.SITE)
     @GetMapping("/repo")
-    public ResponseEntity<Page<NexusRepositoryDTO>> listOtherMavenRepo(NexusRepositoryQueryDTO queryDTO,
-                                                                       @ApiIgnore PageRequest pageRequest) {
+    public ResponseEntity<Page<NexusRepositoryDTO>> listNexusRepo(NexusRepositoryQueryDTO queryDTO,
+                                                                  @ApiIgnore PageRequest pageRequest) {
         return Results.success(nexusRepositoryService.listNexusRepo(pageRequest, queryDTO));
     }
 
