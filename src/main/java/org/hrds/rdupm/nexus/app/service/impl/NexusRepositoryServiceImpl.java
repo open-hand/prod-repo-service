@@ -898,7 +898,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	 * 制品库类型，转换为nexus format
 	 * @return
 	 */
-	private String convertRepoTypeToFormat(String repoType) {
+	public String convertRepoTypeToFormat(String repoType) {
 		if (NexusConstants.RepoType.MAVEN.equals(repoType)) {
 			return NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT;
 		} else if (NexusConstants.RepoType.NPM.equals(repoType)) {

@@ -8,6 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
+import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
@@ -50,6 +51,8 @@ public class NexusSagaHandler {
 	private ObjectMapper objectMapper;
 	@Autowired
 	private NexusAuthHandler nexusAuthHandler;
+	@Autowired
+	private NexusRepositoryService nexusRepositoryService;
 
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
@@ -153,11 +156,11 @@ public class NexusSagaHandler {
 		// 角色
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 
 		// 发布角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 
 		// 创建拉取角色
 		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
@@ -305,7 +308,7 @@ public class NexusSagaHandler {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 		}
-		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepoCreateDTO.getRepoType()));
 		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息
@@ -388,7 +391,7 @@ public class NexusSagaHandler {
 		//nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId());
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 
 		// 创建角色
 		/*NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
@@ -439,7 +442,7 @@ public class NexusSagaHandler {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 		}
-		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1,  nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息
