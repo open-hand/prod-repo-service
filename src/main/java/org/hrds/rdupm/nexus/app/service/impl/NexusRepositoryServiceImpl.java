@@ -214,7 +214,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepository.setOrganizationId(nexusRepoCreateDTO.getOrganizationId());
 		nexusRepository.setProjectId(nexusRepoCreateDTO.getProjectId());
 		nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
-		nexusRepository.setRepoType(NexusConstants.RepoType.MAVEN);
+		nexusRepository.setRepoType(nexusRepoCreateDTO.getRepoType());
 		nexusRepositoryRepository.insertSelective(nexusRepository);
 
 		// 角色
@@ -255,7 +255,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 						.withRefType("nexusRepo"),
 				builder -> builder.withPayloadAndSerialize(nexusRepoCreateDTO)
 						.withRefId(String.valueOf(nexusRepository.getRepositoryId())));
-
 
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
