@@ -25,10 +25,13 @@
             rnr.ne_repository_name
         FROM
             rdupm_nexus_auth rna
-            LEFT JOIN rdupm_nexus_repository rnr ON rnr.repository_id = rna.repository_id
+            INNER JOIN rdupm_nexus_repository rnr ON rnr.repository_id = rna.repository_id
         WHERE 1 = 1
         <if test="repositoryId != null">
             AND rna.repository_id = #{repositoryId}
+        </if>
+        <if test="repoType != null">
+            AND rnr.repo_type = #{repoType}
         </if>
         <if test=" loginName != null and loginName != '' ">
             <bind name="loginNameLike" value=" '%'+loginName + '%'" />

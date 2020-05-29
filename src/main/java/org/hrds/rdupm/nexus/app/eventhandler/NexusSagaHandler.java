@@ -8,6 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
+import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
@@ -50,6 +51,8 @@ public class NexusSagaHandler {
 	private ObjectMapper objectMapper;
 	@Autowired
 	private NexusAuthHandler nexusAuthHandler;
+	@Autowired
+	private NexusRepositoryService nexusRepositoryService;
 
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
@@ -96,6 +99,23 @@ public class NexusSagaHandler {
 					break;
 				default:break;
 			}
+		} else if (nexusRepository.getRepoType().equals(NexusConstants.RepoType.NPM)) {
+			// NPM
+			switch (nexusRepoCreateDTO.getType()) {
+				case NexusApiConstants.RepositoryType.HOSTED:
+					// 创建本地仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmHosted(nexusRepoCreateDTO.convertMavenHostedRequest());
+					break;
+				case NexusApiConstants.RepositoryType.PROXY:
+					// 创建代理仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmProxy(nexusRepoCreateDTO.convertMavenProxyRequest());
+					break;
+				case NexusApiConstants.RepositoryType.GROUP:
+					// 创建仓库组
+					nexusClient.getRepositoryApi().createAndUpdateNpmGroup(nexusRepoCreateDTO.convertMavenGroupRequest());
+					break;
+				default:break;
+			}
 		}
 
 		// remove配置信息
@@ -136,11 +156,11 @@ public class NexusSagaHandler {
 		// 角色
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 
 		// 发布角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
-		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 
 		// 创建拉取角色
 		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
@@ -162,7 +182,7 @@ public class NexusSagaHandler {
 			if (anonymousRole == null) {
 				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 			}
-			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, nexusRepository.getRepoType());
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 
@@ -262,6 +282,23 @@ public class NexusSagaHandler {
 					break;
 				default:break;
 			}
+		} else if (nexusRepoCreateDTO.getRepoType().equals(NexusConstants.RepoType.NPM)) {
+			// NPM
+			switch (nexusRepoCreateDTO.getType()) {
+				case NexusApiConstants.RepositoryType.HOSTED:
+					// 创建本地仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmHosted(nexusRepoCreateDTO.convertMavenHostedRequest());
+					break;
+				case NexusApiConstants.RepositoryType.PROXY:
+					// 创建代理仓库
+					nexusClient.getRepositoryApi().createAndUpdateNpmProxy(nexusRepoCreateDTO.convertMavenProxyRequest());
+					break;
+				case NexusApiConstants.RepositoryType.GROUP:
+					// 创建仓库组
+					nexusClient.getRepositoryApi().createAndUpdateNpmGroup(nexusRepoCreateDTO.convertMavenGroupRequest());
+					break;
+				default:break;
+			}
 		}
 
 
@@ -271,7 +308,7 @@ public class NexusSagaHandler {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 		}
-		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepoCreateDTO.getRepoType()));
 		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息
@@ -354,7 +391,7 @@ public class NexusSagaHandler {
 		//nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId());
 		// 拉取角色
 		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 
 		// 创建角色
 		/*NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
@@ -405,12 +442,30 @@ public class NexusSagaHandler {
 		if (anonymousRole == null) {
 			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 		}
-		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1,  nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return message;
+	}
+
+	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_ROLE,
+			description = "平台层-仓库分配：创建角色",
+			sagaCode = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
+			maxRetryCount = 3,
+			seq = 1)
+	public NexusRepository repoDistributeRoleSaga(String message) {
+		return this.createRepoRoleSaga(message);
+	}
+
+	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_USER,
+			description = "平台层-仓库分配：创建用户",
+			sagaCode = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
+			maxRetryCount = 3,
+			seq = 2)
+	public NexusRepository repoDistributeUserSaga(String message) {
+		return this.createRepoUserSaga(message);
 	}
 
 }
