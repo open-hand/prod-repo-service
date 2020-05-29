@@ -4,7 +4,7 @@ import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.api.vo.ProductLibraryDTO;
+import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
