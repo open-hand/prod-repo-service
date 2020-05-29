@@ -185,7 +185,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Override
 	@Saga(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
 			description = "平台层-nexus仓库分配",
-			inputSchemaClass = NexusRepositoryCreateDTO.class)
+			inputSchemaClass = NexusRepository.class)
 	public NexusRepositoryCreateDTO repoDistribute(NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 步骤
@@ -253,7 +253,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 						.withSagaCode(NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE)
 						.withLevel(ResourceLevel.SITE)
 						.withRefType("nexusRepo"),
-				builder -> builder.withPayloadAndSerialize(nexusRepoCreateDTO)
+				builder -> builder.withPayloadAndSerialize(nexusRepository)
 						.withRefId(String.valueOf(nexusRepository.getRepositoryId())));
 
 		// remove配置信息
