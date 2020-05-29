@@ -21,6 +21,7 @@ public class ProductLibraryDTO extends AuditDomain {
 
 	public static final String TYPE_MAVEN = "MAVEN";
 	public static final String TYPE_DOCKER = "DOCKER";
+	public static final String TYPE_NPM = "NPM";
 
 	@ApiModelProperty(value = "行记录唯一Id, UUID")
 	private String uniqueId;
