@@ -24,4 +24,9 @@ public class NexusRepositoryRepositoryImpl extends BaseRepositoryImpl<NexusRepos
 	public List<String> getRepositoryByProject(Long projectId, String repoType) {
 		return nexusRepositoryMapper.getRepositoryByProject(projectId, repoType);
 	}
+
+	@Override
+	public Long distributeRepoInsert(NexusRepository nexusRepository) {
+		return nexusRepositoryMapper.distributeRepoInsert(nexusRepository);
+	}
 }
