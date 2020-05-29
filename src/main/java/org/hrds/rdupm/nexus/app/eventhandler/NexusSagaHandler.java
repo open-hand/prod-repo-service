@@ -165,7 +165,7 @@ public class NexusSagaHandler {
 			if (anonymousRole == null) {
 				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 			}
-			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, nexusRepository.getRepoType());
+			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 

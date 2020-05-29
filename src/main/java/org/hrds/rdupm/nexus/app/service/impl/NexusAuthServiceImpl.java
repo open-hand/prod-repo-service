@@ -237,6 +237,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             nexusAuth.setUserId(userId);
             nexusAuth.setRepositoryId(repositoryId);
             nexusAuth.setRoleCode(roleCode);
+            nexusAuthList.add(nexusAuth);
         });
         /// 设置用户权限、获取用户信息
         List<ProdUser> prodUserList = new ArrayList<>();

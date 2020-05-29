@@ -55,4 +55,13 @@
             rnr.ne_repository_name,
             rna.login_name
     </select>
+    <select id="getRoleList" resultType="java.lang.String">
+        SELECT
+            role_code
+        FROM
+            rdupm_nexus_auth
+        WHERE
+            user_id = #{userId}
+            AND repository_id = #{repositoryId}
+    </select>
 </mapper>
