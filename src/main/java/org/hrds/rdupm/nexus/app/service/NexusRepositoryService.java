@@ -167,4 +167,6 @@ public interface NexusRepositoryService {
 	 * @return
 	 */
 	NexusRepositoryCreateDTO repoDistribute(NexusRepositoryCreateDTO nexusRepoCreateDTO);
+
+	String convertRepoTypeToFormat(String repoType);
 }
