@@ -202,8 +202,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 
-		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())){
-			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
+		if (!nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())){
+			throw new CommonException(NexusApiConstants.ErrorMessage.RESOURCE_NOT_EXIST);
 		}
 
 		// 1. 数据库数据更新
