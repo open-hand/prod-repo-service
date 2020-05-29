@@ -19,5 +19,11 @@ public interface NexusRepositoryRepository extends BaseRepository<NexusRepositor
 	 * @return 仓库名称列表
 	 */
 	List<String> getRepositoryByProject(Long projectId, String repoType);
-    
+
+	/**
+	 * 平台层仓库分配插入仓库数据
+	 *
+	 * @param nexusRepository
+	 */
+    Long distributeRepoInsert(NexusRepository nexusRepository);
 }
