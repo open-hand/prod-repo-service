@@ -106,7 +106,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 				if(harborProjectDTO != null){
 					HarborRepository harborRepository = new HarborRepository(dto.getProjectId(),dto.getTenantProjectCode(),dto.getName(),harborProjectDTO.getMetadata().getPublicFlag(),Long.parseLong(harborProjectDTO.getHarborId().toString()),dto.getOrganizationId());
 					harborRepositoryList.add(harborRepository);
-					if("0".equals(dto.getCreatedBy())){
+					if(dto.getCreatedBy() == 0){
 						UserDTO userDTO = c7nBaseService.getProjectOwnerById(dto.getProjectId());
 						userIdSet.add(userDTO.getId());
 						userMap.put(dto.getProjectId(),userDTO.getId());
@@ -182,7 +182,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 		});
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
-						.withSagaCode(HarborConstants.HarborSagaCode.CREATE_AUTH)
+						.withSagaCode(sagaCode)
 						.withLevel(ResourceLevel.PROJECT)
 						.withRefType("dockerRepo")
 						.withSourceId(projectId),

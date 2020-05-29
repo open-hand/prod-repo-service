@@ -5,6 +5,9 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
@@ -34,6 +37,8 @@ public class ProdUserController extends BaseController {
 	private ProdUserService prodUserService;
     @Autowired
 	private NexusAuthRepository nexusAuthRepository;
+    @Autowired
+	private HarborAuthRepository harborAuthRepository;
 
     @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
 	@Permission(level = ResourceLevel.ORGANIZATION)
@@ -62,7 +67,7 @@ public class ProdUserController extends BaseController {
 
 		List<String> roleCode = new ArrayList<>();
     	if (productType.equals(ProductLibraryDTO.TYPE_DOCKER)) {
-			// TODO
+			roleCode = harborAuthRepository.getHarborRoleList(id);
 		} else if (productType.equals(ProductLibraryDTO.TYPE_NPM) || productType.equals(ProductLibraryDTO.TYPE_MAVEN)) {
 			roleCode = nexusAuthRepository.getRoleList(id);
 		}

@@ -26,7 +26,7 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 
 	@Override
 	public Map<String, UserDTO> listUsersByLoginNames(Set<String> userNameSet) {
-		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),true);
+		ResponseEntity<List<UserDTO>> responseEntity = baseFeignClient.listUsersByLoginNames(userNameSet.toArray(new String[userNameSet.size()]),false);
 		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
 			return Collections.emptyMap();
 		} else {
@@ -56,7 +56,7 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 
 	@Override
 	public Map<Long, UserDTO> listUsersByIds(Set<Long> userIdSet) {
-		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),true);
+		ResponseEntity<List<UserDTO>> userDtoResponseEntity = baseFeignClient.listUsersByIds(userIdSet.toArray(new Long[userIdSet.size()]),false);
 		if (userDtoResponseEntity == null || CollectionUtils.isEmpty(userDtoResponseEntity.getBody())) {
 			return Collections.emptyMap();
 		} else {
