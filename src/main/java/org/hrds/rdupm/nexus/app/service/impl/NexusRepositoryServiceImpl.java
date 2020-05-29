@@ -183,9 +183,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	@Saga(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
 			description = "平台层-nexus仓库分配",
-			inputSchemaClass = NexusRepository.class)
+			inputSchemaClass = NexusRepositoryCreateDTO.class)
 	public NexusRepositoryCreateDTO repoDistribute(NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 步骤
@@ -208,14 +209,18 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		// 1. 数据库数据更新
 		// 仓库
-		NexusRepository nexusRepository = new NexusRepository();
-		nexusRepository.setConfigId(serverConfig.getConfigId());
-		nexusRepository.setNeRepositoryName(nexusRepoCreateDTO.getName());
-		nexusRepository.setOrganizationId(nexusRepoCreateDTO.getOrganizationId());
-		nexusRepository.setProjectId(nexusRepoCreateDTO.getProjectId());
-		nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
-		nexusRepository.setRepoType(nexusRepoCreateDTO.getRepoType());
-		nexusRepositoryRepository.insertSelective(nexusRepository);
+		Long adminId = nexusRepoCreateDTO.getDistributeRepoAdminId();
+		NexusRepository insertRepo = new NexusRepository();
+		insertRepo.setCreatedBy(adminId);
+		insertRepo.setConfigId(serverConfig.getConfigId());
+		insertRepo.setNeRepositoryName(nexusRepoCreateDTO.getName());
+		insertRepo.setOrganizationId(nexusRepoCreateDTO.getOrganizationId());
+		insertRepo.setProjectId(nexusRepoCreateDTO.getProjectId());
+		insertRepo.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
+		insertRepo.setRepoType(nexusRepoCreateDTO.getRepoType());
+		nexusRepositoryRepository.distributeRepoInsert(insertRepo);
+		List<NexusRepository> nexusRepositories = nexusRepositoryRepository.selectByCondition(Condition.builder(NexusRepository.class).andWhere(Sqls.custom().andEqualTo(NexusRepository.FIELD_NE_REPOSITORY_NAME, insertRepo.getNeRepositoryName())).build());
+		NexusRepository nexusRepository = nexusRepositories.get(0);
 
 		// 角色
 		NexusServerRole nexusServerRole = new NexusServerRole();
@@ -246,7 +251,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// List<UserDTO> ownerUsers = c7nBaseService.listProjectOwnerUsers(projectId);
 		// List<Long> userIds = ownerUsers.stream().map(UserDTO::getId).collect(Collectors.toList());
 		// 创建用户权限
-		List<NexusAuth> nexusAuthList = nexusAuthService.createNexusAuth(Collections.singletonList(nexusRepoCreateDTO.getDistributeRepoAdminId()),
+		List<NexusAuth> nexusAuthList = nexusAuthService.createNexusAuth(Collections.singletonList(adminId),
 				nexusRepository.getRepositoryId(), NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
 		nexusRepoCreateDTO.setNexusAuthList(nexusAuthList);
 
