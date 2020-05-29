@@ -39,8 +39,8 @@ public class ProductLibraryController extends BaseController {
 	@Autowired
 	private HarborProjectService harborProjectService;
 
-	@ApiOperation(value = "项目层-制品库库列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层--制品库列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list/{projectId}")
 	public ResponseEntity<List<ProductLibraryDTO>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 

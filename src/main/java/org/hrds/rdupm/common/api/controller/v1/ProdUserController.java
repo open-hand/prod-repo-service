@@ -40,7 +40,7 @@ public class ProdUserController extends BaseController {
     @Autowired
 	private HarborAuthRepository harborAuthRepository;
 
-    @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
+    @ApiOperation(value = "个人层--查询制品库用户信息")
 	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
@@ -51,7 +51,7 @@ public class ProdUserController extends BaseController {
         return Results.success(prodUser);
     }
 
-	@ApiOperation(value = "制品库-修改默认密码")
+	@ApiOperation(value = "个人层--修改制品库用户默认密码")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
@@ -59,7 +59,7 @@ public class ProdUserController extends BaseController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "制品库-获取当前用户，对应仓库分配的权限")
+	@ApiOperation(value = "项目层--获取当前用户，对应仓库分配的权限")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/getRoleList")
 	public ResponseEntity<List<String>> getRoleList(@ApiParam(value = "仓库Id、项目Id", required = true) @RequestParam Long id,
