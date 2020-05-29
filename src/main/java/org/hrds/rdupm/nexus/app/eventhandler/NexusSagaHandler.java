@@ -344,6 +344,9 @@ public class NexusSagaHandler {
 		if (nexusRole.getNePullRoleId() != null) {
 			nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNePullRoleId());
 		}
+		if (nexusRole.getNeRoleId() != null) {
+			nexusClient.getNexusRoleApi().deleteRole(nexusRole.getNeRoleId());
+		}
 		// 默认用户
 		if (nexusUser.getNePullUserId() != null) {
 			nexusClient.getNexusUserApi().deleteUser(nexusUser.getNePullUserId());

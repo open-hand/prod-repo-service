@@ -24,11 +24,11 @@ public class NexusServerUser {
 	public NexusServerUser() {
 	}
 
-	public NexusServerUser(String userId, String password, List<String> roles) {
+	public NexusServerUser(String userId, String firstName, String lastName, String password, List<String> roles) {
 		this.userId = userId;
 		this.password = password;
-		this.firstName = userId;
-		this.lastName = userId;
+		this.firstName = firstName == null ? userId : firstName;
+		this.lastName = lastName == null ? userId : lastName;
 		this.emailAddress = this.getUserId() + "@default.com";
 		this.roles = roles;
 		this.status = STATUS_ACTIVE;
