@@ -129,6 +129,10 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.ROLE_SEQ)
 	public NexusRepository createRepoRoleSaga(String message) {
+		return this.createRepoRole(message);
+	}
+
+	private NexusRepository createRepoRole(String message) {
 		NexusRepository nexusRepository = null;
 		try {
 			nexusRepository = objectMapper.readValue(message, NexusRepository.class);
@@ -197,6 +201,10 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = NexusSagaConstants.NexusMavenRepoCreate.USER_SEQ)
 	public NexusRepository createRepoUserSaga(String message) {
+		return this.createRepoUser(message);
+	}
+
+	private NexusRepository createRepoUser(String message) {
 		NexusRepository nexusRepository = null;
 		try {
 			nexusRepository = objectMapper.readValue(message, NexusRepository.class);
@@ -459,7 +467,7 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = 1)
 	public NexusRepository repoDistributeRoleSaga(String message) {
-		return this.createRepoRoleSaga(message);
+		return this.createRepoRole(message);
 	}
 
 	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_USER,
@@ -468,7 +476,7 @@ public class NexusSagaHandler {
 			maxRetryCount = 3,
 			seq = 2)
 	public NexusRepository repoDistributeUserSaga(String message) {
-		return this.createRepoUserSaga(message);
+		return this.createRepoUser(message);
 	}
 
 }

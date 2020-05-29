@@ -192,7 +192,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 1. 更新数据库数据
 		// 2. 创建仓库默认角色，赋予权限：nx-repository-view-[format]-[仓库名]-*; 创建仓库拉取角色
 		// 3. 创建仓库拉取用户rdupm_nexus_user，分配仓库拉取角色（用于不允许匿名拉取时的pull操作）
-		// 4. 获取项目“项目管理员”角色人员，创建制品库用户rdupm_prod_user，创建nexus用户并赋予默认角色
+		// 4. 根据传入的仓库管理员，创建制品库用户rdupm_prod_user，创建nexus用户并赋予默认角色
 		// 5. 是否允许匿名
 		//     允许，赋予匿名用户权限：nx-repository-view-[format]-[仓库名]-read   nx-repository-view-[format]-[仓库名]-browse
 		//     不允许，去除匿名用户权限：nx-repository-view-[format]-[仓库名]-read   nx-repository-view-[format]-[仓库名]-browse
@@ -242,11 +242,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusUserRepository.insertSelective(nexusUser);
 
 		// 获取项目“项目管理员”角色人员
-		Long projectId = nexusRepoCreateDTO.getProjectId();
-		List<UserDTO> ownerUsers = c7nBaseService.listProjectOwnerUsers(projectId);
-		List<Long> userIds = ownerUsers.stream().map(UserDTO::getId).collect(Collectors.toList());
+		// Long projectId = nexusRepoCreateDTO.getProjectId();
+		// List<UserDTO> ownerUsers = c7nBaseService.listProjectOwnerUsers(projectId);
+		// List<Long> userIds = ownerUsers.stream().map(UserDTO::getId).collect(Collectors.toList());
 		// 创建用户权限
-		List<NexusAuth> nexusAuthList = nexusAuthService.createNexusAuth(userIds, nexusRepository.getRepositoryId(), NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+		List<NexusAuth> nexusAuthList = nexusAuthService.createNexusAuth(Collections.singletonList(nexusRepoCreateDTO.getDistributeRepoAdminId()),
+				nexusRepository.getRepositoryId(), NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
 		nexusRepoCreateDTO.setNexusAuthList(nexusAuthList);
 
 		producer.apply(StartSagaBuilder.newBuilder()
@@ -514,6 +515,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		if (queryDTO.getRepositoryName() != null) {
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
 					nexusRepositoryDTO.getName().toLowerCase().contains(queryDTO.getRepositoryName().toLowerCase())).collect(Collectors.toList());
+		}
+		if (queryDTO.getDistributedQueryFlag() != null) {
+			resultAll = resultAll.stream().filter(nexusRepositoryDTO -> {
+				if (Objects.equals(queryDTO.getDistributedQueryFlag(), BaseConstants.Flag.NO)) {
+					return Objects.isNull(nexusRepositoryDTO.getRepositoryId());
+				}
+				return true;
+			}).collect(Collectors.toList());
 		}
 		if (queryDTO.getType() != null) {
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
@@ -898,6 +907,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	 * 制品库类型，转换为nexus format
 	 * @return
 	 */
+	@Override
 	public String convertRepoTypeToFormat(String repoType) {
 		if (NexusConstants.RepoType.MAVEN.equals(repoType)) {
 			return NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT;
