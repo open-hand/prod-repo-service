@@ -84,7 +84,7 @@ public class NexusRepositoryCreateDTO {
 		switch (this.getType()) {
 			case NexusApiConstants.RepositoryType.HOSTED:
 				// 创建本地仓库
-				if (StringUtils.isBlank(this.versionPolicy) && this.repoType.equals(NexusConstants.RepoType.MAVEN)) {
+				if (StringUtils.isBlank(this.versionPolicy) && StringUtils.equals(this.repoType, NexusConstants.RepoType.MAVEN)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.writePolicy)) {

@@ -6,15 +6,17 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.mybatis.domian.SecurityToken;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 仓库信息
  * @author weisen.yang@hand-china.com 2020/3/30
  */
 @ApiModel("仓库信息")
-public class NexusRepositoryDTO implements SecurityToken {
+public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusRepositoryDTO> {
 	private String _token;
 
 	/**
@@ -312,5 +314,18 @@ public class NexusRepositoryDTO implements SecurityToken {
 	@Override
 	public Class<? extends SecurityToken> associateEntityClass() {
 		return NexusRepositoryDTO.class;
+	}
+
+	@Override
+	public int compare(NexusRepositoryDTO o1, NexusRepositoryDTO o2) {
+		if (Objects.nonNull(o1.getProjectId()) && Objects.nonNull(o2.getProjectId())) {
+			return o2.getRepositoryId().compareTo(o1.getRepositoryId());
+		} else if (Objects.nonNull(o1.getProjectId())) {
+			return -1;
+		} else if (Objects.nonNull(o2.getProjectId())) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }

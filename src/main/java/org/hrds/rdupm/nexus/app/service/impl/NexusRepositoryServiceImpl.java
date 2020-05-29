@@ -524,6 +524,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
 					nexusRepositoryDTO.getVersionPolicy() != null && nexusRepositoryDTO.getVersionPolicy().toLowerCase().contains(queryDTO.getVersionPolicy().toLowerCase())).collect(Collectors.toList());
 		}
+		resultAll.sort(new NexusRepositoryDTO());
 		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 	}
 
