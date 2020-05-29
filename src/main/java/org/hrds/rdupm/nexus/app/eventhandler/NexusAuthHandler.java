@@ -82,7 +82,7 @@ public class NexusAuthHandler {
 			List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
 			if (CollectionUtils.isEmpty(existUserList)) {
 				// 创建用户
-				NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), prodUser.getPassword(), Collections.singletonList(nexusAuth.getNeRoleId()));
+				NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), prodUser.getPassword(), Collections.singletonList(nexusAuth.getNeRoleId()));
 				nexusClient.getNexusUserApi().createUser(nexusServerUser);
 			} else {
 				// 更新用户
