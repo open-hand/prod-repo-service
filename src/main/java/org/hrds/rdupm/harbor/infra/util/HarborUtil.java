@@ -1,11 +1,15 @@
 package org.hrds.rdupm.harbor.infra.util;
 
+import javax.persistence.Id;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.mybatis.domain.AuditDomain;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hzero.export.vo.ExportParam;
@@ -191,6 +195,28 @@ public class HarborUtil {
 		final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
 		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
 		return new DecimalFormat("#,##0.##").format(size / Math.pow(1024, digitGroups)) + "/" + units[digitGroups];
+	}
+
+	/**
+	 * 将自动生成的一些字段值清空
+	 *
+	 * @param auditDomain 对象
+	 */
+	public static void resetDomain(AuditDomain auditDomain) {
+		Class c = auditDomain.getClass();
+		String idFieldName = Arrays.stream(c.getDeclaredFields())
+				.filter(field -> field.isAnnotationPresent(Id.class))
+				.collect(Collectors.toList()).get(0).getName();
+		try {
+			FieldUtils.writeDeclaredField(auditDomain, idFieldName, null, true);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		auditDomain.setCreatedBy(null);
+		auditDomain.setCreationDate(null);
+		auditDomain.setObjectVersionNumber(null);
+		auditDomain.setLastUpdateDate(null);
+		auditDomain.setLastUpdatedBy(null);
 	}
 
 }

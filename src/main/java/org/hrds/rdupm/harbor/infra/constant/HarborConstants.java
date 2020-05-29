@@ -199,7 +199,16 @@ public interface HarborConstants {
 		/**
 		 * 修改密码
 		 * */
-		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID");
+		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID"),
+
+		/**
+		 * 机器人账户API
+		 * */
+		CREATE_ROBOT("/api/projects/%s/robots", HttpMethod.POST, "创建机器人账户-项目ID"),
+
+		GET_PROJECT_ALL_ROBOTS("/api/projects/%s/robots", HttpMethod.GET, "查询项目的所有机器人账户-项目ID"),
+
+		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID");
 
 		String apiUrl;
 
@@ -370,5 +379,19 @@ public interface HarborConstants {
 			}
 			return null;
 		}
+	}
+
+	interface HarborRobot{
+		String ROBOT_SAGA_TASK_CODE = "rdupm-docker-robot-create";
+
+		String ROBOT = "robot";
+
+		String ACTION_PULL = "pull";
+
+		String ACTION_PUSH = "push";
+
+		String ROBOT_RESOURCE = "/project/%s/repository";
+
+		String ROBOT_NAME_PREFIX = "robot$";
 	}
 }
