@@ -117,7 +117,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			throw new CommonException(NexusMessageConstants.NEXUS_NOT_DELETE_COMPONENT);
 		}
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		configService.setCurrentNexusInfo(nexusClient);
 		componentIds.forEach(componentId -> {
 			try {
 				nexusClient.getComponentsApi().deleteComponent(componentId);
@@ -140,7 +140,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 								 NexusServerComponentUpload componentUpload,
 								 MultipartFile assetJar, MultipartFile assetPom) {
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		configService.setCurrentNexusInfo(nexusClient);
 		try (
 				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
 				InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null

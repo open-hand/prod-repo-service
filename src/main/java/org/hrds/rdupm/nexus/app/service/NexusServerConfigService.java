@@ -19,6 +19,12 @@ public interface NexusServerConfigService {
 	NexusServerConfig setNexusInfo(NexusClient nexusClient);
 
 	/**
+	 * 设置当前用户为nexus服务访问用户
+	 * @param nexusClient nexus服务client
+	 */
+	void setCurrentNexusInfo(NexusClient nexusClient);
+
+	/**
 	 * nexus服务配置信息创建
 	 * @param nexusServerConfig nexusServerConfig
 	 * @return NexusServerConfig
