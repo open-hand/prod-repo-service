@@ -46,7 +46,7 @@ public class NexusBaseGuideDTO {
             this.setPullServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
             this.setPullPassword(nePullUserPassword);
             this.setPullServerInfoPassword(this.getPullServerInfo().replace("[password]", this.getPullPassword()));
-            this.setPullServerInfoPassword(this.getPullServerInfo().replace("[username]", nexusUser.getNePullUserId()));
+            this.setPullServerInfoPassword(this.getPullServerInfoPassword().replace("[username]", nexusUser.getNePullUserId()));
         }
         this.setPullPomRepoInfo(VelocityUtils.getJsonString(map, VelocityUtils.POM_REPO_FILE_NAME));
 
