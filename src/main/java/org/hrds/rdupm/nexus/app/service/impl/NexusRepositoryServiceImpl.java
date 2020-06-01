@@ -186,7 +186,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Transactional(rollbackFor = Exception.class)
 	@Saga(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
 			description = "平台层-nexus仓库分配",
-			inputSchemaClass = NexusRepositoryCreateDTO.class)
+			inputSchemaClass = NexusRepository.class)
 	public NexusRepositoryCreateDTO repoDistribute(NexusRepositoryCreateDTO nexusRepoCreateDTO) {
 
 		// 步骤
