@@ -131,7 +131,7 @@ public interface NexusApiConstants {
 		 */
 		String NEXUS_USER_PASS_ERROR = "error.nexus.client.nexus.user.pass.failed";
 		/**
-		 * nexus角色对应操作权限未分配
+		 * 用户权限不足，没有该操作的权限
 		 */
 		String NEXUS_ROLE_PRI_NOT_ASSIGNED = "error.nexus.client.nexus.role.pri.not.assigned";
 		/**

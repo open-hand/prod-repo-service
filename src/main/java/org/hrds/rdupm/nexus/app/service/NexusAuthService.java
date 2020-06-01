@@ -53,6 +53,12 @@ public interface NexusAuthService {
     void delete(NexusAuth nexusAuth);
 
     /**
+     * 当前用户权限验证
+     * @param repositoryId 仓库Id
+     */
+    void validateRoleAuth(Long repositoryId);
+
+    /**
      * 创建用户权限-仓库创建与关联时赋权
      * @param userIds 用户Id
      * @param repositoryId 仓库Id

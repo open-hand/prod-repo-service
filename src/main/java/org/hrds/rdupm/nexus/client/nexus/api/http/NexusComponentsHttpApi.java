@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import javax.sql.rowset.serial.SerialStruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,9 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 
 	@Autowired
 	private NexusRequest nexusRequest;
+	@Autowired
+	@Lazy
+	private NexusRepositoryHttpApi nexusRepositoryHttpApi;
 
 	@Override
 	public List<NexusServerComponent> searchMavenComponent(NexusComponentQuery componentQuery) {
@@ -181,10 +186,16 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	private List<NexusServerComponentInfo> npmComponentGroup(List<NexusServerComponent> componentList) {
 		componentList = componentList.stream().filter(component -> CollectionUtils.isNotEmpty(component.getAssets())).collect(Collectors.toList());
 
+		List<NexusServerRepository> nexusServerRepositories = nexusRepositoryHttpApi.getRepository(null);
+		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositories.stream().collect(Collectors.toMap(NexusServerRepository::getName, k -> k));
+
+
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
 			component.setDownloadUrl(component.getAssets().get(0).getDownloadUrl());
 			component.setSha1(component.getAssets().get(0).getChecksum().getSha1());
+			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
+
 
 			String key = component.getName();
 			if (componentInfoMap.get(key) == null) {

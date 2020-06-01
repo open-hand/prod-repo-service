@@ -41,4 +41,5 @@ public class NexusServerComponent {
 
 	private String downloadUrl;
 	private String sha1;
+	private String repositoryUrl;
 }
