@@ -40,5 +40,13 @@ public class NexusServerComponentInfo {
 
 	@ApiModelProperty(value = "版本数（NPM使用）")
 	private int versionCount;
+	@ApiModelProperty(value = "最新版本（NPM使用）")
+	private String newestVersion;
+
+	@ApiModelProperty(value = "项目名称")
+	private String projectName;
+	@ApiModelProperty(value = "项目图标")
+	private String projectImgUrl;
+
 
 }
