@@ -35,7 +35,7 @@ public class NexusRepositoryOrgController extends BaseController {
     private NexusRepositoryService nexusRepositoryService;
 
 
-    @ApiOperation(value = "组织层-包列表（下拉列表）")
+    @ApiOperation(value = "组织层-maven包列表（下拉列表）")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/maven/repo/name")
     public ResponseEntity<List<NexusRepositoryDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId) {
@@ -65,5 +65,13 @@ public class NexusRepositoryOrgController extends BaseController {
         queryDTO.setOrganizationId(organizationId);
         queryDTO.setRepoType(NexusConstants.RepoType.NPM);
         return Results.success(nexusRepositoryService.listNpmRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
+    }
+    @ApiOperation(value = "组织层-npm包列表（下拉列表）")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/npm/repo/name")
+    public ResponseEntity<List<NexusRepositoryDTO>> npmRepoName(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId) {
+        NexusRepository query = new NexusRepository();
+        query.setOrganizationId(organizationId);
+        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.NPM));
     }
 }

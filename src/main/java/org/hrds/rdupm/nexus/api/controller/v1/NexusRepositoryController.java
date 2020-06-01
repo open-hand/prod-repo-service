@@ -184,7 +184,9 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/npm/repo/group")
     public ResponseEntity<List<NexusRepositoryDTO>> groupNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                               @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId, NexusConstants.RepoType.NPM));
+        NexusRepository query = new NexusRepository();
+        query.setProjectId(projectId);
+        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.NPM));
     }
 
     @ApiOperation(value = "maven仓库 关联， 获取仓库列表")
