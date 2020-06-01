@@ -94,7 +94,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* */
 		//获取猪齿鱼项目信息
 		ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
-		String code = DetailsHelper.getUserDetails().getTenantNum() + projectDTO.getCode();
+		String code = DetailsHelper.getUserDetails().getTenantNum() + "-" + projectDTO.getCode();
 		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
 
@@ -102,7 +102,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		checkParam(harborProjectVo);
 		checkProject(harborProjectVo,projectId);
 
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
+		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),code,projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
 		harborRepositoryRepository.insertSelective(harborRepository);
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
