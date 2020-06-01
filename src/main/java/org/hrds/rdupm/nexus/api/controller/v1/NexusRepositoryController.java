@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
@@ -125,7 +126,9 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/group")
     public ResponseEntity<List<NexusRepositoryDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                               @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId, NexusConstants.RepoType.MAVEN));
+        NexusRepository query = new NexusRepository();
+        query.setProjectId(projectId);
+        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.MAVEN));
     }
 
     @ApiOperation(value = "maven仓库 关联， 获取仓库列表")
@@ -141,7 +144,9 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/current")
     public ResponseEntity<List<NexusRepositoryDTO>> listRepoByProjectId(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                       @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listRepoNameByProjectId(projectId, NexusConstants.RepoType.MAVEN));
+        NexusRepository query = new NexusRepository();
+        query.setProjectId(projectId);
+        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.MAVEN));
     }
 
     @ApiOperation(value = "获取nexus服务所有仓库列表")

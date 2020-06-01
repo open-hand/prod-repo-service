@@ -4,6 +4,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
 import java.util.List;
@@ -111,12 +112,12 @@ public interface NexusRepositoryService {
 	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated, String repoType);
 
 	/**
-	 * 获取仓库名列表 - 当前项目关联的
-	 * @param projectId 项目Id
+	 * 获取仓库名列表 - 当前项目或组织的
+	 * @param query 查询
 	 * @param repoType 制品库类型
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoNameByProjectId(Long projectId, String repoType);
+	List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType);
 
 	/**
 	 * 包上传 - 仓库列表
