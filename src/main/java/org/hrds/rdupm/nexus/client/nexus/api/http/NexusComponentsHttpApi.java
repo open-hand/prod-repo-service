@@ -179,8 +179,13 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	 * @return List<NexusServerComponentInfo>
 	 */
 	private List<NexusServerComponentInfo> npmComponentGroup(List<NexusServerComponent> componentList) {
+		componentList = componentList.stream().filter(component -> CollectionUtils.isNotEmpty(component.getAssets())).collect(Collectors.toList());
+
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
+			component.setDownloadUrl(component.getAssets().get(0).getDownloadUrl());
+			component.setSha1(component.getAssets().get(0).getChecksum().getSha1());
+
 			String key = component.getName();
 			if (componentInfoMap.get(key) == null) {
 				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
@@ -205,6 +210,11 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			componentInfo.setVersionCount(components.size());
 			// 设置Id
 			componentInfo.setComponentIds(components.stream().map(NexusServerComponent::getId).collect(Collectors.toList()));
+			// 版本
+			components = components.stream().sorted(Comparator.comparing(NexusServerComponent::getVersion).reversed()).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(components)) {
+				componentInfo.setNewestVersion(components.get(0).getVersion());
+			}
 		});
 
 		return componentInfoList;

@@ -15,6 +15,8 @@ import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
+import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
 import org.slf4j.Logger;
@@ -27,8 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 制品库_nexus 包信息应用服务默认实现
@@ -47,6 +49,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	private NexusRepositoryRepository nexusRepositoryRepository;
 	@Autowired
 	private NexusUserRepository nexusUserRepository;
+	@Autowired
+	private BaseServiceFeignClient baseServiceFeignClient;
 
 	@Override
 	public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -68,8 +72,28 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		Page<NexusServerComponentInfo> componentInfoPage = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfoList);
 
 		if (deleteFlag && projectId != null) {
-			List<String> proRepoList = nexusRepositoryRepository.getRepositoryByProject(projectId, componentQuery.getRepoType());
+			NexusRepository query = new NexusRepository();
+			query.setOrganizationId(organizationId);
+			query.setRepoType(componentQuery.getRepoType());
+
+			List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query);
+			Map<String, NexusRepository> repositoryMap = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, k -> k));
+			List<String> proRepoList = repositoryList.stream().filter(nexusRepository -> Objects.equals(nexusRepository.getProjectId(), projectId)).map(NexusRepository::getNeRepositoryName).collect(Collectors.toList());
+
+			// 项目名称查询
+			Set<Long> projectIdSet = repositoryList.stream().map(NexusRepository::getProjectId).collect(Collectors.toSet());
+			List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
+			Map<Long, ProjectVO> projectVOMap = projectVOList.stream().collect(Collectors.toMap(ProjectVO::getId, a -> a, (k1, k2) -> k1));
+
+
 			componentInfoPage.getContent().forEach(nexusServerComponentInfo -> {
+				NexusRepository nexusRepository = repositoryMap.get(nexusServerComponentInfo.getName());
+				ProjectVO projectVO = nexusRepository == null ? null : projectVOMap.get(nexusRepository.getProjectId());
+				if (projectVO != null) {
+					nexusServerComponentInfo.setProjectName(projectVO.getName());
+					nexusServerComponentInfo.setProjectImgUrl(projectVO.getImageUrl());
+				}
+
 				nexusServerComponentInfo.setDeleteFlag(proRepoList.contains(nexusServerComponentInfo.getRepository()));
 				nexusServerComponentInfo.getComponents().forEach(nexusServerComponent -> {
 					nexusServerComponent.setDeleteFlag(nexusServerComponentInfo.getDeleteFlag());
