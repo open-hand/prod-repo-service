@@ -254,6 +254,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		List<NexusAuth> nexusAuthList = nexusAuthService.createNexusAuth(Collections.singletonList(adminId),
 				nexusRepository.getRepositoryId(), NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
 		nexusRepoCreateDTO.setNexusAuthList(nexusAuthList);
+		nexusRepository.setNexusAuthList(nexusAuthList);
 
 		producer.apply(StartSagaBuilder.newBuilder()
 						.withSagaCode(NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE)
