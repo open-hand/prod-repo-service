@@ -7,6 +7,8 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -180,6 +182,8 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+        // 校验
+        this.validateRoleAuth(existAuth.getRepositoryId());
         // 仓库角色查询
         NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, existAuth.getRepositoryId()).stream().findFirst().orElse(null);
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
@@ -212,6 +216,10 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if(existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+
+        // 校验
+        this.validateRoleAuth(existAuth.getRepositoryId());
+
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
 
 
@@ -226,6 +234,19 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
         }
         nexusClient.removeNexusServerInfo();
+    }
+
+    @Override
+    public void validateRoleAuth(Long repositoryId) {
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        NexusAuth query = new NexusAuth();
+        query.setRepositoryId(repositoryId);
+        query.setUserId(userDetails.getUserId());
+        List<NexusAuth> nexusAuthList = nexusAuthRepository.select(query);
+        List<String> roleCodeList = nexusAuthList.stream().map(NexusAuth::getRoleCode).collect(Collectors.toList());
+        if (!roleCodeList.contains(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())) {
+            throw new CommonException(NexusMessageConstants.NEXUS_USER_FORBIDDEN);
+        }
     }
 
     @Override
