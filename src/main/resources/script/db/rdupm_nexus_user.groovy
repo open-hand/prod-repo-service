@@ -14,12 +14,9 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_user.groovy') {
         createTable(tableName: "rdupm_nexus_user", remarks: "制品库_nexus仓库默认用户信息表") {
             column(name: "user_id", type: "bigint", autoIncrement: true ,   remarks: "")  {constraints(primaryKey: true)} 
             column(name: "repository_id", type: "bigint",  remarks: "rdupm_nexus_repository表主键")  {constraints(nullable:"false")}  
-            column(name: "ne_user_id", type: "varchar(" + 100 * weight + ")",  remarks: "nexus 发布用户Id")  {constraints(nullable:"false")}  
-            column(name: "ne_user_password", type: "varchar(" + 128 * weight + ")",  remarks: "nexus 发布用户密码")   
-            column(name: "ne_pull_user_id", type: "varchar(" + 100 * weight + ")",  remarks: "nexus 拉取用户Id")   
+            column(name: "ne_pull_user_id", type: "varchar(" + 100 * weight + ")",  remarks: "nexus 拉取用户Id")
             column(name: "ne_pull_user_password", type: "varchar(" + 128 * weight + ")",  remarks: "nexus 拉取用户密码")   
-            column(name: "is_default", type: "tinyint",  remarks: "是否是该仓库默认管理用户")  {constraints(nullable:"false")}  
-            column(name: "tenant_id", type: "bigint",   defaultValue:"0",   remarks: "租户Id")   
+            column(name: "tenant_id", type: "bigint",   defaultValue:"0",   remarks: "租户Id")
             column(name: "object_version_number", type: "bigint",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "creation_date", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  
             column(name: "created_by", type: "bigint",   defaultValue:"-1",   remarks: "")  {constraints(nullable:"false")}  

@@ -17,7 +17,7 @@ public class NexusRepositoryQueryDTO {
 	private String versionPolicy;
 	@ApiModelProperty(value = "是否查询已分配的仓库")
 	private Integer distributedQueryFlag;
-	@ApiModelProperty(value = "项目Id", hidden = true)
+	@ApiModelProperty(value = "项目Id")
 	private Long projectId;
 	@ApiModelProperty(value = "组织Id", hidden = true)
 	private Long organizationId;

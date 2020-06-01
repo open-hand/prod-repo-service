@@ -193,10 +193,11 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (CollectionUtils.isNotEmpty(existUserList)) {
             // 更新用户
             NexusServerUser nexusServerUser = existUserList.get(0);
-            // 添加新角色
-            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
             // 删除旧角色
             nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
+            // 添加新角色
+            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
+
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
         } else {
             throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
