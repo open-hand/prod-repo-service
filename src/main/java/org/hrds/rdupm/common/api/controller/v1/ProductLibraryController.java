@@ -1,10 +1,10 @@
-package org.hrds.rdupm.api.controller.v1;
+package org.hrds.rdupm.common.api.controller.v1;
 
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.api.vo.ProductLibraryDTO;
+import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
@@ -55,10 +55,25 @@ public class ProductLibraryController extends BaseController {
 		// maven
 		List<NexusRepositoryDTO> nexusRepositoryDTOList = null;
 		try {
-			nexusRepositoryDTOList = nexusRepositoryService.listRepoAll(new NexusRepositoryQueryDTO().setProjectId(projectId), NexusConstants.RepoQueryData.REPO_PROJECT);
+			NexusRepositoryQueryDTO query = new NexusRepositoryQueryDTO();
+			query.setProjectId(projectId);
+			query.setRepoType(NexusConstants.RepoType.MAVEN);
+			nexusRepositoryDTOList = nexusRepositoryService.listRepoAll(query, NexusConstants.RepoQueryData.REPO_PROJECT);
 		} catch (Exception e) {
 			LOGGER.error("query maven error", e);
 			nexusRepositoryDTOList = new ArrayList<>();
+		}
+
+		// NPM
+		List<NexusRepositoryDTO> nexusRepositoryNpmDTOList = null;
+		try {
+			NexusRepositoryQueryDTO query = new NexusRepositoryQueryDTO();
+			query.setProjectId(projectId);
+			query.setRepoType(NexusConstants.RepoType.NPM);
+			nexusRepositoryNpmDTOList = nexusRepositoryService.listRepoAll(query, NexusConstants.RepoQueryData.REPO_PROJECT);
+		} catch (Exception e) {
+			LOGGER.error("query npm error", e);
+			nexusRepositoryNpmDTOList = new ArrayList<>();
 		}
 
 		// 返回
@@ -67,7 +82,10 @@ public class ProductLibraryController extends BaseController {
 			productLibraryDTOList.add(new ProductLibraryDTO(harborRepository));
 		});
 		nexusRepositoryDTOList.forEach(nexusRepositoryDTO -> {
-			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO));
+			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO, NexusConstants.RepoType.MAVEN));
+		});
+		nexusRepositoryNpmDTOList.forEach(nexusRepositoryDTO -> {
+			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO, NexusConstants.RepoType.NPM));
 		});
 		return Results.success(productLibraryDTOList);
 	}
