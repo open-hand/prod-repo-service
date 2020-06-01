@@ -34,4 +34,24 @@
             </if>
         </where>
     </select>
+    <select id="listRepositoryByProject" resultType="org.hrds.rdupm.nexus.domain.entity.NexusRepository">
+        SELECT
+            repository_id,
+            ne_repository_name,
+            project_id,
+            organization_id
+        FROM
+            rdupm_nexus_repository
+        <where>
+            <if test="organizationId != null">
+                organization_id = #{organizationId}
+            </if>
+            <if test="projectId != null">
+                AND project_id = #{projectId}
+            </if>
+            <if test="repoType != null">
+                AND repo_type = #{repoType}
+            </if>
+        </where>
+    </select>
 </mapper>
