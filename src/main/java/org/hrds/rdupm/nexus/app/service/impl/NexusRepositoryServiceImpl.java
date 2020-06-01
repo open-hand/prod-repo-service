@@ -745,7 +745,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoNameByProjectId(Long projectId, String repoType) {
+	public List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 
@@ -756,8 +756,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		}
 		List<String> serverRepositoryNameList = nexusServerRepositoryList.stream().map(NexusServerRepository::getName).collect(Collectors.toList());
 
-		// 当前项目仓库数据
-		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId, repoType);
+		// 仓库数据
+		query.setRepoType(repoType);
+		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.listRepositoryByProject(query);
+		List<String> repositoryNameList = nexusRepositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList());
 		if (CollectionUtils.isEmpty(repositoryNameList)) {
 			return new ArrayList<>();
 		}
