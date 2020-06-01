@@ -122,6 +122,9 @@ public class HarborAuth extends AuditDomain {
 	@Transient
 	private String name;
 
+	@ApiModelProperty("锁定")
+	private String locked;
+
 	public HarborAuth(){}
 
 	public HarborAuth(Long projectId, @NotBlank String loginName, String realName,String harborRoleName) {

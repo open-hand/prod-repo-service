@@ -132,6 +132,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
+		if(HarborConstants.Y.equals(harborAuth.getLocked())){
+			throw new CommonException("error.harbor.auth.owner.not.update");
+		}
 		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		harborAuth.setHarborRoleId(HarborConstants.HarborRoleEnum.getIdByValue(harborAuth.getHarborRoleValue()));
@@ -144,14 +147,14 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 	@Override
 	public Page<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth) {
-		if(harborAuth.getProjectId() != null){
+		/*if(harborAuth.getProjectId() != null){
 			//权限屏蔽：项目所有者查看所有权限、普通成员只查看自己的权限
 			Long userId = DetailsHelper.getUserDetails().getUserId();
 			Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(harborAuth.getProjectId());
 			if(!userDTOMap.containsKey(userId)){
 				harborAuth.setUserId(userId);
 			}
-		}
+		}*/
 
 		Page<HarborAuth> page = PageHelper.doPageAndSort(pageRequest,()->harborAuthMapper.list(harborAuth));
 		List<HarborAuth> dataList = page.getContent();
@@ -236,6 +239,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			dto.setProjectId(projectId);
 			dto.setOrganizationId(organizationId);
 			dto.setHarborRoleValue(dto.getHarborRoleValue());
+			dto.setLocked(HarborConstants.Y);
 
 			//获取harborAuthId，然后保存用户权限到数据库
 			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
