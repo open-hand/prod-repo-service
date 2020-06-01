@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborRepositoryService;
@@ -51,5 +52,12 @@ public class HarborRobotController extends BaseController {
     @Autowired
     private HarborRepositoryRepository harborRepositoryRepository;
 
+    @ApiOperation(value = "根据项目ID查找机器人账户")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{projectId}/robots")
+    public ResponseEntity<List<HarborRobot>> getRobotByProjectId(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
+                                                                 @ApiParam(value = "账户功能，push/pull") @RequestParam(required = false) String action) {
+        return Results.success(harborRobotService.getRobotByProjectId(projectId, action));
+    }
 
 }

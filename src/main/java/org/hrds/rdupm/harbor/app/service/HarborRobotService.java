@@ -28,4 +28,13 @@ public interface HarborRobotService {
      */
     String generateRobot(String message);
 
+    /**
+     * 根据项目ID查找机器人账户
+     *
+     * @param projectId 猪齿鱼项目ID
+     * @param action 机器人账户功能，push/pull
+     * @return List<HarborRobot>
+     */
+    List<HarborRobot> getRobotByProjectId(Long projectId, String action);
+
 }

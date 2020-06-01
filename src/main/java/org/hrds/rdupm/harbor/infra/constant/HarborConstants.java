@@ -98,6 +98,13 @@ public interface HarborConstants {
 		String UPDATE_PWD_HARBOR = "rdupm-docker-user-update.harbor";
 
 		String UPDATE_PWD_NEXUS = "rdupm-docker-user-update.nexus";
+
+        /**
+         * 创建自定义镜像仓库
+         * */
+        String CREATE_CUSTOMIZE_REPOSITORY = "rdupm-docker-customize-repository-create";
+
+        String CREATE_HARBOR_REGISTRY = "rdupm-docker-harbor-registry-create";
 	}
 
 	enum HarborApiEnum{
@@ -383,6 +390,10 @@ public interface HarborConstants {
 
 	interface HarborRobot{
 		String ROBOT_SAGA_TASK_CODE = "rdupm-docker-robot-create";
+
+		String ENABLE_FLAG_Y = "Y";
+
+		String ENABLE_FLAG_N = "N";
 
 		String ROBOT = "robot";
 

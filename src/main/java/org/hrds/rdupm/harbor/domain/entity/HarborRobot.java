@@ -36,13 +36,12 @@ public class HarborRobot extends AuditDomain {
     public static final String FIELD_ROBOT_ID = "robotId";
     public static final String FIELD_HARBOR_ROBOT_ID = "harborRobotId";
     public static final String FIELD_PROJECT_ID = "projectId";
-    public static final String FIELD_REPOSITORY_ID = "repositoryId";
     public static final String FIELD_NAME = "name";
     public static final String FIELD_ACTION = "action";
     public static final String FIELD_DESCRIPTION = "description";
-    public static final String FIELD_DISABLE = "disable";
+    public static final String FIELD_ENABLE_FLAG = "enableFlag";
     public static final String FIELD_TOKEN = "token";
-    public static final String FIELD_EXPIRES_AT = "expiresAt";
+    public static final String FIELD_END_DATE = "endDate";
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_CREATED_BY = "createdBy";
@@ -69,9 +68,6 @@ public class HarborRobot extends AuditDomain {
     @ApiModelProperty(value = "猪齿鱼项目id",required = true)
     @NotNull
     private Long projectId;
-    @ApiModelProperty(value = "仓库id",required = true)
-    @NotNull
-    private Long repositoryId;
     @ApiModelProperty(value = "账户名称",required = true)
     @NotBlank
     private String name;
@@ -80,15 +76,15 @@ public class HarborRobot extends AuditDomain {
     private String action;
    @ApiModelProperty(value = "机器人账户描述，拉取/推送")    
     private String description;
-    @ApiModelProperty(value = "是否禁用，true禁用/false启用",required = true)
+    @ApiModelProperty(value = "是否启用，Y启用/N禁用",required = true)
     @NotBlank
-    private String disable;
+    private String enableFlag;
     @ApiModelProperty(value = "机器人账户token",required = true)
     @NotBlank
     private String token;
     @ApiModelProperty(value = "账户到期时间",required = true)
     @NotNull
-    private Date expiresAt;
+    private Date endDate;
     @ApiModelProperty(value = "组织id",required = true)
     @NotNull
     private Long organizationId;

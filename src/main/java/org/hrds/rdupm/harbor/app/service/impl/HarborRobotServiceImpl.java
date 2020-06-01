@@ -72,7 +72,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             allRobotVOList = new Gson().fromJson(allRobotResponseEntity.getBody(),new TypeToken<List<HarborRobotVO>>(){}.getType());
         }
         HarborRobotVO robotInfo = allRobotVOList.stream().filter(x->x.getName().equals(harborRobot.getName())).collect(Collectors.toList()).get(0);
-        harborRobot.setDisable(robotInfo.getDisabled().toString());
+        harborRobot.setEnableFlag(robotInfo.getDisabled() ? HarborConstants.HarborRobot.ENABLE_FLAG_N : HarborConstants.HarborRobot.ENABLE_FLAG_Y);
         harborRobot.setHarborRobotId(robotInfo.getId());
         //设置过期时间
         Calendar calendar = Calendar.getInstance();
@@ -85,20 +85,19 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        harborRobot.setExpiresAt(date);
+        harborRobot.setEndDate(date);
         harborRobotRepository.insertSelective(harborRobot);
         return harborRobot;
     }
 
     @Override
     @SagaTask(code = HarborConstants.HarborRobot.ROBOT_SAGA_TASK_CODE, description = "创建harbor机器人账户",
-            sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT, seq = 1, maxRetryCount = 3, outputSchemaClass = String.class)
+            sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT, seq = 4, maxRetryCount = 3, outputSchemaClass = String.class)
     public String generateRobot(String message){
         HarborProjectVo projectVo = new Gson().fromJson(message, HarborProjectVo.class);
 
         List<HarborRepository> repositoryList = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class)
                 .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_PROJECT_ID, projectVo.getProjectDTO().getId()))
-                .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_CODE, projectVo.getProjectDTO().getCode()))
                 .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID, projectVo.getProjectDTO().getOrganizationId()))
                 .build());
         if (CollectionUtils.isEmpty(repositoryList)) {
@@ -110,7 +109,6 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         HarborRobot harborRobot = new HarborRobot();
         harborRobot.setProjectId(repository.getProjectId());
         harborRobot.setHarborProjectId(repository.getHarborId());
-        harborRobot.setRepositoryId(repository.getId());
         harborRobot.setOrganizationId(repository.getOrganizationId());
         //创建pull账户
         harborRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PULL);
@@ -129,24 +127,39 @@ public class HarborRobotServiceImpl implements HarborRobotService {
 
     private void checkRobotParam(HarborRobot harborRobot) {
         if (!StringUtils.equalsAny(harborRobot.getAction(), HarborConstants.HarborRobot.ACTION_PULL, HarborConstants.HarborRobot.ACTION_PUSH)) {
-            throw new CommonException("error.harbor.robot.action.empty");
+            throw new CommonException("error.harbor.robot.action.wrong");
         }
         if (StringUtils.isBlank(harborRobot.getName())) {
-            throw new CommonException("error.harbor.robot.name.empty", harborRobot.getRepositoryId());
+            throw new CommonException("error.harbor.robot.name.empty", harborRobot.getProjectId());
         }
         if (harborRobot.getHarborProjectId() == null) {
-            throw new CommonException("error.harbor.robot.projectId.empty", harborRobot.getRepositoryId());
-        }
-        if (harborRobot.getProjectId() == null) {
-            throw new CommonException("error.harbor.robot.harborProjectId.empty", harborRobot.getRepositoryId());
-        }
-        if (harborRobot.getRepositoryId() == null) {
-            throw new CommonException("error.harbor.robot.repositoryId.empty");
-        }
-        if (harborRobot.getOrganizationId() == null ) {
-            throw new CommonException("error.harbor.robot.organizationId.empty", harborRobot.getRepositoryId());
+            throw new CommonException("error.harbor.robot.projectId.empty", harborRobot.getProjectId());
         }
 
     }
 
+    @Override
+    public List<HarborRobot> getRobotByProjectId(Long projectId, String action) {
+        List<HarborRepository> repositoryList = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class)
+                .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_PROJECT_ID, projectId))
+                .build());
+        if (CollectionUtils.isEmpty(repositoryList)) {
+            throw new CommonException("error.harbor.robot.repository.select", projectId);
+        }
+        if (StringUtils.isEmpty(action)) {
+            List<HarborRobot> harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
+                    .andWhere(Sqls.custom().andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId))
+                    .build());
+            return harborRobotList;
+        } else if (StringUtils.equalsAny(action, HarborConstants.HarborRobot.ACTION_PULL, HarborConstants.HarborRobot.ACTION_PUSH)) {
+            List<HarborRobot> harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
+                    .andWhere(Sqls.custom()
+                            .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
+                            .andEqualTo(HarborRobot.FIELD_ACTION, action))
+                    .build());
+            return harborRobotList;
+        } else {
+            throw new CommonException("error.harbor.robot.action.wrong");
+        }
+    }
 }
