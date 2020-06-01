@@ -36,7 +36,7 @@ public class ProdUserController extends BaseController {
 	private NexusAuthRepository nexusAuthRepository;
 
     @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
-	@Permission(level = ResourceLevel.ORGANIZATION)
+	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId).stream().findFirst().orElse(null);
@@ -47,7 +47,7 @@ public class ProdUserController extends BaseController {
     }
 
 	@ApiOperation(value = "制品库-修改默认密码")
-	@Permission(level = ResourceLevel.ORGANIZATION)
+	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
 		prodUserService.updatePwd(prodUser);
