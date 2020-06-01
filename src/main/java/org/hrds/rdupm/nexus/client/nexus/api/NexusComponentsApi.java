@@ -14,32 +14,32 @@ import java.util.List;
 public interface NexusComponentsApi {
 
 	/**
-	 * 查询组件信息
-	 * @param repositoryName 仓库名称
-	 * @return List<NexusComponent>
-	 */
-	List<NexusServerComponent> getComponents(String repositoryName);
-
-	/**
-	 * 查询组件信息,分组处理后
-	 * @param repositoryName 仓库名称
-	 * @return List<NexusComponentInfo>
-	 */
-	List<NexusServerComponentInfo> getComponentInfo(String repositoryName);
-
-	/**
-	 * 查询组件信息
+	 * 查询maven组件信息
 	 * @param componentQuery 查询参数
 	 * @return List<NexusComponentInfo>
 	 */
-	List<NexusServerComponent> searchComponent(NexusComponentQuery componentQuery);
+	List<NexusServerComponent> searchMavenComponent(NexusComponentQuery componentQuery);
 
 	/**
-	 * 查询组件信息,分组处理后
+	 * 查询maven组件信息,分组处理后
 	 * @param componentQuery 查询参数
 	 * @return List<NexusComponentInfo>
 	 */
-	List<NexusServerComponentInfo> searchComponentInfo(NexusComponentQuery componentQuery);
+	List<NexusServerComponentInfo> searchMavenComponentInfo(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询npm组件信息
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponent> searchNpmComponent(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询npm组件信息,分组处理后
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponentInfo> searchNpmComponentInfo(NexusComponentQuery componentQuery);
 
 	/**
 	 * 删除组件信息

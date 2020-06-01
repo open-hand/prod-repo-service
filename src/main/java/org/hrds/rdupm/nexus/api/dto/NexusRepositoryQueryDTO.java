@@ -15,12 +15,22 @@ public class NexusRepositoryQueryDTO {
 	private String type;
 	@ApiModelProperty(value = "策略")
 	private String versionPolicy;
-	@ApiModelProperty(value = "项目Id", hidden = true)
+	@ApiModelProperty(value = "是否查询已分配的仓库")
+	private Integer distributedQueryFlag;
+	@ApiModelProperty(value = "项目Id")
 	private Long projectId;
 	@ApiModelProperty(value = "组织Id", hidden = true)
 	private Long organizationId;
 	@ApiModelProperty(value = "制品库-类型", hidden = true)
 	private String repoType;
+
+	public Integer getDistributedQueryFlag() {
+		return distributedQueryFlag;
+	}
+
+	public void setDistributedQueryFlag(Integer distributedQueryFlag) {
+		this.distributedQueryFlag = distributedQueryFlag;
+	}
 
 	public String getRepositoryName() {
 		return repositoryName;

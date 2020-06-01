@@ -1,11 +1,16 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
@@ -26,6 +31,9 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Autowired
 	private NexusServerConfigRepository nexusServerConfigRepository;
 
+	@Autowired
+	private ProdUserRepository prodUserRepository;
+
 	@Override
 	public NexusServerConfig setNexusInfo(NexusClient nexusClient) {
 		NexusServerConfig queryConfig = new NexusServerConfig();
@@ -39,6 +47,24 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 				DESEncryptUtil.decode(nexusServerConfig.getPassword()));
 		nexusClient.setNexusServerInfo(nexusServer);
 		return nexusServerConfig;
+	}
+
+	@Override
+	public void setCurrentNexusInfo(NexusClient nexusClient) {
+		String userName = DetailsHelper.getUserDetails().getUsername();
+		ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME, userName).stream().findFirst().orElse(null);
+		if (prodUser == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		String password = DESEncryptUtil.decode(prodUser.getPassword());
+
+		NexusServerConfig queryConfig = new NexusServerConfig();
+		queryConfig.setEnabled(1);
+		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
+		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
+				prodUser.getLoginName(),
+				password);
+		nexusClient.setNexusServerInfo(nexusServer);
 	}
 
 	@Override

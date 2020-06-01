@@ -3,7 +3,9 @@ package org.hrds.rdupm.common.api.controller.v1;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
@@ -12,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.ApiOperation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 制品库-制品用户表 管理 API
@@ -27,6 +32,8 @@ public class ProdUserController extends BaseController {
 
     @Autowired
 	private ProdUserService prodUserService;
+    @Autowired
+	private NexusAuthRepository nexusAuthRepository;
 
     @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
 	@Permission(level = ResourceLevel.ORGANIZATION)
@@ -45,6 +52,21 @@ public class ProdUserController extends BaseController {
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
 		prodUserService.updatePwd(prodUser);
 		return Results.success();
+	}
+
+	@ApiOperation(value = "制品库-获取当前用户，对应仓库分配的权限")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping("/getRoleList")
+	public ResponseEntity<List<String>> getRoleList(@ApiParam(value = "仓库Id、项目Id", required = true) @RequestParam Long id,
+													@ApiParam(value = "类型：MAVEN、NPM、DOCKER", required = true) @RequestParam String productType) {
+
+		List<String> roleCode = new ArrayList<>();
+    	if (productType.equals(ProductLibraryDTO.TYPE_DOCKER)) {
+			// TODO
+		} else if (productType.equals(ProductLibraryDTO.TYPE_NPM) || productType.equals(ProductLibraryDTO.TYPE_MAVEN)) {
+			roleCode = nexusAuthRepository.getRoleList(id);
+		}
+		return Results.success(roleCode);
 	}
 
 }

@@ -16,6 +16,10 @@
         <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
+    <insert id="distributeRepoInsert">
+        insert into rdupm_nexus_repository(config_id,ne_repository_name,organization_id,project_id,allow_anonymous,is_related,tenant_id,object_version_number,creation_date,created_by,last_updated_by,last_update_date,repo_type)
+        values (#{configId}, #{neRepositoryName}, #{organizationId}, #{projectId}, #{allowAnonymous}, 0, 0, 1, NOW(), #{createdBy}, #{createdBy}, NOW(), #{repoType})
+    </insert>
     <select id="getRepositoryByProject" resultType="java.lang.String">
         SELECT
             ne_repository_name
@@ -24,6 +28,26 @@
         <where>
             <if test="projectId != null">
                 project_id = #{projectId}
+            </if>
+            <if test="repoType != null">
+                AND repo_type = #{repoType}
+            </if>
+        </where>
+    </select>
+    <select id="listRepositoryByProject" resultType="org.hrds.rdupm.nexus.domain.entity.NexusRepository">
+        SELECT
+            repository_id,
+            ne_repository_name,
+            project_id,
+            organization_id
+        FROM
+            rdupm_nexus_repository
+        <where>
+            <if test="organizationId != null">
+                organization_id = #{organizationId}
+            </if>
+            <if test="projectId != null">
+                AND project_id = #{projectId}
             </if>
             <if test="repoType != null">
                 AND repo_type = #{repoType}

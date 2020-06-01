@@ -133,4 +133,9 @@ public interface NexusMessageConstants {
 	 * nexus对应用户已不存在
 	 */
 	String NEXUS_USER_NOT_EXIST = "error.nexus.user.not.exist";
+
+	/**
+	 * 用户权限不足，没有该操作的权限
+	 */
+	String NEXUS_USER_FORBIDDEN = "error.nexus.user.forbidden";
 }

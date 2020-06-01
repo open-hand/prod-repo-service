@@ -10,13 +10,13 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
-import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.UUIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import javax.sql.rowset.serial.SerialStruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,44 +39,43 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 
 	@Autowired
 	private NexusRequest nexusRequest;
+	@Autowired
+	@Lazy
+	private NexusRepositoryHttpApi nexusRepositoryHttpApi;
 
 	@Override
-	public List<NexusServerComponent> getComponents(String repositoryName) {
-		Map<String, Object> paramMap = new HashMap<>(2);
-		paramMap.put("repository", repositoryName);
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Components.GET_COMPONENTS_LIST, HttpMethod.GET, paramMap, null);
+	public List<NexusServerComponent> searchMavenComponent(NexusComponentQuery componentQuery) {
+		Map<String, Object> paramMap = componentQuery.convertMavenParam();
+		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Search.SEARCH_COMPONENT, HttpMethod.GET, paramMap, null);
 		String response = responseEntity.getBody();
 		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
 		List<NexusServerComponent> componentList = componentResponse.getItems();
+		componentList = componentList.stream().filter(nexusServerComponent ->  StringUtils.equals(nexusServerComponent.getFormat(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)).collect(Collectors.toList());
 		this.handleVersion(componentList);
 		return componentList;
 	}
 
 	@Override
-	public List<NexusServerComponentInfo> getComponentInfo(String repositoryName) {
-		List<NexusServerComponent> componentList = this.getComponents(repositoryName);
-		return this.componentGroup(componentList);
+	public List<NexusServerComponentInfo> searchMavenComponentInfo(NexusComponentQuery componentQuery) {
+		List<NexusServerComponent> componentList = this.searchMavenComponent(componentQuery);
+		return this.mavenComponentGroup(componentList);
 	}
 
 	@Override
-	public List<NexusServerComponent> searchComponent(NexusComponentQuery componentQuery) {
-		Map<String, Object> paramMap = componentQuery.convertParam();
+	public List<NexusServerComponent> searchNpmComponent(NexusComponentQuery componentQuery) {
+		Map<String, Object> paramMap = componentQuery.convertNpmParam();
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Search.SEARCH_COMPONENT, HttpMethod.GET, paramMap, null);
 		String response = responseEntity.getBody();
 		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
 		List<NexusServerComponent> componentList = componentResponse.getItems();
-		if (StringUtils.equals(componentQuery.getFormat(), NexusConstants.RepoType.MAVEN)) {
-			this.handleVersion(componentList);
-		} else {
-			componentList.forEach(c -> c.setUseVersion(c.getVersion()));
-		}
+		componentList = componentList.stream().filter(nexusServerComponent ->  StringUtils.equals(nexusServerComponent.getFormat(), NexusApiConstants.NexusRepoFormat.NPM_FORMAT)).collect(Collectors.toList());
 		return componentList;
 	}
 
 	@Override
-	public List<NexusServerComponentInfo> searchComponentInfo(NexusComponentQuery componentQuery) {
-		List<NexusServerComponent> componentList = this.searchComponent(componentQuery);
-		return this.componentGroup(componentList);
+	public List<NexusServerComponentInfo> searchNpmComponentInfo(NexusComponentQuery componentQuery) {
+		List<NexusServerComponent> componentList = this.searchNpmComponent(componentQuery);
+		return this.npmComponentGroup(componentList);
 	}
 
 	@Override
@@ -134,11 +134,11 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	}
 
 	/**
-	 * 包组件分组处理
+	 * maven包组件分组处理
 	 * @param componentList 组件（包）信息
 	 * @return List<NexusServerComponentInfo>
 	 */
-	private List<NexusServerComponentInfo> componentGroup(List<NexusServerComponent> componentList){
+	private List<NexusServerComponentInfo> mavenComponentGroup(List<NexusServerComponent> componentList) {
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
 			String path = component.getGroup() + "/" + component.getName() + "/" + component.getUseVersion();
@@ -173,6 +173,59 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			}
 			// 设置Id
 			componentInfo.setComponentIds(components.stream().map(NexusServerComponent::getId).collect(Collectors.toList()));
+		});
+
+		return componentInfoList;
+	}
+
+	/**
+	 * npm包组件分组处理
+	 * @param componentList 组件（包）信息
+	 * @return List<NexusServerComponentInfo>
+	 */
+	private List<NexusServerComponentInfo> npmComponentGroup(List<NexusServerComponent> componentList) {
+		componentList = componentList.stream().filter(component -> CollectionUtils.isNotEmpty(component.getAssets())).collect(Collectors.toList());
+
+		List<NexusServerRepository> nexusServerRepositories = nexusRepositoryHttpApi.getRepository(null);
+		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositories.stream().collect(Collectors.toMap(NexusServerRepository::getName, k -> k));
+
+
+		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
+		for (NexusServerComponent component : componentList) {
+			component.setDownloadUrl(component.getAssets().get(0).getDownloadUrl());
+			component.setSha1(component.getAssets().get(0).getChecksum().getSha1());
+			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
+
+
+			String key = component.getName();
+			if (componentInfoMap.get(key) == null) {
+				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
+				BeanUtils.copyProperties(component, componentInfo);
+
+				List<NexusServerComponent> components = new ArrayList<>();
+				components.add(component);
+				componentInfo.setComponents(components);
+
+				componentInfoMap.put(key, componentInfo);
+			} else {
+				NexusServerComponentInfo componentInfo = componentInfoMap.get(key);
+				componentInfo.getComponents().add(component);
+			}
+		}
+		List<NexusServerComponentInfo> componentInfoList = new ArrayList<>(componentInfoMap.values());
+		componentInfoList.forEach(componentInfo -> {
+			// 生成主键
+			componentInfo.setId(UUIDUtils.generateUUID());
+			componentInfo.setVersion(null);
+			List<NexusServerComponent> components = componentInfo.getComponents();
+			componentInfo.setVersionCount(components.size());
+			// 设置Id
+			componentInfo.setComponentIds(components.stream().map(NexusServerComponent::getId).collect(Collectors.toList()));
+			// 版本
+			components = components.stream().sorted(Comparator.comparing(NexusServerComponent::getVersion).reversed()).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(components)) {
+				componentInfo.setNewestVersion(components.get(0).getVersion());
+			}
 		});
 
 		return componentInfoList;

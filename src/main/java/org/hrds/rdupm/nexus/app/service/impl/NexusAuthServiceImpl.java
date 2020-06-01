@@ -7,6 +7,8 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -180,6 +182,8 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+        // 校验
+        this.validateRoleAuth(existAuth.getRepositoryId());
         // 仓库角色查询
         NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, existAuth.getRepositoryId()).stream().findFirst().orElse(null);
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
@@ -189,10 +193,11 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (CollectionUtils.isNotEmpty(existUserList)) {
             // 更新用户
             NexusServerUser nexusServerUser = existUserList.get(0);
-            // 添加新角色
-            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
             // 删除旧角色
             nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
+            // 添加新角色
+            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
+
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
         } else {
             throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
@@ -212,6 +217,10 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if(existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+
+        // 校验
+        this.validateRoleAuth(existAuth.getRepositoryId());
+
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
 
 
@@ -229,6 +238,19 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     }
 
     @Override
+    public void validateRoleAuth(Long repositoryId) {
+        CustomUserDetails userDetails = DetailsHelper.getUserDetails();
+        NexusAuth query = new NexusAuth();
+        query.setRepositoryId(repositoryId);
+        query.setUserId(userDetails.getUserId());
+        List<NexusAuth> nexusAuthList = nexusAuthRepository.select(query);
+        List<String> roleCodeList = nexusAuthList.stream().map(NexusAuth::getRoleCode).collect(Collectors.toList());
+        if (!roleCodeList.contains(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())) {
+            throw new CommonException(NexusMessageConstants.NEXUS_USER_FORBIDDEN);
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public List<NexusAuth> createNexusAuth(List<Long> userIds, Long repositoryId, String roleCode) {
         List<NexusAuth> nexusAuthList = new ArrayList<>();
@@ -237,6 +259,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             nexusAuth.setUserId(userId);
             nexusAuth.setRepositoryId(repositoryId);
             nexusAuth.setRoleCode(roleCode);
+            nexusAuthList.add(nexusAuth);
         });
         /// 设置用户权限、获取用户信息
         List<ProdUser> prodUserList = new ArrayList<>();

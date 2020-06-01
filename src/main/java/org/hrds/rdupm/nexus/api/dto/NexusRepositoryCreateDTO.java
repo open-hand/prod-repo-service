@@ -84,7 +84,7 @@ public class NexusRepositoryCreateDTO {
 		switch (this.getType()) {
 			case NexusApiConstants.RepositoryType.HOSTED:
 				// 创建本地仓库
-				if (StringUtils.isBlank(this.versionPolicy) && this.repoType.equals(NexusConstants.RepoType.MAVEN)) {
+				if (StringUtils.isBlank(this.versionPolicy) && StringUtils.equals(this.repoType, NexusConstants.RepoType.MAVEN)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.writePolicy)) {
@@ -202,6 +202,9 @@ public class NexusRepositoryCreateDTO {
 	private String remoteUsername;
 	@ApiModelProperty(value = "远程仓库密码")
 	private String remotePassword;
+
+	@ApiModelProperty(value = "仓库分配-仓库管理员用户ID")
+	private Long distributeRepoAdminId;
 
 	@ApiModelProperty(value = "制品库格式类型： maven2、npm", hidden = true)
 	private String format;
