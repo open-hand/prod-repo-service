@@ -4,6 +4,8 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
@@ -34,14 +36,19 @@ public class NexusAuthRepositoryImpl extends BaseRepositoryImpl<NexusAuth> imple
     @Override
     public  Map<String, Map<Long, List<String>>> getRoleList(List<Long> repositoryIds) {
         Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(2);
+        resultMap.put(ProductLibraryDTO.TYPE_MAVEN, new HashMap<Long, List<String>>());
+        resultMap.put(ProductLibraryDTO.TYPE_NPM, new HashMap<Long, List<String>>());
+        if (CollectionUtils.isNotEmpty(repositoryIds)) {
+            repositoryIds.forEach(repositoryId -> {
+                NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+                if (nexusRepository != null) {
+                    Map<Long, List<String>> valueMap = resultMap.computeIfAbsent(nexusRepository.getRepoType(), k -> new HashMap<>(16));
+                    List<String>  codeList = nexusAuthMapper.getRoleList(DetailsHelper.getUserDetails().getUserId(), repositoryId);
+                    valueMap.put(repositoryId, codeList);
+                }
 
-        repositoryIds.forEach(repositoryId -> {
-            NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
-            Map<Long, List<String>> valueMap = resultMap.computeIfAbsent(nexusRepository.getRepoType(), k -> new HashMap<>(16));
-
-            List<String>  codeList = nexusAuthMapper.getRoleList(DetailsHelper.getUserDetails().getUserId(), repositoryId);
-            valueMap.put(repositoryId, codeList);
-        });
+            });
+        }
         return resultMap;
     }
 }
