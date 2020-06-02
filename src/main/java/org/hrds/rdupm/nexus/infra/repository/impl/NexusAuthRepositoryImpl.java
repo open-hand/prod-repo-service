@@ -5,6 +5,8 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
@@ -12,7 +14,9 @@ import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 制品库_nexus权限表 资源库实现
@@ -24,9 +28,20 @@ public class NexusAuthRepositoryImpl extends BaseRepositoryImpl<NexusAuth> imple
 
     @Autowired
     private NexusAuthMapper nexusAuthMapper;
+    @Autowired
+    private NexusRepositoryRepository nexusRepositoryRepository;
 
     @Override
-    public List<String> getRoleList(Long repositoryId) {
-        return nexusAuthMapper.getRoleList(DetailsHelper.getUserDetails().getUserId(), repositoryId);
+    public  Map<String, Map<Long, List<String>>> getRoleList(List<Long> repositoryIds) {
+        Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(2);
+
+        repositoryIds.forEach(repositoryId -> {
+            NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+            Map<Long, List<String>> valueMap = resultMap.computeIfAbsent(nexusRepository.getRepoType(), k -> new HashMap<>(16));
+
+            List<String>  codeList = nexusAuthMapper.getRoleList(DetailsHelper.getUserDetails().getUserId(), repositoryId);
+            valueMap.put(repositoryId, codeList);
+        });
+        return resultMap;
     }
 }

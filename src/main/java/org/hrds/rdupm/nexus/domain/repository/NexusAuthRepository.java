@@ -6,6 +6,7 @@ import org.hzero.mybatis.base.BaseRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 制品库_nexus权限表资源库
@@ -15,8 +16,8 @@ import java.util.List;
 public interface NexusAuthRepository extends BaseRepository<NexusAuth> {
     /**
      * 获取当前用户，对应仓库的权限角色
-     * @param repositoryId 仓库Id
-     * @return 角色code
+     * @param repositoryIds 仓库Ids
+     * @return map key: 仓库类型  value: [ key:仓库Id  value:对应仓库当前用户角色权限code ]
      */
-    List<String> getRoleList(Long repositoryId);
+    Map<String, Map<Long, List<String>>> getRoleList(List<Long> repositoryIds);
 }
