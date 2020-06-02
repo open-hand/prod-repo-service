@@ -41,7 +41,7 @@ public class ProdUserController extends BaseController {
 	private HarborAuthRepository harborAuthRepository;
 
     @ApiOperation(value = "个人层--查询制品库用户信息")
-	@Permission(level = ResourceLevel.ORGANIZATION)
+	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId).stream().findFirst().orElse(null);
@@ -52,7 +52,7 @@ public class ProdUserController extends BaseController {
     }
 
 	@ApiOperation(value = "个人层--修改制品库用户默认密码")
-	@Permission(level = ResourceLevel.ORGANIZATION)
+	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
 		prodUserService.updatePwd(prodUser);
