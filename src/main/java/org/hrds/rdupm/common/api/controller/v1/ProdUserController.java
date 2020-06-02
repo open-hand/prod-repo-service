@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.ApiOperation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 制品库-制品用户表 管理 API
@@ -57,16 +59,19 @@ public class ProdUserController extends BaseController {
 	@ApiOperation(value = "制品库-获取当前用户，对应仓库分配的权限")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/getRoleList")
-	public ResponseEntity<List<String>> getRoleList(@ApiParam(value = "仓库Id、项目Id", required = true) @RequestParam Long id,
-													@ApiParam(value = "类型：MAVEN、NPM、DOCKER", required = true) @RequestParam String productType) {
+	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@ApiParam(value = "仓库Id", required = true) @RequestParam List<Long> ids,
+																			@ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
-		List<String> roleCode = new ArrayList<>();
-    	if (productType.equals(ProductLibraryDTO.TYPE_DOCKER)) {
-			// TODO
-		} else if (productType.equals(ProductLibraryDTO.TYPE_NPM) || productType.equals(ProductLibraryDTO.TYPE_MAVEN)) {
-			roleCode = nexusAuthRepository.getRoleList(id);
-		}
-		return Results.success(roleCode);
+		Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
+		// DOCKER TODO
+		Map<Long, List<String>> dockerMap = new HashMap<>();
+		dockerMap.put(projectId, new ArrayList<>());
+		resultMap.put("DOCKER", dockerMap);
+
+		// MAVEN、NPM
+		Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(ids);
+		nexusMap.forEach(resultMap::put);
+		return Results.success(resultMap);
 	}
 
 }
