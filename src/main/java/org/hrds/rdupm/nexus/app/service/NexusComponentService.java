@@ -55,6 +55,14 @@ public interface NexusComponentService {
 						  MultipartFile assetJar, MultipartFile assetPom);
 
 	/**
+	 * NPM 包上传
+	 * @param organizationId 组织ID
+	 * @param projectId 项目Id
+	 * @param repositoryName 仓库名称
+	 * @param assetTgz tgz包文件
+	 */
+	void npmComponentsUpload(Long organizationId, Long projectId, String repositoryName, MultipartFile assetTgz);
+	/**
 	 * jar引入， pom配置
 	 * @param componentInfo jar引入
 	 * @return  NexusComponentGuideDTO
