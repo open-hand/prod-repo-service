@@ -68,10 +68,11 @@ public class ProdUserController extends BaseController {
 																			@ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
 		Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
-		// DOCKER TODO
+		// DOCKER
 		Map<Long, List<String>> dockerMap = new HashMap<>();
-		dockerMap.put(projectId, new ArrayList<>());
-		resultMap.put("DOCKER", dockerMap);
+		List<String> dockerCode = harborAuthRepository.getHarborRoleList(projectId);
+		dockerMap.put(projectId, dockerCode != null ? dockerCode : new ArrayList<>());
+		resultMap.put(ProductLibraryDTO.TYPE_DOCKER, dockerMap);
 
 		// MAVEN、NPM
 		Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(ids);
