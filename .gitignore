@@ -51,3 +51,4 @@ src/main/resources/application-remote.yml
 
 init-local-database-dev.sh
 /src/main/java/org/hrds/rdupm/config/CustomWebSecurityConfigurerAdapter.java
+/src/test/java/HarborInitServiceImplTest.java
