@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -131,6 +132,15 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 
 		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
 
+	}
+
+	@Override
+	public void createNpmComponent(String repositoryName, InputStreamResource streamResource) {
+		Map<String, Object> paramMap = new HashMap<>(2);
+		paramMap.put(NexusServerComponentUpload.REPOSITORY_NAME, repositoryName);
+		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+		body.add(NexusServerComponentUpload.NPM_TGX, streamResource);
+		nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
 	}
 
 	/**

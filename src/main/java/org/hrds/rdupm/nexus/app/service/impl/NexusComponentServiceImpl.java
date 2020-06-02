@@ -163,10 +163,35 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		} catch (IOException e) {
 			logger.error("上传jar包错误", e);
 			throw new CommonException(e.getMessage());
+		} finally {
+			// remove配置信息
+			nexusClient.removeNexusServerInfo();
 		}
 
-		// remove配置信息
-		nexusClient.removeNexusServerInfo();
+	}
+
+
+
+	@Override
+	public void npmComponentsUpload(Long organizationId, Long projectId, String repositoryName, MultipartFile assetTgz) {
+		// 设置并返回当前nexus服务信息
+		configService.setCurrentNexusInfo(nexusClient);
+		try (
+				InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
+		) {
+
+			if (assetTgzStream != null) {
+				InputStreamResource streamResource = new InputStreamResource(assetTgzStream);
+				nexusClient.getComponentsApi().createNpmComponent(repositoryName, streamResource);
+			}
+		} catch (IOException e) {
+			logger.error("上传jar包错误", e);
+			throw new CommonException(e.getMessage());
+		} finally {
+			// remove配置信息
+			nexusClient.removeNexusServerInfo();
+		}
+
 	}
 
 	@Override
