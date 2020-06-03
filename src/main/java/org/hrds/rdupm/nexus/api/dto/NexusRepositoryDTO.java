@@ -321,9 +321,9 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 		if (Objects.nonNull(o1.getProjectId()) && Objects.nonNull(o2.getProjectId())) {
 			return o2.getRepositoryId().compareTo(o1.getRepositoryId());
 		} else if (Objects.nonNull(o1.getProjectId())) {
-			return -1;
-		} else if (Objects.nonNull(o2.getProjectId())) {
 			return 1;
+		} else if (Objects.nonNull(o2.getProjectId())) {
+			return -1;
 		} else {
 			return 0;
 		}
