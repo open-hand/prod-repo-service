@@ -133,17 +133,6 @@ public class NexusRepositoryController extends BaseController {
         return Results.success();
     }
 
-    @ApiOperation(value = "maven仓库 关联")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/{organizationId}/project/{projectId}/maven/repo/related")
-    public ResponseEntity<NexusRepositoryRelatedDTO> relatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-                                              @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                              @RequestBody NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
-        validObject(nexusRepositoryRelatedDTO);
-        nexusRepositoryRelatedDTO.validParam();
-        return Results.success(nexusRepositoryService.relatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO));
-    }
-
     @ApiOperation(value = "maven仓库列表，当前项目下所有")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/self/all")

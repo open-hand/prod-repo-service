@@ -138,4 +138,13 @@ public interface NexusMessageConstants {
 	 * 用户权限不足，没有该操作的权限
 	 */
 	String NEXUS_USER_FORBIDDEN = "error.nexus.user.forbidden";
+
+	/**
+	 *  制品库创建者的权限信息不允许删除！
+	 */
+	String NEXUS_AUTH_OWNER_NOT_DELETE = "error.nexus.auth.owner.not.delete";
+	/**
+	 *  制品库创建者的权限信息不允许更新！
+	 */
+	String NEXUS_AUTH_OWNER_NOT_UPDATE = "error.nexus.auth.owner.not.update";
 }

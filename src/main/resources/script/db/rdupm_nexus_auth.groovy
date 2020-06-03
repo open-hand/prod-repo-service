@@ -20,7 +20,8 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_auth.groovy') {
             column(name: "login_name", type: "varchar(" + 100 * weight + ")",  remarks: "登录名")   
             column(name: "real_name", type: "varchar(" + 100 * weight + ")",  remarks: "")   
             column(name: "role_code", type: "varchar(" + 30 * weight + ")",  remarks: "角色编码")  {constraints(nullable:"false")}  
-            column(name: "ne_role_id", type: "varchar(" + 100 * weight + ")",  remarks: "用户对应nexus角色Id")  {constraints(nullable:"false")}  
+            column(name: "ne_role_id", type: "varchar(" + 100 * weight + ")",  remarks: "用户对应nexus角色Id")  {constraints(nullable:"false")}
+            column(name: "locked", type: "varchar(" + 10 * weight + ")",  remarks: "锁定标记")
             column(name: "end_date", type: "datetime",  remarks: "有效期")  {constraints(nullable:"false")}  
             column(name: "object_version_number", type: "bigint",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "creation_date", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  

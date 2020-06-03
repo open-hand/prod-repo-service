@@ -183,6 +183,10 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+        if (NexusConstants.Flag.Y.equals(existAuth.getLocked())) {
+            throw new CommonException(NexusMessageConstants.NEXUS_AUTH_OWNER_NOT_UPDATE);
+        }
+
         // 校验
         this.validateRoleAuth(existAuth.getRepositoryId());
         // 仓库角色查询
@@ -227,24 +231,19 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         configService.setNexusInfo(nexusClient);
 
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
-        if(existAuth == null) {
+        if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+        }
+
+        if (NexusConstants.Flag.Y.equals(existAuth.getLocked())) {
+            throw new CommonException(NexusMessageConstants.NEXUS_AUTH_OWNER_NOT_DELETE);
         }
 
         // 校验
         this.validateRoleAuth(existAuth.getRepositoryId());
 
-        nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
+        this.deleteAuth(nexusAuth);
 
-
-        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-        if (CollectionUtils.isNotEmpty(existUserList)) {
-            // 更新用户
-            NexusServerUser nexusServerUser = existUserList.get(0);
-            // 删除旧角色
-            nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
-            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-        }
         nexusClient.removeNexusServerInfo();
     }
 
@@ -270,6 +269,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             nexusAuth.setUserId(userId);
             nexusAuth.setRepositoryId(repositoryId);
             nexusAuth.setRoleCode(roleCode);
+            nexusAuth.setLocked(NexusConstants.Flag.Y);
             nexusAuthList.add(nexusAuth);
         });
         /// 设置用户权限、获取用户信息
@@ -284,6 +284,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
     @Override
     public void expiredBatchNexusAuth() {
+        configService.setNexusInfo(nexusClient);
         // 数据查询
         Condition condition = new Condition(NexusAuth.class);
         condition.createCriteria().andLessThanOrEqualTo(NexusAuth.FIELD_END_DATE, new Date());
@@ -296,11 +297,18 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
                 logger.error("expired nexus auth error, authId: " + nexusAuth.getAuthId(), e);
             }
         });
+
+        nexusClient.removeNexusServerInfo();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void expiredNexusAuth(NexusAuth nexusAuth) {
+        if (!NexusConstants.Flag.Y.equals(nexusAuth.getLocked())) {
+            this.deleteAuth(nexusAuth);
+        }
+    }
+    private void deleteAuth(NexusAuth nexusAuth) {
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
         List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
         if (CollectionUtils.isNotEmpty(existUserList)) {
@@ -361,6 +369,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
             nexusAuth.setProjectId(nexusRepository.getProjectId());
             nexusAuth.setOrganizationId(nexusRepository.getOrganizationId());
+            nexusAuth.setLocked(NexusConstants.Flag.N);
             // 设置角色
             nexusAuth.setNeRoleIdByRoleCode(nexusRole);
 

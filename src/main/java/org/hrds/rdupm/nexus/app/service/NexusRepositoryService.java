@@ -51,35 +51,6 @@ public interface NexusRepositoryService {
 	void deleteRepo(Long organizationId, Long projectId, Long repositoryId);
 
 	/**
-	 * 关联仓库
-	 * @param organizationId 组织Id
-	 * @param projectId 项目Id
-	 * @param nexusRepositoryRelatedDTO 关联信息
-	 * @return NexusRepositoryRelatedDTO
-	 */
-	NexusRepositoryRelatedDTO relatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO);
-
-	/**
-	 * 关联仓库 关联仓库，单条数据
-	 * @param organizationId 组织Id
-	 * @param projectId 项目Id
-	 * @param nexusRepositoryRelatedDTO 关联信息
-	 * @param repositoryName 仓库名称
-	 * @param nexusServerConfig 配置信息
-	 */
-	void selfRelatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO,
-							  String repositoryName, NexusServerConfig nexusServerConfig);
-
-
-//	/**
-//	 * 查询maven仓库列表，自建或关联的
-//	 * @param pageRequest 分页参数
-//	 * @param queryDTO 查询参数
-//	 * @return Page<NexusRepositoryDTO>
-//	 */
-//	Page<NexusRepositoryDTO> listMavenRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
-
-	/**
 	 * 查询maven仓库列表
 	 * @param pageRequest 分页参数
 	 * @param queryDTO 查询参数
@@ -125,14 +96,6 @@ public interface NexusRepositoryService {
 	 * @return List<NexusRepositoryDTO>
 	 */
 	List<NexusRepositoryDTO> listComponentRepo(Long projectId);
-
-//	/**
-//	 * 发布权限编辑，仓库列表
-//	 * @param projectId 项目Id
-//	 * @param currentRepoName 当前默认仓库名称
-//	 * @return List<NexusRepositoryDTO>
-//	 */
-//	List<NexusRepositoryDTO> listRepoPush(Long projectId, List<String> currentRepoName);
 
 	/**
 	 * 查询maven 仓库配置指引信息

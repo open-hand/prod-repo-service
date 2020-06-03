@@ -108,6 +108,8 @@ public class NexusAuth extends AuditDomain {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
+    @ApiModelProperty("锁定")
+    private String locked;
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------
