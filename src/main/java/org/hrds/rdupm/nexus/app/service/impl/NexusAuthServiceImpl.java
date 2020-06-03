@@ -43,6 +43,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelExport;
@@ -200,7 +201,19 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
         } else {
-            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
+            ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, existAuth.getUserId()).stream().findFirst().orElse(null);
+            if (prodUser == null) {
+                throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+            }
+            String password = null;
+            if (prodUser.getPwdUpdateFlag() == 1) {
+                password = DESEncryptUtil.decode(prodUser.getPassword());
+            } else {
+                password = prodUser.getPassword();
+            }
+            // 创建用户
+            NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), password, Collections.singletonList(nexusAuth.getNeRoleId()));
+            nexusClient.getNexusUserApi().createUser(nexusServerUser);
         }
 
         nexusClient.removeNexusServerInfo();
@@ -231,8 +244,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             // 删除旧角色
             nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-        } else {
-            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_EXIST);
         }
         nexusClient.removeNexusServerInfo();
     }
