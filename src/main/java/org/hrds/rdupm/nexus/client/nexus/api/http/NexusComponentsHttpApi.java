@@ -206,6 +206,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			component.setSha1(component.getAssets().get(0).getChecksum().getSha1());
 			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
 
+			component.setComponentIds(Collections.singletonList(component.getId()));
+
 
 			String key = component.getName();
 			if (componentInfoMap.get(key) == null) {
