@@ -369,7 +369,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
             nexusAuth.setProjectId(nexusRepository.getProjectId());
             nexusAuth.setOrganizationId(nexusRepository.getOrganizationId());
-            nexusAuth.setLocked(NexusConstants.Flag.N);
             // 设置角色
             nexusAuth.setNeRoleIdByRoleCode(nexusRole);
 
