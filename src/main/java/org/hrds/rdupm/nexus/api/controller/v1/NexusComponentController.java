@@ -96,6 +96,21 @@ public class NexusComponentController extends BaseController {
 		return Results.success();
 	}
 
+	@ApiOperation(value = "项目层-npm包上传")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping("/{organizationId}/project/{projectId}/npm/upload")
+	public ResponseEntity<?> npmComponentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+												 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+												 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName,
+												 @ApiParam(value = "jar文件") @RequestParam(name = "assetTgz", required = true) MultipartFile assetTgz) {
+		if (assetTgz == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
+		}
+		this.validateFileType(assetTgz, NexusServerAssetUpload.TGZ);
+		nexusComponentService.npmComponentsUpload(organizationId, projectId, repositoryName, assetTgz);
+		return Results.success();
+	}
+
 	@ApiOperation(value = "配置指引信息，查询")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/guide")

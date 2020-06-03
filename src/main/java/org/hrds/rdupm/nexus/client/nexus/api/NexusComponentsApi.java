@@ -4,6 +4,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.springframework.core.io.InputStreamResource;
 
 import java.util.List;
 
@@ -52,4 +53,11 @@ public interface NexusComponentsApi {
 	 * @param componentUpload 上传信息
 	 */
 	void createMavenComponent(NexusServerComponentUpload componentUpload);
+
+	/**
+	 * 组件npm tgz包上传
+	 * @param repositoryName 仓库名称
+	 * @param streamResource 上传信息
+	 */
+	void createNpmComponent(String repositoryName, InputStreamResource streamResource);
 }

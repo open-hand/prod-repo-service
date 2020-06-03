@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.ApiOperation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 制品库-制品用户表 管理 API
@@ -36,7 +38,7 @@ public class ProdUserController extends BaseController {
 	private NexusAuthRepository nexusAuthRepository;
 
     @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
-	@Permission(level = ResourceLevel.ORGANIZATION)
+	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId).stream().findFirst().orElse(null);
@@ -47,7 +49,7 @@ public class ProdUserController extends BaseController {
     }
 
 	@ApiOperation(value = "制品库-修改默认密码")
-	@Permission(level = ResourceLevel.ORGANIZATION)
+	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
 		prodUserService.updatePwd(prodUser);
@@ -57,16 +59,19 @@ public class ProdUserController extends BaseController {
 	@ApiOperation(value = "制品库-获取当前用户，对应仓库分配的权限")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/getRoleList")
-	public ResponseEntity<List<String>> getRoleList(@ApiParam(value = "仓库Id、项目Id", required = true) @RequestParam Long id,
-													@ApiParam(value = "类型：MAVEN、NPM、DOCKER", required = true) @RequestParam String productType) {
+	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@ApiParam(value = "仓库Id", required = true) @RequestParam(required = false) List<Long> ids,
+																			@ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
-		List<String> roleCode = new ArrayList<>();
-    	if (productType.equals(ProductLibraryDTO.TYPE_DOCKER)) {
-			// TODO
-		} else if (productType.equals(ProductLibraryDTO.TYPE_NPM) || productType.equals(ProductLibraryDTO.TYPE_MAVEN)) {
-			roleCode = nexusAuthRepository.getRoleList(id);
-		}
-		return Results.success(roleCode);
+		Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
+		// DOCKER TODO
+		Map<Long, List<String>> dockerMap = new HashMap<>();
+		dockerMap.put(projectId, new ArrayList<>());
+		resultMap.put("DOCKER", dockerMap);
+
+		// MAVEN、NPM
+		Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(ids);
+		nexusMap.forEach(resultMap::put);
+		return Results.success(resultMap);
 	}
 
 }

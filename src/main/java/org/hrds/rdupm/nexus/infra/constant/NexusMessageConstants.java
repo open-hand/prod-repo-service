@@ -10,7 +10,7 @@ public interface NexusMessageConstants {
 	String NEXUS_SELECT_FILE = "error.nexus.not.select.file";
 
 	/**
-	 * 文件类型错误，请选择jar或xml类型文件
+	 * 文件类型错误
 	 */
 	String NEXUS_FILE_TYPE_ERROR = "error.nexus.file.type";
 
