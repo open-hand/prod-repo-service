@@ -148,9 +148,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRoleRepository.insertSelective(nexusRole);
 
 		// 用户
-		NexusServerUser nexusServerUser = new NexusServerUser();
-		// 发布用户
-		//nexusServerUser.createDefPushUser(nexusRepoCreateDTO.getName(), nexusServerRole.getId(), null);
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
 		pullNexusServerUser.createDefPullUser(nexusRepoCreateDTO.getName(), pullNexusServerRole.getId(), null);
@@ -356,117 +353,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 							.withSourceId(projectId);
 				});
 
-	}
-
-	@Override
-	public NexusRepositoryRelatedDTO relatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
-
-		// 设置并返回当前nexus服务信息
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
-		// 校验权限
-
-		NexusPush nexusPush = new NexusPush();
-		nexusPush.setType("MAVEN");
-		List<NexusPush> nexusPushList = nexusPushRepository.select(nexusPush);
-
-		List<String> pushRepoList = nexusClient.getNexusUserApi().validPush(nexusRepositoryRelatedDTO.getRepositoryList(), nexusRepositoryRelatedDTO.getUserName(),
-				nexusPushList.stream().map(NexusPush::getRule).collect(Collectors.toList()));
-
-		List<String> remainderRepo = new ArrayList<>(nexusRepositoryRelatedDTO.getRepositoryList());
-		remainderRepo.removeAll(pushRepoList);
-		if (CollectionUtils.isNotEmpty(remainderRepo)) {
-			throw new CommonException("用户：" + nexusRepositoryRelatedDTO.getUserName() + ",对以下仓库没有发布权限：" + StringUtils.join(",", remainderRepo));
-		}
-
-		// 用户名、密码校验
-		Boolean userFlag = nexusClient.getNexusUserApi().validUserNameAndPassword(
-				nexusRepositoryRelatedDTO.getUserName(), nexusRepositoryRelatedDTO.getPassword(),
-				new NexusServer(serverConfig.getServerUrl(), serverConfig.getUserName(), serverConfig.getPassword()));
-		if (!userFlag) {
-			throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
-		}
-
-		List<String> repositoryList = nexusRepositoryRelatedDTO.getRepositoryList();
-		// 关联校验
-		repositoryList.forEach(repositoryName -> {
-			NexusRepository query = new NexusRepository();
-			query.setNeRepositoryName(repositoryName);
-			NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
-			if (nexusRepository != null) {
-				throw new CommonException(NexusMessageConstants.NEXUS_REPO_ALREADY_RELATED, repositoryName);
-			}
-		});
-
-		List<String> errorNameList = new ArrayList<>();
-		repositoryList.forEach(repositoryName -> {
-			try {
-				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO, repositoryName, serverConfig);
-			} catch (Exception e) {
-				errorNameList.add(repositoryName);
-			}
-		});
-		if (CollectionUtils.isNotEmpty(errorNameList)) {
-			throw new CommonException(NexusMessageConstants.NEXUS_REPO_RELATED_ERROR, StringUtils.join(errorNameList, ", "));
-		}
-
-		nexusClient.removeNexusServerInfo();
-
-		return nexusRepositoryRelatedDTO;
-	}
-
-	@Override
-	@Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-	@Saga(code = NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED,
-			description = "关联maven仓库",
-			inputSchemaClass = NexusRepository.class)
-	public void selfRelatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO, String repositoryName, NexusServerConfig nexusServerConfig) {
-		// 数据库数据更新
-		// 仓库
-		NexusRepository nexusRepository = new NexusRepository();
-		nexusRepository.setConfigId(nexusServerConfig.getConfigId());
-		nexusRepository.setNeRepositoryName(repositoryName);
-		nexusRepository.setOrganizationId(organizationId);
-		nexusRepository.setProjectId(projectId);
-		nexusRepository.setAllowAnonymous(1);
-		nexusRepository.setIsRelated(1);
-		nexusRepository.setRepoType(NexusConstants.RepoType.MAVEN);
-		nexusRepositoryRepository.insertSelective(nexusRepository);
-
-		// 拉取角色
-		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(repositoryName, null, NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
-
-		NexusRole nexusRole = new NexusRole();
-		nexusRole.setRepositoryId(nexusRepository.getRepositoryId());
-		nexusRole.setNePullRoleId(pullNexusServerRole.getId());
-		nexusRoleRepository.insertSelective(nexusRole);
-
-		// 用户
-		// 拉取用户
-		NexusServerUser pullNexusServerUser = new NexusServerUser();
-		pullNexusServerUser.createDefPullUser(repositoryName, pullNexusServerRole.getId(), null);
-
-		NexusUser nexusUser = new NexusUser();
-		nexusUser.setRepositoryId(nexusRepository.getRepositoryId());
-		// nexusUser.setNeUserId(nexusRepositoryRelatedDTO.getUserName());
-		// nexusUser.setNeUserPassword(DESEncryptUtil.encode(nexusRepositoryRelatedDTO.getPassword()));
-		nexusUser.setNePullUserId(pullNexusServerUser.getUserId());
-		nexusUser.setNePullUserPassword(DESEncryptUtil.encode(pullNexusServerUser.getPassword()));
-		// nexusUser.setIsDefault(1);
-		nexusUserRepository.insertSelective(nexusUser);
-
-		// TODO 关联仓库
-
-		producer.apply(StartSagaBuilder.newBuilder()
-						.withSagaCode(NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED)
-						.withLevel(ResourceLevel.PROJECT)
-						.withRefType("relatedMavenRepo")
-						.withSourceId(projectId),
-				builder -> {
-					builder.withPayloadAndSerialize(nexusRepository)
-							.withRefId(String.valueOf(nexusRepository.getRepositoryId()))
-							.withSourceId(projectId);
-				});
 	}
 
 	@Override

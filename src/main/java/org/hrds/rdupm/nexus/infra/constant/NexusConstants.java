@@ -4,6 +4,11 @@ package org.hrds.rdupm.nexus.infra.constant;
  */
 public interface NexusConstants {
 
+	interface Flag {
+		String Y = "Y";
+		String N = "N";
+	}
+
 
 	/**
 	 * 日志操作类型: RDUPM.AUTH_OPERATE_TYPE
