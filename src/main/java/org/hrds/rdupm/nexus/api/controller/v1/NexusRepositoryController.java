@@ -222,6 +222,16 @@ public class NexusRepositoryController extends BaseController {
         return Results.success(nexusRepositoryService.listComponentRepo(projectId));
     }
 
+    @ApiOperation(value = "npm包上传，仓库列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/project/{projectId}/npm/repo/component")
+    public ResponseEntity<List<NexusRepositoryDTO>> npmListComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        NexusRepository query = new NexusRepository();
+        query.setProjectId(projectId);
+        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.NPM));
+    }
+
     @ApiOperation(value = "配置指引信息，查询")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/maven/repo/guide/{repositoryName}")

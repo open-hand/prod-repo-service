@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
@@ -34,12 +35,12 @@ public class NexusLogServiceImpl implements NexusLogService {
 
     @Override
     public Page<NexusLog> listLog(Long organizationId, String repoType, Long projectId, String neRepositoryName, String realName, String operateType, Date startDate, Date endDate, Long repositoryId, PageRequest pageRequest) {
-        List<NexusLog> nexusLogList = nexusLogMapper.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, repositoryId);
+        Page<NexusLog> page = PageHelper.doPageAndSort(pageRequest, ()-> nexusLogMapper.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, repositoryId));
+        //List<NexusLog> nexusLogList = nexusLogMapper.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, repositoryId);
 
-        Set<Long> projectIdSet = nexusLogList.stream().map(NexusLog::getProjectId).collect(Collectors.toSet());
+        Set<Long> projectIdSet = page.getContent().stream().map(NexusLog::getProjectId).collect(Collectors.toSet());
         Map<Long, ProjectDTO> projectDataMap = c7nBaseService.queryProjectByIds(projectIdSet);
-        for (NexusLog log : nexusLogList
-             ) {
+        for (NexusLog log : page.getContent()) {
             ProjectDTO projectDTO = projectDataMap.get(log.getProjectId());
             if (null != projectDTO) {
                 log.setProjectCode(projectDTO.getCode());
@@ -47,6 +48,6 @@ public class NexusLogServiceImpl implements NexusLogService {
                 log.setProjectImageUrl(projectDTO.getImageUrl());
             }
         }
-        return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),nexusLogList);
+        return page;
     }
 }
