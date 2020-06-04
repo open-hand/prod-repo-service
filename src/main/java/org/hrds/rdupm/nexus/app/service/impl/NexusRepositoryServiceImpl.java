@@ -380,7 +380,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	private Page<NexusRepositoryDTO> queryNexusRepo(NexusRepositoryQueryDTO queryDTO, PageRequest pageRequest) {
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(queryDTO.getRepoType());
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(queryDTO.getRepoType()));
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
