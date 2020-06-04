@@ -230,7 +230,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
-			component.setDownloadUrl(component.getAssets().get(0).getDownloadUrl());
+			component.setDownloadUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl() + "/" + component.getAssets().get(0).getPath());
 			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
 
 			component.setComponentIds(Collections.singletonList(component.getId()));
