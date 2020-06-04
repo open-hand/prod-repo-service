@@ -56,7 +56,12 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (prodUser == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-		String password = DESEncryptUtil.decode(prodUser.getPassword());
+		String password = null;
+		if (prodUser.getPwdUpdateFlag() == 1) {
+			password = DESEncryptUtil.decode(prodUser.getPassword());
+		} else {
+			password = prodUser.getPassword();
+		}
 
 		NexusServerConfig queryConfig = new NexusServerConfig();
 		queryConfig.setEnabled(1);

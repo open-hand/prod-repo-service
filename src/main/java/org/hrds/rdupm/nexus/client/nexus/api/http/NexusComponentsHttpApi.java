@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -133,6 +134,15 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 
 	}
 
+	@Override
+	public void createNpmComponent(String repositoryName, InputStreamResource streamResource) {
+		Map<String, Object> paramMap = new HashMap<>(2);
+		paramMap.put(NexusServerComponentUpload.REPOSITORY_NAME, repositoryName);
+		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+		body.add(NexusServerComponentUpload.NPM_TGX, streamResource);
+		nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
+	}
+
 	/**
 	 * maven包组件分组处理
 	 * @param componentList 组件（包）信息
@@ -195,6 +205,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			component.setDownloadUrl(component.getAssets().get(0).getDownloadUrl());
 			component.setSha1(component.getAssets().get(0).getChecksum().getSha1());
 			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
+
+			component.setComponentIds(Collections.singletonList(component.getId()));
 
 
 			String key = component.getName();

@@ -24,6 +24,11 @@ public class NexusServerComponentUpload {
 	 */
 	public static final String GENERATE_POM = "maven2.generate-pom";
 
+	/**
+	 * npm tgz上传
+	 */
+	public static final String NPM_TGX = "npm.asset";
+
 	@ApiModelProperty(value = "仓库名称",required = true)
 	@NotBlank
 	private String repositoryName;

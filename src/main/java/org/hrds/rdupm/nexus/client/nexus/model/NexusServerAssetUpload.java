@@ -11,6 +11,11 @@ public class NexusServerAssetUpload {
 
 	public static final String XML = "xml";
 
+	/**
+	 * NPM
+	 */
+	public static final String TGZ = "tgz";
+
 	private InputStreamResource assetName;
 	/**
 	 * 类型暂时只有： jar

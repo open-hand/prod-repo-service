@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.app.service.impl;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
@@ -108,6 +109,26 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	}
 
 	@Override
+	public Page<NexusServerComponent> listComponentsVersion(Long organizationId, Long projectId, Boolean deleteFlag,
+															NexusComponentQuery componentQuery, PageRequest pageRequest) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().searchNpmComponentInfo(componentQuery);
+		Map<String, NexusServerComponentInfo> componentInfoMap = componentInfoList.stream().collect(Collectors.toMap(NexusServerComponentInfo::getName, k -> k));
+		NexusServerComponentInfo componentInfo = componentInfoMap.get(componentQuery.getName());
+		if (componentInfo == null || CollectionUtils.isEmpty(componentInfo.getComponents())) {
+			return new Page<>();
+		}
+		componentInfo.getComponents().forEach(nexusServerComponent -> {
+			nexusServerComponent.setDeleteFlag(true);
+		});
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfo.getComponents());
+	}
+
+	@Override
 	public void deleteComponents(Long organizationId, Long projectId, String repositoryName, List<String> componentIds) {
 		NexusRepository query = new NexusRepository();
 		query.setProjectId(projectId);
@@ -163,10 +184,35 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		} catch (IOException e) {
 			logger.error("上传jar包错误", e);
 			throw new CommonException(e.getMessage());
+		} finally {
+			// remove配置信息
+			nexusClient.removeNexusServerInfo();
 		}
 
-		// remove配置信息
-		nexusClient.removeNexusServerInfo();
+	}
+
+
+
+	@Override
+	public void npmComponentsUpload(Long organizationId, Long projectId, String repositoryName, MultipartFile assetTgz) {
+		// 设置并返回当前nexus服务信息
+		configService.setCurrentNexusInfo(nexusClient);
+		try (
+				InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
+		) {
+
+			if (assetTgzStream != null) {
+				InputStreamResource streamResource = new InputStreamResource(assetTgzStream);
+				nexusClient.getComponentsApi().createNpmComponent(repositoryName, streamResource);
+			}
+		} catch (IOException e) {
+			logger.error("上传jar包错误", e);
+			throw new CommonException(e.getMessage());
+		} finally {
+			// remove配置信息
+			nexusClient.removeNexusServerInfo();
+		}
+
 	}
 
 	@Override

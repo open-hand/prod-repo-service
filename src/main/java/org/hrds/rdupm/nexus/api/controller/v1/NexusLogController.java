@@ -47,7 +47,7 @@ public class NexusLogController extends BaseController {
                                                        @ApiParam("操作类型") @RequestParam(required = false) String operateType,
                                                        @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
                                                        @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
-                                                       @ApiIgnore @SortDefault(value = NexusLog.FIELD_OPERATE_TIME, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+                                                       @ApiIgnore PageRequest pageRequest) {
         return Results.success(nexusLogService.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, null, pageRequest));
     }
 
@@ -63,7 +63,7 @@ public class NexusLogController extends BaseController {
                                                            @ApiParam("操作类型") @RequestParam(required = false) String operateType,
                                                            @ApiParam("开始日期") @RequestParam(required = false) Date startDate,
                                                            @ApiParam("结束日期") @RequestParam(required = false) Date endDate,
-                                                           @ApiIgnore @SortDefault(value = NexusLog.FIELD_OPERATE_TIME, direction = Sort.Direction.DESC) PageRequest pageRequest) {
+                                                           @ApiIgnore PageRequest pageRequest) {
         return Results.success(nexusLogService.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, repositoryId, pageRequest));
     }
 }

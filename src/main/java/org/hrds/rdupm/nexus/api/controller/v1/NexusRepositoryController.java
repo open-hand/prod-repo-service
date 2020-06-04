@@ -133,17 +133,6 @@ public class NexusRepositoryController extends BaseController {
         return Results.success();
     }
 
-    @ApiOperation(value = "maven仓库 关联")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/{organizationId}/project/{projectId}/maven/repo/related")
-    public ResponseEntity<NexusRepositoryRelatedDTO> relatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-                                              @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                              @RequestBody NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
-        validObject(nexusRepositoryRelatedDTO);
-        nexusRepositoryRelatedDTO.validParam();
-        return Results.success(nexusRepositoryService.relatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO));
-    }
-
     @ApiOperation(value = "maven仓库列表，当前项目下所有")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/self/all")
@@ -220,6 +209,16 @@ public class NexusRepositoryController extends BaseController {
     public ResponseEntity<List<NexusRepositoryDTO>> listComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                       @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         return Results.success(nexusRepositoryService.listComponentRepo(projectId));
+    }
+
+    @ApiOperation(value = "npm包上传，仓库列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/project/{projectId}/npm/repo/component")
+    public ResponseEntity<List<NexusRepositoryDTO>> npmListComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        NexusRepository query = new NexusRepository();
+        query.setProjectId(projectId);
+        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.NPM));
     }
 
     @ApiOperation(value = "配置指引信息，查询")
