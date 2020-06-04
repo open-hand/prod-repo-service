@@ -34,6 +34,8 @@ public class NexusServerComponent {
 	private String creationDate;
 	@ApiModelProperty(value = "更新时间")
 	private String lastUpdateDate;
+	@ApiModelProperty(value = "拉取时间")
+	private String lastDownloadDate;
 	private List<NexusServerAsset> assets;
 
 	@ApiModelProperty(value = "使用版本")

@@ -194,7 +194,14 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			componentInfo.setId(UUIDUtils.generateUUID());
 			componentInfo.setVersion(componentInfo.getUseVersion());
 			List<NexusServerComponent> components = componentInfo.getComponents();
-			if (components.size() == 1){
+
+			// 更新时间
+			List<NexusServerComponent> dateList = components.stream().sorted(Comparator.comparing(NexusServerComponent::getLastUpdateDate).reversed()).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(dateList)) {
+				componentInfo.setLastUpdateDate(dateList.get(0).getLastUpdateDate());
+			}
+
+			if (components.size() == 1) {
 				NexusServerComponent nexusServerComponent = components.get(0);
 				if (nexusServerComponent.getVersion().equals(nexusServerComponent.getUseVersion())) {
 					// 版本相同时，不用再有下级； 如 RELEASE 版本的jar包
@@ -203,8 +210,9 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			}
 			// 设置Id
 			componentInfo.setComponentIds(components.stream().map(NexusServerComponent::getId).collect(Collectors.toList()));
-		});
 
+		});
+		componentInfoList = componentInfoList.stream().sorted(Comparator.comparing(NexusServerComponentInfo::getGroup).thenComparing(NexusServerComponentInfo::getName).thenComparing(NexusServerComponentInfo::getVersion).reversed()).collect(Collectors.toList());
 		return componentInfoList;
 	}
 
@@ -249,6 +257,14 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			componentInfo.setId(UUIDUtils.generateUUID());
 			componentInfo.setVersion(null);
 			List<NexusServerComponent> components = componentInfo.getComponents();
+
+			// 更新时间
+			List<NexusServerComponent> dateList = components.stream().sorted(Comparator.comparing(NexusServerComponent::getLastUpdateDate).reversed()).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(dateList)) {
+				componentInfo.setLastUpdateDate(dateList.get(0).getLastUpdateDate());
+			}
+
+
 			componentInfo.setVersionCount(components.size());
 			// 设置Id
 			componentInfo.setComponentIds(components.stream().map(NexusServerComponent::getId).collect(Collectors.toList()));

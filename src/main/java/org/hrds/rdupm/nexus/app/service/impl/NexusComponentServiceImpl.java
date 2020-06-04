@@ -125,16 +125,48 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			loginNameList.addAll(componentInfo.getComponents().stream().map(NexusServerComponent::getCreatedBy).collect(Collectors.toSet()));
 		});
 
-		Condition condition = new Condition(ProdUser.class);
-		condition.createCriteria().andIn(ProdUser.FIELD_LOGIN_NAME, loginNameList);
-		List<ProdUser> prodUserList = prodUserRepository.selectByCondition(condition);
-		Map<String, ProdUser> prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getLoginName, k -> k));
+		if (CollectionUtils.isNotEmpty(loginNameList)) {
+			Condition condition = new Condition(ProdUser.class);
+			condition.createCriteria().andIn(ProdUser.FIELD_LOGIN_NAME, loginNameList);
+			List<ProdUser> prodUserList = prodUserRepository.selectByCondition(condition);
+			Map<String, ProdUser> prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getLoginName, k -> k));
 
-		if (CollectionUtils.isNotEmpty(prodUserList)) {
-			Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
-			Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
-			componentInfoList.forEach(componentInfo -> {
-				componentInfo.getComponents().forEach(component -> {
+			if (CollectionUtils.isNotEmpty(prodUserList)) {
+				Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
+				Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
+				componentInfoList.forEach(componentInfo -> {
+					componentInfo.getComponents().forEach(component -> {
+						UserDTO userDTO = prodUserMap.get(component.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(component.getCreatedBy()).getUserId());
+						if (userDTO != null) {
+							component.setCreatorImageUrl(userDTO.getImageUrl());
+							component.setCreatorLoginName(userDTO.getLoginName());
+							component.setCreatorRealName(userDTO.getRealName());
+						} else {
+							component.setCreatorLoginName(component.getCreatedBy());
+							component.setCreatorRealName(component.getCreatedBy());
+						}
+					});
+				});
+			}
+		}
+
+	}
+
+	private void setUserInfoComponent(List<NexusServerComponent> componentList) {
+		Set<String> loginNameList = new HashSet<>();
+		componentList.forEach(component -> {
+			loginNameList.add(component.getCreatedBy());
+		});
+		if (CollectionUtils.isNotEmpty(loginNameList)) {
+			Condition condition = new Condition(ProdUser.class);
+			condition.createCriteria().andIn(ProdUser.FIELD_LOGIN_NAME, loginNameList);
+			List<ProdUser> prodUserList = prodUserRepository.selectByCondition(condition);
+			Map<String, ProdUser> prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getLoginName, k -> k));
+
+			if (CollectionUtils.isNotEmpty(prodUserList)) {
+				Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
+				Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
+				componentList.forEach(component -> {
 					UserDTO userDTO = prodUserMap.get(component.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(component.getCreatedBy()).getUserId());
 					if (userDTO != null) {
 						component.setCreatorImageUrl(userDTO.getImageUrl());
@@ -145,34 +177,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 						component.setCreatorRealName(component.getCreatedBy());
 					}
 				});
-			});
-		}
-	}
-
-	private void setUserInfoComponent(List<NexusServerComponent> componentList) {
-		Set<String> loginNameList = new HashSet<>();
-		componentList.forEach(component -> {
-			loginNameList.add(component.getCreatedBy());
-		});
-		Condition condition = new Condition(ProdUser.class);
-		condition.createCriteria().andIn(ProdUser.FIELD_LOGIN_NAME, loginNameList);
-		List<ProdUser> prodUserList = prodUserRepository.selectByCondition(condition);
-		Map<String, ProdUser> prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getLoginName, k -> k));
-
-		if (CollectionUtils.isNotEmpty(prodUserList)) {
-			Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
-			Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
-			componentList.forEach(component -> {
-				UserDTO userDTO = prodUserMap.get(component.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(component.getCreatedBy()).getUserId());
-				if (userDTO != null) {
-					component.setCreatorImageUrl(userDTO.getImageUrl());
-					component.setCreatorLoginName(userDTO.getLoginName());
-					component.setCreatorRealName(userDTO.getRealName());
-				} else {
-					component.setCreatorLoginName(component.getCreatedBy());
-					component.setCreatorRealName(component.getCreatedBy());
-				}
-			});
+			}
 		}
 	}
 
