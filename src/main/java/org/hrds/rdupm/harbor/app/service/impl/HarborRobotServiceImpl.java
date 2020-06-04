@@ -140,26 +140,53 @@ public class HarborRobotServiceImpl implements HarborRobotService {
 
     @Override
     public List<HarborRobot> getRobotByProjectId(Long projectId, String action) {
+        //校验DB镜像仓库
         List<HarborRepository> repositoryList = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class)
                 .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_PROJECT_ID, projectId))
                 .build());
         if (CollectionUtils.isEmpty(repositoryList)) {
             throw new CommonException("error.harbor.robot.repository.select", projectId);
         }
+        //查询DB机器人账户
+        Date date = new Date();
+        List<HarborRobot> harborRobotList;
         if (StringUtils.isEmpty(action)) {
-            List<HarborRobot> harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
-                    .andWhere(Sqls.custom().andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId))
-                    .build());
-            return harborRobotList;
-        } else if (StringUtils.equalsAny(action, HarborConstants.HarborRobot.ACTION_PULL, HarborConstants.HarborRobot.ACTION_PUSH)) {
-            List<HarborRobot> harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
+            harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
                     .andWhere(Sqls.custom()
                             .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
-                            .andEqualTo(HarborRobot.FIELD_ACTION, action))
+                            .andGreaterThan(HarborRobot.FIELD_END_DATE, date))
                     .build());
-            return harborRobotList;
+        } else if (StringUtils.equalsAny(action, HarborConstants.HarborRobot.ACTION_PULL, HarborConstants.HarborRobot.ACTION_PUSH)) {
+            harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
+                    .andWhere(Sqls.custom()
+                            .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
+                            .andEqualTo(HarborRobot.FIELD_ACTION, action)
+                            .andGreaterThan(HarborRobot.FIELD_END_DATE, date))
+                    .build());
         } else {
             throw new CommonException("error.harbor.robot.action.wrong");
+        }
+        //校验Harbor机器人账户
+        if (CollectionUtils.isNotEmpty(harborRobotList)) {
+            for (HarborRobot robot:harborRobotList
+            ) {
+                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,false, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
+                HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
+                checkRobotInfo(robot, harborRobotVO);
+            }
+        }
+        return harborRobotList;
+    }
+
+    private void checkRobotInfo(HarborRobot robot, HarborRobotVO robotVO) {
+        if (!robot.getName().equals(robotVO.getName())) {
+            throw new CommonException("error.harbor.robot.name.different");
+        }
+        if (robotVO.getDisabled() && robot.getEnableFlag().equals(HarborConstants.HarborRobot.ENABLE_FLAG_Y)) {
+            throw new CommonException("error.harbor.robot.enabled.different");
+        }
+        if (robotVO.getExpiresAt() * 1000 != robot.getEndDate().getTime()) {
+            throw new CommonException("error.harbor.robot.endDate.different");
         }
     }
 }

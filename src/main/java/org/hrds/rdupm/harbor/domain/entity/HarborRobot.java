@@ -88,20 +88,6 @@ public class HarborRobot extends AuditDomain {
     @ApiModelProperty(value = "组织id",required = true)
     @NotNull
     private Long organizationId;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
-    private Date creationDate;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
-    private Long createdBy;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
-    private Long lastUpdatedBy;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
-    private Date lastUpdateDate;
-   @ApiModelProperty(value = "")    
-    private Long lastUpdateLogin;
 
 	//
     // 非数据库字段
