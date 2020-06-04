@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.app.service.impl;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
@@ -105,6 +106,26 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return componentInfoPage;
+	}
+
+	@Override
+	public Page<NexusServerComponent> listComponentsVersion(Long organizationId, Long projectId, Boolean deleteFlag,
+															NexusComponentQuery componentQuery, PageRequest pageRequest) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().searchNpmComponentInfo(componentQuery);
+		Map<String, NexusServerComponentInfo> componentInfoMap = componentInfoList.stream().collect(Collectors.toMap(NexusServerComponentInfo::getName, k -> k));
+		NexusServerComponentInfo componentInfo = componentInfoMap.get(componentQuery.getName());
+		if (componentInfo == null || CollectionUtils.isEmpty(componentInfo.getComponents())) {
+			return new Page<>();
+		}
+		componentInfo.getComponents().forEach(nexusServerComponent -> {
+			nexusServerComponent.setDeleteFlag(true);
+		});
+		// remove配置信息
+		nexusClient.removeNexusServerInfo();
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfo.getComponents());
 	}
 
 	@Override

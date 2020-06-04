@@ -4,10 +4,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
+import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -29,10 +26,24 @@ public interface NexusComponentService {
 	 * @return Page<NexusServerComponentInfo>
 	 */
 	Page<NexusServerComponentInfo> listComponents(Long organizationId,
-													  Long projectId,
-													  Boolean deleteFlag,
-													  NexusComponentQuery componentQuery,
-													  PageRequest pageRequest);
+												  Long projectId,
+												  Boolean deleteFlag,
+												  NexusComponentQuery componentQuery,
+												  PageRequest pageRequest);
+	/**
+	 * npm-包列表-版本列表查询
+	 * @param organizationId 组织ID
+	 * @param projectId 项目Id
+	 * @param deleteFlag 删除判断flag  true：需要返回是否允许删除标识  false: 不返回
+	 * @param componentQuery 查询参数
+	 * @param pageRequest 分页参数
+	 * @return Page<NexusServerComponent>
+	 */
+	Page<NexusServerComponent> listComponentsVersion(Long organizationId,
+													 Long projectId,
+													 Boolean deleteFlag,
+													 NexusComponentQuery componentQuery,
+													 PageRequest pageRequest);
 	/**
 	 * 包删除
 	 * @param organizationId 组织ID

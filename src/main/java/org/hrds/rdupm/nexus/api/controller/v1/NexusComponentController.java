@@ -55,6 +55,17 @@ public class NexusComponentController extends BaseController {
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
 	}
 
+	@ApiOperation(value = "项目层-npm包列表-版本查询")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/{organizationId}/project/{projectId}/npm/version")
+	public ResponseEntity<Page<NexusServerComponent>> listNpmComponentsVersion(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																			   @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+																			   NexusComponentQuery componentQuery,
+																			   @ApiIgnore PageRequest pageRequest) {
+		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
+		return Results.success(nexusComponentService.listComponentsVersion(organizationId, projectId, true, componentQuery, pageRequest));
+	}
+
 	@ApiOperation(value = "项目层-maven 包删除")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@DeleteMapping("/{organizationId}/project/{projectId}")
