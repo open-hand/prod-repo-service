@@ -1,11 +1,13 @@
 package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
+import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
@@ -41,6 +43,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	@Autowired
 	private NexusRequest nexusRequest;
 	@Autowired
+	private NexusScriptApi nexusScriptApi;
+	@Autowired
 	@Lazy
 	private NexusRepositoryHttpApi nexusRepositoryHttpApi;
 
@@ -57,18 +61,26 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	}
 
 	@Override
+	public List<NexusServerComponent> searchComponentScript(NexusComponentQuery componentQuery) {
+		AssertUtils.notNull(componentQuery.getRepositoryName(), "repositoryName not null");
+		String param = JSONObject.toJSONString(componentQuery);
+		NexusScriptResult nexusScriptResult = nexusScriptApi.runScript(NexusApiConstants.ScriptName.COMPONENT_LIST_QUERY, param);
+		String result = nexusScriptResult.getResult();
+		ComponentResponse componentResponse = JSON.parseObject(result, ComponentResponse.class);
+		return componentResponse.getItems();
+	}
+
+	@Override
 	public List<NexusServerComponentInfo> searchMavenComponentInfo(NexusComponentQuery componentQuery) {
-		List<NexusServerComponent> componentList = this.searchMavenComponent(componentQuery);
+		List<NexusServerComponent> componentList = this.searchComponentScript(componentQuery);
+		componentList = componentList.stream().filter(nexusServerComponent ->  StringUtils.equals(nexusServerComponent.getFormat(), NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)).collect(Collectors.toList());
+		this.handleVersion(componentList);
 		return this.mavenComponentGroup(componentList);
 	}
 
 	@Override
 	public List<NexusServerComponent> searchNpmComponent(NexusComponentQuery componentQuery) {
-		Map<String, Object> paramMap = componentQuery.convertNpmParam();
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Search.SEARCH_COMPONENT, HttpMethod.GET, paramMap, null);
-		String response = responseEntity.getBody();
-		ComponentResponse componentResponse = JSON.parseObject(response, ComponentResponse.class);
-		List<NexusServerComponent> componentList = componentResponse.getItems();
+		List<NexusServerComponent> componentList = this.searchComponentScript(componentQuery);
 		componentList = componentList.stream().filter(nexusServerComponent ->  StringUtils.equals(nexusServerComponent.getFormat(), NexusApiConstants.NexusRepoFormat.NPM_FORMAT)).collect(Collectors.toList());
 		return componentList;
 	}
@@ -96,6 +108,14 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		if (responseEntity.getStatusCode() == HttpStatus.UNPROCESSABLE_ENTITY) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.COMPONENT_ID_ERROR);
 		}
+	}
+
+	@Override
+	public void deleteComponentScript(NexusComponentDeleteParam deleteParam) {
+		AssertUtils.notNull(deleteParam.getRepositoryName(), "repositoryName not null");
+		AssertUtils.notNull(deleteParam.getComponents(), "components not null");
+		String param = JSONObject.toJSONString(deleteParam);
+		NexusScriptResult nexusScriptResult = nexusScriptApi.runScript(NexusApiConstants.ScriptName.COMPONENT_DELETE, param);
 	}
 
 	@Override
@@ -203,7 +223,6 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
 			component.setDownloadUrl(component.getAssets().get(0).getDownloadUrl());
-			component.setSha1(component.getAssets().get(0).getChecksum().getSha1());
 			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
 
 			component.setComponentIds(Collections.singletonList(component.getId()));

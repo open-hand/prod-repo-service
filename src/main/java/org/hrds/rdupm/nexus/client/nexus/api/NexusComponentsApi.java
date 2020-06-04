@@ -1,9 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.springframework.core.io.InputStreamResource;
 
 import java.util.List;
@@ -20,6 +17,13 @@ public interface NexusComponentsApi {
 	 * @return List<NexusComponentInfo>
 	 */
 	List<NexusServerComponent> searchMavenComponent(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询组件信息 - groovy脚本
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponent> searchComponentScript(NexusComponentQuery componentQuery);
 
 	/**
 	 * 查询maven组件信息,分组处理后
@@ -44,9 +48,15 @@ public interface NexusComponentsApi {
 
 	/**
 	 * 删除组件信息
-	 * @param componentId 组件Id
+	 * @param componentId 组件Id 通过rest api 查询接口返回的Id
 	 */
 	void deleteComponent(String componentId);
+
+	/**
+	 * 删除组件信息 - groovy脚本
+	 * @param deleteParam 参数  components：通过groovy脚本查询接口返回的Id     repositoryName：仓库名称
+	 */
+	void deleteComponentScript(NexusComponentDeleteParam deleteParam);
 
 	/**
 	 * 组件jar包上传， 只支持maven release类型

@@ -7,6 +7,7 @@ import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusScriptResult;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerScript;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +74,12 @@ public class NexusScriptHttpApi implements NexusScriptApi {
 	}
 
 	@Override
-	public void runScript(String scriptName, String param) {
+	public NexusScriptResult runScript(String scriptName, String param) {
 		String url = NexusUrlConstants.Script.RUN_SCRIPT.replace("{scriptName}", scriptName);
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.POST, null, param, MediaType.TEXT_PLAIN_VALUE);
+
+		String response = responseEntity.getBody();
+		return JSON.parseObject(response, NexusScriptResult.class);
 	}
 
 	@Override
