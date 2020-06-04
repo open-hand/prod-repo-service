@@ -36,6 +36,8 @@ public class NexusServerComponentInfo {
 	private Boolean deleteFlag;
 	@ApiModelProperty(value = "extension: pom、jar、war等")
 	private String extension;
+	@ApiModelProperty(value = "更新时间")
+	private String lastUpdateDate;
 	private List<NexusServerComponent> components;
 
 	@ApiModelProperty(value = "版本数（NPM使用）")
