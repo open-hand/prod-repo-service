@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
  * 包查询dto
  * @author weisen.yang@hand-china.com 2020/4/2
  */
+@ApiModel("包查询")
 public class NexusComponentQuery {
 
 	/**
