@@ -202,6 +202,12 @@ public class HarborHttpClient {
 					case 412: throw new CommonException("error.delete.project.412");
 					default: throw new CommonException(e.getMessage());
 				}
+            case GET_ONE_ROBOT:
+                switch (statusCode){
+                    case 403: throw new CommonException("User in session does not have permission to the project.");
+                    case 404: throw new CommonException("The robot account is not found.");
+                    default: throw new CommonException(e.getMessage());
+                }
 			default: throw new CommonException(e.getMessage());
 		}
 
