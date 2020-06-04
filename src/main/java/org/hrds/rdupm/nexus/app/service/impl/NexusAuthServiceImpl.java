@@ -188,7 +188,9 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         }
 
         // 校验
-        this.validateRoleAuth(existAuth.getRepositoryId());
+        List<String> validateRoleCode = new ArrayList<>();
+        validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+        this.validateRoleAuth(existAuth.getRepositoryId(), validateRoleCode);
         // 仓库角色查询
         NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, existAuth.getRepositoryId()).stream().findFirst().orElse(null);
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
@@ -240,7 +242,9 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         }
 
         // 校验
-        this.validateRoleAuth(existAuth.getRepositoryId());
+        List<String> validateRoleCode = new ArrayList<>();
+        validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+        this.validateRoleAuth(existAuth.getRepositoryId(), validateRoleCode);
 
         this.deleteAuth(nexusAuth);
 
@@ -248,14 +252,23 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     }
 
     @Override
-    public void validateRoleAuth(Long repositoryId) {
+    public void validateRoleAuth(Long repositoryId, List<String> validateRoleCode) {
         CustomUserDetails userDetails = DetailsHelper.getUserDetails();
         NexusAuth query = new NexusAuth();
         query.setRepositoryId(repositoryId);
         query.setUserId(userDetails.getUserId());
         List<NexusAuth> nexusAuthList = nexusAuthRepository.select(query);
         List<String> roleCodeList = nexusAuthList.stream().map(NexusAuth::getRoleCode).collect(Collectors.toList());
-        if (!roleCodeList.contains(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())) {
+
+        boolean flag = false;
+        for (String role : validateRoleCode) {
+            if (roleCodeList.contains(role)) {
+                // 当前用户有该权限角色
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
             throw new CommonException(NexusMessageConstants.NEXUS_USER_FORBIDDEN);
         }
     }

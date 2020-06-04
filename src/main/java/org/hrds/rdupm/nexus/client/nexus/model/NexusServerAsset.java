@@ -17,6 +17,11 @@ public class NexusServerAsset {
 	private String format;
 	private String extension;
 	private CheckSum checksum;
+	private String lastUpdateDate;
+	private String componentId;
+	private String lastDownloadDate;
+	private String createdBy;
+	private String createdByIp;
 
 
 	public class CheckSum {

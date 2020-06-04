@@ -4,11 +4,15 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
+import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
-import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
@@ -20,11 +24,11 @@ import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.domian.Condition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,6 +56,12 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	private NexusUserRepository nexusUserRepository;
 	@Autowired
 	private BaseServiceFeignClient baseServiceFeignClient;
+	@Autowired
+	private NexusAuthService nexusAuthService;
+	@Autowired
+	private C7nBaseService c7nBaseService;
+	@Autowired
+	private ProdUserRepository prodUserRepository;
 
 	@Override
 	public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -103,10 +113,70 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			});
 
 		}
+		this.setUserInfoComponentInfo(componentInfoPage.getContent());
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return componentInfoPage;
 	}
+
+	private void setUserInfoComponentInfo (List<NexusServerComponentInfo> componentInfoList) {
+		Set<String> loginNameList = new HashSet<>();
+		componentInfoList.forEach(componentInfo -> {
+			loginNameList.addAll(componentInfo.getComponents().stream().map(NexusServerComponent::getCreatedBy).collect(Collectors.toSet()));
+		});
+
+		Condition condition = new Condition(ProdUser.class);
+		condition.createCriteria().andIn(ProdUser.FIELD_LOGIN_NAME, loginNameList);
+		List<ProdUser> prodUserList = prodUserRepository.selectByCondition(condition);
+		Map<String, ProdUser> prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getLoginName, k -> k));
+
+		if (CollectionUtils.isNotEmpty(prodUserList)) {
+			Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
+			Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
+			componentInfoList.forEach(componentInfo -> {
+				componentInfo.getComponents().forEach(component -> {
+					UserDTO userDTO = prodUserMap.get(component.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(component.getCreatedBy()).getUserId());
+					if (userDTO != null) {
+						component.setCreatorImageUrl(userDTO.getImageUrl());
+						component.setCreatorLoginName(userDTO.getLoginName());
+						component.setCreatorRealName(userDTO.getRealName());
+					} else {
+						component.setCreatorLoginName(component.getCreatedBy());
+						component.setCreatorRealName(component.getCreatedBy());
+					}
+				});
+			});
+		}
+	}
+
+	private void setUserInfoComponent(List<NexusServerComponent> componentList) {
+		Set<String> loginNameList = new HashSet<>();
+		componentList.forEach(component -> {
+			loginNameList.add(component.getCreatedBy());
+		});
+		Condition condition = new Condition(ProdUser.class);
+		condition.createCriteria().andIn(ProdUser.FIELD_LOGIN_NAME, loginNameList);
+		List<ProdUser> prodUserList = prodUserRepository.selectByCondition(condition);
+		Map<String, ProdUser> prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getLoginName, k -> k));
+
+		if (CollectionUtils.isNotEmpty(prodUserList)) {
+			Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
+			Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
+			componentList.forEach(component -> {
+				UserDTO userDTO = prodUserMap.get(component.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(component.getCreatedBy()).getUserId());
+				if (userDTO != null) {
+					component.setCreatorImageUrl(userDTO.getImageUrl());
+					component.setCreatorLoginName(userDTO.getLoginName());
+					component.setCreatorRealName(userDTO.getRealName());
+				} else {
+					component.setCreatorLoginName(component.getCreatedBy());
+					component.setCreatorRealName(component.getCreatedBy());
+				}
+			});
+		}
+	}
+
+
 
 	@Override
 	public Page<NexusServerComponent> listComponentsVersion(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -125,7 +195,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		});
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
-		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfo.getComponents());
+		Page<NexusServerComponent> componentPage = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), componentInfo.getComponents());
+		this.setUserInfoComponent(componentPage.getContent());
+		return componentPage;
 	}
 
 	@Override
@@ -137,21 +209,21 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		if (nexusRepository == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_NOT_DELETE_COMPONENT);
 		}
-		// 设置并返回当前nexus服务信息
-		configService.setCurrentNexusInfo(nexusClient);
-		componentIds.forEach(componentId -> {
-			try {
-				nexusClient.getComponentsApi().deleteComponent(componentId);
-			} catch (NexusResponseException e) {
-				if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-					// 删除数据没找到，直接跳过
-					logger.error("delete component error, 404 not found: {}", componentId);
-				} else {
-					throw e;
-				}
-			}
-		});
+		// 校验
+		List<String> validateRoleCode = new ArrayList<>();
+		validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+		validateRoleCode.add(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode());
+		nexusAuthService.validateRoleAuth(nexusRepository.getRepositoryId(), validateRoleCode);
 
+
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+		if (CollectionUtils.isNotEmpty(componentIds)) {
+			NexusComponentDeleteParam deleteParam = new NexusComponentDeleteParam();
+			deleteParam.setRepositoryName(repositoryName);
+			deleteParam.setComponents(componentIds);
+			nexusClient.getComponentsApi().deleteComponentScript(deleteParam);
+		}
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 	}
