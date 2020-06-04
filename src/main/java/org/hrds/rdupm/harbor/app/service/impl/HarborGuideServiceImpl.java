@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
+import io.choerodon.core.oauth.DetailsHelper;
 import org.hrds.rdupm.harbor.api.vo.HarborGuideVo;
 import org.hrds.rdupm.harbor.app.service.HarborGuideService;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
@@ -26,6 +27,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 
 	@Override
 	public HarborGuideVo getProjectGuide(Long projectId) {
+		String loginName = DetailsHelper.getUserDetails().getUsername();
 		String harborBaseUrl = harborInfoConfiguration.getDomain();
 
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
@@ -33,9 +35,9 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 
 		String vimHostCmd = String.format("vim /etc/hosts \n%s %s",harborInfoConfiguration.getIp(),harborInfoConfiguration.getDomain());
 		String configRegistryCmd = String.format("{\n  \"insecure-registries\": [\"http://%s\"]\n }",harborInfoConfiguration.getDomain());
-		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  \n#\"个人信息-->个人设置-->制品库设置\"中可查看默认密码",harborBaseUrl);
+		String loginCmd = String.format("#\"个人信息-->个人设置-->制品库设置\"中可查看默认密码 \ndocker login %s -u %s -p 密码",harborBaseUrl,loginName);
 		String dockerFile = HarborVelocityUtils.getJsonString(null,HarborVelocityUtils.DOCKER_FILE_NAME);
-		String buildCmd = String.format("docker build -t %s/%s/imageName:tagName .",harborBaseUrl,code);
+		String buildCmd = String.format("docker build -t %s/%s/镜像名称:镜像版本名称 .",harborBaseUrl,code);
 		String pushCmd = String.format("docker push %s/%s/镜像名称:镜像版本名称",harborBaseUrl,code);
 		String pullCmd = String.format("docker pull %s/%s/镜像名称:镜像版本名称",harborBaseUrl,code);
 
@@ -44,8 +46,9 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 
 	@Override
 	public HarborGuideVo getTagGuide(String repoName, String tagName) {
+		String loginName = DetailsHelper.getUserDetails().getUsername();
 		String harborBaseUrl = harborInfoConfiguration.getDomain();
-		String loginCmd = String.format("docker login %s -u 登录名 -p 密码  \n#\"个人信息-->个人设置-->制品库设置\"中可查看默认密码",harborBaseUrl);
+		String loginCmd = String.format("#\"个人信息-->个人设置-->制品库设置\"中可查看默认密码 \ndocker login %s -u %s -p 密码",harborBaseUrl,loginName);
 		String pullCmd = String.format("docker pull %s/%s:%s",harborBaseUrl,repoName,tagName);
 		return new HarborGuideVo(loginCmd,null,null,null,pullCmd);
 	}

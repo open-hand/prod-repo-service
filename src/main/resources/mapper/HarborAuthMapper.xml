@@ -60,6 +60,12 @@
         <if test=" organizationId != null ">
             and rha.organization_id = #{organizationId}
         </if>
+        <if test=" params != null ">
+            and (
+            rha.login_name like concat('%',concat(#{loginName},'%')) or
+            rha.real_name like concat('%',concat(#{realName},'%'))
+            )
+        </if>
         order by rhr.CODE,rha.login_name
     </select>
 </mapper>

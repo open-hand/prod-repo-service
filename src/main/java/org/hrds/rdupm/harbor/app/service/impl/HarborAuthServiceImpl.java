@@ -147,15 +147,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 	@Override
 	public Page<HarborAuth> pageList(PageRequest pageRequest, HarborAuth harborAuth) {
-		/*if(harborAuth.getProjectId() != null){
-			//权限屏蔽：项目所有者查看所有权限、普通成员只查看自己的权限
-			Long userId = DetailsHelper.getUserDetails().getUserId();
-			Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(harborAuth.getProjectId());
-			if(!userDTOMap.containsKey(userId)){
-				harborAuth.setUserId(userId);
-			}
-		}*/
-
 		Page<HarborAuth> page = PageHelper.doPageAndSort(pageRequest,()->harborAuthMapper.list(harborAuth));
 		List<HarborAuth> dataList = page.getContent();
 		if(CollectionUtils.isEmpty(dataList)){
