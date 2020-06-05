@@ -2,7 +2,10 @@ package org.hrds.rdupm.nexus.client.nexus.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.Transient;
 import java.util.List;
 
 /**
@@ -10,6 +13,8 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/3/17
  */
 @ApiModel("包信息")
+@Getter
+@Setter
 public class NexusServerComponent {
 	@ApiModelProperty(value = "id")
 	private String id;
@@ -23,6 +28,14 @@ public class NexusServerComponent {
 	private String name;
 	@ApiModelProperty(value = "版本")
 	private String version;
+	@ApiModelProperty(value = "创建人")
+	private String createdBy;
+	@ApiModelProperty(value = "创建时间")
+	private String creationDate;
+	@ApiModelProperty(value = "更新时间")
+	private String lastUpdateDate;
+	@ApiModelProperty(value = "拉取时间")
+	private String lastDownloadDate;
 	private List<NexusServerAsset> assets;
 
 	@ApiModelProperty(value = "使用版本")
@@ -35,103 +48,14 @@ public class NexusServerComponent {
 	@ApiModelProperty(value = "extension: pom、jar、war等")
 	private String extension;
 
+	private String downloadUrl;
+	private String repositoryUrl;
 
-	public String getId() {
-		return id;
-	}
+	@ApiModelProperty(value = "图标")
+	private String creatorImageUrl;
+	@ApiModelProperty(value = "登录名")
+	private String creatorLoginName;
+	@ApiModelProperty(value = "用户名")
+	private String creatorRealName;
 
-	public NexusServerComponent setId(String id) {
-		this.id = id;
-		return this;
-	}
-
-	public String getRepository() {
-		return repository;
-	}
-
-	public NexusServerComponent setRepository(String repository) {
-		this.repository = repository;
-		return this;
-	}
-
-	public String getFormat() {
-		return format;
-	}
-
-	public NexusServerComponent setFormat(String format) {
-		this.format = format;
-		return this;
-	}
-
-	public String getGroup() {
-		return group;
-	}
-
-	public NexusServerComponent setGroup(String group) {
-		this.group = group;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public NexusServerComponent setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public NexusServerComponent setVersion(String version) {
-		this.version = version;
-		return this;
-	}
-
-	public List<NexusServerAsset> getAssets() {
-		return assets;
-	}
-
-	public NexusServerComponent setAssets(List<NexusServerAsset> assets) {
-		this.assets = assets;
-		return this;
-	}
-
-	public String getUseVersion() {
-		return useVersion;
-	}
-
-	public NexusServerComponent setUseVersion(String useVersion) {
-		this.useVersion = useVersion;
-		return this;
-	}
-
-	public List<String> getComponentIds() {
-		return componentIds;
-	}
-
-	public NexusServerComponent setComponentIds(List<String> componentIds) {
-		this.componentIds = componentIds;
-		return this;
-	}
-
-	public Boolean getDeleteFlag() {
-		return deleteFlag;
-	}
-
-	public NexusServerComponent setDeleteFlag(Boolean deleteFlag) {
-		this.deleteFlag = deleteFlag;
-		return this;
-	}
-
-	public String getExtension() {
-		return extension;
-	}
-
-	public NexusServerComponent setExtension(String extension) {
-		this.extension = extension;
-		return this;
-	}
 }

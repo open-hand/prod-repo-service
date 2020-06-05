@@ -11,13 +11,10 @@ import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
-import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
-import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
@@ -50,12 +47,17 @@ public class NexusAuthHandler {
 
 	@SagaTask(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE_USER, description = "分配权限：插入nexus用户与角色",
 			sagaCode = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, seq = 1, maxRetryCount = 3, outputSchemaClass = String.class)
-	private String nexusAuthCreate(String message) {
+	public String nexusAuthCreate(String message) {
 		List<NexusAuth> nexusAuthList = JSONObject.parseArray(message, NexusAuth.class);
 
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		this.createUserAuth(nexusAuthList);
 
+		nexusClient.removeNexusServerInfo();
+		return message;
+	}
 
+	public void createUserAuth(List<NexusAuth> nexusAuthList) {
 		Condition userCondition = Condition.builder(NexusUser.class)
 				.where(Sqls.custom()
 						.andIn(ProdUser.FIELD_USER_ID, nexusAuthList.stream().map(NexusAuth::getUserId).collect(Collectors.toList())))
@@ -71,7 +73,7 @@ public class NexusAuthHandler {
 				prodUserList.add(prodUser);
 			}
 		}
-	 	prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getUserId, User -> User));
+		prodUserMap = prodUserList.stream().collect(Collectors.toMap(ProdUser::getUserId, User -> User));
 
 
 		for (NexusAuth nexusAuth : nexusAuthList) {
@@ -80,7 +82,7 @@ public class NexusAuthHandler {
 			List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
 			if (CollectionUtils.isEmpty(existUserList)) {
 				// 创建用户
-				NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), prodUser.getPassword(), Collections.singletonList(nexusAuth.getNeRoleId()));
+				NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), prodUser.getPassword(), Collections.singletonList(nexusAuth.getNeRoleId()));
 				nexusClient.getNexusUserApi().createUser(nexusServerUser);
 			} else {
 				// 更新用户
@@ -90,9 +92,5 @@ public class NexusAuthHandler {
 			}
 
 		}
-		nexusClient.removeNexusServerInfo();
-		return message;
 	}
-
-
 }

@@ -57,10 +57,12 @@ public class HarborAuthController extends BaseController {
 												 @ApiParam("用户名") @RequestParam(required = false) String realName,
 												 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
 												 @ApiParam("权限角色") @RequestParam(required = false) String harborRoleValue,
+												 @ApiParam("params") @RequestParam(required = false) String params,
 												 @ApiIgnore PageRequest pageRequest) {
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		harborAuth.setHarborRoleValue(harborRoleValue);
-    	Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
+		harborAuth.setParams(params);
+		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
         return Results.success(list);
     }
 
@@ -73,8 +75,10 @@ public class HarborAuthController extends BaseController {
 													 @ApiParam("登录名") @RequestParam(required = false) String loginName,
 													 @ApiParam("用户名") @RequestParam(required = false) String realName,
 													 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
-													 @ApiIgnore PageRequest pageRequest) {
+													  @ApiParam("params") @RequestParam(required = false) String params,
+													  @ApiIgnore PageRequest pageRequest) {
 		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
+		harborAuth.setParams(params);
 		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
 		return Results.success(list);
 	}

@@ -1,4 +1,4 @@
-package org.hrds.rdupm.api.vo;
+package org.hrds.rdupm.common.api.vo;
 
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModel;
@@ -21,6 +21,7 @@ public class ProductLibraryDTO extends AuditDomain {
 
 	public static final String TYPE_MAVEN = "MAVEN";
 	public static final String TYPE_DOCKER = "DOCKER";
+	public static final String TYPE_NPM = "NPM";
 
 	@ApiModelProperty(value = "行记录唯一Id, UUID")
 	private String uniqueId;
@@ -78,11 +79,11 @@ public class ProductLibraryDTO extends AuditDomain {
 	public ProductLibraryDTO() {
 	}
 	/**
-	 * @param nexusRepositoryDTO  maven仓库数据
+	 * @param nexusRepositoryDTO  maven npm 仓库数据
 	 */
-	public ProductLibraryDTO(NexusRepositoryDTO nexusRepositoryDTO) {
+	public ProductLibraryDTO(NexusRepositoryDTO nexusRepositoryDTO, String repoType) {
 		this.uniqueId = UUIDUtils.generateUUID();
-		this.productType = TYPE_MAVEN;
+		this.productType = repoType;
 		this.repositoryName = nexusRepositoryDTO.getName();
 		BeanUtils.copyProperties(nexusRepositoryDTO, this);
 	}

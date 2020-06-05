@@ -71,15 +71,44 @@ public interface NexusApiConstants {
 		 */
 		List<String> SCRIPT_LIST = Arrays.asList(
 				ScriptName.CREATE_MAVEN_PROXY,
-				ScriptName.CREATE_MAVEN_GROUP);
+				ScriptName.CREATE_MAVEN_GROUP,
+				ScriptName.CREATE_NPM_GROUP,
+				ScriptName.CREATE_NPM_HOSTED,
+				ScriptName.CREATE_NPM_PROXY,
+				ScriptName.COMPONENT_LIST_QUERY,
+				ScriptName.COMPONENT_DELETE);
 		/**
-		 * 创建maven仓库组   脚本：groovy包下create_repo_maven_group.groovy
+		 * 创建maven仓库组   脚本：groovy包下create_maven_group.groovy
 		 */
 		String CREATE_MAVEN_GROUP = ScriptName.SCRIPT_PREFIX + "create_maven_group";
 		/**
-		 * 创建maven代理仓库  脚本：groovy包下create_repo_maven_proxy.groovy
+		 * 创建maven代理仓库  脚本：groovy包下create_maven_proxy.groovy
 		 */
 		String CREATE_MAVEN_PROXY = ScriptName.SCRIPT_PREFIX + "create_maven_proxy";
+
+
+		/**
+		 * 创建npm本地仓库   脚本：groovy包下create_npm_hosted.groovy
+		 */
+		String CREATE_NPM_HOSTED = ScriptName.SCRIPT_PREFIX + "create_npm_hosted";
+		/**
+		 * 创建npm仓库组   脚本：groovy包下create_npm_group.groovy
+		 */
+		String CREATE_NPM_GROUP = ScriptName.SCRIPT_PREFIX + "create_npm_group";
+		/**
+		 * 创建npm代理仓库  脚本：groovy包下create_npm_proxy.groovy
+		 */
+		String CREATE_NPM_PROXY = ScriptName.SCRIPT_PREFIX + "create_npm_proxy";
+
+		/**
+		 * component查询  脚本：groovy包下 component_list_query.groovy
+		 */
+		String COMPONENT_LIST_QUERY = ScriptName.SCRIPT_PREFIX + "component_list_query";
+
+		/**
+		 * component删除  脚本：groovy包下 delete_component.groovy
+		 */
+		String COMPONENT_DELETE = ScriptName.SCRIPT_PREFIX + "delete_component";
 	}
 
 	interface ErrorMessage {
@@ -114,7 +143,7 @@ public interface NexusApiConstants {
 		 */
 		String NEXUS_USER_PASS_ERROR = "error.nexus.client.nexus.user.pass.failed";
 		/**
-		 * nexus角色对应操作权限未分配
+		 * 用户权限不足，没有该操作的权限
 		 */
 		String NEXUS_ROLE_PRI_NOT_ASSIGNED = "error.nexus.client.nexus.role.pri.not.assigned";
 		/**

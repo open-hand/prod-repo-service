@@ -63,8 +63,7 @@ public class NexusAuth extends AuditDomain {
         if (this.roleCode.equals(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())
                 || this.roleCode.equals(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode())) {
             this.neRoleId = nexusRole.getNeRoleId();
-        } else if (this.roleCode.equals(NexusConstants.NexusRoleEnum.GUEST.getRoleCode())
-                || this.roleCode.equals(NexusConstants.NexusRoleEnum.LIMITED_GUEST.getRoleCode())) {
+        } else if (this.roleCode.equals(NexusConstants.NexusRoleEnum.GUEST.getRoleCode())) {
             this.neRoleId = nexusRole.getNePullRoleId();
         } else {
             throw new CommonException("权限角色有误");
@@ -108,6 +107,8 @@ public class NexusAuth extends AuditDomain {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
+    @ApiModelProperty("锁定")
+    private String locked;
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------
@@ -125,6 +126,8 @@ public class NexusAuth extends AuditDomain {
     @ExcelColumn(title = "项目名称", order = 2)
     @Transient
     private String projectName;
+    @Transient
+    private String repoType;
 
 
     //

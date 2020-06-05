@@ -17,6 +17,7 @@
         <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
         <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
+        <result column="locked" property="locked" jdbcType="VARCHAR"/>
 
         <result column="code" property="code" jdbcType="VARCHAR"/>
         <result column="name" property="name" jdbcType="VARCHAR"/>
@@ -50,11 +51,20 @@
         <if test=" harborRoleId != null ">
             and rha.harbor_role_id = #{harborRoleId}
         </if>
+        <if test=" userId != null ">
+            and rha.user_id = #{userId}
+        </if>
         <if test=" projectId != null ">
             and rha.project_id = #{projectId}
         </if>
         <if test=" organizationId != null ">
             and rha.organization_id = #{organizationId}
+        </if>
+        <if test=" params != null ">
+            and (
+            rha.login_name like concat('%',concat(#{loginName},'%')) or
+            rha.real_name like concat('%',concat(#{realName},'%'))
+            )
         </if>
         order by rhr.CODE,rha.login_name
     </select>

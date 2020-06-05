@@ -3,10 +3,13 @@ package org.hrds.rdupm.nexus.api.dto;
 import io.choerodon.core.exception.CommonException;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
@@ -15,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -24,6 +28,8 @@ import java.util.stream.Collectors;
  * @author weisen.yang@hand-china.com 2020/3/27
  */
 @ApiModel("maven 仓库创建")
+@Getter
+@Setter
 public class NexusRepositoryCreateDTO {
 
 	private static final Logger logger = LoggerFactory.getLogger(NexusRepositoryCreateDTO.class);
@@ -53,7 +59,7 @@ public class NexusRepositoryCreateDTO {
 		if (validNameSufFlag) {
 			List<LookupVO> lookupVOList = baseServiceFeignClient.queryCodeValueByCode(NexusConstants.Lookup.REPO_NAME_SUFFIX);
 			if (CollectionUtils.isNotEmpty(lookupVOList)) {
-				Boolean nameSuffixFlag = false;
+				boolean nameSuffixFlag = false;
 				for (LookupVO lookupVO : lookupVOList) {
 					logger.info("suffix  value: " + lookupVO.getValue());
 					if (this.name.toLowerCase().endsWith(lookupVO.getValue().toLowerCase())) {
@@ -78,7 +84,7 @@ public class NexusRepositoryCreateDTO {
 		switch (this.getType()) {
 			case NexusApiConstants.RepositoryType.HOSTED:
 				// 创建本地仓库
-				if (StringUtils.isBlank(this.versionPolicy)) {
+				if (StringUtils.isBlank(this.versionPolicy) && StringUtils.equals(this.repoType, NexusConstants.RepoType.MAVEN)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
 				}
 				if (StringUtils.isBlank(this.writePolicy)) {
@@ -197,117 +203,19 @@ public class NexusRepositoryCreateDTO {
 	@ApiModelProperty(value = "远程仓库密码")
 	private String remotePassword;
 
+	@ApiModelProperty(value = "仓库分配-仓库管理员用户ID")
+	private Long distributeRepoAdminId;
+
+	@ApiModelProperty(value = "制品库格式类型： maven2、npm", hidden = true)
+	private String format;
+	@ApiModelProperty(value = "制品库类型", hidden = true)
+	private String repoType;
 
 	@ApiModelProperty(value = "项目Id", hidden = true)
 	private Long projectId;
 	@ApiModelProperty(value = "组织Id", hidden = true)
 	private Long organizationId;
 
-	public String getType() {
-		return type;
-	}
-
-	public NexusRepositoryCreateDTO setType(String type) {
-		this.type = type;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public NexusRepositoryCreateDTO setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public String getBlobStoreName() {
-		return blobStoreName;
-	}
-
-	public NexusRepositoryCreateDTO setBlobStoreName(String blobStoreName) {
-		this.blobStoreName = blobStoreName;
-		return this;
-	}
-
-	public String getVersionPolicy() {
-		return versionPolicy;
-	}
-
-	public NexusRepositoryCreateDTO setVersionPolicy(String versionPolicy) {
-		this.versionPolicy = versionPolicy;
-		return this;
-	}
-
-	public String getWritePolicy() {
-		return writePolicy;
-	}
-
-	public NexusRepositoryCreateDTO setWritePolicy(String writePolicy) {
-		this.writePolicy = writePolicy;
-		return this;
-	}
-
-	public Integer getAllowAnonymous() {
-		return allowAnonymous;
-	}
-
-	public NexusRepositoryCreateDTO setAllowAnonymous(Integer allowAnonymous) {
-		this.allowAnonymous = allowAnonymous;
-		return this;
-	}
-
-	public List<String> getRepoMemberList() {
-		return repoMemberList;
-	}
-
-	public NexusRepositoryCreateDTO setRepoMemberList(List<String> repoMemberList) {
-		this.repoMemberList = repoMemberList;
-		return this;
-	}
-
-	public String getRemoteUrl() {
-		return remoteUrl;
-	}
-
-	public NexusRepositoryCreateDTO setRemoteUrl(String remoteUrl) {
-		this.remoteUrl = remoteUrl;
-		return this;
-	}
-
-	public String getRemoteUsername() {
-		return remoteUsername;
-	}
-
-	public NexusRepositoryCreateDTO setRemoteUsername(String remoteUsername) {
-		this.remoteUsername = remoteUsername;
-		return this;
-	}
-
-	public String getRemotePassword() {
-		return remotePassword;
-	}
-
-	public NexusRepositoryCreateDTO setRemotePassword(String remotePassword) {
-		this.remotePassword = remotePassword;
-		return this;
-	}
-
-	public Long getProjectId() {
-		return projectId;
-	}
-
-	public NexusRepositoryCreateDTO setProjectId(Long projectId) {
-		this.projectId = projectId;
-		return this;
-	}
-
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public NexusRepositoryCreateDTO setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-		return this;
-	}
+	@ApiModelProperty(value = "用户权限信息", hidden = true)
+	private List<NexusAuth> nexusAuthList;
 }

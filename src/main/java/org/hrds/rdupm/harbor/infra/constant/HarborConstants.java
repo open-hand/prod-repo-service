@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
  */
 public interface HarborConstants {
 
+	String Y = "Y";
+
 	String TRUE = "true";
 
 	String FALSE = "false";

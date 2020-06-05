@@ -11,6 +11,7 @@ import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
@@ -32,23 +33,57 @@ public class NexusComponentController extends BaseController {
 	@Autowired
 	private NexusComponentService nexusComponentService;
 
-	@ApiOperation(value = "项目层-包列表查询")
+	@ApiOperation(value = "项目层-maven 包列表查询")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 																		 NexusComponentQuery componentQuery,
 																		 @ApiIgnore PageRequest pageRequest) {
-		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true,componentQuery, pageRequest));
+		componentQuery.setRepoType(NexusConstants.RepoType.MAVEN);
+		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
 	}
 
-	@ApiOperation(value = "项目层-包删除")
+	@ApiOperation(value = "项目层-npm 包列表查询")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/{organizationId}/project/{projectId}/npm")
+	public ResponseEntity<Page<NexusServerComponentInfo>> listNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+																		 NexusComponentQuery componentQuery,
+																		 @ApiIgnore PageRequest pageRequest) {
+		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
+		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
+	}
+
+	@ApiOperation(value = "项目层-npm包列表-版本查询")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/{organizationId}/project/{projectId}/npm/version")
+	public ResponseEntity<Page<NexusServerComponent>> listNpmComponentsVersion(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+																			   @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+																			   NexusComponentQuery componentQuery,
+																			   @ApiIgnore PageRequest pageRequest) {
+		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
+		return Results.success(nexusComponentService.listComponentsVersion(organizationId, projectId, true, componentQuery, pageRequest));
+	}
+
+	@ApiOperation(value = "项目层-maven 包删除")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@DeleteMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<?> deleteComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 											  @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName" ) String repositoryName,
 											  @RequestBody List<String> componentIds) {
+		nexusComponentService.deleteComponents(organizationId, projectId, repositoryName, componentIds);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "项目层-npm 包删除")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@DeleteMapping("/{organizationId}/project/{projectId}/npm")
+	public ResponseEntity<?> deleteNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+												 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+												 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName" ) String repositoryName,
+												 @RequestBody List<String> componentIds) {
 		nexusComponentService.deleteComponents(organizationId, projectId, repositoryName, componentIds);
 		return Results.success();
 	}
@@ -69,6 +104,21 @@ public class NexusComponentController extends BaseController {
 		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
 		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
 		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, assetJar, assetPom);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "项目层-npm包上传")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping("/{organizationId}/project/{projectId}/npm/upload")
+	public ResponseEntity<?> npmComponentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+												 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+												 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName,
+												 @ApiParam(value = "jar文件") @RequestParam(name = "assetTgz", required = true) MultipartFile assetTgz) {
+		if (assetTgz == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
+		}
+		this.validateFileType(assetTgz, NexusServerAssetUpload.TGZ);
+		nexusComponentService.npmComponentsUpload(organizationId, projectId, repositoryName, assetTgz);
 		return Results.success();
 	}
 

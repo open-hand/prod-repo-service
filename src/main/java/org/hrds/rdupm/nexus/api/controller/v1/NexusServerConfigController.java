@@ -26,14 +26,6 @@ public class NexusServerConfigController extends BaseController {
     @Autowired
     private NexusServerConfigService nexusServerConfigService;
 
-//    @ApiOperation(value = "nexus服务信息配置")
-//    @Permission(level = ResourceLevel.SITE)
-//    @PostMapping
-//    public ResponseEntity<NexusServerConfig> createServerConfig(@RequestBody NexusServerConfig nexusServerConfig) {
-//        validObject(nexusServerConfig);
-//        return Results.success(nexusServerConfigService.createServerConfig( nexusServerConfig));
-//    }
-
     @ApiOperation(value = "nexus服务信息配置更新")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PutMapping

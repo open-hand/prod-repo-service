@@ -15,6 +15,7 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.models.auth.In;
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
@@ -77,6 +79,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Autowired
 	private HarborLogRepository harborLogRepository;
 
+	@Autowired
+	private HarborAuthService harborAuthService;
+
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
 	public void createSaga(Long projectId, HarborProjectVo harborProjectVo) {
@@ -89,7 +94,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* */
 		//获取猪齿鱼项目信息
 		ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
-		String code = projectDTO.getCode();
+		String code = DetailsHelper.getUserDetails().getTenantNum() + "-" + projectDTO.getCode();
 		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
 
@@ -97,7 +102,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		checkParam(harborProjectVo);
 		checkProject(harborProjectVo,projectId);
 
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),projectDTO.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
+		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),code,projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
 		harborRepositoryRepository.insertSelective(harborRepository);
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
@@ -133,6 +138,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT,description = "更新Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
 	public void updateSaga(Long projectId, HarborProjectVo harborProjectVo) {
+		harborAuthService.checkProjectAdmin(projectId);
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
@@ -191,6 +197,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(Long projectId) {
+		harborAuthService.checkProjectAdmin(projectId);
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");

@@ -133,8 +133,10 @@ harbor:
   domain: harbor.cn
   username: admin
   password: Harbor12345
-  certUrl: http://minio.staging.saas.hand-china.com/minio/rdupm-service/harbor.cn.cert
-  keyUrl: http://minio.staging.saas.hand-china.com/rdupm-service/harbor.cn.key
+  init:
+    url: jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: handhand
 
 DesEncrypt:
   # DES 加解密密钥
