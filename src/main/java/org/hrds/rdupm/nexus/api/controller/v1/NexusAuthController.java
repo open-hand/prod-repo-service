@@ -96,7 +96,7 @@ public class NexusAuthController extends BaseController {
         nexusAuth.setLoginName(loginName);
         nexusAuth.setRealName(realName);
         nexusAuth.setRoleCode(roleCode);
-        nexusAuth.setRoleCode(neRepositoryName);
+        nexusAuth.setNeRepositoryName(neRepositoryName);
         nexusAuth.setRepoType(repoType);
         Page<NexusAuth> list = nexusAuthService.pageList(pageRequest, nexusAuth);
         return Results.success(list);

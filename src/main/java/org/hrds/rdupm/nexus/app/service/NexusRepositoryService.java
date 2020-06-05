@@ -93,9 +93,10 @@ public interface NexusRepositoryService {
 	/**
 	 * 包上传 - 仓库列表
 	 * @param projectId 项目Id
+	 * @param repoType 制品库类型
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listComponentRepo(Long projectId);
+	List<NexusRepositoryDTO> listComponentRepo(Long projectId, String repoType);
 
 	/**
 	 * 查询maven 仓库配置指引信息
