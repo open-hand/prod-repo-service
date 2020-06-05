@@ -49,11 +49,11 @@
         </if>
         <if test="neRepositoryName != null and neRepositoryName != ''">
             <bind name="neRepositoryNameLike" value="'%' + neRepositoryName + '%'" />
-            AND rnr.ne_repository_name = #{neRepositoryNameLike}
+            AND rnr.ne_repository_name like #{neRepositoryNameLike}
         </if>
         <if test="realName != null and realName != ''">
             <bind name="realNameLike" value="'%' + realName + '%'"/>
-            AND rnl.content = #{realNameLike}
+            AND rnl.content like #{realNameLike}
         </if>
         <if test="operateType != null and operateType != ''">
             AND rnl.operate_type = #{operateType}
