@@ -1,4 +1,4 @@
-package org.hrds.rdupm.harbor.app.service;
+package org.hrds.rdupm.init.service;
 
 /**
  * description
@@ -6,5 +6,7 @@ package org.hrds.rdupm.harbor.app.service;
  * @author chenxiuhong 2020/05/28 2:37 下午
  */
 public interface HarborInitService {
-	void init();
+	void defaultRepoInit();
+
+	void customRepoInit();
 }

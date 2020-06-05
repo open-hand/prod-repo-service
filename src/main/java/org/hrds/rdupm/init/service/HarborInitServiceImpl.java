@@ -1,4 +1,4 @@
-package org.hrds.rdupm.harbor.app.service.impl;
+package org.hrds.rdupm.init.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,16 +17,14 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import org.apache.commons.collections.CollectionUtils;
-import org.hrds.rdupm.harbor.api.vo.FdProjectDto;
+import org.hrds.rdupm.init.dto.FdProjectDto;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.api.vo.HarborCountVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
-import org.hrds.rdupm.harbor.app.service.HarborInitService;
 import org.hrds.rdupm.harbor.config.HarborInitConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
-import org.hrds.rdupm.harbor.domain.entity.User;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
@@ -68,7 +66,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 
 
 	@Override
-	public void init(){
+	public void defaultRepoInit(){
 		ResponseEntity<String> countResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.COUNT,null,null,true);
 		HarborCountVo harborCountVo = JSONObject.parseObject(countResponse.getBody(), HarborCountVo.class);
 
@@ -128,6 +126,11 @@ public class HarborInitServiceImpl implements HarborInitService {
 				save(dto.getProjectId(),authList);
 			});
 		}
+	}
+
+	@Override
+	public void customRepoInit() {
+
 	}
 
 

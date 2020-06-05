@@ -1,4 +1,4 @@
-package org.hrds.rdupm.harbor.api.vo;
+package org.hrds.rdupm.init.dto;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,15 +1,10 @@
-package org.hrds.rdupm.harbor.api.controller.v1;
+package org.hrds.rdupm.init.controller.v1;
 
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.harbor.api.vo.HarborGuideVo;
-import org.hrds.rdupm.harbor.app.service.HarborGuideService;
-import org.hrds.rdupm.harbor.app.service.HarborInitService;
-import org.hzero.core.util.Results;
+import org.hrds.rdupm.init.service.HarborInitService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -24,11 +19,18 @@ public class HarborInitController {
 	@Autowired
 	private HarborInitService harborInitService;
 
-	@ApiOperation(value = "初始化")
+	@ApiOperation(value = "默认仓库初始化")
 	@Permission(level = ResourceLevel.ORGANIZATION,permissionPublic = true)
-	@GetMapping(value = "/init")
-	public void init() {
-		harborInitService.init();
+	@GetMapping(value = "/default-repo")
+	public void defaultRepoInit() {
+		harborInitService.defaultRepoInit();
+	}
+
+	@ApiOperation(value = "自定义仓库初始化")
+	@Permission(level = ResourceLevel.ORGANIZATION,permissionPublic = true)
+	@GetMapping(value = "/custom-repo")
+	public void customRepoInit() {
+		harborInitService.customRepoInit();
 	}
 
 }
