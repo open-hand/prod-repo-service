@@ -34,7 +34,7 @@ public class DevopsServiceFeignClientFallBack implements FallbackFactory<DevopsS
             }
 
             @Override
-            public ResponseEntity<Page<AppServiceDTO>> listAppServiceByIds(Set<Long> ids) {
+            public ResponseEntity<Page<AppServiceDTO>> listAppServiceByIds(Long projectId, Set<Long> ids, Boolean doPage, Boolean withVersion, String params) {
                 return null;
             }
         };
