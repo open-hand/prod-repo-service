@@ -134,9 +134,12 @@ harbor:
   username: admin
   password: Harbor12345
   init:
-    url: jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    username: root
-    password: handhand
+    defaultRepoUrl: jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    defaultRepoUsername: root
+    defaultRepoPassword: handhand
+    customRepoUrl: jdbc:mysql://192.168.16.215:3306/devops_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    customRepoUsername: root
+    customRepoPassword: handhand
 
 DesEncrypt:
   # DES 加解密密钥

@@ -16,10 +16,16 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "harbor.init")
 public class HarborInitConfiguration {
 
-	private String url;
+	private String defaultRepoUrl;
 
-	private String username;
+	private String defaultRepoUsername;
 
-	private String password;
+	private String defaultRepoPassword;
+
+	private String customRepoUrl;
+
+	private String customRepoUsername;
+
+	private String customRepoPassword;
 
 }
