@@ -242,11 +242,11 @@ public interface HarborConstants {
 	}
 
 	enum HarborRoleEnum{
-		PROJECT_ADMIN(1L,"projectAdmin","镜像仓库管理员(最高权限)"),
-		DEVELOPER(2L,"developer","开发人员(push、pull)"),
-		GUEST(3L,"guest","访客(pull)"),
-		MASTER(4L,"master","维护人员(pull、push)"),
-		LIMITED_GUEST(5L,"limitedGuest","受限访客(pull)");
+		PROJECT_ADMIN(1L,"projectAdmin","仓库管理员"),
+		DEVELOPER(2L,"developer","开发人员"),
+		GUEST(3L,"guest","访客"),
+		MASTER(4L,"master","维护人员"),
+		LIMITED_GUEST(5L,"limitedGuest","受限访客");
 
 		Long roleId;
 
