@@ -28,6 +28,22 @@ public interface NexusSagaConstants {
 		int USER_SEQ = 3;
 	}
 
+	interface NexusRepoDistribute {
+		/**
+		 * 平台层-仓库分配
+		 */
+		String SITE_NEXUS_REPO_DISTRIBUTE = "rdupm-nexus-repo-distribute";
+		/**
+		 * 平台层-仓库分配: 创建角色
+		 */
+		String SITE_NEXUS_REPO_DISTRIBUTE_ROLE = "rdupm-nexus-repo-distribute.role";
+
+		/**
+		 * 平台层-仓库分配: 创建用户
+		 */
+		String SITE_NEXUS_REPO_DISTRIBUTE_USER = "rdupm-nexus-repo-distribute.user";
+	}
+
 	interface NexusMavenRepoUpdate {
 		/**
 		 * 更新maven仓库   Saga code
@@ -70,15 +86,5 @@ public interface NexusSagaConstants {
 		 * 分配权限  SagaTask code
 		 */
 		String NEXUS_AUTH_CREATE_USER = "rdupm-maven-auth-create.user";
-	}
-	interface NexusAuthDelete {
-		/**
-		 * 删除权限  Saga code
-		 */
-		String NEXUS_AUTH_DELETE = "rdupm-maven-auth-delete";
-		/**
-		 * 删除权限  SagaTask code
-		 */
-		String NEXUS_AUTH_DELETE_USER = "rdupm-maven-auth-delete.user";
 	}
 }

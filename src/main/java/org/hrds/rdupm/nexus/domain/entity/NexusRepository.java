@@ -12,6 +12,10 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 制品库_nexus仓库信息表
@@ -22,6 +26,8 @@ import io.swagger.annotations.ApiModelProperty;
 @VersionAudit
 @ModifyAudit
 @Table(name = "rdupm_nexus_repository")
+@Getter
+@Setter
 public class NexusRepository extends AuditDomain {
 
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
@@ -84,131 +90,12 @@ public class NexusRepository extends AuditDomain {
 	@ApiModelProperty(value = "项目名称")
 	@Transient
 	private String projectName;
+
+	@ApiModelProperty(value = "用户权限信息", hidden = true)
+    @Transient
+	private List<NexusAuth> nexusAuthList;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
 
-    /**
-     * @return 表ID，主键，供其他表做外键
-     */
-	public Long getRepositoryId() {
-		return repositoryId;
-	}
-
-	public void setRepositoryId(Long repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-    /**
-     * @return nexus服务配置ID: rdupm_nexus_server_config主键
-     */
-	public Long getConfigId() {
-		return configId;
-	}
-
-	public void setConfigId(Long configId) {
-		this.configId = configId;
-	}
-    /**
-     * @return nexus仓库名称
-     */
-	public String getNeRepositoryName() {
-		return neRepositoryName;
-	}
-
-	public void setNeRepositoryName(String neRepositoryName) {
-		this.neRepositoryName = neRepositoryName;
-	}
-    /**
-     * @return 组织Id
-     */
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public void setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-	}
-    /**
-     * @return 项目id
-     */
-	public Long getProjectId() {
-		return projectId;
-	}
-
-	public void setProjectId(Long projectId) {
-		this.projectId = projectId;
-	}
-    /**
-     * @return 是否允许匿名。1 允许；0 不允许
-     */
-	public Integer getAllowAnonymous() {
-		return allowAnonymous;
-	}
-
-	public void setAllowAnonymous(Integer allowAnonymous) {
-		this.allowAnonymous = allowAnonymous;
-	}
-    /**
-     * @return 租户Id
-     */
-	public Long getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
-
-	public Integer getIsRelated() {
-		return isRelated;
-	}
-
-	public NexusRepository setIsRelated(Integer isRelated) {
-		this.isRelated = isRelated;
-		return this;
-	}
-
-	public String getProjectName() {
-		return projectName;
-	}
-
-	public NexusRepository setProjectName(String projectName) {
-		this.projectName = projectName;
-		return this;
-	}
-
-	public String getCreatorImageUrl() {
-		return creatorImageUrl;
-	}
-
-	public NexusRepository setCreatorImageUrl(String creatorImageUrl) {
-		this.creatorImageUrl = creatorImageUrl;
-		return this;
-	}
-
-	public String getCreatorLoginName() {
-		return creatorLoginName;
-	}
-
-	public NexusRepository setCreatorLoginName(String creatorLoginName) {
-		this.creatorLoginName = creatorLoginName;
-		return this;
-	}
-
-	public String getCreatorRealName() {
-		return creatorRealName;
-	}
-
-	public NexusRepository setCreatorRealName(String creatorRealName) {
-		this.creatorRealName = creatorRealName;
-		return this;
-	}
-
-	public String getRepoType() {
-		return repoType;
-	}
-
-	public void setRepoType(String repoType) {
-		this.repoType = repoType;
-	}
 }

@@ -14,10 +14,12 @@ import java.util.List;
 public interface NexusRepositoryApi {
 
 	/**
-	 * 获取nexus服务,仓库信息
+	 * 根据nexus format获取nexus服务,仓库信息
+	 *
+	 * @param nexusFormat 仓库format
 	 * @return List<NexusRepository>
 	 */
-	List<NexusServerRepository> getRepository();
+	List<NexusServerRepository> getRepository(String nexusFormat);
 
 	/**
 	 * 获取仓库信息，通过名称
@@ -62,4 +64,24 @@ public interface NexusRepositoryApi {
 	 * @param nexusMavenProxy 创建信息
 	 */
 	void createAndUpdateMavenProxy(NexusServerMavenProxy nexusMavenProxy);
+
+	/**
+	 * npm仓hosted仓库创建更新
+	 * @param repositoryRequest 创建信息
+	 */
+	void createAndUpdateNpmHosted(RepositoryMavenInfo repositoryRequest);
+
+	/**
+	 * npm仓库组创建与更新
+	 * @param nexusMavenGroup 创建信息
+	 */
+	void createAndUpdateNpmGroup(NexusServerMavenGroup nexusMavenGroup);
+
+	/**
+	 * npm代理仓库创建与更新
+	 * @param nexusMavenProxy 创建信息
+	 */
+	void createAndUpdateNpmProxy(NexusServerMavenProxy nexusMavenProxy);
+
+
 }

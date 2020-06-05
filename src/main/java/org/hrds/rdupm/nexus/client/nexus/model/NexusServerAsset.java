@@ -1,9 +1,14 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 资产信息
  * @author weisen.yang@hand-china.com 2020/3/17
  */
+@Getter
+@Setter
 public class NexusServerAsset {
 	private String id;
 	private String downloadUrl;
@@ -11,59 +16,24 @@ public class NexusServerAsset {
 	private String repository;
 	private String format;
 	private String extension;
+	private CheckSum checksum;
+	private String lastUpdateDate;
+	private String componentId;
+	private String lastDownloadDate;
+	private String createdBy;
+	private String createdByIp;
 
-	public String getId() {
-		return id;
-	}
 
-	public NexusServerAsset setId(String id) {
-		this.id = id;
-		return this;
-	}
+	public class CheckSum {
+		private String sha1;
 
-	public String getDownloadUrl() {
-		return downloadUrl;
-	}
+		public String getSha1() {
+			return sha1;
+		}
 
-	public NexusServerAsset setDownloadUrl(String downloadUrl) {
-		this.downloadUrl = downloadUrl;
-		return this;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public NexusServerAsset setPath(String path) {
-		this.path = path;
-		return this;
-	}
-
-	public String getRepository() {
-		return repository;
-	}
-
-	public NexusServerAsset setRepository(String repository) {
-		this.repository = repository;
-		return this;
-	}
-
-	public String getFormat() {
-		return format;
-	}
-
-	public NexusServerAsset setFormat(String format) {
-		this.format = format;
-		return this;
-	}
-
-	public String getExtension() {
-		return extension;
-	}
-
-	public NexusServerAsset setExtension(String extension) {
-		this.extension = extension;
-		return this;
+		public void setSha1(String sha1) {
+			this.sha1 = sha1;
+		}
 	}
 }
 

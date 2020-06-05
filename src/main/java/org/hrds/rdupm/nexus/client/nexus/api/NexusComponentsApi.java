@@ -1,9 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
-import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.springframework.core.io.InputStreamResource;
 
 import java.util.List;
 
@@ -14,42 +12,62 @@ import java.util.List;
 public interface NexusComponentsApi {
 
 	/**
-	 * 查询组件信息
-	 * @param repositoryName 仓库名称
-	 * @return List<NexusComponent>
-	 */
-	List<NexusServerComponent> getComponents(String repositoryName);
-
-	/**
-	 * 查询组件信息,分组处理后
-	 * @param repositoryName 仓库名称
-	 * @return List<NexusComponentInfo>
-	 */
-	List<NexusServerComponentInfo> getComponentInfo(String repositoryName);
-
-	/**
-	 * 查询组件信息
+	 * 查询maven组件信息
 	 * @param componentQuery 查询参数
 	 * @return List<NexusComponentInfo>
 	 */
-	List<NexusServerComponent> searchComponent(NexusComponentQuery componentQuery);
+	List<NexusServerComponent> searchMavenComponent(NexusComponentQuery componentQuery);
 
 	/**
-	 * 查询组件信息,分组处理后
+	 * 查询组件信息 - groovy脚本
 	 * @param componentQuery 查询参数
 	 * @return List<NexusComponentInfo>
 	 */
-	List<NexusServerComponentInfo> searchComponentInfo(NexusComponentQuery componentQuery);
+	List<NexusServerComponent> searchComponentScript(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询maven组件信息,分组处理后
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponentInfo> searchMavenComponentInfo(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询npm组件信息
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponent> searchNpmComponent(NexusComponentQuery componentQuery);
+
+	/**
+	 * 查询npm组件信息,分组处理后
+	 * @param componentQuery 查询参数
+	 * @return List<NexusComponentInfo>
+	 */
+	List<NexusServerComponentInfo> searchNpmComponentInfo(NexusComponentQuery componentQuery);
 
 	/**
 	 * 删除组件信息
-	 * @param componentId 组件Id
+	 * @param componentId 组件Id 通过rest api 查询接口返回的Id
 	 */
 	void deleteComponent(String componentId);
+
+	/**
+	 * 删除组件信息 - groovy脚本
+	 * @param deleteParam 参数  components：通过groovy脚本查询接口返回的Id     repositoryName：仓库名称
+	 */
+	void deleteComponentScript(NexusComponentDeleteParam deleteParam);
 
 	/**
 	 * 组件jar包上传， 只支持maven release类型
 	 * @param componentUpload 上传信息
 	 */
 	void createMavenComponent(NexusServerComponentUpload componentUpload);
+
+	/**
+	 * 组件npm tgz包上传
+	 * @param repositoryName 仓库名称
+	 * @param streamResource 上传信息
+	 */
+	void createNpmComponent(String repositoryName, InputStreamResource streamResource);
 }

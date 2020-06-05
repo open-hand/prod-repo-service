@@ -63,4 +63,9 @@ public interface HarborAuthService {
 	 * @param dtoList
 	 */
 	void saveOwnerAuth(Long projectId, Long organizationId, Integer harborId, List<HarborAuth> dtoList);
+
+	/***
+	 * 检查当前用户是否为项目管理员
+	 */
+	void checkProjectAdmin(Long projectId);
 }

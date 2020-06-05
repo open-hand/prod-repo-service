@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api;
 
+import org.hrds.rdupm.nexus.client.nexus.model.NexusScriptResult;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerScript;
 
 /**
@@ -32,8 +33,9 @@ public interface NexusScriptApi {
 	 * 脚本执行
 	 * @param scriptName 脚本名称
 	 * @param param 参数信息
+	 * @return  NexusScriptResult NexusScriptResult
 	 */
-	void runScript(String scriptName, String param);
+	NexusScriptResult runScript(String scriptName, String param);
 
 	/**
 	 * 脚本删除

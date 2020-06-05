@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.HashMap;
@@ -9,13 +10,14 @@ import java.util.Map;
  * 包查询dto
  * @author weisen.yang@hand-china.com 2020/4/2
  */
+@ApiModel("包查询")
 public class NexusComponentQuery {
 
 	/**
-	 * 转换查询参数
+	 * 转换查询参数 maven
 	 * @return map
 	 */
-	public Map<String, Object> convertParam(){
+	public Map<String, Object> convertMavenParam(){
 		Map<String, Object> paramMap = new HashMap<>(16);
 		if (this.repositoryName != null) {
 			paramMap.put("repository", this.repositoryName);
@@ -32,6 +34,24 @@ public class NexusComponentQuery {
 		return paramMap;
 	}
 
+	/**
+	 * 转换查询参数 npm
+	 * @return map
+	 */
+	public Map<String, Object> convertNpmParam(){
+		Map<String, Object> paramMap = new HashMap<>(16);
+		if (this.repositoryName != null) {
+			paramMap.put("repository", this.repositoryName);
+		}
+		if (this.name != null) {
+			paramMap.put("name", this.name);
+		}
+		if (this.version != null) {
+			paramMap.put("version", this.version);
+		}
+		return paramMap;
+	}
+
 	@ApiModelProperty(value = "仓库名称", required = true)
 	private String repositoryName;
 	@ApiModelProperty(value = "groupId")
@@ -40,6 +60,16 @@ public class NexusComponentQuery {
 	private String name;
 	@ApiModelProperty(value = "版本")
 	private String version;
+	@ApiModelProperty(value = "制品类型")
+	private String repoType;
+
+	public String getRepoType() {
+		return repoType;
+	}
+
+	public void setRepoType(String repoType) {
+		this.repoType = repoType;
+	}
 
 	public String getRepositoryName() {
 		return repositoryName;

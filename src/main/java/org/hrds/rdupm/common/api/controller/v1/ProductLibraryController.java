@@ -1,10 +1,10 @@
-package org.hrds.rdupm.api.controller.v1;
+package org.hrds.rdupm.common.api.controller.v1;
 
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.api.vo.ProductLibraryDTO;
+import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
@@ -39,8 +39,8 @@ public class ProductLibraryController extends BaseController {
 	@Autowired
 	private HarborProjectService harborProjectService;
 
-	@ApiOperation(value = "项目层-制品库库列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层--制品库列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list/{projectId}")
 	public ResponseEntity<List<ProductLibraryDTO>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 
@@ -55,10 +55,25 @@ public class ProductLibraryController extends BaseController {
 		// maven
 		List<NexusRepositoryDTO> nexusRepositoryDTOList = null;
 		try {
-			nexusRepositoryDTOList = nexusRepositoryService.listMavenRepoAll(new NexusRepositoryQueryDTO().setProjectId(projectId), NexusConstants.RepoQueryData.REPO_PROJECT);
+			NexusRepositoryQueryDTO query = new NexusRepositoryQueryDTO();
+			query.setProjectId(projectId);
+			query.setRepoType(NexusConstants.RepoType.MAVEN);
+			nexusRepositoryDTOList = nexusRepositoryService.listRepoAll(query, NexusConstants.RepoQueryData.REPO_PROJECT);
 		} catch (Exception e) {
 			LOGGER.error("query maven error", e);
 			nexusRepositoryDTOList = new ArrayList<>();
+		}
+
+		// NPM
+		List<NexusRepositoryDTO> nexusRepositoryNpmDTOList = null;
+		try {
+			NexusRepositoryQueryDTO query = new NexusRepositoryQueryDTO();
+			query.setProjectId(projectId);
+			query.setRepoType(NexusConstants.RepoType.NPM);
+			nexusRepositoryNpmDTOList = nexusRepositoryService.listRepoAll(query, NexusConstants.RepoQueryData.REPO_PROJECT);
+		} catch (Exception e) {
+			LOGGER.error("query npm error", e);
+			nexusRepositoryNpmDTOList = new ArrayList<>();
 		}
 
 		// 返回
@@ -67,7 +82,10 @@ public class ProductLibraryController extends BaseController {
 			productLibraryDTOList.add(new ProductLibraryDTO(harborRepository));
 		});
 		nexusRepositoryDTOList.forEach(nexusRepositoryDTO -> {
-			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO));
+			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO, NexusConstants.RepoType.MAVEN));
+		});
+		nexusRepositoryNpmDTOList.forEach(nexusRepositoryDTO -> {
+			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO, NexusConstants.RepoType.NPM));
 		});
 		return Results.success(productLibraryDTOList);
 	}
