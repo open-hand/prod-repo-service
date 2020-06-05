@@ -56,7 +56,7 @@ public interface NexusAuthService {
      * 当前用户权限验证
      * @param repositoryId 仓库Id
      */
-    void validateRoleAuth(Long repositoryId);
+    void validateRoleAuth(Long repositoryId, List<String> validateRoleCode);
 
     /**
      * 创建用户权限-仓库创建与关联时赋权

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Transient;
 import java.util.List;
 
 /**
@@ -27,6 +28,14 @@ public class NexusServerComponent {
 	private String name;
 	@ApiModelProperty(value = "版本")
 	private String version;
+	@ApiModelProperty(value = "创建人")
+	private String createdBy;
+	@ApiModelProperty(value = "创建时间")
+	private String creationDate;
+	@ApiModelProperty(value = "更新时间")
+	private String lastUpdateDate;
+	@ApiModelProperty(value = "拉取时间")
+	private String lastDownloadDate;
 	private List<NexusServerAsset> assets;
 
 	@ApiModelProperty(value = "使用版本")
@@ -40,6 +49,13 @@ public class NexusServerComponent {
 	private String extension;
 
 	private String downloadUrl;
-	private String sha1;
 	private String repositoryUrl;
+
+	@ApiModelProperty(value = "图标")
+	private String creatorImageUrl;
+	@ApiModelProperty(value = "登录名")
+	private String creatorLoginName;
+	@ApiModelProperty(value = "用户名")
+	private String creatorRealName;
+
 }

@@ -63,8 +63,7 @@ public class NexusAuth extends AuditDomain {
         if (this.roleCode.equals(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())
                 || this.roleCode.equals(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode())) {
             this.neRoleId = nexusRole.getNeRoleId();
-        } else if (this.roleCode.equals(NexusConstants.NexusRoleEnum.GUEST.getRoleCode())
-                || this.roleCode.equals(NexusConstants.NexusRoleEnum.LIMITED_GUEST.getRoleCode())) {
+        } else if (this.roleCode.equals(NexusConstants.NexusRoleEnum.GUEST.getRoleCode())) {
             this.neRoleId = nexusRole.getNePullRoleId();
         } else {
             throw new CommonException("权限角色有误");

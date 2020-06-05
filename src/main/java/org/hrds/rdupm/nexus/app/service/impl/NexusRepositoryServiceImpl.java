@@ -380,7 +380,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	private Page<NexusRepositoryDTO> queryNexusRepo(NexusRepositoryQueryDTO queryDTO, PageRequest pageRequest) {
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(queryDTO.getRepoType());
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(queryDTO.getRepoType()));
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
@@ -410,8 +410,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		}
 		if (queryDTO.getDistributedQueryFlag() != null) {
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO -> {
-				if (Objects.equals(queryDTO.getDistributedQueryFlag(), BaseConstants.Flag.NO)) {
-					return Objects.isNull(nexusRepositoryDTO.getRepositoryId());
+				if (Objects.nonNull(queryDTO.getDistributedQueryFlag())) {
+					return Objects.equals(queryDTO.getDistributedQueryFlag(), BaseConstants.Flag.NO) ? Objects.isNull(nexusRepositoryDTO.getRepositoryId()) :
+							Objects.nonNull(nexusRepositoryDTO.getRepositoryId());
 				}
 				return true;
 			}).collect(Collectors.toList());

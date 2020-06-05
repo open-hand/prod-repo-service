@@ -22,9 +22,7 @@ public interface NexusConstants {
 	enum NexusRoleEnum {
 		PROJECT_ADMIN("projectAdmin","项目管理员"),
 		DEVELOPER("developer","开发人员"),
-		GUEST("guest","访客"),
-		//MASTER("master","维护人员"),
-		LIMITED_GUEST("limitedGuest","受限访客");
+		GUEST("guest","访客");
 
 		String roleCode;
 

@@ -74,7 +74,9 @@ public interface NexusApiConstants {
 				ScriptName.CREATE_MAVEN_GROUP,
 				ScriptName.CREATE_NPM_GROUP,
 				ScriptName.CREATE_NPM_HOSTED,
-				ScriptName.CREATE_NPM_PROXY);
+				ScriptName.CREATE_NPM_PROXY,
+				ScriptName.COMPONENT_LIST_QUERY,
+				ScriptName.COMPONENT_DELETE);
 		/**
 		 * 创建maven仓库组   脚本：groovy包下create_maven_group.groovy
 		 */
@@ -97,6 +99,16 @@ public interface NexusApiConstants {
 		 * 创建npm代理仓库  脚本：groovy包下create_npm_proxy.groovy
 		 */
 		String CREATE_NPM_PROXY = ScriptName.SCRIPT_PREFIX + "create_npm_proxy";
+
+		/**
+		 * component查询  脚本：groovy包下 component_list_query.groovy
+		 */
+		String COMPONENT_LIST_QUERY = ScriptName.SCRIPT_PREFIX + "component_list_query";
+
+		/**
+		 * component删除  脚本：groovy包下 delete_component.groovy
+		 */
+		String COMPONENT_DELETE = ScriptName.SCRIPT_PREFIX + "delete_component";
 	}
 
 	interface ErrorMessage {
