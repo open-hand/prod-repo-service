@@ -2,6 +2,7 @@ package script.nexus
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository
+import org.sonatype.nexus.repository.config.Configuration
 import org.sonatype.nexus.repository.storage.Asset
 import org.sonatype.nexus.repository.storage.Component
 import org.sonatype.nexus.repository.storage.Query
@@ -21,6 +22,22 @@ def format = 'yyyy-MM-dd HH:mm:ss'
 
 Repository repo = repository.repositoryManager.get(param.repositoryName)
 if (repo != null) {
+  List<Repository> repoList = new ArrayList<>()
+  repoList.add(repo)
+
+  // group类型， 处理
+  def type = repo.type.getValue()
+  if ('group' == type) {
+    Configuration configuration = repo.getConfiguration()
+    List<String> memberStrList = configuration.attributes['group']['memberNames'] as List<String>
+    memberStrList.collect {
+      Repository memberRepo = repository.repositoryManager.get(it)
+      if (memberRepo != null) {
+        repoList.add(memberRepo)
+      }
+    }
+  }
+
   def tx = repo.facet(StorageFacet).txSupplier().get()
   try {
     tx.begin()
@@ -29,23 +46,24 @@ if (repo != null) {
     queryBuilder.where(' 1=1')
 
     if (param.name != null) {
-      queryBuilder.and(' name like ').param(this.spliceLike(param.name))
+      queryBuilder.and(' name like ').param(spliceLike(param.name))
     }
     if (param.version != null) {
-      queryBuilder.and(' version like ').param(this.spliceLike(param.version))
+      queryBuilder.and(' version like ').param(spliceLike(param.version))
     }
     if (param.group != null) {
-      queryBuilder.and(' group like ').param(this.spliceLike(param.group))
+      queryBuilder.and(' group like ').param(spliceLike(param.group))
     }
 
     queryBuilder.suffix(' ORDER BY group, name, version ')
-    Iterable<Component> componentIterable = tx.findComponents(queryBuilder.build(), [repo])
+    Iterable<Component> componentIterable = tx.findComponents(queryBuilder.build(), repoList)
 
     componentIterable.collect {
       def componentItem = new ComponentItem()
 
       // Component
       componentItem.repository = param.repositoryName
+      componentItem.repositoryUrl = repo.getUrl()
       componentItem.id = it.getEntityMetadata().getId() == null ? null : it.getEntityMetadata().getId().value
       componentItem.name = it.name()
       componentItem.group = it.group()
@@ -85,8 +103,8 @@ if (repo != null) {
 
     tx.commit()
   } finally {
-      tx.close()
-    }
+    tx.close()
+  }
 }
 
 
@@ -106,6 +124,7 @@ class Result {
 class ComponentItem {
   String id
   String repository
+  String repositoryUrl
   String format
   String group
   String name

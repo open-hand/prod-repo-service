@@ -665,12 +665,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listComponentRepo(Long projectId) {
+	public List<NexusRepositoryDTO> listComponentRepo(Long projectId, String repoType) {
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
 
 		// nexus服务，仓库数据
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT);
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(repoType));
 		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
 			return new ArrayList<>();
 		}
@@ -678,7 +678,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 
 		// 当前项目仓库数据
-		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId, NexusConstants.RepoType.MAVEN);
+		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(projectId, repoType);
 		if (CollectionUtils.isEmpty(repositoryNameList)) {
 			return new ArrayList<>();
 		}
@@ -686,13 +686,23 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
 		repositoryNameList.forEach(repositoryName -> {
 			NexusServerRepository serverRepository = nexusServerRepositoryMap.get(repositoryName);
-			if (serverRepository != null && NexusApiConstants.VersionPolicy.RELEASE.equals(serverRepository.getVersionPolicy())
-					&& NexusApiConstants.RepositoryType.HOSTED.equals(serverRepository.getType())) {
-				// 包上传时，需要限制为RELEASE
-				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
-				nexusRepositoryDTO.setName(repositoryName);
-				resultAll.add(nexusRepositoryDTO);
+			if (NexusConstants.RepoType.MAVEN.equals(repoType)) {
+				if (serverRepository != null && NexusApiConstants.VersionPolicy.RELEASE.equals(serverRepository.getVersionPolicy())
+						&& NexusApiConstants.RepositoryType.HOSTED.equals(serverRepository.getType())) {
+					// 包上传时，需要限制为RELEASE
+					NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+					nexusRepositoryDTO.setName(repositoryName);
+					resultAll.add(nexusRepositoryDTO);
+				}
+			} else if (NexusConstants.RepoType.NPM.equals(repoType)) {
+				if (serverRepository != null && NexusApiConstants.RepositoryType.HOSTED.equals(serverRepository.getType())) {
+					// 包上传时，需要限制为hosted
+					NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+					nexusRepositoryDTO.setName(repositoryName);
+					resultAll.add(nexusRepositoryDTO);
+				}
 			}
+
 		});
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();

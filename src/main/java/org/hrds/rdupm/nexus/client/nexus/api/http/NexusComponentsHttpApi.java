@@ -229,14 +229,16 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	private List<NexusServerComponentInfo> npmComponentGroup(List<NexusServerComponent> componentList) {
 		componentList = componentList.stream().filter(component -> CollectionUtils.isNotEmpty(component.getAssets())).collect(Collectors.toList());
 
-		List<NexusServerRepository> nexusServerRepositories = nexusRepositoryHttpApi.getRepository(null);
-		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositories.stream().collect(Collectors.toMap(NexusServerRepository::getName, k -> k));
+		//List<NexusServerRepository> nexusServerRepositories = nexusRepositoryHttpApi.getRepository(null);
+		//Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositories.stream().collect(Collectors.toMap(NexusServerRepository::getName, k -> k));
 
 
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
-			component.setDownloadUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl() + "/" + component.getAssets().get(0).getPath());
-			component.setRepositoryUrl(nexusServerRepositoryMap.get(component.getRepository()).getUrl());
+			if (component.getRepositoryUrl() != null) {
+				component.setDownloadUrl(component.getRepositoryUrl() + "/" + component.getAssets().get(0).getPath());
+			}
+
 
 			component.setComponentIds(Collections.singletonList(component.getId()));
 

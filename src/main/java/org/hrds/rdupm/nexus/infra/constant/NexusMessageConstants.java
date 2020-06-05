@@ -147,4 +147,9 @@ public interface NexusMessageConstants {
 	 *  制品库创建者的权限信息不允许更新！
 	 */
 	String NEXUS_AUTH_OWNER_NOT_UPDATE = "error.nexus.auth.owner.not.update";
+
+	/**
+	 *  仓库组不允许删除包信息
+	 */
+	String NEXUS_GROUP_NOT_DELETE_COMPONENT = "error.nexus.group.not.delete.component";
 }

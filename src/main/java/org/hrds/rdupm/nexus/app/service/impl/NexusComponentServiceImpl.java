@@ -13,6 +13,7 @@ import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
@@ -221,11 +222,20 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 	@Override
 	public void deleteComponents(Long organizationId, Long projectId, String repositoryName, List<String> componentIds) {
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfo(nexusClient);
+
+		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(repositoryName);
+		if (serverRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		if (serverRepository.getType().equals(NexusApiConstants.RepositoryType.GROUP)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_GROUP_NOT_DELETE_COMPONENT);
+		}
 
 		this.validateAuth(projectId, repositoryName);
 
-		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+
 		if (CollectionUtils.isNotEmpty(componentIds)) {
 			NexusComponentDeleteParam deleteParam = new NexusComponentDeleteParam();
 			deleteParam.setRepositoryName(repositoryName);
