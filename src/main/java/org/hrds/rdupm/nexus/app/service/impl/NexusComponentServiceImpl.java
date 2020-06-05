@@ -122,8 +122,11 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	private void setUserInfoComponentInfo (List<NexusServerComponentInfo> componentInfoList) {
 		Set<String> loginNameList = new HashSet<>();
 		componentInfoList.forEach(componentInfo -> {
+			loginNameList.add(componentInfo.getCreatedBy());
 			loginNameList.addAll(componentInfo.getComponents().stream().map(NexusServerComponent::getCreatedBy).collect(Collectors.toSet()));
 		});
+
+		loginNameList.removeAll(Collections.singleton(null));
 
 		if (CollectionUtils.isNotEmpty(loginNameList)) {
 			Condition condition = new Condition(ProdUser.class);
@@ -135,6 +138,17 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 				Set<Long> userIdSet = prodUserList.stream().map(ProdUser::getUserId).collect(Collectors.toSet());
 				Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
 				componentInfoList.forEach(componentInfo -> {
+
+					UserDTO componentInfoUserDTO = prodUserMap.get(componentInfo.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(componentInfo.getCreatedBy()).getUserId());
+					if (componentInfoUserDTO != null) {
+						componentInfo.setCreatorImageUrl(componentInfoUserDTO.getImageUrl());
+						componentInfo.setCreatorLoginName(componentInfoUserDTO.getLoginName());
+						componentInfo.setCreatorRealName(componentInfoUserDTO.getRealName());
+					} else {
+						componentInfo.setCreatorLoginName(componentInfo.getCreatedBy());
+						componentInfo.setCreatorRealName(componentInfo.getCreatedBy());
+					}
+
 					componentInfo.getComponents().forEach(component -> {
 						UserDTO userDTO = prodUserMap.get(component.getCreatedBy()) == null ? null : userDtoMap.get(prodUserMap.get(component.getCreatedBy()).getUserId());
 						if (userDTO != null) {
@@ -207,19 +221,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 	@Override
 	public void deleteComponents(Long organizationId, Long projectId, String repositoryName, List<String> componentIds) {
-		NexusRepository query = new NexusRepository();
-		query.setProjectId(projectId);
-		query.setNeRepositoryName(repositoryName);
-		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
-		if (nexusRepository == null) {
-			throw new CommonException(NexusMessageConstants.NEXUS_NOT_DELETE_COMPONENT);
-		}
-		// 校验
-		List<String> validateRoleCode = new ArrayList<>();
-		validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
-		validateRoleCode.add(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode());
-		nexusAuthService.validateRoleAuth(nexusRepository.getRepositoryId(), validateRoleCode);
 
+		this.validateAuth(projectId, repositoryName);
 
 		// 设置并返回当前nexus服务信息
 		configService.setNexusInfo(nexusClient);
@@ -237,6 +240,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	public void componentsUpload(Long organizationId, Long projectId,
 								 NexusServerComponentUpload componentUpload,
 								 MultipartFile assetJar, MultipartFile assetPom) {
+		this.validateAuth(projectId, componentUpload.getRepositoryName());
+
 		// 设置并返回当前nexus服务信息
 		configService.setCurrentNexusInfo(nexusClient);
 		try (
@@ -272,6 +277,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 	@Override
 	public void npmComponentsUpload(Long organizationId, Long projectId, String repositoryName, MultipartFile assetTgz) {
+
+		this.validateAuth(projectId, repositoryName);
+
 		// 设置并返回当前nexus服务信息
 		configService.setCurrentNexusInfo(nexusClient);
 		try (
@@ -290,6 +298,21 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			nexusClient.removeNexusServerInfo();
 		}
 
+	}
+
+	private void validateAuth(Long projectId, String repositoryName) {
+		NexusRepository query = new NexusRepository();
+		query.setProjectId(projectId);
+		query.setNeRepositoryName(repositoryName);
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
+		if (nexusRepository == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_NOT_DELETE_COMPONENT);
+		}
+		// 校验
+		List<String> validateRoleCode = new ArrayList<>();
+		validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+		validateRoleCode.add(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode());
+		nexusAuthService.validateRoleAuth(nexusRepository.getRepositoryId(), validateRoleCode);
 	}
 
 	@Override

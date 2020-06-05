@@ -175,7 +175,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			String key = component.getRepository() + path;
 			if (componentInfoMap.get(key) == null) {
 				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
-				BeanUtils.copyProperties(component, componentInfo);
+				BeanUtils.copyProperties(component, componentInfo, NexusServerComponentInfo.FIELD_CREATE_BY,
+						NexusServerComponentInfo.FIELD_CREATION_DATE, NexusServerComponentInfo.FIELD_LAST_DOWNLOAD_DATE);
 				componentInfo.setPath(path);
 
 				List<NexusServerComponent> components = new ArrayList<>();
@@ -206,6 +207,10 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 				if (nexusServerComponent.getVersion().equals(nexusServerComponent.getUseVersion())) {
 					// 版本相同时，不用再有下级； 如 RELEASE 版本的jar包
 					componentInfo.setComponents(new ArrayList<>());
+					// RELEASE包  外层需要以下字段
+					componentInfo.setCreatedBy(nexusServerComponent.getCreatedBy());
+					componentInfo.setLastDownloadDate(nexusServerComponent.getLastDownloadDate());
+					componentInfo.setCreationDate(nexusServerComponent.getCreationDate());
 				}
 			}
 			// 设置Id
@@ -239,7 +244,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			String key = component.getName();
 			if (componentInfoMap.get(key) == null) {
 				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
-				BeanUtils.copyProperties(component, componentInfo);
+				BeanUtils.copyProperties(component, componentInfo, NexusServerComponentInfo.FIELD_CREATE_BY,
+						NexusServerComponentInfo.FIELD_CREATION_DATE, NexusServerComponentInfo.FIELD_LAST_DOWNLOAD_DATE);
 
 				List<NexusServerComponent> components = new ArrayList<>();
 				components.add(component);
