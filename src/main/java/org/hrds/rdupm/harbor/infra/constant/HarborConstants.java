@@ -215,7 +215,12 @@ public interface HarborConstants {
 
 		GET_PROJECT_ALL_ROBOTS("/api/projects/%s/robots", HttpMethod.GET, "查询项目的所有机器人账户-项目ID"),
 
-		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID");
+		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID"),
+
+        /**
+         * 自定义仓库API
+         * */
+        CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息");
 
 		String apiUrl;
 
