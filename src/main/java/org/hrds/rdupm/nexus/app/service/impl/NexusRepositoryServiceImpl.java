@@ -410,8 +410,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		}
 		if (queryDTO.getDistributedQueryFlag() != null) {
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO -> {
-				if (Objects.equals(queryDTO.getDistributedQueryFlag(), BaseConstants.Flag.NO)) {
-					return Objects.isNull(nexusRepositoryDTO.getRepositoryId());
+				if (Objects.nonNull(queryDTO.getDistributedQueryFlag())) {
+					return Objects.equals(queryDTO.getDistributedQueryFlag(), BaseConstants.Flag.NO) ? Objects.isNull(nexusRepositoryDTO.getRepositoryId()) :
+							Objects.nonNull(nexusRepositoryDTO.getRepositoryId());
 				}
 				return true;
 			}).collect(Collectors.toList());
