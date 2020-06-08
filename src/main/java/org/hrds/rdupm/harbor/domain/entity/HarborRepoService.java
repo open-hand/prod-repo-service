@@ -77,8 +77,7 @@ public class HarborRepoService extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 	public HarborRepoService(){}
-	public HarborRepoService(@NotNull Long customRepoId, Long appServiceId, Long projectId, Long organizationId) {
-		this.customRepoId = customRepoId;
+	public HarborRepoService(Long appServiceId, Long projectId, Long organizationId) {
 		this.appServiceId = appServiceId;
 		this.projectId = projectId;
 		this.organizationId = organizationId;

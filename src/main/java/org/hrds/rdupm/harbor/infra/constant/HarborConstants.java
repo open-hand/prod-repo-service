@@ -222,7 +222,9 @@ public interface HarborConstants {
         /**
          * 自定义仓库API
          * */
-        CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息");
+        CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息"),
+
+        GET_SYSTEM_INFO("/api/systeminfo", HttpMethod.GET, "查询当前系统信息");
 
 		String apiUrl;
 

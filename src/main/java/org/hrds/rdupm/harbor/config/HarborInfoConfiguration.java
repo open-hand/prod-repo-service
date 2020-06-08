@@ -22,8 +22,4 @@ public class HarborInfoConfiguration {
 
 	private String password;
 
-	private String ip;
-
-	private String domain;
-
 }

@@ -1,4 +1,4 @@
-package org.hrds.rdupm.harbor.config;
+package org.hrds.rdupm.init.config;
 
 import lombok.Getter;
 import lombok.Setter;
