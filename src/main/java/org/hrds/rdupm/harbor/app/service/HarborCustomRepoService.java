@@ -60,6 +60,15 @@ public interface HarborCustomRepoService {
      */
     void relateServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo, Set<Long> appServiceIds);
 
+    /**
+     * 查询当前自定义仓库未关联的应用服务
+     *
+     * @param repoId
+     * @author mofei.li@hand-china.com 2020-06-05 15:06
+     * @return
+     */
+    List<AppServiceDTO> getNoRelatedAppService(Long repoId);
+
     /***
      * 项目层-查询关联应用服务列表
      * @param projectId 猪齿鱼项目ID

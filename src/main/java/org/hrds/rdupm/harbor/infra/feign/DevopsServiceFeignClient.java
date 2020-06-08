@@ -26,8 +26,8 @@ public interface DevopsServiceFeignClient {
     @PostMapping(value = "/v1/projects/{project_id}/app_service/page_by_options")
     ResponseEntity<Page<AppServiceDTO>> pageByOptions(@PathVariable(value = "project_id") Long projectId,
                                                       @RequestParam(value = "doPage", required = false) Boolean doPage,
-                                                      @RequestParam(required = false) Integer page,
-                                                      @RequestParam(required = false) Integer size,
+                                                      @RequestParam(value = "page", required = false) Integer page,
+                                                      @RequestParam(value = "size", required = false) Integer size,
                                                       @RequestBody(required = false) String params);
 
     /**
@@ -48,7 +48,7 @@ public interface DevopsServiceFeignClient {
      */
     @PostMapping(value = "/v1/projects/{project_id}/app_service/list_app_service_ids")
     ResponseEntity<Page<AppServiceDTO>> listAppServiceByIds(@PathVariable(value = "project_id") Long projectId,
-                                                            @RequestParam Set<Long> ids,
+                                                            @RequestParam(value = "ids") Set<Long> ids,
                                                             @RequestParam(value = "doPage", required = false) Boolean doPage,
                                                             @RequestParam(value = "with_version", required = false) Boolean withVersion,
                                                             @RequestBody(required = false) String params);
