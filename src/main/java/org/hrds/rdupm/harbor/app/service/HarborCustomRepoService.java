@@ -6,6 +6,7 @@ import java.util.Set;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 
@@ -48,6 +49,12 @@ public interface HarborCustomRepoService {
      * @return
      */
     HarborCustomRepo detailByRepoId(Long repoId);
+
+    /***
+     * 项目层-创建时查询项目下所有应用服务
+     * @param projectId 猪齿鱼项目ID
+     */
+    List<AppServiceDTO> listAllAppServiceByCreate(Long projectId);
 
     /***
      * 项目层-创建自定义镜像仓库
@@ -117,13 +124,14 @@ public interface HarborCustomRepoService {
     List<HarborCustomRepo> listAllCustomRepoByProject(Long projectId);
 
     /**
-     * 查询应用服务已关联的自定义仓库
+     * 查询应用服务已关联的自定义仓库，不存在则返回所在项目的默认仓库
      *
+     * @param projectId 猪齿鱼项目ID
      * @param appServiceId 应用服务ID
      * @author mofei.li@hand-china.com 2020-06-08 16:49
-     * @return List<HarborCustomRepo>
+     * @return HarborRepoDTO
      */
-    List<HarborCustomRepo> listRelatedCustomRepoByService(Long appServiceId);
+    HarborRepoDTO listRelatedCustomRepoOrDefaultByService(Long projectId, Long appServiceId);
 
 
     /**
