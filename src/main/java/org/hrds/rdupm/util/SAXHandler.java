@@ -27,11 +27,14 @@ public class SAXHandler extends DefaultHandler {
 
     private Stack<String> stack;
 
+    private String currentContent;
+
     SAXHandler() {
         this.groupIdCount = 0;
         this.artifactIdCount = 0;
         this.versionCount = 0;
         this.stack = new Stack<>();
+        this.currentContent = StringUtils.EMPTY;
     }
 
     private static final String GROUP_ID_TAG = "groupId";
@@ -61,11 +64,35 @@ public class SAXHandler extends DefaultHandler {
     }
 
     @Override
+    public void characters (char[] ch, int start, int length) throws SAXException {
+        String content = new String(ch, start, length);
+        String currentNode = this.stack.empty() ? null : this.stack.pop();
+        if (StringUtils.isEmpty(currentNode)) {
+            return;
+        }
+
+        if (StringUtils.equalsAny(currentNode, GROUP_ID_TAG, ARTIFACT_ID_TAG, VERSION_TAG)) {
+            String parent = this.stack.empty() ? null : this.stack.peek();
+            if (StringUtils.equals(parent, PROJECT_TAG)) {
+                this.currentContent = content;
+            }
+        }
+        this.stack.push(currentNode);
+    }
+
+    @Override
     public void endElement (String uri, String localName, String qName) throws SAXException{
         String poppedElement = this.stack.empty() ? null : this.stack.pop();
         if (!StringUtils.equals(qName, poppedElement)) {
             throw new SAXException();
         }
+
+        String parent = this.stack.empty() ? null : this.stack.peek();
+        if (StringUtils.equalsAny(poppedElement, GROUP_ID_TAG, ARTIFACT_ID_TAG, VERSION_TAG) &&
+                StringUtils.isEmpty(currentContent) && StringUtils.equals(parent, PROJECT_TAG)) {
+            throw new SAXException();
+        }
+        this.currentContent = StringUtils.EMPTY;
     }
 
     public void checkCount() throws XMLCountException {
