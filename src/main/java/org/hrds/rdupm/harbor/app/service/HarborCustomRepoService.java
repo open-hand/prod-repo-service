@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 
@@ -21,13 +23,22 @@ public interface HarborCustomRepoService {
     Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo);
 
     /**
-     * 根据项目ID查询自定义仓库信息
+     * 项目层-查询自定义仓库列表（制品库管理页面）
      *
      * @param projectId
      * @author mofei.li@hand-china.com 2020-06-05 14:30
      * @return
      */
-    List<HarborCustomRepo> listByProjectId(Long projectId);
+    List<HarborCustomRepoDTO> listByProjectId(Long projectId);
+
+    /**
+     * 组织层-查询自定义仓库列表
+     *
+     * @param harborCustomRepo
+     * @author mofei.li@hand-china.com 2020-06-08 13:45
+     * @return
+     */
+    Page<HarborCustomRepo> listByOrg(HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
 
     /**
      * 根据自定义仓库ID查询详情
@@ -46,6 +57,13 @@ public interface HarborCustomRepoService {
     void createByProject(Long projectId, HarborCustomRepo harborCustomRepo);
 
     /***
+     * 项目层-修改自定义镜像仓库
+     * @param projectId 猪齿鱼项目ID
+     * @param harborCustomRepo 自定义镜像仓库信息
+     */
+    void updateByProject(Long projectId, HarborCustomRepo harborCustomRepo);
+
+    /***
      * 项目层-删除自定义镜像仓库
      * @param projectId 猪齿鱼项目ID
      * @param harborCustomRepo 自定义镜像仓库信息
@@ -56,7 +74,7 @@ public interface HarborCustomRepoService {
      * 项目层-关联应用服务
      * @param projectId 猪齿鱼项目ID
      * @param harborCustomRepo 自定义镜像仓库信息
-     * @param appServiceIds
+     * @param appServiceIds 关联应用服务id
      */
     void relateServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo, Set<Long> appServiceIds);
 
@@ -73,15 +91,47 @@ public interface HarborCustomRepoService {
      * 项目层-查询关联应用服务列表
      * @param projectId 猪齿鱼项目ID
      * @param harborCustomRepo 自定义镜像仓库信息
+     * @param pageRequest
      * @return Page<AppServiceDTO>
      */
-    Page<AppServiceDTO> pageRelatedService(Long projectId, HarborCustomRepo harborCustomRepo);
-
+    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
 
     /***
-     * 组织层-创建自定义镜像仓库
+     * 组织层-查询关联应用服务列表
      * @param organizationId 猪齿鱼组织ID
      * @param harborCustomRepo 自定义镜像仓库信息
+     * @param pageRequest
+     * @return Page<AppServiceDTO>
      */
-    void createByOrg(Long organizationId, HarborCustomRepo harborCustomRepo);
+    Page<AppServiceDTO> pageRelatedServiceByOrg(Long organizationId, HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
+
+
+    //--------------------------------------  提供给猪齿鱼应用服务调用   -------------------------------------//
+    /**
+     * 查询项目下所有猪齿鱼应用服务
+     *
+     * @param projectId 猪齿鱼项目ID
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
+     * @return List<HarborCustomRepo>
+     */
+    List<HarborCustomRepo> listAllCustomRepoByProject(Long projectId);
+
+    /**
+     * 查询应用服务已关联的自定义仓库
+     *
+     * @param appServiceId 应用服务ID
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
+     * @return List<HarborCustomRepo>
+     */
+    List<HarborCustomRepo> listRelatedCustomRepoByService(Long appServiceId);
+
+
+    /**
+     * 查询应用服务未关联的自定义仓库
+     *
+     * @param appServiceId 应用服务ID
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
+     * @return List<HarborCustomRepo>
+     */
+    List<HarborCustomRepo> listUnRelatedCustomRepoByService(Long appServiceId);
 }
