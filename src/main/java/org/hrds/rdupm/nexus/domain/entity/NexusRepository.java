@@ -38,6 +38,7 @@ public class NexusRepository extends AuditDomain {
     public static final String FIELD_ALLOW_ANONYMOUS = "allowAnonymous";
     public static final String FIELD_TENANT_ID = "tenantId";
 	public static final String FIELD_REPO_TYPE = "repoType";
+    public static final String FIELD_ENABLE_FLAG = "enableFlag";
 
     //
     // 业务方法(按public protected private顺序排列)
@@ -74,6 +75,8 @@ public class NexusRepository extends AuditDomain {
 	@ApiModelProperty(value = "制品库类型")
 	@NotNull
 	private String repoType;
+    @ApiModelProperty(value = "仓库是否启用")
+    private String enableFlag;
 
 	@Transient
 	private String creatorImageUrl;

@@ -160,4 +160,19 @@ public interface NexusMessageConstants {
 	 * pom文件缺少必要标签
 	 */
 	String POM_XML_TAG_MISS = "error.xml.pom.tag.miss";
+
+	/**
+	 * 仓库已经启用，不能做多次操作
+	 */
+	String NEXUS_REPO_IS_ENABLE = "error.nexus.repo.is.enable";
+	/**
+	 * 仓库已经失效，不能做多次操作
+	 */
+	String NEXUS_REPO_IS_DISABLE = "error.nexus.repo.is.disable";
+	/**
+	 * 参数错误
+	 */
+	String NEXUS_PARAM_ERROR = "error.nexus.param.error";
+
+
 }

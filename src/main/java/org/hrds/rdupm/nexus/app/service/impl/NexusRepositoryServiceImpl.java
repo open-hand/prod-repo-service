@@ -34,6 +34,7 @@ import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.omg.CORBA.COMM_FAILURE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -826,5 +827,41 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	@Saga(code = NexusSagaConstants.NexusRepoEnableAndDisable.NEXUS_REPO_ENABLE_AND_DISABLE,
+			description = "项目层-nexus仓库生效与失效",
+			inputSchemaClass = NexusRepository.class)
+	public void nexusRepoEnableAndDisAble(Long organizationId, Long projectId, Long repositoryId, String enableFlag) {
+		NexusRepository repository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+		if (repository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+
+		if (enableFlag.equals(NexusConstants.Flag.Y)) {
+			if (repository.getEnableFlag().equals(enableFlag)) {
+				throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_ENABLE);
+			}
+
+		} else if (enableFlag.equals(NexusConstants.Flag.N)) {
+			if (repository.getEnableFlag().equals(enableFlag)) {
+				throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_DISABLE);
+			}
+		} else {
+			throw new CommonException(NexusMessageConstants.NEXUS_PARAM_ERROR);
+		}
+
+		repository.setEnableFlag(enableFlag);
+		producer.apply(StartSagaBuilder.newBuilder()
+						.withSagaCode(NexusSagaConstants.NexusRepoEnableAndDisable.NEXUS_REPO_ENABLE_AND_DISABLE)
+						.withLevel(ResourceLevel.PROJECT)
+						.withRefType("nexusRepoEnableAndDisAble")
+						.withSourceId(projectId),
+				startSagaBuilder -> {
+					nexusRepositoryRepository.updateOptional(repository, NexusRepository.FIELD_ENABLE_FLAG);
+					startSagaBuilder.withPayloadAndSerialize(repository).withSourceId(repository.getRepositoryId());
+				});
 	}
 }
