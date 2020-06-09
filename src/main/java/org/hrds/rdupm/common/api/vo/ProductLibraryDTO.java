@@ -89,6 +89,8 @@ public class ProductLibraryDTO extends AuditDomain {
 	private String url;
 	@ApiModelProperty(value = "是否允许匿名访问")
 	private Integer allowAnonymous;
+	@ApiModelProperty(value = "仓库是否启用")
+	private String enableFlag;
 
 
 	public ProductLibraryDTO() {
