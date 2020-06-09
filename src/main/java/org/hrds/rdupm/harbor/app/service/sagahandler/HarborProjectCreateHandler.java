@@ -51,9 +51,6 @@ public class HarborProjectCreateHandler {
 	private HarborHttpClient harborHttpClient;
 
 	@Autowired
-	private C7nBaseService c7nBaseService;
-
-	@Autowired
 	private HarborAuthService harborAuthService;
 
 	@Autowired
@@ -74,8 +71,17 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String createProjectUserSaga(String message){
-		String userName = DetailsHelper.getUserDetails().getUsername();
-		Long userId = DetailsHelper.getUserDetails().getUserId();
+		HarborProjectVo harborProjectVo = null;
+		try {
+			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
+		UserDTO userDTO = harborProjectVo.getUserDTO();
+		String userName = userDTO.getLoginName();
+		Long userId = userDTO.getId();
+		String email = userDTO.getEmail();
+		String realName = userDTO.getRealName();
 
 		//数据库插入制品库用户
 		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
@@ -91,7 +97,7 @@ public class HarborProjectCreateHandler {
 
 		//Harbor中新建用户
 		if(userMap.get(userName) == null){
-			User user = new User(DetailsHelper.getUserDetails().getUsername(),DetailsHelper.getUserDetails().getEmail(),password,DetailsHelper.getUserDetails().getRealName());
+			User user = new User(userName,email,password,realName);
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 		}
 
@@ -101,13 +107,14 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectRepoSaga(String message) throws JsonProcessingException {
-		String userName = DetailsHelper.getUserDetails().getUsername();
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
+		UserDTO userDTO = harborProjectVo.getUserDTO();
+		String userName = userDTO.getLoginName();
 
 		//创建Harbor项目
 		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
@@ -153,21 +160,26 @@ public class HarborProjectCreateHandler {
 	}
 
 
-	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存用户权限",
+	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存创建者权限到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectAuthSaga(String message){
-		Long userId = DetailsHelper.getUserDetails().getUserId();
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
+		UserDTO userDTO = harborProjectVo.getUserDTO();
+		String userName = userDTO.getLoginName();
+		Long userId = userDTO.getId();
+		String realName = userDTO.getRealName();
 		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
 
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setUserId(userId);
+		harborAuth.setLoginName(userName);
+		harborAuth.setRealName(realName);
 		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
 		try {
 			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));

@@ -113,6 +113,8 @@ public class IamSagaHandler {
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setUserId(userDTO.getId());
+		harborAuth.setLoginName(userDTO.getLoginName());
+		harborAuth.setRealName(userDTO.getRealName());
 		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
 		try {
 			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));

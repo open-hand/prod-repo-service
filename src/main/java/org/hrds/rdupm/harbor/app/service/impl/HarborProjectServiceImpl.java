@@ -97,6 +97,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		String code = DetailsHelper.getUserDetails().getTenantNum() + "-" + projectDTO.getCode();
 		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
+		harborProjectVo.setUserDTO(new UserDTO(DetailsHelper.getUserDetails()));
 
 		//校验项目是否已经存在、校验数据正确性
 		checkParam(harborProjectVo);
