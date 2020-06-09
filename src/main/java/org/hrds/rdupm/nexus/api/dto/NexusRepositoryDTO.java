@@ -2,6 +2,8 @@ package org.hrds.rdupm.nexus.api.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.mybatis.domian.SecurityToken;
@@ -16,6 +18,8 @@ import java.util.Objects;
  * @author weisen.yang@hand-china.com 2020/3/30
  */
 @ApiModel("仓库信息")
+@Getter
+@Setter
 public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusRepositoryDTO> {
 	private String _token;
 
@@ -39,6 +43,7 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 			this.creatorImageUrl = nexusRepository.getCreatorImageUrl();
 			this.creatorLoginName = nexusRepository.getCreatorLoginName();
 			this.creatorRealName = nexusRepository.getCreatorRealName();
+			this.enableFlag = nexusRepository.getEnableFlag();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -71,6 +76,8 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	private String url;
 	@ApiModelProperty(value = "是否允许匿名访问")
 	private Integer allowAnonymous;
+	@ApiModelProperty(value = "仓库是否启用")
+	private String enableFlag;
 
 	@ApiModelProperty(value = "存储器")
 	private String blobStoreName;
@@ -102,214 +109,6 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	private String creatorRealName;
 	@ApiModelProperty(value = "项目图标")
 	private String projectImgUrl;
-
-	public Long getRepositoryId() {
-		return repositoryId;
-	}
-
-	public NexusRepositoryDTO setRepositoryId(Long repositoryId) {
-		this.repositoryId = repositoryId;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public NexusRepositoryDTO setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public NexusRepositoryDTO setType(String type) {
-		this.type = type;
-		return this;
-	}
-
-	public String getVersionPolicy() {
-		return versionPolicy;
-	}
-
-	public NexusRepositoryDTO setVersionPolicy(String versionPolicy) {
-		this.versionPolicy = versionPolicy;
-		return this;
-	}
-
-	public Boolean getOnline() {
-		return online;
-	}
-
-	public NexusRepositoryDTO setOnline(Boolean online) {
-		this.online = online;
-		return this;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public NexusRepositoryDTO setUrl(String url) {
-		this.url = url;
-		return this;
-	}
-
-	public Integer getAllowAnonymous() {
-		return allowAnonymous;
-	}
-
-	public NexusRepositoryDTO setAllowAnonymous(Integer allowAnonymous) {
-		this.allowAnonymous = allowAnonymous;
-		return this;
-	}
-
-	public String getBlobStoreName() {
-		return blobStoreName;
-	}
-
-	public NexusRepositoryDTO setBlobStoreName(String blobStoreName) {
-		this.blobStoreName = blobStoreName;
-		return this;
-	}
-
-	public List<String> getRepoMemberList() {
-		return repoMemberList;
-	}
-
-	public NexusRepositoryDTO setRepoMemberList(List<String> repoMemberList) {
-		this.repoMemberList = repoMemberList;
-		return this;
-	}
-
-	public String getRemoteUrl() {
-		return remoteUrl;
-	}
-
-	public NexusRepositoryDTO setRemoteUrl(String remoteUrl) {
-		this.remoteUrl = remoteUrl;
-		return this;
-	}
-
-	public String getRemoteUsername() {
-		return remoteUsername;
-	}
-
-	public NexusRepositoryDTO setRemoteUsername(String remoteUsername) {
-		this.remoteUsername = remoteUsername;
-		return this;
-	}
-
-	public String getRemotePassword() {
-		return remotePassword;
-	}
-
-	public NexusRepositoryDTO setRemotePassword(String remotePassword) {
-		this.remotePassword = remotePassword;
-		return this;
-	}
-
-	public String getWritePolicy() {
-		return writePolicy;
-	}
-
-	public NexusRepositoryDTO setWritePolicy(String writePolicy) {
-		this.writePolicy = writePolicy;
-		return this;
-	}
-
-	public String getProjectName() {
-		return projectName;
-	}
-
-	public NexusRepositoryDTO setProjectName(String projectName) {
-		this.projectName = projectName;
-		return this;
-	}
-
-	public Long getProjectId() {
-		return projectId;
-	}
-
-	public NexusRepositoryDTO setProjectId(Long projectId) {
-		this.projectId = projectId;
-		return this;
-	}
-
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public NexusRepositoryDTO setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-		return this;
-	}
-
-	public Long getCreatedBy() {
-		return createdBy;
-	}
-
-	public NexusRepositoryDTO setCreatedBy(Long createdBy) {
-		this.createdBy = createdBy;
-		return this;
-	}
-
-	public Date getCreationDate() {
-		return creationDate;
-	}
-
-	public NexusRepositoryDTO setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
-		return this;
-	}
-
-	public String getCreatorImageUrl() {
-		return creatorImageUrl;
-	}
-
-	public NexusRepositoryDTO setCreatorImageUrl(String creatorImageUrl) {
-		this.creatorImageUrl = creatorImageUrl;
-		return this;
-	}
-
-	public String getCreatorLoginName() {
-		return creatorLoginName;
-	}
-
-	public NexusRepositoryDTO setCreatorLoginName(String creatorLoginName) {
-		this.creatorLoginName = creatorLoginName;
-		return this;
-	}
-
-	public String getCreatorRealName() {
-		return creatorRealName;
-	}
-
-	public NexusRepositoryDTO setCreatorRealName(String creatorRealName) {
-		this.creatorRealName = creatorRealName;
-		return this;
-	}
-
-	public String getProjectImgUrl() {
-		return projectImgUrl;
-	}
-
-	public NexusRepositoryDTO setProjectImgUrl(String projectImgUrl) {
-		this.projectImgUrl = projectImgUrl;
-		return this;
-	}
-
-	@Override
-	public String get_token() {
-		return _token;
-	}
-
-	@Override
-	public void set_token(String _token) {
-		this._token = _token;
-	}
 
 	@Override
 	public Class<? extends SecurityToken> associateEntityClass() {
