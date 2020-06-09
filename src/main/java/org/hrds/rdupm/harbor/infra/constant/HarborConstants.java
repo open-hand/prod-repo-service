@@ -71,6 +71,8 @@ public interface HarborConstants {
 
 		String CREATE_PROJECT_AUTH = "rdupm-docker-repo-create.auth";
 
+		String ROBOT_SAGA_TASK_CODE = "rdupm-docker-robot-create";
+
 		/**
 		* 更新Docke仓库
 		* */
@@ -218,6 +220,8 @@ public interface HarborConstants {
 		GET_PROJECT_ALL_ROBOTS("/api/projects/%s/robots", HttpMethod.GET, "查询项目的所有机器人账户-项目ID"),
 
 		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID"),
+
+		DELETE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.DELETE, "删除指定ID的机器人账户-项目ID、机器人账户ID"),
 
         /**
          * 自定义仓库API
@@ -398,7 +402,6 @@ public interface HarborConstants {
 	}
 
 	interface HarborRobot{
-		String ROBOT_SAGA_TASK_CODE = "rdupm-docker-robot-create";
 
 		String ENABLE_FLAG_Y = "Y";
 

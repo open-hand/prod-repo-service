@@ -37,4 +37,12 @@ public interface HarborRobotService {
      */
     List<HarborRobot> getRobotByProjectId(Long projectId, String action);
 
+    /**
+     * 机器人账户失效处理
+     *
+     * @param robot 猪齿鱼项目ID
+     * @return List<HarborRobot>
+     */
+    void robotInvalidProcess(HarborRobot robot);
+
 }

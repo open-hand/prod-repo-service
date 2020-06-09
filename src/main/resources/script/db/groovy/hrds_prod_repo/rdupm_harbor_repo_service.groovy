@@ -1,4 +1,4 @@
-package script.db
+package script.db.groovy.hrds_prod_repo
 
 databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_repo_service.groovy') {
     changeSet(author: "mofei.li@hand-china.com", id: "2020-06-05-rdupm_harbor_repo_service") {
