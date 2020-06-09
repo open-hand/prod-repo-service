@@ -125,15 +125,17 @@ public class HarborProjectCreateHandler {
 		Map<String,Object> paramMap2 = new HashMap<>(3);
 		paramMap2.put("name",harborProjectVo.getCode());
 		paramMap2.put("public",harborProjectVo.getPublicFlag());
-		paramMap2.put("owner",userName);
+//		paramMap2.put("owner",userName);
 		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,paramMap2,null,false);
 		List<String> projectList= JSONObject.parseArray(projectResponse.getBody(),String.class);
-		Gson gson = new Gson();
-		for(String object : projectList){
-			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
-			if(harborProjectVo.getCode().equals(projectResponseDto.getName())){
-				harborId = projectResponseDto.getHarborId();
-				break;
+		if(CollectionUtils.isNotEmpty(projectList)){
+			Gson gson = new Gson();
+			for(String object : projectList){
+				HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
+				if(harborProjectVo.getCode().equals(projectResponseDto.getName())){
+					harborId = projectResponseDto.getHarborId();
+					break;
+				}
 			}
 		}
 		if(harborId == null){
