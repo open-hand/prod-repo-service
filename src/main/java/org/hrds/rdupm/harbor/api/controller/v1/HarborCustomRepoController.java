@@ -143,6 +143,16 @@ public class HarborCustomRepoController extends BaseController {
         return Results.success(unRelatedServices);
     }
 
+    @ApiOperation(value = "项目层-删除自定义仓库和应用服务关联关系")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @DeleteMapping("/delete-relation/{appServiceId}")
+    public ResponseEntity deleteRelation(@ApiParam(value = "关联应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId,
+                                         @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+        SecurityTokenHelper.validToken(harborCustomRepo);
+        harborCustomRepoService.deleteRelation(appServiceId, harborCustomRepo);
+        return Results.success();
+    }
+
     @ApiOperation(value = "组织层-查询自定义仓库明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/org/{customRepoId}")

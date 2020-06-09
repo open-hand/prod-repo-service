@@ -289,6 +289,23 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
+    public void deleteRelation(Long appServiceId, HarborCustomRepo harborCustomRepo) {
+        List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
+                .andWhere(Sqls.custom().andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, harborCustomRepo.getId()))
+                .andWhere(Sqls.custom().andEqualTo(HarborRepoService.FIELD_APP_SERVICE_ID, appServiceId))
+                .build());
+        if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
+            if (harborRepoServiceList.size() == 1) {
+                harborRepoServiceRepository.deleteByPrimaryKey(harborRepoServiceList.get(0));
+            } else {
+                throw new CommonException("the relation is duplicate");
+            }
+        } else {
+            throw new CommonException("error.harbor.repo.service.relation.not.exist");
+        }
+    }
+
+    @Override
     public Page<AppServiceDTO> pageRelatedServiceByOrg(Long organizationId, HarborCustomRepo harborCustomRepo, PageRequest pageRequest) {
         HarborCustomRepo dbRepo = harborCustomRepoRepository.selectByPrimaryKey(harborCustomRepo.getId());
         if (dbRepo == null) {
