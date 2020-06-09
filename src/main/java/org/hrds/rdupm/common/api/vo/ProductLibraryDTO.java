@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hzero.core.util.UUIDUtils;
@@ -22,6 +23,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	public static final String TYPE_MAVEN = "MAVEN";
 	public static final String TYPE_DOCKER = "DOCKER";
 	public static final String TYPE_NPM = "NPM";
+	public static final String TYPE_DOCKER_CUSTOM = "DOCKER_CUSTOM";
 
 	@ApiModelProperty(value = "行记录唯一Id, UUID")
 	private String uniqueId;
@@ -54,6 +56,19 @@ public class ProductLibraryDTO extends AuditDomain {
 	@ApiModelProperty(value = "镜像数")
 	private Integer repoCount;
 
+	/**
+	 * harbor-customize
+	 */
+	@ApiModelProperty("customRepo, 主键")
+	private Long repoId;
+	@ApiModelProperty(value = "名称")
+	private String repoName;
+	@ApiModelProperty(value = "是否公开访问，默认false")
+	private String repoPublicFlag;
+	@ApiModelProperty(value = "地址")
+	private String repoUrl;
+	@ApiModelProperty(value = "描述")
+	private String repoDescription;
 
 	/**
 	 * maven
@@ -97,6 +112,15 @@ public class ProductLibraryDTO extends AuditDomain {
 		BeanUtils.copyProperties(harborRepository, this);
 		this.name = harborRepository.getCode();
 		this.projectCode = harborRepository.getCode();
+	}
+
+	/**
+	 * @param harborCustomRepoDTO docker自定义仓库数据
+	 */
+	public ProductLibraryDTO(HarborCustomRepoDTO harborCustomRepoDTO) {
+		this.uniqueId = UUIDUtils.generateUUID();
+		this.productType = TYPE_DOCKER_CUSTOM;
+		BeanUtils.copyProperties(harborCustomRepoDTO, this);
 	}
 
 }

@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 制品库-harbor机器人账户表应用服务默认实现
  *
@@ -91,7 +93,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
     }
 
     @Override
-    @SagaTask(code = HarborConstants.HarborRobot.ROBOT_SAGA_TASK_CODE, description = "创建harbor机器人账户",
+    @SagaTask(code = HarborConstants.HarborSagaCode.ROBOT_SAGA_TASK_CODE, description = "创建harbor机器人账户",
             sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT, seq = 4, maxRetryCount = 3, outputSchemaClass = String.class)
     public String generateRobot(String message){
         HarborProjectVo projectVo = new Gson().fromJson(message, HarborProjectVo.class);
@@ -148,20 +150,17 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             throw new CommonException("error.harbor.robot.repository.select", projectId);
         }
         //查询DB机器人账户
-        Date date = new Date();
         List<HarborRobot> harborRobotList;
         if (StringUtils.isEmpty(action)) {
             harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
                     .andWhere(Sqls.custom()
-                            .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
-                            .andGreaterThan(HarborRobot.FIELD_END_DATE, date))
+                            .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId))
                     .build());
         } else if (StringUtils.equalsAny(action, HarborConstants.HarborRobot.ACTION_PULL, HarborConstants.HarborRobot.ACTION_PUSH)) {
             harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
                     .andWhere(Sqls.custom()
                             .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
-                            .andEqualTo(HarborRobot.FIELD_ACTION, action)
-                            .andGreaterThan(HarborRobot.FIELD_END_DATE, date))
+                            .andEqualTo(HarborRobot.FIELD_ACTION, action))
                     .build());
         } else {
             throw new CommonException("error.harbor.robot.action.wrong");
@@ -170,12 +169,63 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         if (CollectionUtils.isNotEmpty(harborRobotList)) {
             for (HarborRobot robot:harborRobotList
             ) {
+                robot.setHarborProjectId(repositoryList.get(0).getHarborId());
                 ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,false, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
                 HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
                 checkRobotInfo(robot, harborRobotVO);
             }
         }
         return harborRobotList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void robotInvalidProcess(HarborRobot robot) {
+        checkRobotParam(robot);
+        //删除原机器人账户
+        if (robot.getHarborRobotId()!= null) {
+            ResponseEntity<String> deleteRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ROBOT,null,null,false, robot.getHarborProjectId(), robot.getHarborRobotId());
+            if (deleteRobotResponseEntity.getStatusCode().is2xxSuccessful()) {
+                //生成新账户
+                String robotResource = String.format(HarborConstants.HarborRobot.ROBOT_RESOURCE, robot.getHarborProjectId());
+                List<HarborRobotAccessVO> accessVOList = new ArrayList<>(1);
+                accessVOList.add(new HarborRobotAccessVO(robot.getAction(), robotResource));
+                String robotName = robot.getName().replace(HarborConstants.HarborRobot.ROBOT_NAME_PREFIX, "");
+                HarborRobotVO createRobotVo  = new HarborRobotVO(robotName, robot.getDescription(), accessVOList);
+                ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT,null,createRobotVo,false, robot.getHarborProjectId());
+                HarborRobotVO newRobotVO = new Gson().fromJson(robotResponseEntity.getBody(), HarborRobotVO.class);
+                AssertUtils.notNull(newRobotVO.getToken(),"the robot response token empty");
+                AssertUtils.notNull(newRobotVO.getName(),"the robot response name empty");
+                AssertUtils.isTrue(robot.getName().equals(newRobotVO.getName()),"the robot name not equal to the new robot");
+                robot.setToken(newRobotVO.getToken());
+
+                //查找所有harbor
+                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_ALL_ROBOTS,null,null,false,robot.getHarborProjectId());
+                List<HarborRobotVO> allRobotVOList = new ArrayList<>();
+                if ( null != allRobotResponseEntity && StringUtils.isNotBlank(allRobotResponseEntity.getBody())) {
+                    allRobotVOList = new Gson().fromJson(allRobotResponseEntity.getBody(),new TypeToken<List<HarborRobotVO>>(){}.getType());
+                }
+                HarborRobotVO robotInfo = allRobotVOList.stream().filter(x->x.getName().equals(robot.getName())).collect(Collectors.toList()).get(0);
+                robot.setEnableFlag(robotInfo.getDisabled() ? HarborConstants.HarborRobot.ENABLE_FLAG_N : HarborConstants.HarborRobot.ENABLE_FLAG_Y);
+                robot.setHarborRobotId(robotInfo.getId());
+                //设置过期时间
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(robotInfo.getExpiresAt() * 1000);
+                Date date = calendar.getTime();
+                SimpleDateFormat format = new SimpleDateFormat(BaseConstants.Pattern.DATETIME);
+                try {
+                    date = format.parse(format.format(date));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                robot.setEndDate(date);
+                harborRobotRepository.updateByPrimaryKeySelective(robot);
+            } else {
+                throw new CommonException("error.harbor.robot.delete.expired");
+            }
+        } else {
+            throw new CommonException("error.harbor.robot.harborRobotId.empty");
+        }
     }
 
     private void checkRobotInfo(HarborRobot robot, HarborRobotVO robotVO) {
@@ -187,6 +237,9 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         }
         if (robotVO.getExpiresAt() * 1000 != robot.getEndDate().getTime()) {
             throw new CommonException("error.harbor.robot.endDate.different");
+        }
+        if ( (robot.getEndDate().getTime() - System.currentTimeMillis()) <= 86400000L) {
+            robotInvalidProcess(robot);
         }
     }
 }
