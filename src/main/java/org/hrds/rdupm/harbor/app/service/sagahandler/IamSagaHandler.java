@@ -68,16 +68,18 @@ public class IamSagaHandler {
 	public String deleteHarborAuth(String payload) {
 		List<IamGroupMemberVO> iamGroupMemberVOList = new Gson().fromJson(payload, new TypeToken<List<IamGroupMemberVO>>() {}.getType());
 		iamGroupMemberVOList.forEach(dto->{
-			//删除权限角色
-			HarborAuth dbAuth = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
-					.where(Sqls.custom()
-									.andEqualTo(HarborAuth.FIELD_PROJECT_ID,dto.getResourceId())
-									.andEqualTo(HarborAuth.FIELD_USER_ID,dto.getUserId())
-					).build()).stream().findFirst().orElse(null);
-			deleteHarborAuth(dbAuth);
+			if("project".equals(dto.getResourceType())){
+				//删除权限角色
+				HarborAuth dbAuth = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
+						.where(Sqls.custom()
+								.andEqualTo(HarborAuth.FIELD_PROJECT_ID,dto.getResourceId())
+								.andEqualTo(HarborAuth.FIELD_USER_ID,dto.getUserId())
+						).build()).stream().findFirst().orElse(null);
+				deleteHarborAuth(dbAuth);
 
-			//选举新的项目管理员角色
-			createNewOwner(dto.getResourceId());
+				//选举新的项目管理员角色
+				createNewOwner(dto.getResourceId());
+			}
 		});
 		return payload;
 	}
