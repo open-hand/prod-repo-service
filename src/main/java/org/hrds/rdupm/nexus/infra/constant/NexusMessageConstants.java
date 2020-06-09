@@ -152,4 +152,12 @@ public interface NexusMessageConstants {
 	 *  仓库组不允许删除包信息
 	 */
 	String NEXUS_GROUP_NOT_DELETE_COMPONENT = "error.nexus.group.not.delete.component";
+	/**
+	 * pom文件格式错误
+	 */
+	String POM_XML_FORMAT_ERROR = "error.xml.invalid.pom";
+	/**
+	 * pom文件缺少必要标签
+	 */
+	String POM_XML_TAG_MISS = "error.xml.pom.tag.miss";
 }

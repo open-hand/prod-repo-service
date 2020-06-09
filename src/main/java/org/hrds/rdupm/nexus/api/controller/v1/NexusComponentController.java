@@ -13,6 +13,7 @@ import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hrds.rdupm.util.XMLValidator;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +105,15 @@ public class NexusComponentController extends BaseController {
 		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
 		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
 		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, assetJar, assetPom);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "pom文件校验")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping("/{organizationId}/pom-validate")
+	public ResponseEntity<?> pomValidate(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+										 @ApiParam(value = "pom文件", required = true) @RequestParam MultipartFile pomXml) {
+		XMLValidator.validXMLDefault(pomXml);
 		return Results.success();
 	}
 
