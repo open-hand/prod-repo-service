@@ -39,8 +39,8 @@ public class HarborCustomRepo extends AuditDomain {
     public static final String FIELD_PROJECT_ID = "projectId";
     public static final String FIELD_ORGANIZATION_ID = "organizationId";
 
-    public static final String FIELD_NAME = "repo_name";
-    public static final String FIELD_URL = "repo_url";
+    public static final String FIELD_REPO_NAME = "repoName";
+    public static final String FIELD_REPO_URL = "repoUrl";
     public static final String FIELD_LOGIN_NAME = "loginName";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
@@ -89,8 +89,7 @@ public class HarborCustomRepo extends AuditDomain {
     private String email;
    @ApiModelProperty(value = "描述")
     private String description;
-    @ApiModelProperty(value = "是否公开访问，默认false",required = true)
-    @NotBlank
+    @ApiModelProperty(value = "是否公开访问，默认false")
     private String publicFlag;
 	//
     // 非数据库字段
@@ -101,6 +100,18 @@ public class HarborCustomRepo extends AuditDomain {
 	private Set<Long> appServiceIds;
 
 
+	@Transient
+    @ApiModelProperty(value = "项目编码")
+    private String projectCode;
+    @Transient
+    @ApiModelProperty(value = "创建人图标")
+    private String creatorImageUrl;
+    @Transient
+    @ApiModelProperty(value = "创建人登录名")
+    private String creatorLoginName;
+    @Transient
+    @ApiModelProperty(value = "创建人名称")
+    private String creatorRealName;
     //
     // getter/setter
     // ------------------------------------------------------------------------------
