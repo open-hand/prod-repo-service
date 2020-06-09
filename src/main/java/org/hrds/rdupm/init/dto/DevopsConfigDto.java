@@ -22,6 +22,7 @@ public class DevopsConfigDto {
 	private Long projectId;
 
 	private String name;
+
 	//harbor
 	private String type;
 
@@ -39,6 +40,10 @@ public class DevopsConfigDto {
 
 	private String publicFlag;
 
+	public DevopsConfigDto(){
+
+	}
+
 	public DevopsConfigDto(Long appServiceId, Long organizationId, Long projectId, String name, String type, String config) {
 		this.appServiceId = appServiceId;
 		this.organizationId = organizationId;
@@ -46,14 +51,23 @@ public class DevopsConfigDto {
 		this.name = name;
 		this.type = type;
 		this.config = config;
+	}
 
+	public void parseConfig(){
 		Map<String,Object> configMap = JSONObject.parseObject(config, Map.class);
 		this.repoUrl = configMap.get("url").toString();
 		this.loginName = configMap.get("userName").toString();
 		this.password = configMap.get("password").toString();
-		this.repoName = configMap.get("project").toString();
+		if(configMap.get("project") != null){
+			this.repoName = configMap.get("project").toString();
+		}else {
+			this.repoName = "project_harbor_default";
+		}
 		this.email = configMap.get("email").toString();
-		this.publicFlag = configMap.get("isPrivate").toString();
-
+		if(configMap.get("isPrivate") != null){
+			this.publicFlag = configMap.get("isPrivate").toString();
+		}else {
+			this.publicFlag = "false";
+		}
 	}
 }

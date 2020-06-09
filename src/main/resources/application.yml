@@ -103,40 +103,42 @@ hzero:
   scheduler:
     autoRegister: false
 
-choerodon:
-  category:
-    enabled: true # 是否开启项目/组织类型控制
-  devops:
-    message: true
-  eureka:
-    event:
-      max-cache-size: 300
-      retry-time: 5
-      retry-interval: 3
-      skip-services: config**, **register-server, **gateway**, zipkin**, hystrix**, oauth**
-  saga:
-    consumer:
-      enabled: true # 启动消费端
-      thread-num: 2 # saga消息消费线程池大小
-      max-poll-size: 200 # 每次拉取消息最大数量
-      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
-  schedule:
-    consumer:
-      enabled: true # 启用任务调度消费端
-      thread-num: 1 # 任务调度消费线程数
-      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
-  cleanPermission: false
+#choerodon:
+#  category:
+#    enabled: true # 是否开启项目/组织类型控制
+#  devops:
+#    message: true
+#  eureka:
+#    event:
+#      max-cache-size: 300
+#      retry-time: 5
+#      retry-interval: 3
+#      skip-services: config**, **register-server, **gateway**, zipkin**, hystrix**, oauth**
+#  saga:
+#    consumer:
+#      enabled: true # 启动消费端
+#      thread-num: 2 # saga消息消费线程池大小
+#      max-poll-size: 200 # 每次拉取消息最大数量
+#      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+#  schedule:
+#    consumer:
+#      enabled: true # 启用任务调度消费端
+#      thread-num: 1 # 任务调度消费线程数
+#      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+#  cleanPermission: false
 
 harbor:
+#  baseUrl: https://registry.staging.saas.hand-china.com
   baseUrl: https://192.168.17.187
-  ip: 192.168.17.187
-  domain: harbor.cn
   username: admin
   password: Harbor12345
   init:
-    url: jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    username: root
-    password: handhand
+    defaultRepoUrl: jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    defaultRepoUsername: root
+    defaultRepoPassword: handhand
+    customRepoUrl: jdbc:mysql://192.168.16.215:3306/devops_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    customRepoUsername: root
+    customRepoPassword: handhand
 
 DesEncrypt:
   # DES 加解密密钥

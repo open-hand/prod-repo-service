@@ -100,6 +100,13 @@ public interface HarborConstants {
 		String UPDATE_PWD_HARBOR = "rdupm-docker-user-update.harbor";
 
 		String UPDATE_PWD_NEXUS = "rdupm-docker-user-update.nexus";
+
+        /**
+         * 创建自定义镜像仓库
+         * */
+        String CREATE_CUSTOMIZE_REPOSITORY = "rdupm-docker-customize-repository-create";
+
+        String CREATE_HARBOR_REGISTRY = "rdupm-docker-harbor-registry-create";
 	}
 
 	enum HarborApiEnum{
@@ -201,7 +208,23 @@ public interface HarborConstants {
 		/**
 		 * 修改密码
 		 * */
-		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID");
+		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID"),
+
+		/**
+		 * 机器人账户API
+		 * */
+		CREATE_ROBOT("/api/projects/%s/robots", HttpMethod.POST, "创建机器人账户-项目ID"),
+
+		GET_PROJECT_ALL_ROBOTS("/api/projects/%s/robots", HttpMethod.GET, "查询项目的所有机器人账户-项目ID"),
+
+		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID"),
+
+        /**
+         * 自定义仓库API
+         * */
+        CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息"),
+
+        GET_SYSTEM_INFO("/api/systeminfo", HttpMethod.GET, "查询当前系统信息");
 
 		String apiUrl;
 
@@ -372,5 +395,23 @@ public interface HarborConstants {
 			}
 			return null;
 		}
+	}
+
+	interface HarborRobot{
+		String ROBOT_SAGA_TASK_CODE = "rdupm-docker-robot-create";
+
+		String ENABLE_FLAG_Y = "Y";
+
+		String ENABLE_FLAG_N = "N";
+
+		String ROBOT = "robot";
+
+		String ACTION_PULL = "pull";
+
+		String ACTION_PUSH = "push";
+
+		String ROBOT_RESOURCE = "/project/%s/repository";
+
+		String ROBOT_NAME_PREFIX = "robot$";
 	}
 }
