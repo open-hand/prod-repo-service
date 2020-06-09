@@ -103,6 +103,15 @@ public interface HarborCustomRepoService {
      */
     Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
 
+    /**
+     * 项目层-删除自定义仓库-应用服务关联关系
+     * @param appServiceId 应用服务ID
+     * @param harborCustomRepo 自定义仓库
+     * @author mofei.li@hand-china.com 2020-06-09 17:47
+     * @return
+     */
+    void deleteRelation(Long appServiceId, HarborCustomRepo harborCustomRepo);
+
     /***
      * 组织层-查询关联应用服务列表
      * @param organizationId 猪齿鱼组织ID
