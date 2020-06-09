@@ -65,7 +65,7 @@ public class SAXHandler extends DefaultHandler {
 
     @Override
     public void characters (char[] ch, int start, int length) throws SAXException {
-        String content = new String(ch, start, length);
+        String content = new String(ch, start, length).trim();
         String currentNode = this.stack.empty() ? null : this.stack.pop();
         if (StringUtils.isEmpty(currentNode)) {
             return;
