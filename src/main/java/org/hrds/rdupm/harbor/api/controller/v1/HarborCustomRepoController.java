@@ -8,6 +8,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
 import org.hzero.core.util.Results;
@@ -64,6 +65,13 @@ public class HarborCustomRepoController extends BaseController {
         return Results.success(harborCustomRepoService.listByOrg(repo, pageRequest));
     }
 
+    @ApiOperation(value = "项目层-创建时查询所有自定义仓库")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/list-all-services/{projectId}")
+    public ResponseEntity<List<AppServiceDTO>> listAllAppServiceByCreate(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId) {
+        return Results.success(harborCustomRepoService.listAllAppServiceByCreate(projectId));
+    }
+
 
     @ApiOperation(value = "项目层-创建harbor自定义镜像仓库")
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -86,7 +94,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/update/{projectId}")
     public ResponseEntity updateByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                            @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+                                          @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.updateByProject(projectId, harborCustomRepo);
         return Results.success();
@@ -154,13 +162,21 @@ public class HarborCustomRepoController extends BaseController {
     }
 
 
-    //暴露给猪齿鱼接口
 
     @ApiOperation(value = "查询项目下所有自定义仓库")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{projectId}/list_all_custom_repo")
+    @GetMapping("/project/{projectId}/list_all_custom_repo")
     public ResponseEntity<List<HarborCustomRepo>> listAllCustomRepoByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId) {
         List<HarborCustomRepo> list = harborCustomRepoService.listAllCustomRepoByProject(projectId);
         return Results.success(list);
+    }
+
+    @ApiOperation(value = "查询应用服务关联的自定义仓库，否则返回默认仓库")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/project/{projectId}/{appServiceId}/list_related_custom_repo_or_default")
+    public ResponseEntity<HarborRepoDTO> listRelatedCustomRepoOrDefaultByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
+                                                                                 @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId) {
+        HarborRepoDTO harborRepoDTO = harborCustomRepoService.listRelatedCustomRepoOrDefaultByService(projectId, appServiceId);
+        return Results.success(harborRepoDTO);
     }
 }
