@@ -18,7 +18,8 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_repository.groovy') {
             column(name: "organization_id", type: "bigint",  remarks: "组织Id")  {constraints(nullable:"false")}  
             column(name: "project_id", type: "bigint",  remarks: "项目id")  {constraints(nullable:"false")}  
             column(name: "allow_anonymous", type: "tinyint",  remarks: "是否允许匿名。1 允许；0 不允许")  {constraints(nullable:"false")}  
-            column(name: "is_related", type: "tinyint",   defaultValue:"0",   remarks: "是否是关联仓库引入的。1 是；0 不是")  {constraints(nullable:"false")}  
+            column(name: "is_related", type: "tinyint",   defaultValue:"0",   remarks: "是否是关联仓库引入的。1 是；0 不是")  {constraints(nullable:"false")}
+            column(name: "enable_flag", type: "varchar(" + 1 * weight + ")",   defaultValue:"Y",   remarks: "是否生效，Y生效/N失效")  {constraints(nullable:"false")}
             column(name: "tenant_id", type: "bigint",   defaultValue:"0",   remarks: "租户Id")   
             column(name: "object_version_number", type: "bigint",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "creation_date", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  

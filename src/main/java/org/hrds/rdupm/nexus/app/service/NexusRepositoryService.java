@@ -134,4 +134,13 @@ public interface NexusRepositoryService {
 	NexusRepositoryCreateDTO repoDistribute(NexusRepositoryCreateDTO nexusRepoCreateDTO);
 
 	String convertRepoTypeToFormat(String repoType);
+
+	/**
+	 * 仓库失效与生效
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param repositoryId 仓库Id
+	 * @param enableFlag 标识
+	 */
+	void nexusRepoEnableAndDisAble(Long organizationId, Long projectId, Long repositoryId, String enableFlag);
 }

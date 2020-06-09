@@ -16,7 +16,7 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_log.groovy') {
             column(name: "operator_id", type: "bigint",  remarks: "操作者ID")  {constraints(nullable:"false")}  
             column(name: "project_id", type: "bigint",  remarks: "猪齿鱼项目ID")  {constraints(nullable:"false")}  
             column(name: "organization_id", type: "bigint",  remarks: "组织ID")  {constraints(nullable:"false")}  
-            column(name: "repository_id", type: "tinyint",  remarks: "rdupm_nexus_repository 表主键")  {constraints(nullable:"false")}  
+            column(name: "repository_id", type: "bigint",  remarks: "rdupm_nexus_repository 表主键")  {constraints(nullable:"false")}
             column(name: "operate_type", type: "varchar(" + 30 * weight + ")",  remarks: "操作类型")  {constraints(nullable:"false")}  
             column(name: "content", type: "varchar(" + 255 * weight + ")",  remarks: "日志内容")  {constraints(nullable:"false")}  
             column(name: "operate_time", type: "datetime",  remarks: "操作时间")  {constraints(nullable:"false")}  

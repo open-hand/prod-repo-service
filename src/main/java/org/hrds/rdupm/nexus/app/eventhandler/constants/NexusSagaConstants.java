@@ -87,4 +87,15 @@ public interface NexusSagaConstants {
 		 */
 		String NEXUS_AUTH_CREATE_USER = "rdupm-maven-auth-create.user";
 	}
+
+	interface NexusRepoEnableAndDisable {
+		/**
+		 * 仓库生效，失效  Saga code
+		 */
+		String NEXUS_REPO_ENABLE_AND_DISABLE = "rdupm-nexus-repo-enable-and-disable";
+		/**
+		 * 分配权限  SagaTask code
+		 */
+		String NEXUS_REPO_ENABLE_AND_DISABLE_AUTH = "rdupm-nexus-repo-enable-and-disable.auth";
+	}
 }

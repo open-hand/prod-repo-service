@@ -9,6 +9,7 @@ import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
@@ -225,5 +226,18 @@ public class NexusRepositoryController extends BaseController {
     public ResponseEntity<NexusGuideDTO> mavenRepoGuide(@ApiParam(value = "仓库名称", required = true) @PathVariable(name = "repositoryName") String repositoryName,
                                                         @ApiParam(value = "showPushFlag 是否返回发布的配置信息") @RequestParam(name = "showPushFlag", defaultValue = "false") Boolean showPushFlag) {
         return Results.success(nexusRepositoryService.mavenRepoGuide(repositoryName, showPushFlag));
+    }
+
+    @ApiOperation(value = "仓库生效/失效")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/{organizationId}/project/{projectId}/enable")
+    public ResponseEntity<?> nexusRepoEnableAndDisAble(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
+                                                                 @ApiParam(value = "失效/启用：N:失效 Y:启用", required = true) @RequestParam(name = "enableFlag") String enableFlag) {
+        AssertUtils.notNull(repositoryId, "repositoryId not null");
+        AssertUtils.notNull(enableFlag, "enableFlag not null");
+        nexusRepositoryService.nexusRepoEnableAndDisAble(organizationId, projectId, repositoryId, enableFlag);
+        return Results.success();
     }
 }
