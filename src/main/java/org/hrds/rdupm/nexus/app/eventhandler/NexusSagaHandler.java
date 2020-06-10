@@ -240,11 +240,20 @@ public class NexusSagaHandler {
 		NexusUser nexusUser = userList.get(0);
 
 		// 用户
+		// 发布用户
+		NexusServerUser nexusServerUser = new NexusServerUser();
+		nexusServerUser.createDefPushUser(nexusRepository.getNeRepositoryName(), nexusRole.getNeRoleId(), nexusUser.getNeUserId());
+		nexusServerUser.setPassword(DESEncryptUtil.decode(nexusUser.getNeUserPassword()));
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
 		pullNexusServerUser.createDefPullUser(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusUser.getNePullUserId());
 		pullNexusServerUser.setPassword(DESEncryptUtil.decode(nexusUser.getNePullUserPassword()));
 
+		// 创建用户
+		List<NexusServerUser> pushExistUserList = nexusClient.getNexusUserApi().getUsers(nexusServerUser.getUserId());
+		if (CollectionUtils.isEmpty(pushExistUserList)) {
+			nexusClient.getNexusUserApi().createUser(nexusServerUser);
+		}
 		// 创建用户
 		List<NexusServerUser> pullExistUserList = nexusClient.getNexusUserApi().getUsers(pullNexusServerUser.getUserId());
 		if (CollectionUtils.isEmpty(pullExistUserList)) {
