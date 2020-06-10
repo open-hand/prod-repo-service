@@ -93,9 +93,9 @@ public class NexusRepositoryCreateDTO {
 				break;
 			case NexusApiConstants.RepositoryType.PROXY:
 				// 创建代理仓库
-				if (StringUtils.isBlank(this.versionPolicy)) {
+				/*if (StringUtils.isBlank(this.versionPolicy)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_VERSION_POLICY_NOT_EMPTY);
-				}
+				}*/
 				if (StringUtils.isBlank(this.remoteUrl)) {
 					throw new CommonException(NexusMessageConstants.NEXUS_REMOTE_URL_NOT_EMPTY);
 				}
