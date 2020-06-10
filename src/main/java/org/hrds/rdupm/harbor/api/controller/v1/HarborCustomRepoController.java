@@ -11,7 +11,6 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
-import org.hrds.rdupm.harbor.infra.util.SecurityTestUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
