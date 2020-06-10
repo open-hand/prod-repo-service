@@ -25,7 +25,6 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
-import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
@@ -354,23 +353,21 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
-    public HarborRepoDTO listRelatedCustomRepoOrDefaultByService(Long projectId, Long appServiceId) {
-        HarborRepoDTO harborRepoDTO = new HarborRepoDTO();
+    public HarborCustomRepo listRelatedCustomRepoOrDefaultByService(Long projectId, Long appServiceId) {
         List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_APP_SERVICE_ID, appServiceId);
         if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
             List<HarborCustomRepo> customRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
                     .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_ID, harborRepoServiceList.get(0).getCustomRepoId()))
                     .build());
-            if (CollectionUtils.isNotEmpty(customRepoList)) {
-                harborRepoDTO.setCustomRepository(customRepoList.get(0));
-                return harborRepoDTO;
+            if (CollectionUtils.isNotEmpty(customRepoList) && customRepoList.size()== 1) {
+                return customRepoList.get(0);
+            } else if (customRepoList.size()>1) {
+                throw new CommonException("error.harbor.repo.service.relation.duplicate");
             } else {
                 throw new CommonException("error.harbor.custom.repo.not.exist");
             }
         } else {
-            List<HarborRepository> repositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID, projectId);
-            harborRepoDTO.setDefaultRepository(repositoryList.get(0));
-            return harborRepoDTO;
+            return null;
         }
     }
 

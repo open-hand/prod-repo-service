@@ -8,7 +8,6 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
-import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
 import org.hzero.core.util.Results;
@@ -181,13 +180,12 @@ public class HarborCustomRepoController extends BaseController {
         return Results.success(list);
     }
 
-    @ApiOperation(value = "应用服务-查询关联的自定义仓库，否则返回默认仓库")
+    @ApiOperation(value = "应用服务-查询关联的自定义仓库")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/project/{projectId}/{appServiceId}/list_related_custom_repo_or_default")
-    public ResponseEntity<HarborRepoDTO> listRelatedCustomRepoOrDefaultByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                                                 @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId) {
-        HarborRepoDTO harborRepoDTO = harborCustomRepoService.listRelatedCustomRepoOrDefaultByService(projectId, appServiceId);
-        return Results.success(harborRepoDTO);
+    @GetMapping("/project/{projectId}/{appServiceId}/list_related_custom_repo")
+    public ResponseEntity<HarborCustomRepo> listRelatedCustomRepoByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
+                                                                           @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId) {
+        return Results.success(harborCustomRepoService.listRelatedCustomRepoOrDefaultByService(projectId, appServiceId));
     }
 
     @ApiOperation(value = "应用服务-保存关联关系")
