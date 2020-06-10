@@ -11,6 +11,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
+import org.hrds.rdupm.harbor.infra.util.SecurityTestUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
@@ -65,7 +66,7 @@ public class HarborCustomRepoController extends BaseController {
         return Results.success(harborCustomRepoService.listByOrg(repo, pageRequest));
     }
 
-    @ApiOperation(value = "项目层-创建时查询所有自定义仓库")
+    @ApiOperation(value = "项目层-创建时查询所有应用服务")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/list-all-services/{projectId}")
     public ResponseEntity<List<AppServiceDTO>> listAllAppServiceByCreate(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId) {

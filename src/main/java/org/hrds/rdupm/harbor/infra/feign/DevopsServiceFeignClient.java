@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author mofei.li@hand-china.com 2020/06/02 17:25
  */
-@FeignClient(value = "devops-service",path = "/choerodon", fallback = DevopsServiceFeignClientFallBack.class)
+@FeignClient(value = "devops-service", fallback = DevopsServiceFeignClientFallBack.class)
 public interface DevopsServiceFeignClient {
     /***
      * 根据项目ID分页查询应用服务
