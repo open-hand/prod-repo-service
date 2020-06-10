@@ -150,12 +150,17 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRoleRepository.insertSelective(nexusRole);
 
 		// 用户
+		// 发布用户
+		NexusServerUser nexusServerUser = new NexusServerUser();
+		nexusServerUser.createDefPushUser(nexusRepoCreateDTO.getName(), nexusServerRole.getId(), null);
 		// 拉取用户
 		NexusServerUser pullNexusServerUser = new NexusServerUser();
 		pullNexusServerUser.createDefPullUser(nexusRepoCreateDTO.getName(), pullNexusServerRole.getId(), null);
 
 		NexusUser nexusUser = new NexusUser();
 		nexusUser.setRepositoryId(nexusRepository.getRepositoryId());
+		nexusUser.setNeUserId(nexusServerUser.getUserId());
+		nexusUser.setNeUserPassword(DESEncryptUtil.encode(nexusServerUser.getPassword()));
 		nexusUser.setNePullUserId(pullNexusServerUser.getUserId());
 		nexusUser.setNePullUserPassword(DESEncryptUtil.encode(pullNexusServerUser.getPassword()));
 		nexusUserRepository.insertSelective(nexusUser);

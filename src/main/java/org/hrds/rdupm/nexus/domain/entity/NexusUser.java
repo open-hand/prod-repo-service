@@ -13,6 +13,8 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.util.AssertUtils;
@@ -28,6 +30,8 @@ import java.util.List;
 @VersionAudit
 @ModifyAudit
 @Table(name = "rdupm_nexus_user")
+@Getter
+@Setter
 public class NexusUser extends AuditDomain {
 
     public static final String FIELD_USER_ID = "userId";
@@ -50,6 +54,10 @@ public class NexusUser extends AuditDomain {
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
     private Long repositoryId;
+	@ApiModelProperty(value = "仓库默认发布用户Id")
+	private String neUserId;
+	@ApiModelProperty(value = "仓库默认发布用户密码")
+	private String neUserPassword;
 	@ApiModelProperty(value = "仓库默认拉取用户Id")
 	private String nePullUserId;
 	@ApiModelProperty(value = "仓库默认拉取用户密码")
@@ -97,124 +105,4 @@ public class NexusUser extends AuditDomain {
     //
     // getter/setter
     // ------------------------------------------------------------------------------
-
-    /**
-     * @return 表ID，主键，供其他表做外键
-     */
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-    /**
-     * @return rdupm_nexus_repository表主键
-     */
-	public Long getRepositoryId() {
-		return repositoryId;
-	}
-
-	public void setRepositoryId(Long repositoryId) {
-		this.repositoryId = repositoryId;
-	}
-    /**
-     * @return 租户Id
-     */
-	public Long getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
-
-	public String getNePullUserId() {
-		return nePullUserId;
-	}
-
-	public NexusUser setNePullUserId(String nePullUserId) {
-		this.nePullUserId = nePullUserId;
-		return this;
-	}
-
-	public String getNePullUserPassword() {
-		return nePullUserPassword;
-	}
-
-	public NexusUser setNePullUserPassword(String nePullUserPassword) {
-		this.nePullUserPassword = nePullUserPassword;
-		return this;
-	}
-
-	public String getNeRepositoryName() {
-		return neRepositoryName;
-	}
-
-	public NexusUser setNeRepositoryName(String neRepositoryName) {
-		this.neRepositoryName = neRepositoryName;
-		return this;
-	}
-
-	public List<String> getOtherRepositoryName() {
-		return otherRepositoryName;
-	}
-
-	public NexusUser setOtherRepositoryName(List<String> otherRepositoryName) {
-		this.otherRepositoryName = otherRepositoryName;
-		return this;
-	}
-
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public NexusUser setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-		return this;
-	}
-
-	public Long getProjectId() {
-		return projectId;
-	}
-
-	public NexusUser setProjectId(Long projectId) {
-		this.projectId = projectId;
-		return this;
-	}
-
-	public String getOldNeUserPassword() {
-		return oldNeUserPassword;
-	}
-
-	public NexusUser setOldNeUserPassword(String oldNeUserPassword) {
-		this.oldNeUserPassword = oldNeUserPassword;
-		return this;
-	}
-
-	public String getNeRoleId() {
-		return neRoleId;
-	}
-
-	public NexusUser setNeRoleId(String neRoleId) {
-		this.neRoleId = neRoleId;
-		return this;
-	}
-
-	public Boolean getEditFlag() {
-		return editFlag;
-	}
-
-	public NexusUser setEditFlag(Boolean editFlag) {
-		this.editFlag = editFlag;
-		return this;
-	}
-
-	public List<String> getDefaultRepositoryNames() {
-		return defaultRepositoryNames;
-	}
-
-	public void setDefaultRepositoryNames(List<String> defaultRepositoryNames) {
-		this.defaultRepositoryNames = defaultRepositoryNames;
-	}
 }
