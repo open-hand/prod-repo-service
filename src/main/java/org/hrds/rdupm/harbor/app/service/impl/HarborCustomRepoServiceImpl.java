@@ -355,17 +355,17 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Override
     public HarborCustomRepo listRelatedCustomRepoOrDefaultByService(Long projectId, Long appServiceId) {
         List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_APP_SERVICE_ID, appServiceId);
-        if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
+        if (CollectionUtils.isNotEmpty(harborRepoServiceList) && harborRepoServiceList.size() == 1) {
             List<HarborCustomRepo> customRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
                     .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_ID, harborRepoServiceList.get(0).getCustomRepoId()))
                     .build());
-            if (CollectionUtils.isNotEmpty(customRepoList) && customRepoList.size()== 1) {
+            if (CollectionUtils.isNotEmpty(customRepoList)) {
                 return customRepoList.get(0);
-            } else if (customRepoList.size()>1) {
-                throw new CommonException("error.harbor.repo.service.relation.duplicate");
             } else {
                 throw new CommonException("error.harbor.custom.repo.not.exist");
             }
+        } else if (harborRepoServiceList.size()>1) {
+            throw new CommonException("error.harbor.repo.service.relation.duplicate");
         } else {
             return null;
         }
