@@ -152,7 +152,7 @@ public class IamSagaHandler {
 		memberMap.put("username",userDTO.getLoginName());
 		bodyMap.put("role_id",harborAuth.getHarborRoleId());
 		bodyMap.put("member_user",memberMap);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,harborRepository.getHarborId());
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,true,harborRepository.getHarborId());
 
 		//权限保存到数据库
 		harborAuthService.saveOwnerAuth(harborRepository.getProjectId(),harborRepository.getOrganizationId(),Integer.parseInt(harborRepository.getHarborId().toString()),authList);
