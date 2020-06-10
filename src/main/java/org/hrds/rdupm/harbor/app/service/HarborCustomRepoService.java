@@ -54,7 +54,7 @@ public interface HarborCustomRepoService {
      * 项目层-创建时查询项目下所有应用服务
      * @param projectId 猪齿鱼项目ID
      */
-    List<AppServiceDTO> listAllAppServiceByCreate(Long projectId);
+    List<AppServiceDTO> listAppServiceByCreate(Long projectId);
 
     /***
      * 项目层-创建自定义镜像仓库
@@ -124,7 +124,7 @@ public interface HarborCustomRepoService {
 
     //--------------------------------------  提供给猪齿鱼应用服务调用   -------------------------------------//
     /**
-     * 查询项目下所有猪齿鱼应用服务
+     * 应用服务-查询项目下所有猪齿鱼应用服务
      *
      * @param projectId 猪齿鱼项目ID
      * @author mofei.li@hand-china.com 2020-06-08 16:49
@@ -133,7 +133,7 @@ public interface HarborCustomRepoService {
     List<HarborCustomRepo> listAllCustomRepoByProject(Long projectId);
 
     /**
-     * 查询应用服务已关联的自定义仓库，不存在则返回所在项目的默认仓库
+     * 应用服务-查询已关联的自定义仓库，不存在则返回所在项目的默认仓库
      *
      * @param projectId 猪齿鱼项目ID
      * @param appServiceId 应用服务ID
@@ -142,13 +142,25 @@ public interface HarborCustomRepoService {
      */
     HarborRepoDTO listRelatedCustomRepoOrDefaultByService(Long projectId, Long appServiceId);
 
-
     /**
-     * 查询应用服务未关联的自定义仓库
+     * 应用服务-保存关联关系
      *
+     * @param projectId 猪齿鱼项目ID
      * @param appServiceId 应用服务ID
+     * @param customRepoId 自定义仓库ID
      * @author mofei.li@hand-china.com 2020-06-08 16:49
      * @return List<HarborCustomRepo>
      */
-    List<HarborCustomRepo> listUnRelatedCustomRepoByService(Long appServiceId);
+    void saveRelationByService(Long projectId, Long appServiceId, Long customRepoId);
+
+    /**
+     * 应用服务-删除关联关系
+     *
+     * @param projectId 猪齿鱼项目ID
+     * @param appServiceId 应用服务ID
+     * @param customRepoId 自定义仓库ID
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
+     * @return List<HarborCustomRepo>
+     */
+    void deleteRelationByService(Long projectId, Long appServiceId, Long customRepoId);
 }

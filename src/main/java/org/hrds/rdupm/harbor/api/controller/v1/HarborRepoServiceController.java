@@ -30,48 +30,4 @@ public class HarborRepoServiceController extends BaseController {
     @Autowired
     private HarborRepoServiceRepository harborRepoServiceRepository;
 
-    @ApiOperation(value = "制品库-harbor仓库服务关联表列表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping
-    public ResponseEntity<Page<HarborRepoService>> list(HarborRepoService harborRepoService, @ApiIgnore @SortDefault(value = HarborRepoService.FIELD_ID,
-            direction = Sort.Direction.DESC) PageRequest pageRequest) {
-        Page<HarborRepoService> list = harborRepoServiceRepository.pageAndSort(pageRequest, harborRepoService);
-        return Results.success(list);
-    }
-
-    @ApiOperation(value = "制品库-harbor仓库服务关联表明细")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{id}")
-    public ResponseEntity<HarborRepoService> detail(@PathVariable Long id) {
-        HarborRepoService harborRepoService = harborRepoServiceRepository.selectByPrimaryKey(id);
-        return Results.success(harborRepoService);
-    }
-
-    @ApiOperation(value = "创建制品库-harbor仓库服务关联表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping
-    public ResponseEntity<HarborRepoService> create(@RequestBody HarborRepoService harborRepoService) {
-        validObject(harborRepoService);
-        harborRepoServiceRepository.insertSelective(harborRepoService);
-        return Results.success(harborRepoService);
-    }
-
-    @ApiOperation(value = "修改制品库-harbor仓库服务关联表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping
-    public ResponseEntity<HarborRepoService> update(@RequestBody HarborRepoService harborRepoService) {
-        SecurityTokenHelper.validToken(harborRepoService);
-        harborRepoServiceRepository.updateByPrimaryKeySelective(harborRepoService);
-        return Results.success(harborRepoService);
-    }
-
-    @ApiOperation(value = "删除制品库-harbor仓库服务关联表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @DeleteMapping
-    public ResponseEntity<?> remove(@RequestBody HarborRepoService harborRepoService) {
-        SecurityTokenHelper.validToken(harborRepoService);
-        harborRepoServiceRepository.deleteByPrimaryKey(harborRepoService);
-        return Results.success();
-    }
-
 }
