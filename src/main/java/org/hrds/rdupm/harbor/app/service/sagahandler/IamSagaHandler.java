@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -11,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.IamGroupMemberVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
@@ -44,6 +46,8 @@ public class IamSagaHandler {
 
 	public static final String DOCKER_DELETE_AUTH = "rdupm-docker-delete-auth";
 
+	private String project = "project";
+
 	@Autowired
 	private HarborAuthService harborAuthService;
 
@@ -63,19 +67,20 @@ public class IamSagaHandler {
 	/**
 	 * 删除角色同步事件
 	 */
-	@SagaTask(code = DOCKER_DELETE_AUTH, description = " 制品库删除权限同步事件",
-			sagaCode = IAM_DELETE_MEMBER_ROLE, maxRetryCount = 3, seq = 1)
+	@SagaTask(code = DOCKER_DELETE_AUTH, description = " 制品库删除权限同步事件", sagaCode = IAM_DELETE_MEMBER_ROLE, maxRetryCount = 3, seq = 1)
 	public String deleteHarborAuth(String payload) {
 		List<IamGroupMemberVO> iamGroupMemberVOList = new Gson().fromJson(payload, new TypeToken<List<IamGroupMemberVO>>() {}.getType());
 		iamGroupMemberVOList.forEach(dto->{
-			if("project".equals(dto.getResourceType())){
+			if(project.equals(dto.getResourceType())){
 				//删除权限角色
 				HarborAuth dbAuth = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
 						.where(Sqls.custom()
 								.andEqualTo(HarborAuth.FIELD_PROJECT_ID,dto.getResourceId())
 								.andEqualTo(HarborAuth.FIELD_USER_ID,dto.getUserId())
 						).build()).stream().findFirst().orElse(null);
-				deleteHarborAuth(dbAuth);
+				if(dbAuth != null){
+					deleteHarborAuth(dbAuth);
+				}
 
 				//选举新的项目管理员角色
 				createNewOwner(dto.getResourceId());
@@ -96,21 +101,33 @@ public class IamSagaHandler {
 	}
 
 	public void createNewOwner(Long projectId){
-		//若不存在仓库管理员，则新建一个
-		HarborAuth dbAuth = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
+		//若不存在"仓库管理员同时是项目所有者"，则新建一个
+		List<HarborAuth> dbAuthList = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
 				.where(Sqls.custom()
 						.andEqualTo(HarborAuth.FIELD_PROJECT_ID,projectId)
 						.andEqualTo(HarborAuth.FIELD_HARBOR_ROLE_ID,HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId())
-				).build()).stream().findFirst().orElse(null);
-		if(dbAuth != null){
-			return;
+				).build());
+
+		UserDTO userDTO = c7nBaseService.getProjectOwnerById(projectId);
+		if(CollectionUtils.isEmpty(dbAuthList)){
+			saveAuth(projectId,userDTO);
+		}else {
+			Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(projectId);
+			for(HarborAuth harborAuth : dbAuthList){
+				if(userDTOMap.containsKey(harborAuth.getUserId())){
+					return;
+				}
+			}
+			saveAuth(projectId,userDTO);
 		}
 
+	}
+
+	public void saveAuth(Long projectId,UserDTO userDTO){
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
-		UserDTO userDTO = c7nBaseService.getProjectOwnerById(projectId);
 
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();

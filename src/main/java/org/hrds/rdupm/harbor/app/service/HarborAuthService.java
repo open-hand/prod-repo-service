@@ -9,6 +9,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hzero.export.vo.ExportParam;
 
 /**
@@ -68,4 +69,10 @@ public interface HarborAuthService {
 	 * 检查当前用户是否为项目管理员
 	 */
 	void checkProjectAdmin(Long projectId);
+
+	/***
+	 * 保存Harbor用户到数据库和harbor系统
+	 * @param userDTO
+	 */
+	void saveHarborUser(UserDTO userDTO);
 }

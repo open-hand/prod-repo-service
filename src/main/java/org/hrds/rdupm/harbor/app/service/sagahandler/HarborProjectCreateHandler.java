@@ -35,6 +35,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -65,42 +66,16 @@ public class HarborProjectCreateHandler {
 	@Resource
 	private HarborRepositoryMapper harborRepositoryMapper;
 
-	@Autowired
-	private ProdUserService prodUserService;
-
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String createProjectUserSaga(String message){
-		HarborProjectVo harborProjectVo = null;
 		try {
-			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
+			HarborProjectVo harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
+			UserDTO userDTO = harborProjectVo.getUserDTO();
+			harborAuthService.saveHarborUser(userDTO);
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		UserDTO userDTO = harborProjectVo.getUserDTO();
-		String userName = userDTO.getLoginName();
-		Long userId = userDTO.getId();
-		String email = userDTO.getEmail();
-		String realName = userDTO.getRealName();
-
-		//数据库插入制品库用户
-		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
-		ProdUser prodUser = new ProdUser(userId,userName,password,0);
-		prodUserService.saveOneUser(prodUser);
-
-		//判断是否存在当前用户
-		Map<String,Object> paramMap = new HashMap<>(1);
-		paramMap.put("username",userName);
-		ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
-		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
-		Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
-
-		//Harbor中新建用户
-		if(userMap.get(userName) == null){
-			User user = new User(userName,email,password,realName);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
-		}
-
 		return message;
 	}
 

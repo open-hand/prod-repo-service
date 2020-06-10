@@ -21,7 +21,7 @@ public interface ProdUserService {
 	 * 保存一个用户
 	 * @param prodUser
 	 */
-	void saveOneUser(ProdUser prodUser);
+	ProdUser saveOneUser(ProdUser prodUser);
 
 	/***
 	 * 更新密码

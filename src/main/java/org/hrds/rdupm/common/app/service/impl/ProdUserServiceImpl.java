@@ -54,8 +54,13 @@ public class ProdUserServiceImpl implements ProdUserService {
 		prodUserList.forEach(dto->service.saveOneUser(dto));
 	}
 
+	/***
+	 * 若已经存在，则返回用户信息
+	 * @param prodUser
+	 * @return
+	 */
 	@Override
-	public void saveOneUser(ProdUser prodUser) {
+	public ProdUser saveOneUser(ProdUser prodUser) {
 		check(prodUser);
 		if(StringUtils.isEmpty(prodUser.getPassword())){
 			String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
@@ -64,6 +69,9 @@ public class ProdUserServiceImpl implements ProdUserService {
 		List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID,prodUser.getUserId());
 		if(CollectionUtils.isEmpty(prodUserList)){
 			prodUserRepository.insertSelective(prodUser);
+			return prodUser;
+		}else {
+			return prodUserList.get(0);
 		}
 	}
 

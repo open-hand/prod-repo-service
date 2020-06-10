@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.Saga;
@@ -18,11 +19,15 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.entity.User;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
@@ -32,6 +37,8 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.util.DESEncryptUtil;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
 import org.hzero.mybatis.domian.Condition;
@@ -67,6 +74,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Resource
 	private TransactionalProducer transactionalProducer;
 
+	@Autowired
+	private ProdUserService prodUserService;
+
 	@Override
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_AUTH,description = "分配权限",inputSchemaClass = List.class)
@@ -84,13 +94,13 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,projectId);
 		Map<Long,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getUserId,dto->dto));
 
+		//设置权限信息
 		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
 		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
 		dtoList.forEach(dto->{
 			UserDTO userDTO = userDtoMap.get(dto.getUserId());
 			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
 			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
-
 			if(harborAuthMap.get(dto.getUserId()) != null){
 				throw new CommonException("error.harbor.auth.already.exist",dto.getRealName());
 			}
@@ -287,6 +297,33 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		//仓库管理员删除，若是最后一个不允许删除
 		if(HarborConstants.REVOKE_AUTH.equals(operateType) && harborAuthList.size() < 2){
 			throw new CommonException("error.harbor.auth.delete.last.projectAdmin");
+		}
+	}
+
+	@Override
+	public void saveHarborUser(UserDTO userDTO){
+		String loginName = userDTO.getLoginName();
+		Long userId = userDTO.getId();
+		String email = userDTO.getEmail();
+		String realName = userDTO.getRealName();
+
+		//数据库插入制品库用户
+		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+		ProdUser prodUser = new ProdUser(userId,loginName,password,0);
+		ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
+		String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
+
+		//判断harbor中是否存在当前用户
+		Map<String,Object> paramMap = new HashMap<>(1);
+		paramMap.put("username",loginName);
+		ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
+		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
+		Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
+
+		//Harbor中新建用户
+		if(userMap.get(loginName) == null){
+			User user = new User(loginName,email,newPassword,realName);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
 		}
 	}
 }
