@@ -132,7 +132,6 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     @Override
     public List<AppServiceDTO> listAllAppServiceByCreate(Long projectId) {
-        ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.pageByOptions(projectId, false, 0, 0, "");
         if (!CollectionUtils.isEmpty(Objects.requireNonNull(responseEntity.getBody()).getContent())) {
             List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();

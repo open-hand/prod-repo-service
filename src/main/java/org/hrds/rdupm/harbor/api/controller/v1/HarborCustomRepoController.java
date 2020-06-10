@@ -65,7 +65,7 @@ public class HarborCustomRepoController extends BaseController {
         return Results.success(harborCustomRepoService.listByOrg(repo, pageRequest));
     }
 
-    @ApiOperation(value = "项目层-创建时查询所有自定义仓库")
+    @ApiOperation(value = "项目层-创建时查询所有应用服务")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/list-all-services/{projectId}")
     public ResponseEntity<List<AppServiceDTO>> listAllAppServiceByCreate(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId) {
