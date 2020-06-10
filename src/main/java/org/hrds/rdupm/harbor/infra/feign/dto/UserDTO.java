@@ -62,5 +62,11 @@ public class UserDTO {
 		this.email = customUserDetails.getEmail();
 	}
 
+	public UserDTO(Long id, String loginName, String realName,String email) {
+		this.id = id;
+		this.loginName = loginName;
+		this.email = email;
+		this.realName = realName;
+	}
 }
 

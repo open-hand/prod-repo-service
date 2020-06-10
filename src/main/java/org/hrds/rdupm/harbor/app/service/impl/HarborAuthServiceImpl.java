@@ -243,7 +243,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			dto.setLocked(HarborConstants.Y);
 
 			//获取harborAuthId，然后保存用户权限到数据库
-			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
+			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
 			List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
 			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){

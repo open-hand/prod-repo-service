@@ -3,8 +3,10 @@ package org.hrds.rdupm.harbor.app.service.sagahandler;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -66,69 +68,68 @@ public class IamSagaHandler {
 
 	/**
 	 * 删除角色同步事件
+	 * 1.选举新的仓库管理员
+	 * 若权限列表存在用户为"项目管理员&&仓库管理员"，则不创建新的仓管
+	 * 若权限列表存在用户为"项目管理员&&访客/开发人员"，则更新为仓管
+	 * 若权限列表不存在"项目管理员&&仓库管理员"，则随机选择一个项目所有者，1）创建Harbor账号 2)分配Harbor仓库管理员权限
+	 * 备注：使用原来的仓管账号执行上一步操作
+	 * 2.删除原来仓管权限，同时删除数据库中权限
 	 */
 	@SagaTask(code = DOCKER_DELETE_AUTH, description = " 制品库删除权限同步事件", sagaCode = IAM_DELETE_MEMBER_ROLE, maxRetryCount = 3, seq = 1)
-	public String deleteHarborAuth(String payload) {
+	@Transactional
+	public String delete(String payload) {
 		List<IamGroupMemberVO> iamGroupMemberVOList = new Gson().fromJson(payload, new TypeToken<List<IamGroupMemberVO>>() {}.getType());
 		iamGroupMemberVOList.forEach(dto->{
 			if(project.equals(dto.getResourceType())){
+				HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,dto.getResourceId()).stream().findFirst().orElse(null);
+				if(harborRepository == null){
+					throw new CommonException("error.harbor.project.not.exist");
+				}
+
+				//选举新的项目管理员角色
+				createNewOwner(harborRepository,dto.getUserId());
+
 				//删除权限角色
 				HarborAuth dbAuth = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
 						.where(Sqls.custom()
-								.andEqualTo(HarborAuth.FIELD_PROJECT_ID,dto.getResourceId())
+								.andEqualTo(HarborAuth.FIELD_PROJECT_ID,harborRepository.getProjectId())
 								.andEqualTo(HarborAuth.FIELD_USER_ID,dto.getUserId())
 						).build()).stream().findFirst().orElse(null);
 				if(dbAuth != null){
 					deleteHarborAuth(dbAuth);
 				}
-
-				//选举新的项目管理员角色
-				createNewOwner(dto.getResourceId());
 			}
 		});
 		return payload;
 	}
 
-	@OperateLog(operateType = HarborConstants.REVOKE_AUTH,content = "团队成员删除：%s 删除 %s 的权限角色 【%s】")
-	@Transactional(rollbackFor = Exception.class)
-	public void deleteHarborAuth(HarborAuth harborAuth) {
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
-		if(harborRepository == null){
-			throw new CommonException("error.harbor.project.not.exist");
-		}
-		harborAuthRepository.deleteByPrimaryKey(harborAuth);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,true,harborRepository.getHarborId(),harborAuth.getHarborAuthId());
-	}
+	public void createNewOwner(HarborRepository harborRepository,Long userId){
+		Long projectId = harborRepository.getProjectId();
+		Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(projectId);
 
-	public void createNewOwner(Long projectId){
-		//若不存在"仓库管理员同时是项目所有者"，则新建一个
+		//查询权限列表中属于项目所有者的信息
 		List<HarborAuth> dbAuthList = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
 				.where(Sqls.custom()
 						.andEqualTo(HarborAuth.FIELD_PROJECT_ID,projectId)
-						.andEqualTo(HarborAuth.FIELD_HARBOR_ROLE_ID,HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId())
+						.andIn(HarborAuth.FIELD_USER_ID,userDTOMap.keySet())
+						.andNotEqualTo(HarborAuth.FIELD_USER_ID,userId)
 				).build());
-
+		//无项目所有者权限，则创建
 		UserDTO userDTO = c7nBaseService.getProjectOwnerById(projectId);
 		if(CollectionUtils.isEmpty(dbAuthList)){
-			saveAuth(projectId,userDTO);
-		}else {
-			Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(projectId);
-			for(HarborAuth harborAuth : dbAuthList){
-				if(userDTOMap.containsKey(harborAuth.getUserId())){
-					return;
-				}
-			}
-			saveAuth(projectId,userDTO);
+			saveAuth(harborRepository,userDTO);
 		}
-
+		//有项目所有者权限，但没有仓库管理员，则选择其中一个所有者进行更新
+		else {
+			List<HarborAuth> filterList = dbAuthList.stream().filter(dto->HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId().equals(dto.getHarborRoleId()) && !dto.getUserId().equals(userId)).collect(Collectors.toList());
+			if(CollectionUtils.isEmpty(filterList)){
+				updateAuth(harborRepository,dbAuthList.get(0));
+			}
+		}
 	}
 
-	public void saveAuth(Long projectId,UserDTO userDTO){
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
-		if(harborRepository == null){
-			throw new CommonException("error.harbor.project.not.exist");
-		}
-
+	public void saveAuth(HarborRepository harborRepository,UserDTO userDTO){
+		//设置权限信息
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setUserId(userDTO.getId());
@@ -141,7 +142,40 @@ public class IamSagaHandler {
 			e.printStackTrace();
 		}
 		authList.add(harborAuth);
+
+		//创建账号
+		harborAuthService.saveHarborUser(userDTO);
+
+		//Harbor中创建权限
+		Map<String,Object> bodyMap = new HashMap<>(2);
+		Map<String,Object> memberMap = new HashMap<>(1);
+		memberMap.put("username",userDTO.getLoginName());
+		bodyMap.put("role_id",harborAuth.getHarborRoleId());
+		bodyMap.put("member_user",memberMap);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,harborRepository.getHarborId());
+
+		//权限保存到数据库
 		harborAuthService.saveOwnerAuth(harborRepository.getProjectId(),harborRepository.getOrganizationId(),Integer.parseInt(harborRepository.getHarborId().toString()),authList);
+	}
+
+	@OperateLog(operateType = HarborConstants.UPDATE_AUTH,content = "%s 更新 %s 权限角色为 【%s】,过期日期为【%s】(团队成员删除)")
+	private void updateAuth(HarborRepository harborRepository, HarborAuth harborAuth) {
+		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
+		harborAuthRepository.updateByPrimaryKey(harborAuth);
+
+		Map<String,Object> bodyMap = new HashMap<>(2);
+		bodyMap.put("role_id",harborAuth.getHarborRoleId());
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_ONE_AUTH,null,bodyMap,true,harborRepository.getHarborId(),harborAuth.getHarborAuthId());
+	}
+
+	@OperateLog(operateType = HarborConstants.REVOKE_AUTH,content = "%s 删除 %s 的权限角色 【%s】(团队成员删除)")
+	private void deleteHarborAuth(HarborAuth harborAuth) {
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
+		if(harborRepository == null){
+			throw new CommonException("error.harbor.project.not.exist");
+		}
+		harborAuthRepository.deleteByPrimaryKey(harborAuth);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,true,harborRepository.getHarborId(),harborAuth.getHarborAuthId());
 	}
 
 }
