@@ -132,6 +132,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepository.setProjectId(projectId);
 		nexusRepository.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
 		nexusRepository.setRepoType(nexusRepoCreateDTO.getRepoType());
+		nexusRepository.setEnableFlag(NexusConstants.Flag.Y);
 		nexusRepositoryRepository.insertSelective(nexusRepository);
 
 		// 角色
