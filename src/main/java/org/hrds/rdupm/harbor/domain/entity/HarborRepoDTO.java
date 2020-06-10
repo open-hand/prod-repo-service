@@ -22,5 +22,5 @@ public class HarborRepoDTO {
     private HarborRepository defaultRepository;
 
     @ApiModelProperty(value = "自定义仓库")
-    private List<HarborCustomRepo> customRepository;
+    private HarborCustomRepo customRepository;
 }
