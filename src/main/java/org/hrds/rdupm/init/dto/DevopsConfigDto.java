@@ -65,7 +65,8 @@ public class DevopsConfigDto {
 		}
 		this.email = configMap.get("email").toString();
 		if(configMap.get("isPrivate") != null){
-			this.publicFlag = configMap.get("isPrivate").toString();
+			String isPrivate = configMap.get("isPrivate").toString();
+			this.publicFlag = "true".equals(isPrivate) ? "false" : "true";
 		}else {
 			this.publicFlag = "false";
 		}
