@@ -148,10 +148,11 @@ public interface NexusRepositoryService {
 	 * CI-流水线-获取项目下仓库列表
 	 * @param organizationId 组织Id
 	 * @param projectId 项目Id
-	 * @param repoType 仓库类型
+	 * @param repoType 制品类型
+	 * @param type nexus仓库类型
 	 * @return List<NexusRepoDTO>
 	 */
-	List<NexusRepoDTO> getRepoByProject(Long organizationId, Long projectId, String repoType);
+	List<NexusRepoDTO> getRepoByProject(Long organizationId, Long projectId, String repoType, String type);
 
 	/**
 	 * CI-流水线-获取项目下仓库列表-包含用户信息
