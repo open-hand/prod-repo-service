@@ -2,23 +2,26 @@ package org.hrds.rdupm.nexus.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import org.apache.commons.collections.CollectionUtils;
-import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
+import org.hrds.rdupm.nexus.domain.entity.NexusProjectService;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
-import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusProjectServiceRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +36,10 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 	@Autowired
 	private ProdUserRepository prodUserRepository;
+	@Autowired
+	private NexusProjectServiceRepository nexusProjectServiceRepository;
+	@Autowired
+	private NexusClient nexusClient;
 
 	@Override
 	public NexusServerConfig setNexusInfo(NexusClient nexusClient) {
@@ -74,41 +81,127 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public NexusServerConfig createServerConfig(NexusServerConfig nexusServerConfig) {
+	public NexusServerConfig createServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
 
-		NexusServerConfig exist = this.queryServerConfig();
-		if (exist != null) {
-			throw new CommonException("已有nexus服务配置，不允许再新增，请编辑更新");
-		}
-		nexusServerConfig.setEnabled(1);
+		// 参数校验
+		nexusServerConfig.validParam(nexusClient);
+
+		nexusServerConfig.setDefaultFlag(BaseConstants.Flag.NO);
+		nexusServerConfig.setTenantId(organizationId);
+		nexusServerConfig.setPassword(DESEncryptUtil.encode(nexusServerConfig.getPassword()));
 		nexusServerConfigRepository.insertSelective(nexusServerConfig);
+
+		NexusProjectService nexusProjectService = new NexusProjectService();
+		nexusProjectService.setConfigId(nexusServerConfig.getConfigId());
+		nexusProjectService.setOrganizationId(organizationId);
+		nexusProjectService.setProjectId(projectId);
+		nexusProjectService.setEnableFlag(BaseConstants.Flag.NO);
+		nexusProjectServiceRepository.insertSelective(nexusProjectService);
+
+		nexusServerConfig.setProjectServiceId(nexusProjectService.getProjectServiceId());
+		nexusServerConfig.setProjectId(nexusProjectService.getProjectId());
 		return nexusServerConfig;
 	}
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public NexusServerConfig updateServerConfig(NexusServerConfig nexusServerConfig) {
-		NexusServerConfig exist = nexusServerConfigRepository.selectByPrimaryKey(nexusServerConfig);
-		if (exist == null) {
+	public NexusServerConfig updateServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
+		return null;
+	}
+
+
+	@Override
+	public NexusServerConfig updatePwd(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
+		NexusServerConfig existConfig = nexusServerConfigRepository.queryServiceConfig(nexusServerConfig.getConfigId(), projectId);
+		if (existConfig == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-		nexusServerConfig.setPassword(DESEncryptUtil.encode(nexusServerConfig.getPassword()));
-		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_SERVER_NAME,
-				NexusServerConfig.FIELD_SERVER_URL, NexusServerConfig.FIELD_USER_NAME, NexusServerConfig.FIELD_PASSWORD);
+		if (!DESEncryptUtil.decode(existConfig.getPassword()).equals(nexusServerConfig.getOldPassword())) {
+			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_ERROR);
+		}
+
+		String newPassword = nexusServerConfig.getPassword();
+
+		// 新密码校验
+		NexusServer nexusServer = new NexusServer(existConfig.getServerUrl(), existConfig.getUserName(), newPassword);
+		nexusClient.setNexusServerInfo(nexusServer);
+		List<NexusServerUser> nexusExistUser = null;
+		try {
+			nexusExistUser = nexusClient.getNexusUserApi().getUsers(existConfig.getUserName());
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+				throw new CommonException(NexusMessageConstants.NEXUS_NEW_PASSWORD_ERROR);
+			}
+			if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
+				throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
+			}
+			throw e;
+		}
+
+		// 数据库更新密码
+		String encryptPassword = DESEncryptUtil.encode(newPassword);
+		existConfig.setPassword(encryptPassword);
+		nexusServerConfigRepository.updateOptional(existConfig, NexusServerConfig.FIELD_PASSWORD);
 		return nexusServerConfig;
 	}
 
 	@Override
-	public NexusServerConfig queryServerConfig() {
-		NexusServerConfig query = new NexusServerConfig();
-		query.setEnabled(1);
-		List<NexusServerConfig> nexusServerConfigList = nexusServerConfigRepository.select(query);
-		if (CollectionUtils.isEmpty(nexusServerConfigList)) {
-			return null;
-		} else if (nexusServerConfigList.size() >= 2){
-			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_CONFIG_MUL);
+	public List<NexusServerConfig> listServerConfig(Long organizationId, Long projectId) {
+		// 默认nexus服务信息查询
+		NexusServerConfig defaultQuery = new NexusServerConfig();
+		defaultQuery.setDefaultFlag(BaseConstants.Flag.YES);
+		NexusServerConfig defaultConfig = nexusServerConfigRepository.selectOne(defaultQuery);
+		defaultConfig.setProjectId(projectId);
+
+		// 项目下，自定义的nexus服务信息
+		List<NexusServerConfig> nexusServerConfigList = nexusServerConfigRepository.queryList(organizationId, projectId);
+
+		Integer enableFlag = nexusServerConfigList.stream().map(NexusServerConfig::getEnableFlag).filter(enableFlagValue -> enableFlagValue.equals(BaseConstants.Flag.YES)).findFirst().orElse(null);
+		if (enableFlag == null) {
+			// 没有启用的自定义的nexus服务, 设置默认的为启用
+			defaultConfig.setEnableFlag(BaseConstants.Flag.YES);
+		}
+		List<NexusServerConfig> result = new ArrayList<>();
+		result.add(defaultConfig);
+		result.addAll(nexusServerConfigList);
+		return result;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void enableProjectServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
+		NexusServerConfig existConfig = nexusServerConfigRepository.selectByPrimaryKey(nexusServerConfig.getConfigId());
+		if (existConfig == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+
+		if (existConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+			// 启用默认的服务
+			// 直接更新该项目下所有服务为不启用
+			// TODO 直接更新？
+			nexusProjectServiceRepository.disAbleByProjectId(projectId);
 		} else {
-			return nexusServerConfigList.get(0);
+			// 启用自定义的服务
+			// 将项目下的所有nexus服务都设置为不启用，启用该服务
+			NexusServerConfig existConfigProject = nexusServerConfigRepository.queryServiceConfig(nexusServerConfig.getConfigId(), projectId);
+			if (existConfigProject == null) {
+				throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+			}
+
+			NexusProjectService query = new NexusProjectService();
+			query.setProjectServiceId(existConfigProject.getProjectServiceId());
+			query.setProjectId(projectId);
+			query.setOrganizationId(organizationId);
+			NexusProjectService nexusProjectService = nexusProjectServiceRepository.selectOne(query);
+			if (nexusProjectService == null) {
+				throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+			}
+
+			// 所有设为不启用
+			nexusProjectServiceRepository.disAbleByProjectId(projectId);
+			// 启用
+			nexusProjectService.setEnableFlag(BaseConstants.Flag.YES);
+			nexusProjectServiceRepository.updateOptional(nexusProjectService, NexusProjectService.FIELD_ENABLE_FLAG);
 		}
 	}
 }

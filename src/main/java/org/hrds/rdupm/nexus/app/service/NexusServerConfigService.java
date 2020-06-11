@@ -3,6 +3,8 @@ package org.hrds.rdupm.nexus.app.service;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
+import java.util.List;
+
 /**
  * 制品库_nexus服务信息配置表应用服务
  *
@@ -25,23 +27,45 @@ public interface NexusServerConfigService {
 	void setCurrentNexusInfo(NexusClient nexusClient);
 
 	/**
-	 * nexus服务配置信息创建
-	 * @param nexusServerConfig nexusServerConfig
-	 * @return NexusServerConfig
+	 * 制品库-创建自定义nexus服务
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param nexusProjectService 服务配置信息
+	 * @return NexusServerConfig 服务配置信息
 	 */
-	NexusServerConfig createServerConfig(NexusServerConfig nexusServerConfig);
+	NexusServerConfig createServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusProjectService);
 
 	/**
 	 * nexus服务配置信息更新
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
 	 * @param nexusServerConfig nexusServerConfig
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig updateServerConfig(NexusServerConfig nexusServerConfig);
+	NexusServerConfig updateServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
 
 	/**
-	 * 查询 nexus服务信息配置
+	 * 修改密码
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param nexusServerConfig 修改信息
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig queryServerConfig();
+	NexusServerConfig updatePwd(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
 
+	/**
+	 * 项目层-nexus服务信息列表
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @return List<NexusServerConfig>
+	 */
+	List<NexusServerConfig> listServerConfig(Long organizationId, Long projectId);
+
+	/**
+	 * 项目层-nexus服务启用
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param nexusServerConfig 启用服务
+	 */
+	void enableProjectServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
 }

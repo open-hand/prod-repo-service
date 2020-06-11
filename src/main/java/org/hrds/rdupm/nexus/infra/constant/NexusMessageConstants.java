@@ -173,6 +173,24 @@ public interface NexusMessageConstants {
 	 * 参数错误
 	 */
 	String NEXUS_PARAM_ERROR = "error.nexus.param.error";
-
-
+	/**
+	 * 请填写admin管理员用户
+	 */
+	String NEXUS_INPUT_ADMIN_USER = "error.nexus.input.admin.user";
+	/**
+	 * 输入的管理用户，权限不足
+	 */
+	String NEXUS_USER_NOT_PERMISSIONS = "error.nexus.user.not.permissions";
+	/**
+	 * 匿名用户不存在
+	 */
+	String NEXUS_ANONYMOUS_USER_NOT_EXIST = "error.nexus.anonymous.user.not.exist";
+	/**
+	 * 匿名用户对应角色不存在
+	 */
+	String NEXUS_ANONYMOUS_ROLE_USER_NOT_EXIST = "error.nexus.anonymous.role.user.not.exist";
+	/**
+	 * 新密码输入错误
+	 */
+	String NEXUS_NEW_PASSWORD_ERROR = "error.nexus.new.password";
 }

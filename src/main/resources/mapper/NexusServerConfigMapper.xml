@@ -17,4 +17,38 @@
         <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
+    <sql id="selectField">
+        nsc.server_name,
+        nsc.server_url,
+        nsc.user_name,
+        nsc.PASSWORD,
+        nsc.anonymous,
+        nsc.anonymous_role,
+        nsc.object_version_number,
+        nsc.default_flag,
+        nps.project_id,
+        nps.organization_id,
+        nps.project_service_id,
+        nps.enable_flag
+    </sql>
+    <select id="queryServiceConfig" resultType="org.hrds.rdupm.nexus.domain.entity.NexusServerConfig">
+        SELECT
+            <include refid="selectField"></include>
+        FROM
+            rdupm_nexus_server_config nsc
+            INNER JOIN rdupm_nexus_project_service nps ON nsc.config_id = nps.config_id
+        WHERE
+            nsc.config_id = #{configId}
+            AND nps.project_id = #{projectId}
+    </select>
+    <select id="queryList" resultType="org.hrds.rdupm.nexus.domain.entity.NexusServerConfig">
+         SELECT
+        <include refid="selectField"></include>
+        FROM
+            rdupm_nexus_server_config nsc
+            INNER JOIN rdupm_nexus_project_service nps ON nsc.config_id = nps.config_id
+        WHERE
+            nps.organization_id = #{organizationId}
+            AND nps.project_id = #{projectId}
+    </select>
 </mapper>
