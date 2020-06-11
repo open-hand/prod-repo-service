@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.infra.repository.impl;
 
+import org.hrds.rdupm.nexus.api.dto.NexusRepoDTO;
 import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
@@ -33,5 +34,10 @@ public class NexusRepositoryRepositoryImpl extends BaseRepositoryImpl<NexusRepos
 	@Override
 	public Long distributeRepoInsert(NexusRepository nexusRepository) {
 		return nexusRepositoryMapper.distributeRepoInsert(nexusRepository);
+	}
+
+	@Override
+	public List<NexusRepoDTO> selectInfoByIds(List<Long> repositoryIds) {
+		return nexusRepositoryMapper.selectInfoByIds(repositoryIds);
 	}
 }

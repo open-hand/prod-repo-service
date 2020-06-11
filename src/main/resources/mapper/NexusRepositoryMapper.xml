@@ -54,4 +54,21 @@
             </if>
         </where>
     </select>
+    <select id="selectInfoByIds" resultType="org.hrds.rdupm.nexus.api.dto.NexusRepoDTO">
+        SELECT
+            nr.repository_id,
+            nr.ne_repository_name AS NAME,
+            nu.ne_user_id,
+            nu.ne_user_password,
+            nu.ne_pull_user_id,
+            nu.ne_pull_user_password
+        FROM
+            rdupm_nexus_repository nr
+            INNER JOIN rdupm_nexus_user nu ON nr.repository_id = nu.repository_id
+        WHERE
+            nr.repository_id IN
+            <foreach collection="repositoryIds" item="repositoryId" separator="," open="(" close=")">
+                #{repositoryId}
+            </foreach>
+    </select>
 </mapper>

@@ -35,6 +35,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.omg.CORBA.COMM_FAILURE;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -869,5 +870,70 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 					nexusRepositoryRepository.updateOptional(repository, NexusRepository.FIELD_ENABLE_FLAG);
 					startSagaBuilder.withPayloadAndSerialize(repository).withSourceId(repository.getRepositoryId());
 				});
+	}
+
+	@Override
+	public List<NexusRepoDTO> getRepoByProject(Long organizationId, Long projectId, String repoType) {
+		// TODO 自定义仓库后，添加条件
+		NexusRepository query = new NexusRepository();
+		query.setRepoType(repoType);
+		query.setProjectId(projectId);
+		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
+		if (CollectionUtils.isEmpty(nexusRepositoryList)) {
+			return new ArrayList<>();
+		}
+		List<NexusRepoDTO> result = new ArrayList<>();
+
+		configService.setNexusInfo(nexusClient);
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(repoType));
+		Map<String, NexusServerRepository> repoMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, k -> k));
+		nexusRepositoryList.forEach(nexusRepository -> {
+			if (repoMap.containsKey(nexusRepository.getNeRepositoryName())) {
+				NexusServerRepository nexusServerRepository = repoMap.get(nexusRepository.getNeRepositoryName());
+				NexusRepoDTO nexusRepoDTO = new NexusRepoDTO();
+				nexusRepoDTO.setRepositoryId(nexusRepository.getRepositoryId());
+				nexusRepoDTO.setName(nexusRepository.getNeRepositoryName());
+				nexusRepoDTO.setType(nexusServerRepository.getType());
+				nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
+				nexusRepoDTO.setVersionPolicy(nexusServerRepository.getVersionPolicy());
+				result.add(nexusRepoDTO);
+			}
+		});
+		nexusClient.removeNexusServerInfo();
+		return result;
+	}
+
+	@Override
+	public List<NexusRepoDTO> getRepoUserByProject(Long organizationId, Long projectId, List<Long> repositoryIds) {
+		List<NexusRepoDTO> result = new ArrayList<>();
+
+		// TODO 自定义仓库后，添加条件
+		if (CollectionUtils.isEmpty(repositoryIds)) {
+			return result;
+		}
+		List<NexusRepoDTO> nexusRepositoryList = nexusRepositoryRepository.selectInfoByIds(repositoryIds);
+		if (CollectionUtils.isEmpty(nexusRepositoryList)) {
+			return result;
+		}
+		configService.setNexusInfo(nexusClient);
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(null));
+		Map<String, NexusServerRepository> repoMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, k -> k));
+		nexusRepositoryList.forEach(nexusRepoDTO -> {
+			if (repoMap.containsKey(nexusRepoDTO.getName())) {
+				NexusServerRepository nexusServerRepository = repoMap.get(nexusRepoDTO.getName());
+				nexusRepoDTO.setType(nexusServerRepository.getType());
+				nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
+				nexusRepoDTO.setVersionPolicy(nexusServerRepository.getVersionPolicy());
+				if (nexusRepoDTO.getNeUserPassword() != null) {
+					nexusRepoDTO.setNeUserPassword(DESEncryptUtil.decode(nexusRepoDTO.getNeUserPassword()));
+				}
+				if (nexusRepoDTO.getNePullUserPassword() != null) {
+					nexusRepoDTO.setNePullUserPassword(DESEncryptUtil.decode(nexusRepoDTO.getNePullUserPassword()));
+				}
+				result.add(nexusRepoDTO);
+			}
+		});
+		nexusClient.removeNexusServerInfo();
+		return result;
 	}
 }
