@@ -5,6 +5,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.util.DESEncryptUtil;
 
 /**
  * description
@@ -57,7 +58,7 @@ public class DevopsConfigDto {
 		Map<String,Object> configMap = JSONObject.parseObject(config, Map.class);
 		this.repoUrl = configMap.get("url").toString();
 		this.loginName = configMap.get("userName").toString();
-		this.password = configMap.get("password").toString();
+		this.password = DESEncryptUtil.encode(configMap.get("password").toString());
 		if(configMap.get("project") != null){
 			this.repoName = configMap.get("project").toString();
 		}else {
