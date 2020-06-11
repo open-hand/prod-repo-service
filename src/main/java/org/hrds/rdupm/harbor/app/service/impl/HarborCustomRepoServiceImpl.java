@@ -28,6 +28,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
@@ -385,6 +386,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveRelationByService(Long projectId, Long appServiceId, Long customRepoId) {
         List<HarborCustomRepo> customRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
                 .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_ID, customRepoId))
@@ -412,6 +414,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteRelationByService(Long projectId, Long appServiceId, Long customRepoId) {
         List<HarborCustomRepo> customRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
                 .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_ID, customRepoId))
@@ -436,6 +439,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     public HarborRepoDTO getHarborRepoConfig(Long projectId, Long appServiceId) {
         List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID, projectId);
         if (CollectionUtils.isNotEmpty(harborRepositoryList)) {
+            HarborRepository harborRepository = harborRepositoryList.get(0);
             List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
                     .andWhere(Sqls.custom()
                             .andEqualTo(HarborRepoService.FIELD_PROJECT_ID, projectId)
@@ -448,7 +452,11 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                                 .andEqualTo(HarborCustomRepo.FIELD_ID, harborRepoServiceList.get(0).getCustomRepoId()))
                         .build());
                 if (CollectionUtils.isNotEmpty(harborCustomRepoList)) {
-                    HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,harborCustomRepoList.get(0));
+                    ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
+                    HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
+                    String orgCode = harborRepository.getCode().replaceAll(BaseConstants.Symbol.MIDDLE_LINE + projectDTO.getCode(),"");
+                    harborCustomRepo.setRepoName(orgCode + harborCustomRepo.getRepoName());
+                    HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,harborCustomRepo);
                     return harborRepoDTO;
                 } else {
                     throw new CommonException("error.harbor.custom.repo.not.exist");
@@ -456,7 +464,6 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             } else if (harborRepoServiceList.size() >1) {
                 throw new CommonException("error.harbor.repo.service.relation.duplicate");
             } else {
-                HarborRepository harborRepository = harborRepositoryList.get(0);
                 List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
                 if (CollectionUtils.isNotEmpty(harborRobotList)) {
                     HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborInfoConfiguration.getBaseUrl(), harborRepository.getName(), harborRobotList);
