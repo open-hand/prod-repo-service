@@ -10,6 +10,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.config.DisableSSLCertificateCheck;
+import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
@@ -50,6 +51,8 @@ public class HarborHttpClient {
 	private HarborInfoConfiguration harborInfo;
 	@Autowired
 	private ProdUserRepository prodUserRepository;
+	@Autowired
+	private HarborCustomConfiguration harborCustomConfiguration;
 
 	public HarborHttpClient buildBasicAuth(String userName,String password){
 		this.userName = userName;
@@ -57,9 +60,23 @@ public class HarborHttpClient {
 		return this;
 	}
 
+	public HarborHttpClient buildCustomBasicAuth(HarborCustomConfiguration harborCustomConfiguration){
+		this.harborCustomConfiguration = harborCustomConfiguration;
+		return this;
+	}
+
 	private String getToken(){
 		String basicInfo = this.userName + ":" + this.password;
 		return  AUTH_PRE + Base64.getEncoder().encodeToString(basicInfo.getBytes());
+	}
+
+	private String getCustomToken(){
+		String basicInfo = harborCustomConfiguration.getLoginName() + ":" + harborCustomConfiguration.getPassword();
+		return  AUTH_PRE + Base64.getEncoder().encodeToString(basicInfo.getBytes());
+	}
+
+	public void setHarborCustomConfiguration(HarborCustomConfiguration harborCustomConfiguration){
+		this.harborCustomConfiguration = harborCustomConfiguration;
 	}
 
 	/**
@@ -72,8 +89,6 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public ResponseEntity<String> exchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body,boolean adminAccountFlag, Object... pathParam){
-		String userName = DetailsHelper.getUserDetails().getUsername();
-
 		String url = harborInfo.getBaseUrl() + apiEnum.getApiUrl();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
@@ -81,8 +96,9 @@ public class HarborHttpClient {
 		if(adminAccountFlag){
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
+			String userName = DetailsHelper.getUserDetails().getUsername();
 			ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,userName).stream().findFirst().orElse(null);
-			String passwd = prodUser == null ? null : DESEncryptUtil.decode(prodUser.getPassword());
+			String passwd = prodUser == null ? null : (prodUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(prodUser.getPassword()) : prodUser.getPassword());
 			buildBasicAuth(userName,passwd);
 		}
 
@@ -105,6 +121,43 @@ public class HarborHttpClient {
 		}
 		return responseEntity;
 	}
+
+	/**
+	 * 自定义请求
+	 * @param apiEnum api枚举参数
+	 * @param paramMap url后面接的参数
+	 * @param body body的参数
+	 * @param pathParam 路径参数
+	 * @return ResponseEntity<String>
+	 */
+	public ResponseEntity<String> customExchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, Object... pathParam){
+
+		String url = harborCustomConfiguration.getUrl() + apiEnum.getApiUrl();
+		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
+		url = this.setParam(url, paramMap,pathParam);
+		HttpMethod httpMethod = apiEnum.getHttpMethod();
+
+		buildCustomBasicAuth(harborCustomConfiguration);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.add(AUTH_HEADER, this.getCustomToken());
+		HttpEntity<Object> httpEntity = new HttpEntity<>(new Gson().toJson(body), headers);
+
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
+		} catch (HttpClientErrorException e) {
+			e.printStackTrace();
+			handleStatusCode(apiEnum,e);
+		}finally {
+			LOGGER.debug("api：{}",apiEnum);
+			LOGGER.debug("url：{}",url);
+			LOGGER.debug("body：{}",new Gson().toJson(body));
+		}
+		return responseEntity;
+	}
+
 
 	/***
 	 * url拼接参数：http://api/roject/109?key=value&key=value
@@ -202,6 +255,18 @@ public class HarborHttpClient {
 					case 412: throw new CommonException("error.delete.project.412");
 					default: throw new CommonException(e.getMessage());
 				}
+            case GET_ONE_ROBOT:
+                switch (statusCode){
+                    case 403: throw new CommonException("User in session does not have permission to the project.");
+                    case 404: throw new CommonException("The robot account is not found.");
+                    default: throw new CommonException(e.getMessage());
+                }
+            case DELETE_ROBOT:
+                switch (statusCode){
+                    case 403: throw new CommonException("User in session does not have permission to the project.");
+                    case 404: throw new CommonException("The robot account is not found.");
+                    default: throw new CommonException(e.getMessage());
+                }
 			default: throw new CommonException(e.getMessage());
 		}
 

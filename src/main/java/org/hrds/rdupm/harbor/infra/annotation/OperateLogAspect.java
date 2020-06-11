@@ -129,7 +129,13 @@ public class OperateLogAspect {
 	 * @return
 	 */
 	private String getUserParms(Long userId) {
+		if(userId == null){
+			return "";
+		}
 		UserDTO userDTO = c7nBaseService.listUserById(userId);
+		if(userDTO == null){
+			return userId.toString();
+		}
 		return userDTO.getRealName() + "(" + userDTO.getLoginName() + ")";
 	}
 

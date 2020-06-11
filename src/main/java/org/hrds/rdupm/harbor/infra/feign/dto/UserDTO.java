@@ -3,6 +3,7 @@ package org.hrds.rdupm.harbor.infra.feign.dto;
 import java.util.Date;
 import java.util.List;
 
+import io.choerodon.core.oauth.CustomUserDetails;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -52,5 +53,20 @@ public class UserDTO {
 
 	private List<RoleDTO> roles;
 
+	public UserDTO(){}
+
+	public UserDTO (CustomUserDetails customUserDetails){
+		this.id = customUserDetails.getUserId();
+		this.loginName = customUserDetails.getUsername();
+		this.realName = customUserDetails.getRealName();
+		this.email = customUserDetails.getEmail();
+	}
+
+	public UserDTO(Long id, String loginName, String realName,String email) {
+		this.id = id;
+		this.loginName = loginName;
+		this.email = email;
+		this.realName = realName;
+	}
 }
 

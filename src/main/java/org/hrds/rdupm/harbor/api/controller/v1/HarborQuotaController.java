@@ -34,7 +34,7 @@ public class HarborQuotaController extends BaseController {
 	@Autowired
 	private HarborQuotaService harborQuotaService;
 
-	@ApiOperation(value = "组织层-项目-修改资源配额")
+	@ApiOperation(value = "组织层--修改资源配额（某项目）")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/update-project/{projectId}")
 	public ResponseEntity updateProjectQuota(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
@@ -45,7 +45,7 @@ public class HarborQuotaController extends BaseController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "组织层-全局-修改资源配额")
+	@ApiOperation(value = "组织层--修改资源配额（全局）")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/update-global")
 	public ResponseEntity updateGlobalQuota(@ApiParam("Artifact数量限制") @RequestParam Integer countLimit,
@@ -55,14 +55,14 @@ public class HarborQuotaController extends BaseController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "获取某项目资源配额")
+	@ApiOperation(value = "组织层--获取某项目资源配额")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/project/{projectId}")
 	public ResponseEntity<HarborQuotaVo> getProjectQuota(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 		return Results.success(harborQuotaService.getProjectQuota(projectId));
 	}
 
-	@ApiOperation(value = "获取全局资源配额")
+	@ApiOperation(value = "项目层/组织层--获取全局资源配额")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/global")
 	public ResponseEntity<HarborQuotaVo> getGlobalQuota() {

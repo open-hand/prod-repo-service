@@ -100,6 +100,10 @@ public class NexusLog extends AuditDomain {
     @Transient
     @ApiModelProperty("用户名")
     private String realName;
+
+    @Transient
+    @ApiModelProperty("仓库名称")
+    private String neRepositoryName;
     //
     // getter/setter
     // ------------------------------------------------------------------------------

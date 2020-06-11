@@ -55,7 +55,7 @@ public class BaseFeignClientFallBack implements BaseFeignClient {
 
 	@Override
 	public ResponseEntity<List<UserDTO>> listProjectOwnerById(Long projectId) {
-		throw new CommonException("error.feign.project.owner");
+		return null;
 	}
 
 }

@@ -22,6 +22,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborMetadataDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -104,6 +105,8 @@ public class HarborProjectVo {
 	private String usedStorageUnit;
 
 	private ProjectDTO projectDTO;
+
+	private UserDTO userDTO;
 
 	public HarborProjectVo(){}
 

@@ -5,7 +5,9 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
+import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryQueryDTO;
@@ -38,9 +40,11 @@ public class ProductLibraryController extends BaseController {
 	private NexusRepositoryService nexusRepositoryService;
 	@Autowired
 	private HarborProjectService harborProjectService;
+	@Autowired
+	private HarborCustomRepoService harborCustomRepoService;
 
-	@ApiOperation(value = "项目层-制品库库列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层--制品库列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list/{projectId}")
 	public ResponseEntity<List<ProductLibraryDTO>> listByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
 
@@ -52,6 +56,16 @@ public class ProductLibraryController extends BaseController {
 			LOGGER.error("query harbor error", e);
 			harborRepositoryList = new ArrayList<>();
 		}
+
+		//harbor-customize
+		List<HarborCustomRepoDTO> harborCustomRepoDTOList = null;
+		try {
+			harborCustomRepoDTOList = harborCustomRepoService.listByProjectId(projectId);
+		} catch (Exception e) {
+			LOGGER.error("query harbor custom repo error", e);
+			harborCustomRepoDTOList = new ArrayList<>();
+		}
+
 		// maven
 		List<NexusRepositoryDTO> nexusRepositoryDTOList = null;
 		try {
@@ -80,6 +94,9 @@ public class ProductLibraryController extends BaseController {
 		List<ProductLibraryDTO> productLibraryDTOList = new ArrayList<>();
 		harborRepositoryList.forEach(harborRepository -> {
 			productLibraryDTOList.add(new ProductLibraryDTO(harborRepository));
+		});
+		harborCustomRepoDTOList.forEach(harborCustomRepoDTO -> {
+			productLibraryDTOList.add(new ProductLibraryDTO(harborCustomRepoDTO));
 		});
 		nexusRepositoryDTOList.forEach(nexusRepositoryDTO -> {
 			productLibraryDTOList.add(new ProductLibraryDTO(nexusRepositoryDTO, NexusConstants.RepoType.MAVEN));

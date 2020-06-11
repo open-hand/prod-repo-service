@@ -33,8 +33,8 @@ public class HarborLogController extends BaseController {
     @Autowired
     private HarborLogService service;
 
-    @ApiOperation(value = "项目层-权限日志列表")
-	@Permission(level = ResourceLevel.PROJECT)
+    @ApiOperation(value = "项目层--权限日志列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/auth/list-project/{projectId}")
     public ResponseEntity<Page<HarborLog>> listAuthLogByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
 															 @ApiParam("用户名") @RequestParam(required = false) String loginName,
@@ -46,8 +46,8 @@ public class HarborLogController extends BaseController {
         return Results.success(pageInfo);
     }
 
-	@ApiOperation(value = "组织层-权限日志列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "组织层--权限日志列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/auth/list-org/{organizationId}")
 	public ResponseEntity<Page<HarborLog>> listAuthLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
 															 @ApiParam("用户名") @RequestParam(required = false) String loginName,
@@ -59,8 +59,8 @@ public class HarborLogController extends BaseController {
 		return Results.success(pageInfo);
 	}
 
-	@ApiOperation(value = "项目层-镜像日志列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层--镜像日志列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/image/list-project/{projectId}")
 	public ResponseEntity<Page<HarborImageLog>> listImageLogByProject(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
 															 @ApiParam("登录名") @RequestParam(required = false) String loginName,
@@ -75,8 +75,8 @@ public class HarborLogController extends BaseController {
 	}
 
 
-	@ApiOperation(value = "组织层-镜像日志列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "组织层--镜像日志列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/image/list-org/{organizationId}")
 	public ResponseEntity<Page<HarborImageLog>> listImageLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
 																		  @ApiParam("镜像仓库编码") @RequestParam(required = false) String projectCode,

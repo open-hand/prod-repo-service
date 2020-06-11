@@ -84,10 +84,9 @@ public interface BaseFeignClient {
 
 	/***
 	 * 根据项目id查询项目下的项目所有者
-	 *
 	 * @param projectId
 	 * @return
 	 */
-	@GetMapping(value = "/v1/projects/{project_id}/owner/list")
+	@GetMapping("/v1/projects/{project_id}/owner/list")
 	ResponseEntity<List<UserDTO>> listProjectOwnerById(@PathVariable(name = "project_id") Long projectId);
 }

@@ -1,4 +1,4 @@
-package script.db
+package script.db.groovy.hrds_prod_repo
 
 databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_log.groovy') {
     changeSet(author: "weisen.yang@hand-china.com", id: "2020-05-28-rdupm_nexus_log") {

@@ -39,8 +39,8 @@ public class NexusLogController extends BaseController {
     @ApiOperation(value = "组织层-日志查询接口")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/org-log")
-    public ResponseEntity<Page<NexusLog>> listLogByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable(value = "organizationId") Long organizationId,
-                                                       @ApiParam("仓库类型") @RequestParam String repoType,
+    public ResponseEntity<Page<NexusLog>> listLogByOrg(@ApiParam(value = "猪齿鱼组织ID",required = true) @PathVariable(value = "organizationId") Long organizationId,
+                                                       @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
                                                        @ApiParam("猪齿鱼项目ID") @RequestParam(required = false) Long projectId,
                                                        @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
                                                        @ApiParam("操作人用户名") @RequestParam(required = false) String realName,
@@ -66,5 +66,4 @@ public class NexusLogController extends BaseController {
                                                            @ApiIgnore PageRequest pageRequest) {
         return Results.success(nexusLogService.listLog(organizationId, repoType, projectId, neRepositoryName, realName, operateType, startDate, endDate, repositoryId, pageRequest));
     }
-
 }

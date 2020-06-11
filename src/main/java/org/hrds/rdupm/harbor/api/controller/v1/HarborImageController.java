@@ -26,7 +26,7 @@ public class HarborImageController {
 	private HarborImageService harborImageService;
 
 	@ApiOperation(value = "项目层--镜像列表")
-	@Permission(level = ResourceLevel.PROJECT)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list-project/{projectId}")
 	public ResponseEntity<Page<HarborImageVo>> getByProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 																@ApiParam(value = "镜像名称") @RequestParam(required = false) String imageName,
@@ -45,18 +45,18 @@ public class HarborImageController {
 		return Results.success(harborImageService.getByOrg(organizationId,code,name,imageName,pageRequest));
 	}
 
-	@ApiOperation(value = "删除镜像,必输字段{repoName 名称}")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层/组织层--删除镜像")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@DeleteMapping(value = "/delete")
-	public ResponseEntity delete(@RequestBody HarborImageVo harborImageVo) {
+	public ResponseEntity delete(@RequestBody @ApiParam("必输字段{repoName 名称}") HarborImageVo harborImageVo) {
 		harborImageService.delete(harborImageVo);
 		return Results.success();
 	}
 
-	@ApiOperation(value = "更新镜像描述,必输字段{repoName 名称、description镜像描述}")
-	@Permission(level = ResourceLevel.PROJECT)
+	@ApiOperation(value = "项目层--更新镜像描述")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/update/description")
-	public ResponseEntity updateDesc(@RequestBody HarborImageVo harborImageVo) {
+	public ResponseEntity updateDesc(@RequestBody @ApiParam("必输字段{repoName 名称、description镜像描述}") HarborImageVo harborImageVo) {
 		harborImageService.updateDesc(harborImageVo);
 		return Results.success();
 	}

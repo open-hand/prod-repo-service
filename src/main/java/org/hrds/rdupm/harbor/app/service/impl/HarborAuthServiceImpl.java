@@ -15,10 +15,12 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
@@ -35,9 +37,12 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -69,10 +74,14 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Resource
 	private TransactionalProducer transactionalProducer;
 
+	@Autowired
+	private ProdUserService prodUserService;
+
 	@Override
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_AUTH,description = "分配权限",inputSchemaClass = List.class)
 	public void save(Long projectId,List<HarborAuth> dtoList) {
+		checkProjectAdmin(projectId);
 		if(CollectionUtils.isEmpty(dtoList)){
 			throw new CommonException("error.harbor.auth.param.empty");
 		}
@@ -85,13 +94,13 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,projectId);
 		Map<Long,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getUserId,dto->dto));
 
+		//设置权限信息
 		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
 		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
 		dtoList.forEach(dto->{
 			UserDTO userDTO = userDtoMap.get(dto.getUserId());
 			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
 			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
-
 			if(harborAuthMap.get(dto.getUserId()) != null){
 				throw new CommonException("error.harbor.auth.already.exist",dto.getRealName());
 			}
@@ -130,10 +139,15 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.UPDATE_AUTH,content = "%s 更新 %s 权限角色为 【%s】,过期日期为【%s】")
 	@Transactional(rollbackFor = Exception.class)
 	public void update(HarborAuth harborAuth) {
+		checkProjectAdmin(harborAuth.getProjectId());
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
+		if(HarborConstants.Y.equals(harborAuth.getLocked())){
+			throw new CommonException("error.harbor.auth.owner.not.update");
+		}
+		checkLastProjectAdmin(harborAuth,HarborConstants.UPDATE_AUTH);
 		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		harborAuth.setHarborRoleId(HarborConstants.HarborRoleEnum.getIdByValue(harborAuth.getHarborRoleValue()));
@@ -188,13 +202,16 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.REVOKE_AUTH,content = "%s 删除 %s 的权限角色 【%s】")
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(HarborAuth harborAuth) {
+		checkProjectAdmin(harborAuth.getProjectId());
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
-		if(harborRepository.getCreatedBy().equals(harborAuth.getUserId())){
+		if(HarborConstants.Y.equals(harborAuth.getLocked())){
 			throw new CommonException("error.harbor.auth.owner.not.delete");
 		}
+		checkLastProjectAdmin(harborAuth,HarborConstants.REVOKE_AUTH);
+
 		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		repository.deleteByPrimaryKey(harborAuth);
@@ -220,17 +237,13 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
 	public void saveOwnerAuth(Long projectId, Long organizationId, Integer harborId, List<HarborAuth> dtoList) {
 		dtoList.forEach(dto->{
-			//获取用户详情
-			UserDTO userDTO = c7nBaseService.listUserById(dto.getUserId());
-			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
-			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
-			dto.setUserId(userDTO == null ? null : userDTO.getId());
 			dto.setProjectId(projectId);
 			dto.setOrganizationId(organizationId);
 			dto.setHarborRoleValue(dto.getHarborRoleValue());
+			dto.setLocked(HarborConstants.Y);
 
 			//获取harborAuthId，然后保存用户权限到数据库
-			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,false,harborId);
+			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
 			List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
 			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
@@ -238,7 +251,79 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			}
 			repository.insertSelective(dto);
 		});
+	}
 
+	/***
+	 * 检查当前用户是否为仓库管理员,非仓库管理员不允许操作
+	 */
+	@Override
+	public void checkProjectAdmin(Long projectId){
+		Long userId = DetailsHelper.getUserDetails().getUserId();
+		HarborAuth harborAuth = new HarborAuth();
+		harborAuth.setProjectId(projectId);
+		harborAuth.setUserId(userId);
+		HarborAuth dto = repository.select(harborAuth).stream().findFirst().orElse(null);
+		if(dto == null){
+			throw new CommonException("error.harbor.auth.null");
+		}
+		if(!dto.getHarborRoleId().equals(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId())){
+			throw new CommonException("error.harbor.auth.not.projectAdmin");
+		}
+	}
 
+	/***
+	 * 校验是否为最后一个仓库管理员，若是，则不允许更新或者删除
+	 */
+	public void checkLastProjectAdmin(HarborAuth harborAuth,String operateType){
+		HarborAuth dbAuth = repository.selectByPrimaryKey(harborAuth.getAuthId());
+		//非仓库管理员角色更新删除，通过
+		if(!HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId().equals(dbAuth.getHarborRoleId())){
+			return;
+		}
+
+		List<HarborAuth> harborAuthList = repository.selectByCondition(Condition.builder(HarborAuth.class).where(Sqls.custom()
+				.andEqualTo(HarborAuth.FIELD_PROJECT_ID,harborAuth.getProjectId())
+				.andEqualTo(HarborAuth.FIELD_HARBOR_ROLE_ID,HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId())).build());
+
+		//仓库管理员角色更新，若更新权限角色，则校验
+		if(HarborConstants.UPDATE_AUTH.equals(operateType)){
+			//不更新权限角色，通过
+			if(harborAuth.getHarborRoleId().equals(dbAuth.getHarborRoleId())){
+				return;
+			}if(harborAuthList.size() < 2){
+				throw new CommonException("error.harbor.auth.update.last.projectAdmin");
+			}
+		}
+		//仓库管理员删除，若是最后一个不允许删除
+		if(HarborConstants.REVOKE_AUTH.equals(operateType) && harborAuthList.size() < 2){
+			throw new CommonException("error.harbor.auth.delete.last.projectAdmin");
+		}
+	}
+
+	@Override
+	public void saveHarborUser(UserDTO userDTO){
+		String loginName = userDTO.getLoginName();
+		Long userId = userDTO.getId();
+		String email = userDTO.getEmail();
+		String realName = userDTO.getRealName();
+
+		//数据库插入制品库用户
+		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+		ProdUser prodUser = new ProdUser(userId,loginName,password,0);
+		ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
+		String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
+
+		//判断harbor中是否存在当前用户
+		Map<String,Object> paramMap = new HashMap<>(1);
+		paramMap.put("username",loginName);
+		ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
+		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
+		Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
+
+		//Harbor中新建用户
+		if(userMap.get(loginName) == null){
+			User user = new User(loginName,email,newPassword,realName);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
+		}
 	}
 }

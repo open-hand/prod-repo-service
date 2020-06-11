@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -44,6 +45,9 @@ public class HarborImageServiceImpl implements HarborImageService {
 	@Autowired
 	private C7nBaseService c7nBaseService;
 
+	@Autowired
+	private HarborAuthService harborAuthService;
+
 	@Override
 	public Page<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
 		Gson gson = new Gson();
@@ -54,7 +58,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Long harborId = harborRepository.getHarborId();
 
 		//获得镜像数
-		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,false,harborId);
+		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 		Integer totalSize = harborProjectDTO.getRepoCount();
 		String repoName = harborProjectDTO.getName();
@@ -125,6 +129,10 @@ public class HarborImageServiceImpl implements HarborImageService {
 
 	@Override
 	public void delete(HarborImageVo harborImageVo) {
+		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborImageVo.getHarborId()).stream().findFirst().orElse(null);
+		if(harborRepository != null){
+			harborAuthService.checkProjectAdmin(harborRepository.getProjectId());
+		}
 		String repoName = harborImageVo.getRepoName();
 		if(StringUtils.isEmpty(repoName)){
 			throw new CommonException("error.harbor.image.repoName.empty");
@@ -140,7 +148,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		}
 		Map<String,String> bodyMap = new HashMap<>(1);
 		bodyMap.put("description",harborImageVo.getDescription());
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,false,repoName);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,true,repoName);
 	}
 
 	/***

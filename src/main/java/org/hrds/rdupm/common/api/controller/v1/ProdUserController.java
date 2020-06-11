@@ -5,6 +5,9 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.common.app.service.ProdUserService;
+import org.hrds.rdupm.harbor.app.service.HarborAuthService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
+import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
@@ -36,8 +39,10 @@ public class ProdUserController extends BaseController {
 	private ProdUserService prodUserService;
     @Autowired
 	private NexusAuthRepository nexusAuthRepository;
+    @Autowired
+	private HarborAuthRepository harborAuthRepository;
 
-    @ApiOperation(value = "根据用户ID查询制品库用户信息，若默认密码已经被修改，则查询结果中不展示password字段")
+    @ApiOperation(value = "个人层--查询制品库用户信息")
 	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
@@ -48,7 +53,7 @@ public class ProdUserController extends BaseController {
         return Results.success(prodUser);
     }
 
-	@ApiOperation(value = "制品库-修改默认密码")
+	@ApiOperation(value = "个人层--修改制品库用户默认密码")
 	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
@@ -56,17 +61,18 @@ public class ProdUserController extends BaseController {
 		return Results.success();
 	}
 
-	@ApiOperation(value = "制品库-获取当前用户，对应仓库分配的权限")
+	@ApiOperation(value = "项目层--获取当前用户，对应仓库分配的权限")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/getRoleList")
 	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@ApiParam(value = "仓库Id", required = true) @RequestParam(required = false) List<Long> ids,
 																			@ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
 		Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
-		// DOCKER TODO
+		// DOCKER
 		Map<Long, List<String>> dockerMap = new HashMap<>();
-		dockerMap.put(projectId, new ArrayList<>());
-		resultMap.put("DOCKER", dockerMap);
+		List<String> dockerCode = harborAuthRepository.getHarborRoleList(projectId);
+		dockerMap.put(projectId, dockerCode != null ? dockerCode : new ArrayList<>());
+		resultMap.put(ProductLibraryDTO.TYPE_DOCKER, dockerMap);
 
 		// MAVEN、NPM
 		Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(ids);
