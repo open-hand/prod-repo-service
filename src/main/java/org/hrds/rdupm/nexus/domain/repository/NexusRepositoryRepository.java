@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.domain.repository;
 
+import org.hrds.rdupm.nexus.api.dto.NexusRepoDTO;
 import org.hzero.mybatis.base.BaseRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 
@@ -33,4 +34,12 @@ public interface NexusRepositoryRepository extends BaseRepository<NexusRepositor
 	 * @param nexusRepository
 	 */
     Long distributeRepoInsert(NexusRepository nexusRepository);
+
+	/**
+	 * CI-流水线-获取项目下仓库列表-包含用户信息
+	 * @param repositoryIds 主键Id
+	 * @return List<NexusRepoDTO>
+	 */
+	List<NexusRepoDTO> selectInfoByIds(List<Long> repositoryIds);
+
 }
