@@ -235,6 +235,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
             throw new CommonException("error.harbor.custom.repo.share.exist");
         }
+        if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
+            harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
+        }
         checkCustomRepo(harborCustomRepo);
         if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
             List<HarborRepoService> existRelation = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
