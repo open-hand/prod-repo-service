@@ -103,7 +103,8 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping("/delete/{projectId}")
     public ResponseEntity deleteByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                          @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+                                          @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepoDTO harborCustomRepoDTO) {
+        HarborCustomRepo harborCustomRepo = new HarborCustomRepo(harborCustomRepoDTO);
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.deleteByProject(projectId,harborCustomRepo);
         return Results.success(harborCustomRepo);
@@ -125,19 +126,16 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/relate-service/{projectId}")
     public ResponseEntity<Page<AppServiceDTO>> pageRelatedServiceByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                                           @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo,
+                                                                           @ApiParam(value = "自定义镜像仓库ID", required = true) @RequestParam Long customRepoId,
                                                                            @ApiIgnore PageRequest pageRequest) {
-        SecurityTokenHelper.validToken(harborCustomRepo);
-        Page<AppServiceDTO> page = harborCustomRepoService.pageRelatedServiceByProject(projectId, harborCustomRepo, pageRequest);
+        Page<AppServiceDTO> page = harborCustomRepoService.pageRelatedServiceByProject(projectId, customRepoId, pageRequest);
         return Results.success(page);
     }
 
     @ApiOperation(value = "项目层-查询未关联应用服务列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/no-relate-service/{repoId}")
-    public ResponseEntity<List<AppServiceDTO>> pageNoRelatedService(@ApiParam(value = "自定义仓库id", required = true) @PathVariable("repoId") Long repoId,
-                                                                    @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
-        SecurityTokenHelper.validToken(harborCustomRepo);
+    public ResponseEntity<List<AppServiceDTO>> pageNoRelatedService(@ApiParam(value = "自定义仓库id", required = true) @PathVariable("repoId") Long repoId) {
         List<AppServiceDTO> unRelatedServices = harborCustomRepoService.getNoRelatedAppService(repoId);
         return Results.success(unRelatedServices);
     }
@@ -163,48 +161,10 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/relate-service")
     public ResponseEntity<Page<AppServiceDTO>> pageRelatedServiceByOrg(@ApiParam(value = "猪齿鱼组织ID", required = true) @PathVariable("organizationId") Long organizationId,
-                                                                       @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo,
+                                                                       @ApiParam(value = "自定义镜像仓库", required = true) @RequestParam Long customRepoId,
                                                                        @ApiIgnore PageRequest pageRequest) {
-        SecurityTokenHelper.validToken(harborCustomRepo);
-        Page<AppServiceDTO> page = harborCustomRepoService.pageRelatedServiceByOrg(organizationId, harborCustomRepo, pageRequest);
+        Page<AppServiceDTO> page = harborCustomRepoService.pageRelatedServiceByOrg(organizationId, customRepoId, pageRequest);
         return Results.success(page);
     }
 
-
-
-    @ApiOperation(value = "应用服务-查询项目下所有自定义仓库")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/project/{projectId}/list_all_custom_repo")
-    public ResponseEntity<List<HarborCustomRepo>> listAllCustomRepoByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId) {
-        List<HarborCustomRepo> list = harborCustomRepoService.listAllCustomRepoByProject(projectId);
-        return Results.success(list);
-    }
-
-    @ApiOperation(value = "应用服务-查询关联的自定义仓库")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/project/{projectId}/{appServiceId}/list_related_custom_repo")
-    public ResponseEntity<HarborCustomRepo> listRelatedCustomRepoByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                                           @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId) {
-        return Results.success(harborCustomRepoService.listRelatedCustomRepoOrDefaultByService(projectId, appServiceId));
-    }
-
-    @ApiOperation(value = "应用服务-保存关联关系")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/project/{projectId}/{appServiceId}/save_relation")
-    public ResponseEntity saveRelationByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId,
-                                                @ApiParam(value = "自定义仓库ID", required = true) @RequestParam Long customRepoId) {
-        harborCustomRepoService.saveRelationByService(projectId, appServiceId, customRepoId);
-        return Results.success();
-    }
-
-    @ApiOperation(value = "应用服务-删除关联关系")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @DeleteMapping("/project/{projectId}/{appServiceId}/delete_relation")
-    public ResponseEntity deleteRelationByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                  @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId,
-                                                  @ApiParam(value = "自定义仓库ID", required = true) @RequestParam Long customRepoId) {
-        harborCustomRepoService.deleteRelationByService(projectId, appServiceId, customRepoId);
-        return Results.success();
-    }
 }

@@ -56,6 +56,25 @@ public class HarborCustomRepo extends AuditDomain {
     // 业务方法(按public protected private顺序排列)
     // ------------------------------------------------------------------------------
 
+
+    public HarborCustomRepo() {
+    }
+
+    public HarborCustomRepo(HarborCustomRepoDTO harborCustomRepoDTO) {
+        this.id = harborCustomRepoDTO.getRepoId();
+        this.projectId = harborCustomRepoDTO.getProjectId();
+        this.organizationId = harborCustomRepoDTO.getOrganizationId();
+        this.repoName = harborCustomRepoDTO.getRepoName();
+        this.repoUrl = harborCustomRepoDTO.getRepoUrl();
+        this.loginName = harborCustomRepoDTO.getRepoLoginName();
+        this.password = harborCustomRepoDTO.getRepoPassword();
+        this.email = harborCustomRepoDTO.getRepoEmail();
+        this.description = harborCustomRepoDTO.getRepoDescription();
+        this.publicFlag = harborCustomRepoDTO.getRepoPublicFlag();
+        this.set_token(harborCustomRepoDTO.get_token());
+    }
+
+
     //
     // 数据库字段
     // ------------------------------------------------------------------------------

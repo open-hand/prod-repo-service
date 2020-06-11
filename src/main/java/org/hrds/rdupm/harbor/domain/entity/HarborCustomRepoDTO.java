@@ -1,10 +1,14 @@
 package org.hrds.rdupm.harbor.domain.entity;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.mybatis.domian.SecurityToken;
 
 /**
  * description
@@ -15,7 +19,7 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel("制品库-自定义仓库DTO")
-public class HarborCustomRepoDTO {
+public class HarborCustomRepoDTO implements SecurityToken {
     @ApiModelProperty("customRepo, 主键")
     private Long repoId;
     @ApiModelProperty(value = "名称")
@@ -47,6 +51,10 @@ public class HarborCustomRepoDTO {
     @ApiModelProperty(value = "创建人名称")
     private String creatorRealName;
 
+    private Long createdBy;
+    private Date creationDate;
+    private String _token;
+
     public HarborCustomRepoDTO() {
     }
 
@@ -66,5 +74,9 @@ public class HarborCustomRepoDTO {
         this.creatorImageUrl = harborCustomRepo.getCreatorImageUrl();
         this.creatorLoginName = harborCustomRepo.getCreatorLoginName();
         this.creatorRealName = harborCustomRepo.getCreatorRealName();
+
+        this.createdBy = harborCustomRepo.getCreatedBy();
+        this.creationDate = harborCustomRepo.getCreationDate();
+        this._token = harborCustomRepo.get_token();
     }
 }
