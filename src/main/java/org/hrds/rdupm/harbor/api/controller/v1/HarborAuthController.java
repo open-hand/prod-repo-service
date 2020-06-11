@@ -67,7 +67,7 @@ public class HarborAuthController extends BaseController {
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		harborAuth.setHarborRoleValue(harborRoleValue);
 		harborAuth.setParams(params);
-		harborAuth.setOrganizationId(DetailsHelper.getUserDetails().getOrganizationId());
+		harborAuth.setOrganizationId(DetailsHelper.getUserDetails().getTenantId());
 		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
         return Results.success(list);
     }

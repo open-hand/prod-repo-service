@@ -17,6 +17,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-harbor镜像仓库表
@@ -69,6 +71,8 @@ public class HarborRepository extends AuditDomain {
     private String name;
    @ApiModelProperty(value = "是否公开访问，默认false")    
     private String publicFlag;
+
+   @Encrypt(HarborImageVo.ENCRYPT_KEY)
     @ApiModelProperty(value = "harbor项目ID",required = true)
     @NotNull
     private Long harborId;
