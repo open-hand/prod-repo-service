@@ -237,7 +237,15 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         }
         checkCustomRepo(harborCustomRepo);
         if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
-
+            List<HarborRepoService> existRelation = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
+                    .andWhere(Sqls.custom()
+                            .andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID,dbRepo.getId())
+                            .andEqualTo(HarborRepoService.FIELD_PROJECT_ID, projectId)
+                            .andIsNotNull(HarborRepoService.FIELD_APP_SERVICE_ID))
+                    .build());
+            if (CollectionUtils.isNotEmpty(existRelation)) {
+                harborRepoServiceRepository.batchDelete(existRelation);
+            }
         }
         harborCustomRepo.setPassword(DESEncryptUtil.encode(harborCustomRepo.getPassword()));
         harborCustomRepoRepository.updateByPrimaryKeySelective(harborCustomRepo);
