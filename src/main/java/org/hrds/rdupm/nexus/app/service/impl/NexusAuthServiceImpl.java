@@ -226,7 +226,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     }
 
     @Override
-    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的的权限角色 【%s】")
+    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的权限角色 【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void delete(NexusAuth nexusAuth) {
         // 设置并返回当前nexus服务信息
