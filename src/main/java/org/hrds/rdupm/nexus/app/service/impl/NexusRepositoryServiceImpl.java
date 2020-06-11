@@ -873,7 +873,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepoDTO> getRepoByProject(Long organizationId, Long projectId, String repoType) {
+	public List<NexusRepoDTO> getRepoByProject(Long organizationId, Long projectId, String repoType, String type) {
 		// TODO 自定义仓库后，添加条件
 		NexusRepository query = new NexusRepository();
 		query.setRepoType(repoType);
@@ -882,7 +882,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		if (CollectionUtils.isEmpty(nexusRepositoryList)) {
 			return new ArrayList<>();
 		}
-		List<NexusRepoDTO> result = new ArrayList<>();
+		List<NexusRepoDTO> resultAll = new ArrayList<>();
 
 		configService.setNexusInfo(nexusClient);
 		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(repoType));
@@ -896,10 +896,17 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 				nexusRepoDTO.setType(nexusServerRepository.getType());
 				nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
 				nexusRepoDTO.setVersionPolicy(nexusServerRepository.getVersionPolicy());
-				result.add(nexusRepoDTO);
+				resultAll.add(nexusRepoDTO);
 			}
 		});
 		nexusClient.removeNexusServerInfo();
+
+		List<NexusRepoDTO> result;
+		if (type != null) {
+			result = resultAll.stream().filter(nexusRepoDTO -> type.equals(nexusRepoDTO.getType())).collect(Collectors.toList());
+		} else {
+			result = resultAll;
+		}
 		return result;
 	}
 

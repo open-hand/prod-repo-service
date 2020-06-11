@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * description
  *
- * @author chenxiuhong 2020/04/28 5:16 下午
+ * @author weisen.yang@hand-china.com 2020/04/28 5:16 下午
  */
 @Component
 public class NexusAuthHandler {
