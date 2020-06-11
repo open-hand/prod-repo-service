@@ -69,6 +69,8 @@ public class ProductLibraryDTO extends AuditDomain {
 	private String repoUrl;
 	@ApiModelProperty(value = "描述")
 	private String repoDescription;
+	@ApiModelProperty(value = "项目下共享")
+	private String projectShare;
 
 	/**
 	 * maven

@@ -28,12 +28,12 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,15 +164,25 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         }
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(harborCustomRepo.getProjectId());
         harborCustomRepo.setProjectCode(projectDTO.getCode());
-        List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
-                .andWhere(Sqls.custom().andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, harborCustomRepo.getId()))
-                .build());
-        if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
-            Set<Long> appServicesIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
-            harborCustomRepo.setAppServiceIds(appServicesIds);
-        }
         List<HarborCustomRepo> harborCustomRepoList = new ArrayList<>();
-        harborCustomRepoList.add(harborCustomRepo);
+        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+            ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.pageByOptions(harborCustomRepo.getProjectId(), false, 0, 0, "");
+            if (!CollectionUtils.isEmpty(Objects.requireNonNull(responseEntity.getBody()).getContent())) {
+                List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();
+                Set<Long> appServicesIds = appServiceDTOS.stream().map(AppServiceDTO::getId).collect(Collectors.toSet());
+                harborCustomRepo.setAppServiceIds(appServicesIds);
+            }
+            harborCustomRepoList.add(harborCustomRepo);
+        } else {
+            List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
+                    .andWhere(Sqls.custom().andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, harborCustomRepo.getId()))
+                    .build());
+            if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
+                Set<Long> appServicesIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
+                harborCustomRepo.setAppServiceIds(appServicesIds);
+            }
+            harborCustomRepoList.add(harborCustomRepo);
+        }
         processRepoList(harborCustomRepoList);
         return harborCustomRepoList.get(0);
     }
@@ -181,6 +191,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Transactional(rollbackFor = Exception.class)
     public void createByProject(Long projectId, HarborCustomRepo harborCustomRepo) {
         checkCustomRepo(harborCustomRepo);
+        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && existProjectShareCustomRepo(projectId)) {
+            throw new CommonException("error.harbor.custom.repo.share.exist");
+        }
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
             harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
@@ -219,7 +232,21 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
+        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+            throw new CommonException("error.harbor.custom.repo.share.exist");
+        }
         checkCustomRepo(harborCustomRepo);
+        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+            List<HarborRepoService> existRelation = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
+                    .andWhere(Sqls.custom()
+                            .andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID,dbRepo.getId())
+                            .andEqualTo(HarborRepoService.FIELD_PROJECT_ID, projectId)
+                            .andIsNotNull(HarborRepoService.FIELD_APP_SERVICE_ID))
+                    .build());
+            if (CollectionUtils.isNotEmpty(existRelation)) {
+                harborRepoServiceRepository.batchDelete(existRelation);
+            }
+        }
         harborCustomRepo.setPassword(DESEncryptUtil.encode(harborCustomRepo.getPassword()));
         harborCustomRepoRepository.updateByPrimaryKeySelective(harborCustomRepo);
     }
@@ -303,15 +330,26 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
-        List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId());
-        if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
-            Set<Long> appServiceIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
-            List<AppServiceDTO> relatedAppServices = batchQueryAppServiceByIds(projectId, appServiceIds, false, true, "");
-            Page<AppServiceDTO> page = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), relatedAppServices);
-            return page;
+        if (dbRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+            ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.pageByOptions(dbRepo.getProjectId(), false, 0, 0, "");
+            if (!CollectionUtils.isEmpty(Objects.requireNonNull(responseEntity.getBody()).getContent())) {
+                List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), appServiceDTOS);
+            } else {
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
+            }
         } else {
-            return null;
+            List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId());
+            if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
+                Set<Long> appServiceIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
+                List<AppServiceDTO> relatedAppServices = batchQueryAppServiceByIds(projectId, appServiceIds, false, true, "");
+                Page<AppServiceDTO> page = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), relatedAppServices);
+                return page;
+            } else {
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
+            }
         }
+
     }
 
     @Override
@@ -337,14 +375,24 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
-        List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId());
-        if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
-            Set<Long> appServiceIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
-            List<AppServiceDTO> relatedAppServices = batchQueryAppServiceByIds(dbRepo.getProjectId(), appServiceIds, false, true, "");
-            Page<AppServiceDTO> page = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), relatedAppServices);
-            return page;
+        if (dbRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+            ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.pageByOptions(dbRepo.getProjectId(), false, 0, 0, "");
+            if (!CollectionUtils.isEmpty(Objects.requireNonNull(responseEntity.getBody()).getContent())) {
+                List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), appServiceDTOS);
+            } else {
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
+            }
         } else {
-            return null;
+            List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId());
+            if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
+                Set<Long> appServiceIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
+                List<AppServiceDTO> relatedAppServices = batchQueryAppServiceByIds(dbRepo.getProjectId(), appServiceIds, false, true, "");
+                Page<AppServiceDTO> page = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), relatedAppServices);
+                return page;
+            } else {
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
+            }
         }
     }
 
@@ -353,7 +401,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     public List<HarborCustomRepo> listAllCustomRepoByProject(Long projectId) {
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         List<HarborCustomRepo> harborCustomRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
-                .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId))
+                .andWhere(Sqls.custom()
+                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.FALSE))
                 .build());
         if (CollectionUtils.isNotEmpty(harborCustomRepoList)) {
             harborCustomRepoList.stream().forEach(x->x.setProjectCode(projectDTO.getCode()));
@@ -385,6 +435,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveRelationByService(Long projectId, Long appServiceId, Long customRepoId) {
         List<HarborCustomRepo> customRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
                 .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_ID, customRepoId))
@@ -412,6 +463,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteRelationByService(Long projectId, Long appServiceId, Long customRepoId) {
         List<HarborCustomRepo> customRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
                 .andWhere(Sqls.custom().andEqualTo(HarborCustomRepo.FIELD_ID, customRepoId))
@@ -436,6 +488,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     public HarborRepoDTO getHarborRepoConfig(Long projectId, Long appServiceId) {
         List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID, projectId);
         if (CollectionUtils.isNotEmpty(harborRepositoryList)) {
+            HarborRepository harborRepository = harborRepositoryList.get(0);
             List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
                     .andWhere(Sqls.custom()
                             .andEqualTo(HarborRepoService.FIELD_PROJECT_ID, projectId)
@@ -448,7 +501,11 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                                 .andEqualTo(HarborCustomRepo.FIELD_ID, harborRepoServiceList.get(0).getCustomRepoId()))
                         .build());
                 if (CollectionUtils.isNotEmpty(harborCustomRepoList)) {
-                    HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,harborCustomRepoList.get(0));
+                    ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
+                    HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
+                    String orgCode = harborRepository.getCode().replaceAll(BaseConstants.Symbol.MIDDLE_LINE + projectDTO.getCode(),"");
+                    harborCustomRepo.setRepoName(orgCode + harborCustomRepo.getRepoName());
+                    HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,harborCustomRepo);
                     return harborRepoDTO;
                 } else {
                     throw new CommonException("error.harbor.custom.repo.not.exist");
@@ -456,13 +513,27 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             } else if (harborRepoServiceList.size() >1) {
                 throw new CommonException("error.harbor.repo.service.relation.duplicate");
             } else {
-                HarborRepository harborRepository = harborRepositoryList.get(0);
-                List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
-                if (CollectionUtils.isNotEmpty(harborRobotList)) {
-                    HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborInfoConfiguration.getBaseUrl(), harborRepository.getName(), harborRobotList);
+                //应用服务未关联自定义仓库
+                List<HarborCustomRepo> shareCustomRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+                        .andWhere(Sqls.custom()
+                                .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                                .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE))
+                        .build());
+                if (CollectionUtils.isNotEmpty(shareCustomRepoList)) {
+                    ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
+                    HarborCustomRepo shareCustomRepo = shareCustomRepoList.get(0);
+                    String orgCode = harborRepository.getCode().replaceAll(BaseConstants.Symbol.MIDDLE_LINE + projectDTO.getCode(),"");
+                    shareCustomRepo.setRepoName(orgCode + shareCustomRepo.getRepoName());
+                    HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,shareCustomRepo);
                     return harborRepoDTO;
                 } else {
-                    throw new CommonException("error.harbor.robot.not.exist");
+                    List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
+                    if (CollectionUtils.isNotEmpty(harborRobotList)) {
+                        HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborInfoConfiguration.getBaseUrl(), harborRepository.getName(), harborRobotList);
+                        return harborRepoDTO;
+                    } else {
+                        throw new CommonException("error.harbor.robot.not.exist");
+                    }
                 }
             }
         } else {
@@ -507,5 +578,16 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         });
     }
 
-
+    private Boolean existProjectShareCustomRepo(Long projectId) {
+        List<HarborCustomRepo> shareCustomRepo = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+                .andWhere(Sqls.custom()
+                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE))
+                .build());
+        if (CollectionUtils.isNotEmpty(shareCustomRepo)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

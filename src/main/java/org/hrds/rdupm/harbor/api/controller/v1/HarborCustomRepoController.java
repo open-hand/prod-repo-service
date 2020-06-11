@@ -107,7 +107,7 @@ public class HarborCustomRepoController extends BaseController {
         HarborCustomRepo harborCustomRepo = new HarborCustomRepo(harborCustomRepoDTO);
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.deleteByProject(projectId,harborCustomRepo);
-        return Results.success(harborCustomRepo);
+        return Results.success();
 
     }
 
