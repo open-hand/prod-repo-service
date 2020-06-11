@@ -6,6 +6,7 @@ import java.util.Set;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 
@@ -98,11 +99,11 @@ public interface HarborCustomRepoService {
     /***
      * 项目层-查询关联应用服务列表
      * @param projectId 猪齿鱼项目ID
-     * @param harborCustomRepo 自定义镜像仓库信息
+     * @param customRepoId 自定义镜像仓库id
      * @param pageRequest
      * @return Page<AppServiceDTO>
      */
-    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
+    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, Long  customRepoId, PageRequest pageRequest);
 
     /**
      * 项目层-删除自定义仓库-应用服务关联关系
@@ -116,11 +117,11 @@ public interface HarborCustomRepoService {
     /***
      * 组织层-查询关联应用服务列表
      * @param organizationId 猪齿鱼组织ID
-     * @param harborCustomRepo 自定义镜像仓库信息
+     * @param customRepoId 自定义镜像仓库id
      * @param pageRequest
      * @return Page<AppServiceDTO>
      */
-    Page<AppServiceDTO> pageRelatedServiceByOrg(Long organizationId, HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
+    Page<AppServiceDTO> pageRelatedServiceByOrg(Long organizationId, Long customRepoId, PageRequest pageRequest);
 
 
     //--------------------------------------  提供给猪齿鱼应用服务调用   -------------------------------------//
@@ -164,4 +165,14 @@ public interface HarborCustomRepoService {
      * @return
      */
     void deleteRelationByService(Long projectId, Long appServiceId, Long customRepoId);
+
+    /**
+     * 查询Harbor仓库配置接口
+     *
+     * @param projectId 猪齿鱼项目ID
+     * @param appServiceId 应用服务ID
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
+     * @return
+     */
+    HarborRepoDTO getHarborRepoConfig(Long projectId, Long appServiceId);
 }
