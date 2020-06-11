@@ -34,7 +34,7 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 
 	@Override
 	public void updateProjectQuota(Long projectId, HarborProjectVo harborProjectVo) {
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -68,7 +68,7 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 
 	@Override
 	public HarborQuotaVo getProjectQuota(Long projectId) {
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}

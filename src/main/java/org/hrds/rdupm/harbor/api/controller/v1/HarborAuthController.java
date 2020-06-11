@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import io.choerodon.core.domain.Page;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
@@ -20,6 +21,10 @@ import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hzero.export.vo.ExportParam;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
+import org.hzero.starter.keyencrypt.core.Encrypt;
+import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +67,7 @@ public class HarborAuthController extends BaseController {
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		harborAuth.setHarborRoleValue(harborRoleValue);
 		harborAuth.setParams(params);
+		harborAuth.setOrganizationId(DetailsHelper.getUserDetails().getOrganizationId());
 		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
         return Results.success(list);
     }
@@ -86,8 +92,11 @@ public class HarborAuthController extends BaseController {
     @ApiOperation(value = "项目层--权限明细")
 	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
-    public ResponseEntity<HarborAuth> detail(@PathVariable Long authId) {
-        HarborAuth harborAuth = harborAuthRepository.selectByPrimaryKey(authId);
+    public ResponseEntity<HarborAuth> detail(@Encrypt(HarborAuth.ENCRYPT_KEY) @PathVariable Long authId) {
+        HarborAuth harborAuth = harborAuthRepository.selectByCondition(Condition.builder(HarborAuth.class).where(Sqls.custom()
+				.andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
+				.andEqualTo(HarborAuth.FIELD_AUTH_ID,authId)
+		).build()).stream().findFirst().orElse(null);
         return Results.success(harborAuth);
     }
 

@@ -16,6 +16,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +49,7 @@ public class HarborProjectController extends BaseController {
 	@ApiOperation(value = "项目层--查询镜像仓库明细")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/detail/{harborId}")
-	public ResponseEntity<HarborProjectVo> detail(@PathVariable(value = "harborId") @ApiParam(value = "镜像仓库ID") Long harborId) {
+	public ResponseEntity<HarborProjectVo> detail(@Encrypt(HarborProjectVo.ENCRYPT_KEY) @PathVariable(value = "harborId") @ApiParam(value = "镜像仓库ID") Long harborId) {
 		return Results.success(harborProjectService.detail(harborId));
 	}
 

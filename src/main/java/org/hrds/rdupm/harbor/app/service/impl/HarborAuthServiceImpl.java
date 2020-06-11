@@ -85,7 +85,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(CollectionUtils.isEmpty(dtoList)){
 			throw new CommonException("error.harbor.auth.param.empty");
 		}
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -140,7 +140,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Transactional(rollbackFor = Exception.class)
 	public void update(HarborAuth harborAuth) {
 		checkProjectAdmin(harborAuth.getProjectId());
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(harborAuth.getProjectId());
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -203,7 +203,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(HarborAuth harborAuth) {
 		checkProjectAdmin(harborAuth.getProjectId());
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,harborAuth.getProjectId()).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(harborAuth.getProjectId());
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -220,7 +220,11 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 	private void processHarborAuthId(HarborAuth harborAuth){
 		if(harborAuth.getHarborAuthId() == null || harborAuth.getHarborAuthId().intValue() == -1){
-			HarborAuth dbAuth = harborAuthMapper.selectByPrimaryKey(harborAuth.getAuthId());
+			HarborAuth dbAuth = repository.selectByCondition(Condition.builder(HarborAuth.class).where(Sqls.custom()
+					.andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
+					.andEqualTo(HarborAuth.FIELD_PROJECT_ID,harborAuth.getProjectId())
+					.andEqualTo(HarborAuth.FIELD_AUTH_ID,harborAuth.getAuthId())
+			).build()).stream().findFirst().orElse(null);
 			harborAuth.setObjectVersionNumber(dbAuth.getObjectVersionNumber());
 			harborAuth.setHarborAuthId(dbAuth.getHarborAuthId());
 		}
@@ -275,7 +279,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	 * 校验是否为最后一个仓库管理员，若是，则不允许更新或者删除
 	 */
 	public void checkLastProjectAdmin(HarborAuth harborAuth,String operateType){
-		HarborAuth dbAuth = repository.selectByPrimaryKey(harborAuth.getAuthId());
+		HarborAuth dbAuth = repository.selectByCondition(Condition.builder(HarborAuth.class).where(Sqls.custom()
+				.andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
+				.andEqualTo(HarborAuth.FIELD_AUTH_ID,harborAuth.getAuthId())
+		).build()).stream().findFirst().orElse(null);
 		//非仓库管理员角色更新删除，通过
 		if(!HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId().equals(dbAuth.getHarborRoleId())){
 			return;

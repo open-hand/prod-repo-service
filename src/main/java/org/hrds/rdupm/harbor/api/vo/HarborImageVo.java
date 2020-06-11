@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * description
@@ -19,6 +20,9 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborImageVo {
+	public static final String ENCRYPT_KEY = "HarborImageVo";
+
+	@Encrypt(HarborImageVo.ENCRYPT_KEY)
 	@ApiModelProperty("镜像ID")
 	@SerializedName("id")
 	private Long imageId;

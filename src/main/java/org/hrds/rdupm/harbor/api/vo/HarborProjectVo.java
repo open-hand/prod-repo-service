@@ -24,6 +24,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.BeanUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -38,6 +39,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborProjectVo {
 
+	public static final String ENCRYPT_KEY = "HarborProjectVo";
+
+	@Encrypt(HarborProjectVo.ENCRYPT_KEY)
 	private Integer harborId;
 
 	private String code;

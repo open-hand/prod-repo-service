@@ -140,7 +140,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Saga(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT,description = "更新Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
 	public void updateSaga(Long projectId, HarborProjectVo harborProjectVo) {
 		harborAuthService.checkProjectAdmin(projectId);
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -172,7 +172,10 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 	@Override
 	public List<HarborRepository> listByProject(Long projectId, HarborRepository dto) {
-		List<HarborRepository> list = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId);
+		List<HarborRepository> list = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
+				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
+				.andEqualTo(HarborRepository.FIELD_PROJECT_ID,projectId)
+		).build());
 		processHarborRepositoryList(list);
 		return list;
 	}
@@ -199,7 +202,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Transactional(rollbackFor = Exception.class)
 	public void delete(Long projectId) {
 		harborAuthService.checkProjectAdmin(projectId);
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -278,7 +281,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	public void updatePublicFlag(Long projectId, String publicFlag) {
 		HarborUtil.notIn(publicFlag,"访问级别","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -336,7 +339,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	}
 
 	private void checkProject(HarborProjectVo harborProjectVo,Long projectId){
-		if(CollectionUtils.isNotEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId))){
+		if(harborRepositoryRepository.getHarborRepositoryById(projectId) != null){
 			throw new CommonException("error.harbor.project.exist");
 		}
 
