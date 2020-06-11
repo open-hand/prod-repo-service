@@ -67,8 +67,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @GetMapping("project/{projectId}/{appServiceId}/harbor_repo_config")
     public ResponseEntity<HarborRepoDTO> queryHarborRepoConfig(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                                @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId){
-
-        return Results.success();
+        return Results.success(harborCustomRepoService.getHarborRepoConfig(projectId, appServiceId));
     }
 
 

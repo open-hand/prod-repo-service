@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.mybatis.domian.SecurityToken;
 
 /**
  * description
@@ -18,7 +19,7 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel("制品库-自定义仓库DTO")
-public class HarborCustomRepoDTO {
+public class HarborCustomRepoDTO implements SecurityToken {
     @ApiModelProperty("customRepo, 主键")
     private Long repoId;
     @ApiModelProperty(value = "名称")
