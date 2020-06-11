@@ -36,6 +36,8 @@ public class HarborCustomRepoDTO implements SecurityToken {
     private String repoEmail;
     @ApiModelProperty(value = "描述")
     private String repoDescription;
+    @ApiModelProperty(value = "项目下共享")
+    private String projectShare;
 
 
     @ApiModelProperty(value = "组织ID")
@@ -67,6 +69,7 @@ public class HarborCustomRepoDTO implements SecurityToken {
         this.repoPassword = harborCustomRepo.getPassword();
         this.repoEmail = harborCustomRepo.getEmail();
         this.repoDescription = harborCustomRepo.getDescription();
+        this.projectShare = harborCustomRepo.getProjectShare();
 
         this.projectId = harborCustomRepo.getProjectId();
         this.organizationId = harborCustomRepo.getOrganizationId();

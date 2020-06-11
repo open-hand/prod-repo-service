@@ -46,6 +46,7 @@ public class HarborCustomRepo extends AuditDomain {
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_PUBLIC_FLAG = "publicFlag";
+    public static final String FIELD_PROJECT_SHARE = "projectShare";
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_CREATED_BY = "createdBy";
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";
@@ -71,6 +72,7 @@ public class HarborCustomRepo extends AuditDomain {
         this.email = harborCustomRepoDTO.getRepoEmail();
         this.description = harborCustomRepoDTO.getRepoDescription();
         this.publicFlag = harborCustomRepoDTO.getRepoPublicFlag();
+        this.projectShare = harborCustomRepoDTO.getProjectShare();
         this.set_token(harborCustomRepoDTO.get_token());
     }
 
@@ -110,6 +112,9 @@ public class HarborCustomRepo extends AuditDomain {
     private String description;
     @ApiModelProperty(value = "是否公开访问，默认false")
     private String publicFlag;
+    @ApiModelProperty(value = "是否项目下共享，默认false")
+    @NotBlank
+    private String projectShare;
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------

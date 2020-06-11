@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author mofei.li@hand-china.com 2020/06/11 10:42
  */
-@RestController("HarborChoerodonController.v1")
+@RestController("harborChoerodonRepoController.v1")
 @RequestMapping("/v1/harbor-choerodon-repos")
 public class HarborChoerodonRepoController extends BaseController {
     @Autowired
