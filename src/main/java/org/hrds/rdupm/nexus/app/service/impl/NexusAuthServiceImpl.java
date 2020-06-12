@@ -226,7 +226,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     }
 
     @Override
-    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的的权限角色 【%s】")
+    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的权限角色 【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void delete(NexusAuth nexusAuth) {
         // 设置并返回当前nexus服务信息
@@ -246,7 +246,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
         this.validateRoleAuth(existAuth.getRepositoryId(), validateRoleCode);
 
-        this.deleteAuth(nexusAuth);
+        this.deleteNexusServerAuth(nexusAuth);
 
         nexusClient.removeNexusServerInfo();
     }
@@ -318,10 +318,12 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void expiredNexusAuth(NexusAuth nexusAuth) {
         if (!NexusConstants.Flag.Y.equals(nexusAuth.getLocked())) {
-            this.deleteAuth(nexusAuth);
+            this.deleteNexusServerAuth(nexusAuth);
         }
     }
-    private void deleteAuth(NexusAuth nexusAuth) {
+
+    @Override
+    public void deleteNexusServerAuth(NexusAuth nexusAuth) {
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
         List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
         if (CollectionUtils.isNotEmpty(existUserList)) {

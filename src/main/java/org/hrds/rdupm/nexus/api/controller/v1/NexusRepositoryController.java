@@ -240,4 +240,26 @@ public class NexusRepositoryController extends BaseController {
         nexusRepositoryService.nexusRepoEnableAndDisAble(organizationId, projectId, repositoryId, enableFlag);
         return Results.success();
     }
+
+    @ApiOperation(value = "CI-流水线-获取项目下仓库列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/project/{projectId}/ci/repo/list")
+    public ResponseEntity<List<NexusRepoDTO>> getRepoByProject(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                               @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                               @ApiParam(value = "制品类型: MAVEN、NPM ", required = true) @RequestParam String repoType,
+                                                               @ApiParam(value = "nexus仓库类型: hosted、proxy、group", required = false) @RequestParam(name = "type", required = false) String type) {
+
+        return Results.success(nexusRepositoryService.getRepoByProject(organizationId, projectId, repoType, type));
+    }
+
+    @ApiOperation(value = "CI-流水线-获取项目下仓库列表-包含用户信息")
+    @Permission(level = ResourceLevel.ORGANIZATION, permissionWithin = true)
+    @GetMapping("/{organizationId}/project/{projectId}/ci/repo/user/list")
+    public ResponseEntity<List<NexusRepoDTO>> getRepoUserByProject(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                   @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                   @ApiParam(value = "仓库主键list", required = true) @RequestParam List<Long> repositoryIds) {
+
+        return Results.success(nexusRepositoryService.getRepoUserByProject(organizationId, projectId, repositoryIds));
+    }
+
 }

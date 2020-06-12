@@ -44,7 +44,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Override
 	public NexusServerConfig setNexusInfo(NexusClient nexusClient) {
 		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setEnabled(1);
+		queryConfig.setDefaultFlag(1);
 		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
 		if (nexusServerConfig == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
@@ -71,7 +71,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		}
 
 		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setEnabled(1);
+		queryConfig.setDefaultFlag(1);
 		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
 		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
 				prodUser.getLoginName(),

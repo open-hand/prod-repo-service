@@ -118,7 +118,6 @@ public class NexusServerConfig extends AuditDomain {
     private String anonymous;
     @ApiModelProperty(value = "匿名访问，用户对应角色")
     private String anonymousRole;
-    private Integer enabled;
     @ApiModelProperty(value = "是否是Choerodon默认服务")
     private Integer defaultFlag;
     @ApiModelProperty(value = "租户Id")

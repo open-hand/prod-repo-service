@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.infra.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.hrds.rdupm.nexus.api.dto.NexusRepoDTO;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import io.choerodon.mybatis.common.BaseMapper;
 
@@ -36,4 +37,11 @@ public interface NexusRepositoryMapper extends BaseMapper<NexusRepository> {
 	 * @return
 	 */
     Long distributeRepoInsert(NexusRepository n);
+
+	/**
+	 * CI-流水线-获取项目下仓库列表-包含用户信息
+	 * @param repositoryIds 主键Id
+	 * @return List<NexusRepoDTO>
+	 */
+	List<NexusRepoDTO> selectInfoByIds(@Param("repositoryIds") List<Long> repositoryIds);
 }
