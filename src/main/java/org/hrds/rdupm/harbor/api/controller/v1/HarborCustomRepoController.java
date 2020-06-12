@@ -49,7 +49,7 @@ public class HarborCustomRepoController extends BaseController {
 
     @ApiOperation(value = "判断是否存在共享仓库")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/exist-share/{projectId}")
+    @GetMapping("/exist-share/{projectId}")
     public ResponseEntity<?> existProjectShareCustomRepo(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable(value = "projectId") Long projectId) {
         return Results.success(harborCustomRepoService.existProjectShareCustomRepo(projectId));
     }
