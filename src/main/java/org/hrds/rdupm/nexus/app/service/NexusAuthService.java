@@ -77,4 +77,10 @@ public interface NexusAuthService {
      */
     void expiredNexusAuth(NexusAuth nexusAuth);
 
+    /**
+     * 删除nexus服务权限与数据
+     * @param nexusAuth 权限数据
+     */
+     void deleteNexusServerAuth(NexusAuth nexusAuth);
+
 }

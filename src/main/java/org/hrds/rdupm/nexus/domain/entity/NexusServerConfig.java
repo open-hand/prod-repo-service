@@ -11,6 +11,8 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -23,6 +25,8 @@ import java.util.Map;
 @VersionAudit
 @ModifyAudit
 @Table(name = "rdupm_nexus_server_config")
+@Getter
+@Setter
 public class NexusServerConfig extends AuditDomain {
 
     public static final String FIELD_CONFIG_ID = "configId";
@@ -31,8 +35,8 @@ public class NexusServerConfig extends AuditDomain {
     public static final String FIELD_USER_NAME = "userName";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_ANONYMOUS = "anonymous";
-    public static final String FIELD_ENABLED = "enabled";
-    public static final String FIELD_TENANT_ID = "tenantId";
+	public static final String FIELD_DEFAULT_FLAG = "defaultFlag";
+	public static final String FIELD_TENANT_ID = "tenantId";
 
     //
     // 业务方法(按public protected private顺序排列)
@@ -63,10 +67,13 @@ public class NexusServerConfig extends AuditDomain {
     private String anonymous;
 	@ApiModelProperty(value = "匿名访问，用户对应角色")
 	private String anonymousRole;
-    @ApiModelProperty(value = "是否启用",required = true)
-    private Integer enabled;
+	@ApiModelProperty(value = "是否是Choerodon默认服务")
+	private Integer defaultFlag;
     @ApiModelProperty(value = "租户Id")
     private Long tenantId;
+	@ApiModelProperty(value = "是否启用匿名访问控制")
+	@NotNull
+	private Integer enableAnonymousFlag;
 
 	//
     // 非数据库字段
@@ -75,96 +82,6 @@ public class NexusServerConfig extends AuditDomain {
     //
     // getter/setter
     // ------------------------------------------------------------------------------
-
-    /**
-     * @return 表ID，主键，供其他表做外键
-     */
-	public Long getConfigId() {
-		return configId;
-	}
-
-	public void setConfigId(Long configId) {
-		this.configId = configId;
-	}
-    /**
-     * @return 服务名称
-     */
-	public String getServerName() {
-		return serverName;
-	}
-
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
-    /**
-     * @return 访问地址
-     */
-	public String getServerUrl() {
-		return serverUrl;
-	}
-
-	public void setServerUrl(String serverUrl) {
-		this.serverUrl = serverUrl;
-	}
-    /**
-     * @return 管理用户
-     */
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-    /**
-     * @return 管理用户密码
-     */
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-    /**
-     * @return 匿名访问，用户
-     */
-	public String getAnonymous() {
-		return anonymous;
-	}
-
-	public void setAnonymous(String anonymous) {
-		this.anonymous = anonymous;
-	}
-    /**
-     * @return 是否启用
-     */
-	public Integer getEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(Integer enabled) {
-		this.enabled = enabled;
-	}
-    /**
-     * @return 租户Id
-     */
-	public Long getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
-
-	public String getAnonymousRole() {
-		return anonymousRole;
-	}
-
-	public NexusServerConfig setAnonymousRole(String anonymousRole) {
-		this.anonymousRole = anonymousRole;
-		return this;
-	}
 
 	@Override
 	public AuditDomain set_innerMap(Map<String, Object> _innerMap) {
