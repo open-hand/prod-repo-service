@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.domain.AuditDomain;
 import org.apache.commons.lang3.StringUtils;
@@ -217,6 +218,13 @@ public class HarborUtil {
 		auditDomain.setObjectVersionNumber(null);
 		auditDomain.setLastUpdateDate(null);
 		auditDomain.setLastUpdatedBy(null);
+	}
+
+
+	public static String castToSearchParam(Map<String, Object> params) {
+		Map<String, Map<String, Object>> mapParams = new HashMap<>(16);
+		mapParams.put("searchParam", params);
+		return new Gson().toJson(mapParams);
 	}
 
 }
