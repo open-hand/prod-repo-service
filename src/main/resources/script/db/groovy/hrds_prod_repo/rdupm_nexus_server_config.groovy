@@ -17,9 +17,10 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_server_config.groovy')
             column(name: "server_url", type: "varchar(" + 100 * weight + ")",  remarks: "访问地址")  {constraints(nullable:"false")}  
             column(name: "user_name", type: "varchar(" + 30 * weight + ")",  remarks: "管理用户")  {constraints(nullable:"false")}  
             column(name: "password", type: "varchar(" + 128 * weight + ")",  remarks: "管理用户密码")  {constraints(nullable:"false")}  
-            column(name: "anonymous", type: "varchar(" + 30 * weight + ")",  remarks: "匿名访问，用户")  {constraints(nullable:"false")}  
-            column(name: "anonymous_role", type: "varchar(" + 30 * weight + ")",  remarks: "匿名访问，用户对应角色")  {constraints(nullable:"false")}  
-            column(name: "enabled", type: "tinyint",   defaultValue:"0",   remarks: "是否启用")  {constraints(nullable:"false")}  
+            column(name: "anonymous", type: "varchar(" + 30 * weight + ")",  remarks: "匿名访问，用户")
+            column(name: "anonymous_role", type: "varchar(" + 30 * weight + ")",  remarks: "匿名访问，用户对应角色")
+            column(name: "default_flag", type: "tinyint",   defaultValue:"0",   remarks: "是否是Choerodon默认服务")  {constraints(nullable:"false")}
+            column(name: "enable_anonymous_flag", type: "tinyint",   defaultValue:"0",   remarks: "是否启用匿名访问控制")  {constraints(nullable:"false")}
             column(name: "tenant_id", type: "bigint",   defaultValue:"0",   remarks: "租户Id")   
             column(name: "object_version_number", type: "bigint",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "creation_date", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  
