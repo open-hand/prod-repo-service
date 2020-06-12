@@ -112,6 +112,20 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
+    public Boolean existProjectShareCustomRepo(Long projectId) {
+        List<HarborCustomRepo> shareCustomRepo = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+                .andWhere(Sqls.custom()
+                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE))
+                .build());
+        if (CollectionUtils.isNotEmpty(shareCustomRepo)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public List<HarborCustomRepoDTO> listByProjectId(Long projectId) {
         List<HarborCustomRepoDTO> harborCustomRepoDTOList = new ArrayList<>();
         List<HarborCustomRepo> harborCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
@@ -192,7 +206,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Transactional(rollbackFor = Exception.class)
     public void createByProject(Long projectId, HarborCustomRepo harborCustomRepo) {
         checkCustomRepo(harborCustomRepo);
-        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && existProjectShareCustomRepo(projectId)) {
+        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
             throw new CommonException("error.harbor.custom.repo.share.exist");
         }
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
@@ -233,7 +247,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
-        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
             throw new CommonException("error.harbor.custom.repo.share.exist");
         }
         if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
@@ -574,18 +588,6 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         });
     }
 
-    private Boolean existProjectShareCustomRepo(Long projectId) {
-        List<HarborCustomRepo> shareCustomRepo = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
-                .andWhere(Sqls.custom()
-                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
-                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE))
-                .build());
-        if (CollectionUtils.isNotEmpty(shareCustomRepo)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     private String buildSearchParam(String appServiceName, String appServiceCode){
         Map<String, Object> paramMap = new HashMap<>(2);
