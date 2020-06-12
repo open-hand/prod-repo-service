@@ -83,9 +83,8 @@ public interface HarborCustomRepoService {
      * 项目层-关联应用服务
      * @param projectId 猪齿鱼项目ID
      * @param harborCustomRepo 自定义镜像仓库信息
-     * @param appServiceIds 关联应用服务id
      */
-    void relateServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo, Set<Long> appServiceIds);
+    void relateServiceByProject(Long projectId, HarborCustomRepo harborCustomRepo);
 
     /**
      * 查询当前自定义仓库未关联的应用服务
@@ -100,10 +99,12 @@ public interface HarborCustomRepoService {
      * 项目层-查询关联应用服务列表
      * @param projectId 猪齿鱼项目ID
      * @param customRepoId 自定义镜像仓库id
+     * @param appServiceName 应用服务名称
+     * @param appServiceCode 应用服务编码
      * @param pageRequest
      * @return Page<AppServiceDTO>
      */
-    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, Long  customRepoId, PageRequest pageRequest);
+    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, Long  customRepoId, String appServiceName, String appServiceCode, PageRequest pageRequest);
 
     /**
      * 项目层-删除自定义仓库-应用服务关联关系
