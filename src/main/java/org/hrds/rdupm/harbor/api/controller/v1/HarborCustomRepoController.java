@@ -47,6 +47,13 @@ public class HarborCustomRepoController extends BaseController {
         return Results.success(harborCustomRepoService.checkCustomRepo(harborCustomRepo));
     }
 
+    @ApiOperation(value = "判断是否存在共享仓库")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/exist-share/{projectId}")
+    public ResponseEntity<?> existProjectShareCustomRepo(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable(value = "projectId") Long projectId) {
+        return Results.success(harborCustomRepoService.existProjectShareCustomRepo(projectId));
+    }
+
     @ApiOperation(value = "项目层-查询自定义仓库列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/list-project/{projectId}")
