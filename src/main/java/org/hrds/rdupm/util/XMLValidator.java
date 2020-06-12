@@ -1,5 +1,7 @@
 package org.hrds.rdupm.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
@@ -24,6 +26,8 @@ import static org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants.POM_XML_
  * @author like.zhang@hand-china.com 2020/06/09 10:22
  */
 public class XMLValidator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XMLValidator.class);
 
     private static final String POM_XSD_DEFAULT_PATH = "src/main/resources/xsd/pom0.xsd";
     private static final String POM_XSD_DEFAULT_PATH_1 = "src/main/resources/xsd/pom1.xsd";
@@ -51,10 +55,13 @@ public class XMLValidator {
             saxHandler.checkCount();
 
         } catch (SAXException e) {
+            LOGGER.error("pom文件，校验错误", e);
             throw new CommonException(POM_XML_FORMAT_ERROR);
         } catch (XMLCountException e) {
+            LOGGER.error("pom文件，校验错误", e);
             throw new CommonException(POM_XML_TAG_MISS, e.getMessage());
         } catch (Exception e) {
+            LOGGER.error("pom文件，校验错误", e);
             throw new CommonException(e);
         }
     }

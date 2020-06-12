@@ -37,7 +37,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Override
 	public NexusServerConfig setNexusInfo(NexusClient nexusClient) {
 		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setEnabled(1);
+		queryConfig.setDefaultFlag(1);
 		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
 		if (nexusServerConfig == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
@@ -64,7 +64,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		}
 
 		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setEnabled(1);
+		queryConfig.setDefaultFlag(1);
 		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
 		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
 				prodUser.getLoginName(),
@@ -80,7 +80,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (exist != null) {
 			throw new CommonException("已有nexus服务配置，不允许再新增，请编辑更新");
 		}
-		nexusServerConfig.setEnabled(1);
+		nexusServerConfig.setDefaultFlag(1);
 		nexusServerConfigRepository.insertSelective(nexusServerConfig);
 		return nexusServerConfig;
 	}
@@ -101,7 +101,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Override
 	public NexusServerConfig queryServerConfig() {
 		NexusServerConfig query = new NexusServerConfig();
-		query.setEnabled(1);
+		query.setDefaultFlag(1);
 		List<NexusServerConfig> nexusServerConfigList = nexusServerConfigRepository.select(query);
 		if (CollectionUtils.isEmpty(nexusServerConfigList)) {
 			return null;
