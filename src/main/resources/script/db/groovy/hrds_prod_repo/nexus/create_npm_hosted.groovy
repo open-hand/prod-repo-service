@@ -1,4 +1,4 @@
-package org.hrds.rdupm.nexus.client.nexus.script
+package script.db.groovy.hrds_prod_repo.nexus
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository

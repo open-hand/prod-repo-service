@@ -9,7 +9,7 @@ image:
   pullPolicy: Always
 
 preJob:
-  image: registry.cn-hangzhou.aliyuncs.com/choerodon-tools/dbtool:0.6.2
+  image: registry.cn-shanghai.aliyuncs.com/c7n/dbtool:0.7.0
   timeout: 1200
   preInitDB:
     # 是否初始化iam_service数据库

@@ -1,4 +1,4 @@
-package org.hrds.rdupm.nexus.client.nexus.script
+package script.db.groovy.hrds_prod_repo.nexus
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository
@@ -16,5 +16,5 @@ if (existingRepository != null) {
   newConfig.attributes['storage']['strictContentTypeValidation'] = true
   repositoryManager.update(newConfig)
 } else {
-  repository.createNpmGroup(param.name, param.members, param.blobStoreName)
+  repository.createMavenGroup(param.name, param.members, param.blobStoreName)
 }
