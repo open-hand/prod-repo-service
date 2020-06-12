@@ -48,10 +48,10 @@ public interface NexusComponentService {
 	 * 包删除
 	 * @param organizationId 组织ID
 	 * @param projectId 项目Id
-	 * @param repositoryName 仓库名称
+	 * @param repositoryId 仓库Id
 	 * @param componentIds 待输出数据
 	 */
-	void deleteComponents(Long organizationId, Long projectId, String repositoryName, List<String> componentIds);
+	void deleteComponents(Long organizationId, Long projectId, Long repositoryId, List<String> componentIds);
 
 	/**
 	 * 包上传
@@ -69,10 +69,10 @@ public interface NexusComponentService {
 	 * NPM 包上传
 	 * @param organizationId 组织ID
 	 * @param projectId 项目Id
-	 * @param repositoryName 仓库名称
+	 * @param repositoryId 仓库Id
 	 * @param assetTgz tgz包文件
 	 */
-	void npmComponentsUpload(Long organizationId, Long projectId, String repositoryName, MultipartFile assetTgz);
+	void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, MultipartFile assetTgz);
 	/**
 	 * jar引入， pom配置
 	 * @param componentInfo jar引入

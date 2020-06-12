@@ -176,8 +176,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_UPDATE, content = "%s 更新 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void update(NexusAuth nexusAuth) {
-        // 设置并返回当前nexus服务信息
-        configService.setNexusInfo(nexusClient);
 
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
         if (existAuth == null) {
@@ -186,6 +184,10 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (NexusConstants.Flag.Y.equals(existAuth.getLocked())) {
             throw new CommonException(NexusMessageConstants.NEXUS_AUTH_OWNER_NOT_UPDATE);
         }
+
+        // 设置并返回当前nexus服务信息
+        configService.setNexusInfoByRepositoryId(nexusClient, existAuth.getRepositoryId());
+
 
         // 校验
         List<String> validateRoleCode = new ArrayList<>();
@@ -229,17 +231,16 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的权限角色 【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void delete(NexusAuth nexusAuth) {
-        // 设置并返回当前nexus服务信息
-        configService.setNexusInfo(nexusClient);
 
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
         if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
-
         if (NexusConstants.Flag.Y.equals(existAuth.getLocked())) {
             throw new CommonException(NexusMessageConstants.NEXUS_AUTH_OWNER_NOT_DELETE);
         }
+        // 设置并返回当前nexus服务信息
+        configService.setNexusInfoByRepositoryId(nexusClient, existAuth.getRepositoryId());
 
         // 校验
         List<String> validateRoleCode = new ArrayList<>();
@@ -297,7 +298,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
     @Override
     public void expiredBatchNexusAuth() {
-        configService.setNexusInfo(nexusClient);
         // 数据查询
         Condition condition = new Condition(NexusAuth.class);
         condition.createCriteria().andLessThanOrEqualTo(NexusAuth.FIELD_END_DATE, new Date());
@@ -310,16 +310,16 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
                 logger.error("expired nexus auth error, authId: " + nexusAuth.getAuthId(), e);
             }
         });
-
-        nexusClient.removeNexusServerInfo();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void expiredNexusAuth(NexusAuth nexusAuth) {
+        configService.setNexusInfoByRepositoryId(nexusClient, nexusAuth.getRepositoryId());
         if (!NexusConstants.Flag.Y.equals(nexusAuth.getLocked())) {
             this.deleteNexusServerAuth(nexusAuth);
         }
+        nexusClient.removeNexusServerInfo();
     }
 
     @Override

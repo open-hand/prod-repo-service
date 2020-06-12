@@ -20,7 +20,7 @@ public interface NexusMessageConstants {
 	String NEXUS_SERVER_CONFIG_MUL = "error.nexus.server.config.multi";
 
 	/**
-	 * nexus服务信息未配置，请联系管理员配置
+	 * 没有可用的nexus服务配置
 	 */
 	String NEXUS_SERVER_INFO_NOT_CONFIG = "error.nexus.server.info.not.config";
 

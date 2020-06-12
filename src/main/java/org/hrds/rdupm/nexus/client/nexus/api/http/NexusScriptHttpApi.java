@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.client.nexus.api.http;
 
 import com.alibaba.fastjson.JSON;
+import io.choerodon.core.exception.CommonException;
 import org.apache.commons.io.IOUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
@@ -116,6 +117,7 @@ public class NexusScriptHttpApi implements NexusScriptApi {
 				serverScriptList.add(nexusServerScript);
 			} catch (IOException e) {
 				LOGGER.error("初始化script脚本获取对应文件失败：" +  filePath, e);
+				throw new CommonException(e);
 			}
 		});
 

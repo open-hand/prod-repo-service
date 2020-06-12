@@ -43,10 +43,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	private NexusClient nexusClient;
 
 	@Override
-	public NexusServerConfig setNexusInfo(NexusClient nexusClient) {
-		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setDefaultFlag(1);
-		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
+	public NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId) {
+		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.queryEnableServiceConfig(projectId);
 		if (nexusServerConfig == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
 		}
@@ -58,7 +56,33 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	}
 
 	@Override
-	public void setCurrentNexusInfo(NexusClient nexusClient) {
+	public NexusServerConfig setNexusInfoByConfigId(NexusClient nexusClient, Long configId) {
+		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
+		if (nexusServerConfig == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
+		}
+		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
+				nexusServerConfig.getUserName(),
+				DESEncryptUtil.decode(nexusServerConfig.getPassword()));
+		nexusClient.setNexusServerInfo(nexusServer);
+		return nexusServerConfig;
+	}
+
+	@Override
+	public NexusServerConfig setNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId) {
+		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.queryServiceConfigByRepositoryId(repositoryId);
+		if (nexusServerConfig == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
+		}
+		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
+				nexusServerConfig.getUserName(),
+				DESEncryptUtil.decode(nexusServerConfig.getPassword()));
+		nexusClient.setNexusServerInfo(nexusServer);
+		return nexusServerConfig;
+	}
+
+	@Override
+	public NexusServerConfig setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId) {
 		String userName = DetailsHelper.getUserDetails().getUsername();
 		ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME, userName).stream().findFirst().orElse(null);
 		if (prodUser == null) {
@@ -71,13 +95,15 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 			password = prodUser.getPassword();
 		}
 
-		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setDefaultFlag(1);
-		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectOne(queryConfig);
+		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.queryServiceConfigByRepositoryId(repositoryId);
+		if (nexusServerConfig == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
+		}
 		NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
 				prodUser.getLoginName(),
 				password);
 		nexusClient.setNexusServerInfo(nexusServer);
+		return nexusServerConfig;
 	}
 
 	@Override

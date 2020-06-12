@@ -53,4 +53,34 @@
             nps.organization_id = #{organizationId}
             AND nps.project_id = #{projectId}
     </select>
+    <select id="queryEnableProjectServiceConfig"
+            resultType="org.hrds.rdupm.nexus.domain.entity.NexusServerConfig">
+        SELECT
+            <include refid="selectField"></include>
+        FROM
+            rdupm_nexus_server_config nsc
+            INNER JOIN rdupm_nexus_project_service nps ON nsc.config_id = nps.config_id
+        WHERE
+         nps.project_id = #{projectId}
+        AND nps.enable_flag = 1
+    </select>
+    <select id="queryServiceConfigByRepositoryId"
+            resultType="org.hrds.rdupm.nexus.domain.entity.NexusServerConfig">
+        SELECT
+            nsc.config_id,
+            nsc.server_name,
+            nsc.server_url,
+            nsc.user_name,
+            nsc.PASSWORD,
+            nsc.anonymous,
+            nsc.anonymous_role,
+            nsc.object_version_number,
+            nsc.default_flag,
+            nsc.enable_anonymous_flag
+        FROM
+            rdupm_nexus_repository nr
+            INNER JOIN rdupm_nexus_server_config nsc ON nsc.config_id = nr.config_id
+        WHERE
+            nr.repository_id = #{repositoryId}
+    </select>
 </mapper>

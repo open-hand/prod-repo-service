@@ -20,6 +20,9 @@ public class NexusServerComponentInfo {
 	public static String FIELD_CREATION_DATE = "creationDate";
 	public static String FIELD_LAST_DOWNLOAD_DATE = "lastDownloadDate";
 
+	@ApiModelProperty(value = "仓库主键Id")
+	private Long repositoryId;
+
 	@ApiModelProperty(value = "id")
 	private String id;
 	@ApiModelProperty(value = "成员components列表，Id集合")

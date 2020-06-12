@@ -14,17 +14,36 @@ public interface NexusServerConfigService {
 
 
 	/**
-	 * 设置并返回当前nexus服务信息
+	 * 设置并返回项目下启用nexus服务信息 - 设置admin信息
 	 * @param nexusClient nexus服务client
+	 * @param projectId 项目Id
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig setNexusInfo(NexusClient nexusClient);
+	NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId);
 
 	/**
-	 * 设置当前用户为nexus服务访问用户
+	 * 设置并返回当前主键对应nexus服务信息 - 设置admin信息
 	 * @param nexusClient nexus服务client
+	 * @param configId nexus服务配置主键Id
+	 * @return NexusServerConfig
 	 */
-	void setCurrentNexusInfo(NexusClient nexusClient);
+	NexusServerConfig setNexusInfoByConfigId(NexusClient nexusClient, Long configId);
+	/**
+	 * 设置并返回当前仓库对应的nexus服务信息 - 设置admin信息
+	 * @param nexusClient nexus服务client
+	 * @param repositoryId 仓库主键Id
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig setNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId);
+
+	/**
+	 * 设置当前用户为nexus服务访问用户 - 设置当前用户信息
+	 * @param nexusClient nexus服务client
+	 * @param repositoryId 仓库主键Id
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId);
+
 
 	/**
 	 * 制品库-创建自定义nexus服务

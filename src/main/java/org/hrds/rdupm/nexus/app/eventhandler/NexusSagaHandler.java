@@ -68,14 +68,13 @@ public class NexusSagaHandler {
 			throw new CommonException(e);
 		}
 
-		configService.setNexusInfo(nexusClient);
-
-		NexusRepository query = new NexusRepository();
-		query.setNeRepositoryName(nexusRepoCreateDTO.getName());
-		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(nexusRepoCreateDTO.getRepositoryId());
 		if (nexusRepository == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepoCreateDTO.getName());
 		}
+
+		configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+
 		nexusRepository.setNexusAuthList(nexusRepoCreateDTO.getNexusAuthList());
 
 		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())){
@@ -139,13 +138,12 @@ public class NexusSagaHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
-
 		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
 		if (exist == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
 		}
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, exist.getRepositoryId());
+
 
 		Condition roleCondition = Condition.builder(NexusRole.class)
 				.where(Sqls.custom()
@@ -212,13 +210,11 @@ public class NexusSagaHandler {
 			throw new CommonException(e);
 		}
 
-		configService.setNexusInfo(nexusClient);
-
 		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
 		if (exist == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
 		}
-
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, exist.getRepositoryId());
 		Condition roleCondition = Condition.builder(NexusRole.class)
 				.where(Sqls.custom()
 						.andEqualTo(NexusRole.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()))
@@ -280,7 +276,7 @@ public class NexusSagaHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepoCreateDTO.getRepositoryId());
 
 		// 创建更新
 		if (nexusRepoCreateDTO.getRepoType().equals(NexusConstants.RepoType.MAVEN)) {
@@ -353,7 +349,7 @@ public class NexusSagaHandler {
 
 		// nexus数据删除
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		configService.setNexusInfoByConfigId(nexusClient, nexusRepository.getConfigId());
 
 		// 仓库
 		nexusClient.getRepositoryApi().deleteRepository(nexusRepository.getNeRepositoryName());
@@ -388,13 +384,13 @@ public class NexusSagaHandler {
 		}
 
 		// 设置并返回当前nexus服务信息
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+
 
 		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
 		if (exist == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
 		}
-
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, exist.getRepositoryId());
 		// 1. 角色
 		Condition roleCondition = Condition.builder(NexusRole.class)
 				.where(Sqls.custom()

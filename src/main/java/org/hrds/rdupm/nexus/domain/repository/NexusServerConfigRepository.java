@@ -21,6 +21,20 @@ public interface NexusServerConfigRepository extends BaseRepository<NexusServerC
     NexusServerConfig queryServiceConfig(Long configId, Long projectId);
 
     /**
+     * 查询当前项目，启用的nexus服务配置数据
+     * @param projectId 项目Id
+     * @return NexusServerConfig 服务配置信息
+     */
+    NexusServerConfig queryEnableServiceConfig(Long projectId);
+
+    /**
+     * 查询nexus服务配置信息，通过仓库Id
+     * @param repositoryId 仓库Id
+     * @return NexusServerConfig 服务配置信息
+     */
+    NexusServerConfig queryServiceConfigByRepositoryId(Long repositoryId);
+
+    /**
      * 查询项目下，nexus服务配置信息
      * @param organizationId 组织Id
      * @param projectId 项目Id

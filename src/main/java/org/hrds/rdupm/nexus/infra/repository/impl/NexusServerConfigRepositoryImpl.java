@@ -1,6 +1,5 @@
 package org.hrds.rdupm.nexus.infra.repository.impl;
 
-import org.hrds.rdupm.nexus.infra.mapper.NexusProjectServiceMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
@@ -23,6 +22,23 @@ public class NexusServerConfigRepositoryImpl extends BaseRepositoryImpl<NexusSer
     @Override
     public NexusServerConfig queryServiceConfig(Long configId, Long projectId) {
         return nexusServerConfigMapper.queryServiceConfig(configId, projectId);
+    }
+
+    @Override
+    public NexusServerConfig queryEnableServiceConfig(Long projectId) {
+        NexusServerConfig projectConfig = nexusServerConfigMapper.queryEnableProjectServiceConfig(projectId);
+        if (projectConfig == null) {
+            // 项目下没有自己启用的nexus配置。 获取Choerodon默认的
+            NexusServerConfig queryConfig = new NexusServerConfig();
+            queryConfig.setDefaultFlag(1);
+            projectConfig = nexusServerConfigMapper.selectOne(queryConfig);
+        }
+        return projectConfig;
+    }
+
+    @Override
+    public NexusServerConfig queryServiceConfigByRepositoryId(Long repositoryId) {
+        return nexusServerConfigMapper.queryServiceConfigByRepositoryId(repositoryId);
     }
 
     @Override
