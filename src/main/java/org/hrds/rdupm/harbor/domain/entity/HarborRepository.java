@@ -72,7 +72,6 @@ public class HarborRepository extends AuditDomain {
    @ApiModelProperty(value = "是否公开访问，默认false")    
     private String publicFlag;
 
-   @Encrypt(HarborImageVo.ENCRYPT_KEY)
     @ApiModelProperty(value = "harbor项目ID",required = true)
     @NotNull
     private Long harborId;

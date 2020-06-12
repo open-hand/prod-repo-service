@@ -5,10 +5,12 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hzero.core.util.UUIDUtils;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -51,8 +53,11 @@ public class ProductLibraryDTO extends AuditDomain {
 	private String name;
 	@ApiModelProperty(value = "是否公开访问，默认false")
 	private String publicFlag;
+
 	@ApiModelProperty(value = "harbor项目ID")
+	@Encrypt(HarborProjectVo.ENCRYPT_KEY)
 	private Long harborId;
+
 	@ApiModelProperty(value = "镜像数")
 	private Integer repoCount;
 
