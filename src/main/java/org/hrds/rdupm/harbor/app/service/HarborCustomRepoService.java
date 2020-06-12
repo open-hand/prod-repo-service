@@ -24,6 +24,15 @@ public interface HarborCustomRepoService {
     Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo);
 
     /**
+     * 判断是否存在共享仓库
+     *
+     * @param projectId
+     * @author mofei.li@hand-china.com 2020-06-12 11:24
+     * @return
+     */
+    Boolean existProjectShareCustomRepo(Long projectId);
+
+    /**
      * 项目层-查询自定义仓库列表（制品库管理页面）
      *
      * @param projectId
