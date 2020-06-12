@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 制品库_nexus服务信息配置表应用服务默认实现
@@ -160,10 +161,14 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (enableFlag == null) {
 			// 没有启用的自定义的nexus服务, 设置默认的为启用
 			defaultConfig.setEnableFlag(BaseConstants.Flag.YES);
+		} else {
+			defaultConfig.setEnableFlag(BaseConstants.Flag.NO);
 		}
 		List<NexusServerConfig> result = new ArrayList<>();
 		result.add(defaultConfig);
 		result.addAll(nexusServerConfigList);
+
+		result = result.stream().peek(nexusServer -> nexusServer.setPassword(null)).collect(Collectors.toList());
 		return result;
 	}
 

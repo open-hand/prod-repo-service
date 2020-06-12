@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
@@ -26,6 +27,8 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.AssertUtils;
 import org.springframework.http.HttpStatus;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +63,7 @@ public class NexusServerConfig extends AuditDomain {
             throw new CommonException(NexusMessageConstants.NEXUS_INPUT_ADMIN_USER);
         }
 
+        this.serverUrl = this.serverUrl.replaceAll("/*$", "");
         NexusServer nexusServer = new NexusServer(this.serverUrl, this.userName, this.password);
         nexusClient.setNexusServerInfo(nexusServer);
         List<NexusServerUser> nexusExistUser = null;
@@ -77,8 +81,12 @@ public class NexusServerConfig extends AuditDomain {
 
         if (this.enableAnonymousFlag.equals(BaseConstants.Flag.YES)) {
             // 启用匿名访问控制
-            AssertUtils.notNull(this.anonymous, "anonymous not null", "");
-            AssertUtils.notNull(this.anonymousRole, "anonymousRole not null", "");
+            if (StringUtils.isBlank(this.anonymous)) {
+                throw new CommonException("anonymous not null");
+            }
+            if (StringUtils.isBlank(this.anonymousRole)) {
+                throw new CommonException("anonymousRole not null");
+            }
             List<NexusServerUser> anonymousUser = nexusClient.getNexusUserApi().getUsers(this.anonymous);
             if (CollectionUtils.isEmpty(anonymousUser)) {
                 throw new CommonException(NexusMessageConstants.NEXUS_ANONYMOUS_USER_NOT_EXIST);
@@ -87,6 +95,9 @@ public class NexusServerConfig extends AuditDomain {
             if (anonymousRoleExist == null) {
                 throw new CommonException(NexusMessageConstants.NEXUS_ANONYMOUS_ROLE_USER_NOT_EXIST);
             }
+        } else {
+            this.anonymous = null;
+            this.anonymousRole = null;
         }
     }
     //

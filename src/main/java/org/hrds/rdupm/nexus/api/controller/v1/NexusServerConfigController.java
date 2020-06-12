@@ -23,7 +23,7 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020-03-27 11:42:59
  */
 @RestController("nexusServerConfigController.v1")
-@RequestMapping("/v1/nexus-server-configs")
+@RequestMapping("/v1/{organizationId}/nexus-server-configs")
 public class NexusServerConfigController extends BaseController {
 
     @Autowired
@@ -59,7 +59,7 @@ public class NexusServerConfigController extends BaseController {
 
     @ApiOperation(value = "项目层-制品库-nexus服务启用")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/project/{projectId}/enable")
+    @PostMapping("/project/{projectId}/enable")
     public ResponseEntity<?> enableProjectServerConfig(@ApiParam(value = "组织ID", required = true) @PathVariable Long organizationId,
                                                        @ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
                                                        @RequestBody NexusServerConfig nexusServerConfig) {

@@ -18,6 +18,7 @@
         <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
     </resultMap>
     <sql id="selectField">
+        nsc.config_id,
         nsc.server_name,
         nsc.server_url,
         nsc.user_name,
@@ -26,6 +27,7 @@
         nsc.anonymous_role,
         nsc.object_version_number,
         nsc.default_flag,
+        nsc.enable_anonymous_flag,
         nps.project_id,
         nps.organization_id,
         nps.project_service_id,
