@@ -306,7 +306,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
-        List<HarborRepoService> customRepoServices = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborCustomRepoService.class)
+        List<HarborRepoService> customRepoServices = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
                 .andWhere(Sqls.custom()
                         .andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, harborCustomRepo.getId()))
                 .build());
@@ -543,8 +543,6 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     @Override
     public HarborRepoDTO getHarborRepoConfig(Long projectId, Long appServiceId) {
-        Set<Long> appServiceIds = new HashSet<Long>(){{add(appServiceId);}};
-        List<AppServiceDTO> appServiceDTOS = batchQueryAppServiceByIds(projectId,appServiceIds,false,true,"");
         //查找关联关系
         List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
                 .andWhere(Sqls.custom()
@@ -576,7 +574,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     @Override
     public HarborRepoDTO getHarborRepoConfigByRepoId(Long projectId, Long repoId, String repoType) {
-        if (StringUtils.equalsAny(repoType, HarborRepoDTO.CUSTOM_REPO, HarborRepoDTO.DEFAULT_REPO)) {
+        if (!StringUtils.equalsAny(repoType, HarborRepoDTO.CUSTOM_REPO, HarborRepoDTO.DEFAULT_REPO)) {
             throw new CommonException("error.harbor.config.repoType");
         }
         if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
