@@ -11,6 +11,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
@@ -33,22 +34,31 @@ public class NexusInitServiceImpl implements NexusInitService {
 	@Autowired
 	private NexusServerConfigService configService;
 	@Autowired
+	private NexusServerConfigRepository nexusServerConfigRepository;
+	@Autowired
 	private NexusRepositoryRepository nexusRepositoryRepository;
 
 	@Override
 	public void initScript() {
-		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
-
-		nexusClient.getNexusScriptApi().initScript();
-
-		// remove配置信息
-		nexusClient.removeNexusServerInfo();
+		try {
+			List<NexusServerConfig> serverConfigList = nexusServerConfigRepository.selectAll();
+			serverConfigList.forEach(nexusServerConfig -> {
+				// 设置并返回当前nexus服务信息
+				configService.setNexusInfoByConfigId(nexusClient, nexusServerConfig.getConfigId());
+				nexusClient.getNexusScriptApi().initScript();
+			});
+		} finally {
+			// remove配置信息
+			nexusClient.removeNexusServerInfo();
+		}
 	}
 
 	@Override
 	public void initAnonymous(List<String> repositoryNames) {
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		NexusServerConfig queryConfig = new NexusServerConfig();
+		queryConfig.setDefaultFlag(1);
+		NexusServerConfig defaultConfig = nexusServerConfigRepository.selectOne(queryConfig);
+		configService.setNexusInfoByConfigId(nexusClient, defaultConfig.getConfigId());
 
 		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(null);
 		Map<String, String> map = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, NexusServerRepository::getFormat));
@@ -57,9 +67,9 @@ public class NexusInitServiceImpl implements NexusInitService {
 			repositoryNames = nexusServerRepositoryList.stream().map(NexusServerRepository::getName).collect(Collectors.toList());
 		}
 
-		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
+		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(defaultConfig.getAnonymousRole());
 		if (anonymousRole == null) {
-			throw new CommonException("default anonymous role not found: " + serverConfig.getAnonymousRole());
+			throw new CommonException("default anonymous role not found: " + defaultConfig.getAnonymousRole());
 		}
 
 		Condition condition = Condition.builder(NexusRepository.class)

@@ -16,7 +16,7 @@ import java.util.List;
 public interface NexusAuthService {
 
     /**
-     * 权限列表查询
+     * 项目层 - 权限列表查询
      * @param pageRequest 分页参数
      * @param nexusAuth 查询参数
      * @return Page<NexusAuth>
@@ -24,7 +24,7 @@ public interface NexusAuthService {
     Page<NexusAuth> pageList(PageRequest pageRequest, NexusAuth nexusAuth);
 
     /**
-     * 导出
+     * 项目层 - 导出
      * @param pageRequest 分页参数
      * @param nexusAuth 查询参数
      * @param exportParam
@@ -32,6 +32,24 @@ public interface NexusAuthService {
      * @return
      */
     Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response);
+
+    /**
+     * 组织层 - 权限列表查询
+     * @param pageRequest 分页参数
+     * @param nexusAuth 查询参数
+     * @return Page<NexusAuth>
+     */
+    Page<NexusAuth> pageListOrg(PageRequest pageRequest, NexusAuth nexusAuth);
+
+    /**
+     * 组织层 - 导出
+     * @param pageRequest 分页参数
+     * @param nexusAuth 查询参数
+     * @param exportParam
+     * @param response
+     * @return
+     */
+    Page<NexusAuth> exportOrg(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response);
 
     /**
      * 分配权限

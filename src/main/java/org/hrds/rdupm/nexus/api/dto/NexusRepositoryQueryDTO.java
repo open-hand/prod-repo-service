@@ -2,12 +2,16 @@ package org.hrds.rdupm.nexus.api.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 仓库列表查询DTO
  * @author weisen.yang@hand-china.com 2020/3/30
  */
 @ApiModel("仓库列表查询")
+@Getter
+@Setter
 public class NexusRepositoryQueryDTO {
 	@ApiModelProperty(value = "仓库名称")
 	private String repositoryName;
@@ -23,65 +27,4 @@ public class NexusRepositoryQueryDTO {
 	private Long organizationId;
 	@ApiModelProperty(value = "制品库-类型", hidden = true)
 	private String repoType;
-
-	public Integer getDistributedQueryFlag() {
-		return distributedQueryFlag;
-	}
-
-	public void setDistributedQueryFlag(Integer distributedQueryFlag) {
-		this.distributedQueryFlag = distributedQueryFlag;
-	}
-
-	public String getRepositoryName() {
-		return repositoryName;
-	}
-
-	public NexusRepositoryQueryDTO setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
-		return this;
-	}
-
-	public Long getProjectId() {
-		return projectId;
-	}
-
-	public NexusRepositoryQueryDTO setProjectId(Long projectId) {
-		this.projectId = projectId;
-		return this;
-	}
-
-	public Long getOrganizationId() {
-		return organizationId;
-	}
-
-	public NexusRepositoryQueryDTO setOrganizationId(Long organizationId) {
-		this.organizationId = organizationId;
-		return this;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public NexusRepositoryQueryDTO setType(String type) {
-		this.type = type;
-		return this;
-	}
-
-	public String getVersionPolicy() {
-		return versionPolicy;
-	}
-
-	public NexusRepositoryQueryDTO setVersionPolicy(String versionPolicy) {
-		this.versionPolicy = versionPolicy;
-		return this;
-	}
-
-	public String getRepoType() {
-		return repoType;
-	}
-
-	public void setRepoType(String repoType) {
-		this.repoType = repoType;
-	}
 }

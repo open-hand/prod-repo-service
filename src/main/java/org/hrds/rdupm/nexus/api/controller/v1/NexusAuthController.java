@@ -98,7 +98,7 @@ public class NexusAuthController extends BaseController {
         nexusAuth.setRoleCode(roleCode);
         nexusAuth.setNeRepositoryName(neRepositoryName);
         nexusAuth.setRepoType(repoType);
-        Page<NexusAuth> list = nexusAuthService.pageList(pageRequest, nexusAuth);
+        Page<NexusAuth> list = nexusAuthService.pageListOrg(pageRequest, nexusAuth);
         return Results.success(list);
     }
 
@@ -122,7 +122,7 @@ public class NexusAuthController extends BaseController {
         nexusAuth.setRoleCode(roleCode);
         nexusAuth.setNeRepositoryName(neRepositoryName);
         nexusAuth.setRepoType(repoType);
-        return Results.success(nexusAuthService.export(pageRequest, nexusAuth, exportParam, response));
+        return Results.success(nexusAuthService.exportOrg(pageRequest, nexusAuth, exportParam, response));
     }
 
     @ApiOperation(value = "项目层--权限明细")

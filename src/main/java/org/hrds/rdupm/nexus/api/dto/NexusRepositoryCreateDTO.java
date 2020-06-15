@@ -168,6 +168,8 @@ public class NexusRepositoryCreateDTO {
 		nexusMavenGroup.setMembers(this.getRepoMemberList());
 		return nexusMavenGroup;
 	}
+
+	private Long repositoryId;
 	/**
 	 * hosted，proxy，group
 	 */

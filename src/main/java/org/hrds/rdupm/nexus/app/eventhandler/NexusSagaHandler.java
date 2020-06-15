@@ -68,14 +68,13 @@ public class NexusSagaHandler {
 			throw new CommonException(e);
 		}
 
-		configService.setNexusInfo(nexusClient);
-
-		NexusRepository query = new NexusRepository();
-		query.setNeRepositoryName(nexusRepoCreateDTO.getName());
-		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(nexusRepoCreateDTO.getRepositoryId());
 		if (nexusRepository == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepoCreateDTO.getName());
 		}
+
+		configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+
 		nexusRepository.setNexusAuthList(nexusRepoCreateDTO.getNexusAuthList());
 
 		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())){
@@ -139,13 +138,12 @@ public class NexusSagaHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
-
 		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
 		if (exist == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
 		}
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, exist.getRepositoryId());
+
 
 		Condition roleCondition = Condition.builder(NexusRole.class)
 				.where(Sqls.custom()
@@ -212,13 +210,11 @@ public class NexusSagaHandler {
 			throw new CommonException(e);
 		}
 
-		configService.setNexusInfo(nexusClient);
-
 		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
 		if (exist == null) {
 			throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
 		}
-
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, exist.getRepositoryId());
 		Condition roleCondition = Condition.builder(NexusRole.class)
 				.where(Sqls.custom()
 						.andEqualTo(NexusRole.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()))
@@ -280,7 +276,7 @@ public class NexusSagaHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepoCreateDTO.getRepositoryId());
 
 		// 创建更新
 		if (nexusRepoCreateDTO.getRepoType().equals(NexusConstants.RepoType.MAVEN)) {
@@ -353,7 +349,7 @@ public class NexusSagaHandler {
 
 		// nexus数据删除
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		configService.setNexusInfoByConfigId(nexusClient, nexusRepository.getConfigId());
 
 		// 仓库
 		nexusClient.getRepositoryApi().deleteRepository(nexusRepository.getNeRepositoryName());
@@ -373,108 +369,32 @@ public class NexusSagaHandler {
 		return message;
 	}
 
-	@SagaTask(code = NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED_REPO,
-			description = "关联仓库",
+	@SagaTask(code = NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED_ROLE,
+			description = "关联仓库， 创建角色",
 			sagaCode = NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED,
 			maxRetryCount = 3,
 			seq = 1)
-	public String relatedRepoSaga(String message) {
-		// TODO 关联仓库
-		NexusRepository nexusRepository = null;
-		try {
-			nexusRepository = objectMapper.readValue(message, NexusRepository.class);
-		} catch (IOException e) {
-			throw new CommonException(e);
-		}
-
-		// 设置并返回当前nexus服务信息
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
-
-		NexusRepository exist = nexusRepositoryRepository.selectByPrimaryKey(nexusRepository);
-		if (exist == null) {
-			throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
-		}
-
-		// 1. 角色
-		Condition roleCondition = Condition.builder(NexusRole.class)
-				.where(Sqls.custom()
-						.andEqualTo(NexusRole.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()))
-				.build();
-		List<NexusRole> roleList = nexusRoleRepository.selectByCondition(roleCondition);
-		if (CollectionUtils.isEmpty(roleList)) {
-			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-		}
-		NexusRole nexusRole = roleList.get(0);
-
-		// 发布角色
-		//NexusServerRole nexusServerRole = new NexusServerRole();
-		//nexusServerRole.createDefPushRole(nexusRepository.getNeRepositoryName(), true, nexusRole.getNeRoleId());
-		// 拉取角色
-		NexusServerRole pullNexusServerRole = new NexusServerRole();
-		pullNexusServerRole.createDefPullRole(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
-
-		// 创建角色
-		/*NexusServerRole pushExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerRole.getId());
-		if (pushExist == null) {
-			// 角色不存在，创建
-			nexusClient.getNexusRoleApi().createRole(nexusServerRole);
-		}*/
-		NexusServerRole pullExist = nexusClient.getNexusRoleApi().getRoleById(pullNexusServerRole.getId());
-		if (pullExist == null) {
-			// 角色不存在，创建
-			nexusClient.getNexusRoleApi().createRole(pullNexusServerRole);
-		}
-
-		// 2. 用户
-		Condition userCondition = Condition.builder(NexusUser.class)
-				.where(Sqls.custom()
-						.andEqualTo(NexusUser.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()))
-				.build();
-		List<NexusUser> userList = nexusUserRepository.selectByCondition(userCondition);
-		if (CollectionUtils.isEmpty(userList)) {
-			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-		}
-		NexusUser nexusUser = userList.get(0);
-
-		// 发布用户
-		// 为发布用户赋予发布角色
-		/*List<NexusServerUser> nexusServerUserList = nexusClient.getNexusUserApi().getUsers(nexusUser.getNeUserId());
-		if (CollectionUtils.isNotEmpty(nexusServerUserList)) {
-			NexusServerUser nexusServerUser = nexusServerUserList.get(0);
-			nexusServerUser.getRoles().add(nexusServerRole.getId());
-			nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-		} else {
-			throw new CommonException(NexusMessageConstants.NEXUS_REPO_RELATED_EFAULT_USER_IS_NULL, nexusRepository.getNeRepositoryName());
-		}*/
-
-		// 拉取用户
-		NexusServerUser pullNexusServerUser = new NexusServerUser();
-		pullNexusServerUser.createDefPullUser(nexusRepository.getNeRepositoryName(), nexusRole.getNePullRoleId(), nexusUser.getNePullUserId());
-		pullNexusServerUser.setPassword(DESEncryptUtil.decode(nexusUser.getNePullUserPassword()));
-
-		List<NexusServerUser> pullExistUserList = nexusClient.getNexusUserApi().getUsers(pullNexusServerUser.getUserId());
-		if (CollectionUtils.isEmpty(pullExistUserList)) {
-			nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
-		}
-
-		// 3. 默认允许匿名
-		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
-		if (anonymousRole == null) {
-			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
-		}
-		anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1,  nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
-		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
-
-		// remove配置信息
-		nexusClient.removeNexusServerInfo();
+	public String relatedRepoRoleSaga(String message) {
+		this.createRepoRole(message);
 		return message;
 	}
+
+	@SagaTask(code = NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED_USER,
+			description = "关联仓库， 创建角色",
+			sagaCode = NexusSagaConstants.NexusMavenRepoRelated.MAVEN_REPO_RELATED,
+			maxRetryCount = 3,
+			seq = 2)
+	public String relatedRepoUserSaga(String message) {
+		this.createRepoUser(message);
+		return message;
+	}
+
 
 	@SagaTask(code = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE_ROLE,
 			description = "平台层-仓库分配：创建角色",
 			sagaCode = NexusSagaConstants.NexusRepoDistribute.SITE_NEXUS_REPO_DISTRIBUTE,
 			maxRetryCount = 3,
-			seq = 1)
+			seq = 2)
 	public NexusRepository repoDistributeRoleSaga(String message) {
 		return this.createRepoRole(message);
 	}

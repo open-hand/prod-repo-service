@@ -72,9 +72,14 @@ public interface NexusSagaConstants {
 		 */
 		String MAVEN_REPO_RELATED = "rdupm-maven-related";
 		/**
-		 * 关联maven仓库   SagaTask code
+		 * 关联maven仓库 角色处理   SagaTask code
 		 */
-		String MAVEN_REPO_RELATED_REPO = "rdupm-maven-related.repo";
+		String MAVEN_REPO_RELATED_ROLE = "rdupm-maven-related.role";
+
+		/**
+		 * 关联maven仓库 用户处理   SagaTask code
+		 */
+		String MAVEN_REPO_RELATED_USER= "rdupm-maven-related.user";
 	}
 
 	interface NexusAuthCreate {

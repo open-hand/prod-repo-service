@@ -52,7 +52,7 @@ public class NexusRepositoryOrgController extends BaseController {
                                                                            @ApiIgnore PageRequest pageRequest) {
         queryDTO.setOrganizationId(organizationId);
         queryDTO.setRepoType(NexusConstants.RepoType.MAVEN);
-        return Results.success(nexusRepositoryService.listRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
+        return Results.success(nexusRepositoryService.listOrgRepo(pageRequest, queryDTO));
     }
 
 
@@ -64,7 +64,7 @@ public class NexusRepositoryOrgController extends BaseController {
                                                                 @ApiIgnore PageRequest pageRequest) {
         queryDTO.setOrganizationId(organizationId);
         queryDTO.setRepoType(NexusConstants.RepoType.NPM);
-        return Results.success(nexusRepositoryService.listNpmRepo(pageRequest, queryDTO, NexusConstants.RepoQueryData.REPO_ORG));
+        return Results.success(nexusRepositoryService.listOrgRepo(pageRequest, queryDTO));
     }
     @ApiOperation(value = "组织层-npm包列表（下拉列表）")
     @Permission(level = ResourceLevel.ORGANIZATION)

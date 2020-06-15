@@ -128,6 +128,11 @@ public class NexusAuth extends AuditDomain {
     private String projectName;
     @Transient
     private String repoType;
+    /**
+     * nexus服务配置Id
+     */
+    @Transient
+    private Long configId;
 
 
     //

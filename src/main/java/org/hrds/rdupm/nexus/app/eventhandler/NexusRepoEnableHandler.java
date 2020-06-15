@@ -52,7 +52,6 @@ public class NexusRepoEnableHandler {
             maxRetryCount = 3,
             seq = 1)
     public void nexusRepoEnableAndDisAble(String message) {
-        NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
 
         NexusRepository nexusRepository = null;
         try {
@@ -64,6 +63,9 @@ public class NexusRepoEnableHandler {
         if (exist == null) {
             throw new CommonException("nexus repository is not create, repoName is " + nexusRepository.getNeRepositoryName());
         }
+
+        NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, exist.getRepositoryId());
+
         if (exist.getEnableFlag().equals(NexusConstants.Flag.Y)) {
             // 生效
             this.nexusRepoEnable(exist, serverConfig);

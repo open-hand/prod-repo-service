@@ -15,6 +15,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.XMLValidator;
 import org.hzero.core.base.BaseController;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class NexusComponentController extends BaseController {
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 																		 NexusComponentQuery componentQuery,
 																		 @ApiIgnore PageRequest pageRequest) {
+		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
 		componentQuery.setRepoType(NexusConstants.RepoType.MAVEN);
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
 	}
@@ -52,6 +54,7 @@ public class NexusComponentController extends BaseController {
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 																		 NexusComponentQuery componentQuery,
 																		 @ApiIgnore PageRequest pageRequest) {
+		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
 		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
 	}
@@ -72,9 +75,9 @@ public class NexusComponentController extends BaseController {
 	@DeleteMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<?> deleteComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-											  @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName" ) String repositoryName,
+											  @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) Long repositoryId,
 											  @RequestBody List<String> componentIds) {
-		nexusComponentService.deleteComponents(organizationId, projectId, repositoryName, componentIds);
+		nexusComponentService.deleteComponents(organizationId, projectId, repositoryId, componentIds);
 		return Results.success();
 	}
 
@@ -83,9 +86,9 @@ public class NexusComponentController extends BaseController {
 	@DeleteMapping("/{organizationId}/project/{projectId}/npm")
 	public ResponseEntity<?> deleteNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 												 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-												 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName" ) String repositoryName,
+												 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) Long repositoryId,
 												 @RequestBody List<String> componentIds) {
-		nexusComponentService.deleteComponents(organizationId, projectId, repositoryName, componentIds);
+		nexusComponentService.deleteComponents(organizationId, projectId, repositoryId, componentIds);
 		return Results.success();
 	}
 
@@ -122,13 +125,13 @@ public class NexusComponentController extends BaseController {
 	@PostMapping("/{organizationId}/project/{projectId}/npm/upload")
 	public ResponseEntity<?> npmComponentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 												 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-												 @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName,
+												 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) Long repositoryId,
 												 @ApiParam(value = "jar文件") @RequestParam(name = "assetTgz", required = true) MultipartFile assetTgz) {
 		if (assetTgz == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
 		}
 		this.validateFileType(assetTgz, NexusServerAssetUpload.TGZ);
-		nexusComponentService.npmComponentsUpload(organizationId, projectId, repositoryName, assetTgz);
+		nexusComponentService.npmComponentsUpload(organizationId, projectId, repositoryId, assetTgz);
 		return Results.success();
 	}
 
