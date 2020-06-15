@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.client.nexus.api.http;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.exception.CommonException;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRoleApi;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
@@ -40,6 +41,9 @@ public class NexusRoleHttpApi implements NexusRoleApi{
 
 	@Override
 	public NexusServerRole getRoleById(String roleId) {
+		if (StringUtils.isBlank(roleId)) {
+			return null;
+		}
 		String url = NexusUrlConstants.Role.GET_ROLE_BY_ID + roleId;
 		ResponseEntity<String> responseEntity = null;
 		try {
