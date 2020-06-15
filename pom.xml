@@ -238,11 +238,6 @@
             <version>2.8.5</version>
         </dependency>
 
-        <!-- encrypt -->
-        <dependency>
-            <groupId>org.hzero.starter</groupId>
-            <artifactId>hzero-starter-keyencrypt</artifactId>
-        </dependency>
 
     </dependencies>
 
