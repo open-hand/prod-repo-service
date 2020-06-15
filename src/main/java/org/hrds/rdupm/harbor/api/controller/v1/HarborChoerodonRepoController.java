@@ -64,7 +64,7 @@ public class HarborChoerodonRepoController extends BaseController {
 
     @ApiOperation(value = "仓库配置查询接口")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("project/{projectId}/{appServiceId}/harbor_repo_config")
+    @GetMapping("/project/{projectId}/{appServiceId}/harbor_repo_config")
     public ResponseEntity<HarborRepoDTO> queryHarborRepoConfig(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                                @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId){
         return Results.success(harborCustomRepoService.getHarborRepoConfig(projectId, appServiceId));

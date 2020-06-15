@@ -41,15 +41,12 @@ public class HarborRepoDTO {
         this.appServiceId = appServiceId;
         this.projectId = projectId;
         this.repoType = DEFAULT_REPO;
-        this.harborRepoConfig.setRepoUrl(repoUrl);
-        this.harborRepoConfig.setRepoName(repoName);
+        this.harborRepoConfig = new HarborRepoConfigDTO(repoUrl, repoName);
         harborRobotList.stream().forEach(harborRobot -> {
             if (harborRobot.getAction().equals(HarborConstants.HarborRobot.ACTION_PULL)) {
-                this.pullRobot.setName(harborRobot.getName());
-                this.pullRobot.setToken(harborRobot.getToken());
+                this.pullRobot = new HarborRepoRobotDTO(harborRobot.getName(), harborRobot.getToken());
             } else {
-                this.pushRobot.setName(harborRobot.getName());
-                this.pushRobot.setToken(harborRobot.getToken());
+                this.pushRobot = new HarborRepoRobotDTO(harborRobot.getName(), harborRobot.getToken());
             }
         });
     }
@@ -58,9 +55,6 @@ public class HarborRepoDTO {
         this.appServiceId = appServiceId;
         this.projectId = projectId;
         this.repoType = CUSTOM_REPO;
-        this.harborRepoConfig.setRepoUrl(harborCustomRepo.getRepoUrl());
-        this.harborRepoConfig.setRepoName(harborCustomRepo.getRepoName());
-        this.harborRepoConfig.setLoginName(harborCustomRepo.getLoginName());
-        this.harborRepoConfig.setPassword(harborCustomRepo.getPassword());
+        this.harborRepoConfig = new HarborRepoConfigDTO(harborCustomRepo.getRepoUrl(),harborCustomRepo.getRepoName(),harborCustomRepo.getLoginName(), harborCustomRepo.getPassword());
     }
 }
