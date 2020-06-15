@@ -12,6 +12,8 @@ public interface HarborConstants {
 
 	String Y = "Y";
 
+	String N = "N";
+
 	String TRUE = "true";
 
 	String FALSE = "false";

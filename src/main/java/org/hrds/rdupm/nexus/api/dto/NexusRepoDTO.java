@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NexusRepoDTO {
+
+    @JsonIgnore
+    private Long configId;
     @ApiModelProperty(value = "主键Id")
     private Long repositoryId;
     @ApiModelProperty(value = "仓库名称")

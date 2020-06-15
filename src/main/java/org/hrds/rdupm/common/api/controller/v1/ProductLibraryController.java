@@ -72,7 +72,7 @@ public class ProductLibraryController extends BaseController {
 			NexusRepositoryQueryDTO query = new NexusRepositoryQueryDTO();
 			query.setProjectId(projectId);
 			query.setRepoType(NexusConstants.RepoType.MAVEN);
-			nexusRepositoryDTOList = nexusRepositoryService.listRepoAll(query, NexusConstants.RepoQueryData.REPO_PROJECT);
+			nexusRepositoryDTOList = nexusRepositoryService.listRepoAll(query);
 		} catch (Exception e) {
 			LOGGER.error("query maven error", e);
 			nexusRepositoryDTOList = new ArrayList<>();
@@ -84,7 +84,7 @@ public class ProductLibraryController extends BaseController {
 			NexusRepositoryQueryDTO query = new NexusRepositoryQueryDTO();
 			query.setProjectId(projectId);
 			query.setRepoType(NexusConstants.RepoType.NPM);
-			nexusRepositoryNpmDTOList = nexusRepositoryService.listRepoAll(query, NexusConstants.RepoQueryData.REPO_PROJECT);
+			nexusRepositoryNpmDTOList = nexusRepositoryService.listRepoAll(query);
 		} catch (Exception e) {
 			LOGGER.error("query npm error", e);
 			nexusRepositoryNpmDTOList = new ArrayList<>();

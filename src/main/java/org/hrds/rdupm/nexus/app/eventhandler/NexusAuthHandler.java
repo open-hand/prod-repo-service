@@ -2,6 +2,7 @@ package org.hrds.rdupm.nexus.app.eventhandler;
 
 import com.alibaba.fastjson.JSONObject;
 import io.choerodon.asgard.saga.annotation.SagaTask;
+import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
@@ -15,6 +16,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
+import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
@@ -50,7 +52,12 @@ public class NexusAuthHandler {
 	public String nexusAuthCreate(String message) {
 		List<NexusAuth> nexusAuthList = JSONObject.parseArray(message, NexusAuth.class);
 
-		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient);
+		List<Long> repositoryIdList = nexusAuthList.stream().map(NexusAuth::getRepositoryId).distinct().collect(Collectors.toList());
+		if (repositoryIdList.size() > 1) {
+			throw new CommonException(NexusMessageConstants.NEXUS_AUTH_REPOSITORY_ID_IS_NOT_UNIQUE);
+		}
+
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, repositoryIdList.get(0));
 		this.createUserAuth(nexusAuthList);
 
 		nexusClient.removeNexusServerInfo();

@@ -77,8 +77,8 @@ public class ProdUserUpdateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-
-		configService.setNexusInfo(nexusClient);
+		// TODO 用户密码更新
+		configService.setNexusInfo(nexusClient, null);
 		List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(prodUser.getLoginName());
 		if (CollectionUtils.isNotEmpty(existUserList)) {
 			// 密码解密

@@ -35,9 +35,11 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRole;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.annotation.NexusOperateLog;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
@@ -94,10 +96,35 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     private NexusClient nexusClient;
     @Autowired
     private NexusServerConfigService configService;
+    @Autowired
+    private NexusServerConfigRepository nexusServerConfigRepository;
 
 
     @Override
     public Page<NexusAuth> pageList(PageRequest pageRequest, NexusAuth nexusAuth) {
+        NexusServerConfig serverConfig = nexusServerConfigRepository.queryEnableServiceConfig(nexusAuth.getProjectId());
+        nexusAuth.setConfigId(serverConfig.getConfigId());
+        return this.pageListOrg(pageRequest, nexusAuth);
+    }
+
+    @Override
+    public Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
+        return this.pageList(pageRequest, nexusAuth);
+    }
+
+    @Override
+    public Page<NexusAuth> pageListOrg(PageRequest pageRequest, NexusAuth nexusAuth) {
+        return this.pageInfo(pageRequest, nexusAuth);
+    }
+
+    @Override
+    @ExcelExport(NexusAuth.class)
+    public Page<NexusAuth> exportOrg(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
+        return this.pageListOrg(pageRequest, nexusAuth);
+    }
+
+
+    private Page<NexusAuth> pageInfo (PageRequest pageRequest, NexusAuth nexusAuth) {
         Page<NexusAuth> authPage = PageHelper.doPageAndSort(pageRequest, () -> nexusAuthMapper.list(nexusAuth));
         List<NexusAuth> dataList = authPage.getContent();
         if(CollectionUtils.isEmpty(dataList)){
@@ -146,12 +173,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     }
 
     @Override
-    @ExcelExport(NexusAuth.class)
-    public Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
-        return this.pageList(pageRequest, nexusAuth);
-    }
-
-    @Override
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_CREATE, content = "%s 分配 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Saga(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, description = "nexus分配权限", inputSchemaClass = List.class)
     @Transactional(rollbackFor = Exception.class)
@@ -176,8 +197,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_UPDATE, content = "%s 更新 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void update(NexusAuth nexusAuth) {
-        // 设置并返回当前nexus服务信息
-        configService.setNexusInfo(nexusClient);
 
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
         if (existAuth == null) {
@@ -186,6 +205,10 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         if (NexusConstants.Flag.Y.equals(existAuth.getLocked())) {
             throw new CommonException(NexusMessageConstants.NEXUS_AUTH_OWNER_NOT_UPDATE);
         }
+
+        // 设置并返回当前nexus服务信息
+        configService.setNexusInfoByRepositoryId(nexusClient, existAuth.getRepositoryId());
+
 
         // 校验
         List<String> validateRoleCode = new ArrayList<>();
@@ -229,17 +252,16 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的权限角色 【%s】")
     @Transactional(rollbackFor = Exception.class)
     public void delete(NexusAuth nexusAuth) {
-        // 设置并返回当前nexus服务信息
-        configService.setNexusInfo(nexusClient);
 
         NexusAuth existAuth = nexusAuthRepository.selectByPrimaryKey(nexusAuth);
         if (existAuth == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
-
         if (NexusConstants.Flag.Y.equals(existAuth.getLocked())) {
             throw new CommonException(NexusMessageConstants.NEXUS_AUTH_OWNER_NOT_DELETE);
         }
+        // 设置并返回当前nexus服务信息
+        configService.setNexusInfoByRepositoryId(nexusClient, existAuth.getRepositoryId());
 
         // 校验
         List<String> validateRoleCode = new ArrayList<>();
@@ -297,7 +319,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
     @Override
     public void expiredBatchNexusAuth() {
-        configService.setNexusInfo(nexusClient);
         // 数据查询
         Condition condition = new Condition(NexusAuth.class);
         condition.createCriteria().andLessThanOrEqualTo(NexusAuth.FIELD_END_DATE, new Date());
@@ -310,16 +331,16 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
                 logger.error("expired nexus auth error, authId: " + nexusAuth.getAuthId(), e);
             }
         });
-
-        nexusClient.removeNexusServerInfo();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void expiredNexusAuth(NexusAuth nexusAuth) {
+        configService.setNexusInfoByRepositoryId(nexusClient, nexusAuth.getRepositoryId());
         if (!NexusConstants.Flag.Y.equals(nexusAuth.getLocked())) {
             this.deleteNexusServerAuth(nexusAuth);
         }
+        nexusClient.removeNexusServerInfo();
     }
 
     @Override

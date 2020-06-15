@@ -26,8 +26,11 @@
         FROM
             rdupm_nexus_repository
         <where>
+            <if test="configId != null">
+                config_id = #{configId}
+            </if>
             <if test="projectId != null">
-                project_id = #{projectId}
+                AND project_id = #{projectId}
             </if>
             <if test="repoType != null">
                 AND repo_type = #{repoType}
@@ -43,19 +46,23 @@
         FROM
             rdupm_nexus_repository
         <where>
-            <if test="organizationId != null">
-                organization_id = #{organizationId}
+            <if test="configId != null">
+                config_id = #{configId}
             </if>
-            <if test="projectId != null">
-                AND project_id = #{projectId}
+            <if test="nexusRepository.organizationId != null">
+                AND organization_id = #{nexusRepository.organizationId}
             </if>
-            <if test="repoType != null">
-                AND repo_type = #{repoType}
+            <if test="nexusRepository.projectId != null">
+                AND project_id = #{nexusRepository.projectId}
+            </if>
+            <if test="nexusRepository.repoType != null">
+                AND repo_type = #{nexusRepository.repoType}
             </if>
         </where>
     </select>
     <select id="selectInfoByIds" resultType="org.hrds.rdupm.nexus.api.dto.NexusRepoDTO">
         SELECT
+            nr.config_id,
             nr.repository_id,
             nr.ne_repository_name AS NAME,
             nu.ne_user_id,
@@ -70,5 +77,69 @@
             <foreach collection="repositoryIds" item="repositoryId" separator="," open="(" close=")">
                 #{repositoryId}
             </foreach>
+    </select>
+
+    <sql id="listOrgRepoField">
+        nr.repository_id,
+        nr.config_id,
+        nr.ne_repository_name,
+        nr.organization_id,
+        nr.project_id,
+        nr.allow_anonymous,
+        nr.is_related,
+        nr.enable_flag,
+        nr.object_version_number,
+        nr.creation_date,
+        nr.created_by,
+        nr.repo_type
+    </sql>
+    <select id="listOrgRepo" resultType="org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO">
+        SELECT temp.* FROM (
+            SELECT
+                <include refid="listOrgRepoField"></include>
+            FROM
+                rdupm_nexus_repository nr
+            WHERE
+                nr.organization_id = #{organizationId}
+                AND nr.repo_type = #{repoType}
+                AND EXISTS (
+                SELECT
+                    1
+                FROM
+                    rdupm_nexus_project_service nps
+                WHERE
+                    nps.enable_flag = 1
+                    AND nps.project_id = nr.project_id
+                )
+
+            UNION
+
+            SELECT
+                <include refid="listOrgRepoField"></include>
+            FROM
+                rdupm_nexus_repository nr
+            WHERE
+                nr.organization_id = #{organizationId}
+                AND nr.repo_type = #{repoType}
+                AND NOT EXISTS (
+                SELECT
+                    1
+                FROM
+                    rdupm_nexus_project_service nps
+                WHERE
+                    nps.enable_flag = 1
+                    AND nps.project_id = nr.project_id
+                )
+                AND nr.config_id = (
+                SELECT
+                    nsc.config_id
+                FROM
+                    rdupm_nexus_server_config nsc
+                WHERE
+                nsc.default_flag = 1
+                )
+
+            ) AS temp
+            ORDER BY temp.project_id, temp.ne_repository_name
     </select>
 </mapper>

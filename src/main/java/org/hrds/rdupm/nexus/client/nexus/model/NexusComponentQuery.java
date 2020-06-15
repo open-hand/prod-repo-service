@@ -2,6 +2,8 @@ package org.hrds.rdupm.nexus.client.nexus.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +13,8 @@ import java.util.Map;
  * @author weisen.yang@hand-china.com 2020/4/2
  */
 @ApiModel("包查询")
+@Getter
+@Setter
 public class NexusComponentQuery {
 
 	/**
@@ -54,6 +58,8 @@ public class NexusComponentQuery {
 
 	@ApiModelProperty(value = "仓库名称", required = true)
 	private String repositoryName;
+	@ApiModelProperty(value = "仓库Id", required = true)
+	private Long repositoryId;
 	@ApiModelProperty(value = "groupId")
 	private String group;
 	@ApiModelProperty(value = "artifactId")
@@ -62,48 +68,4 @@ public class NexusComponentQuery {
 	private String version;
 	@ApiModelProperty(value = "制品类型")
 	private String repoType;
-
-	public String getRepoType() {
-		return repoType;
-	}
-
-	public void setRepoType(String repoType) {
-		this.repoType = repoType;
-	}
-
-	public String getRepositoryName() {
-		return repositoryName;
-	}
-
-	public NexusComponentQuery setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
-		return this;
-	}
-
-	public String getGroup() {
-		return group;
-	}
-
-	public NexusComponentQuery setGroup(String group) {
-		this.group = group;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public NexusComponentQuery setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public NexusComponentQuery setVersion(String version) {
-		this.version = version;
-		return this;
-	}
 }

@@ -30,8 +30,9 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	 */
 	public void convert(NexusRepository nexusRepository, NexusServerRepository nexusServerRepository) {
 		if (nexusRepository != null) {
+			this.configId = nexusRepository.getConfigId();
 			this.repositoryId = nexusRepository.getRepositoryId();
-			this.name = nexusRepository.getNeRepositoryName();
+			this.neRepositoryName = nexusRepository.getNeRepositoryName();
 			this.allowAnonymous = nexusRepository.getAllowAnonymous();
 			this._token = nexusRepository.get_token();
 			this.projectId = nexusRepository.getProjectId();
@@ -60,8 +61,10 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 		}
 	}
 
-
+	private Long configId;
 	private Long repositoryId;
+	@ApiModelProperty(value = "仓库名称")
+	private String neRepositoryName;
 	@ApiModelProperty(value = "仓库名称")
 	private String name;
 	@ApiModelProperty(value = "仓库类型")

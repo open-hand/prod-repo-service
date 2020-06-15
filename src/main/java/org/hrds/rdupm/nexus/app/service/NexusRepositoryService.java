@@ -51,36 +51,28 @@ public interface NexusRepositoryService {
 	void deleteRepo(Long organizationId, Long projectId, Long repositoryId);
 
 	/**
-	 * 查询maven仓库列表
+	 * 组织层 - 查询maven仓库列表
 	 * @param pageRequest 分页参数
 	 * @param queryDTO 查询参数
-	 * @param queryData  查看： NexusConstants.RepoQueryData
 	 * @return Page<NexusRepositoryDTO>
 	 */
-	Page<NexusRepositoryDTO> listRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
+	Page<NexusRepositoryDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
 
 	/**
-	 * 查询maven仓库列表, 不分页
+	 * 项目层 - 查询maven/npm仓库列表, 不分页
 	 * @param queryDTO 查询参数
-	 * @param queryData  查看： NexusConstants.RepoQueryData
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoAll(NexusRepositoryQueryDTO queryDTO, String queryData);
+	List<NexusRepositoryDTO> listRepoAll(NexusRepositoryQueryDTO queryDTO);
 
-	/**
-	 * 查询blob
-	 * @return List<NexusServerBlobStore>
-	 */
-	List<NexusServerBlobStore> listMavenRepoBlob();
 
 	/**
 	 * 获取仓库名列表
 	 * @param projectId 项目Id
-	 * @param excludeRelated 是否排除所有项目已关联或新建的  true:需要 false:不需要
 	 * @param repoType 制品库类型
 	 * @return List<NexusRepositoryDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, Boolean excludeRelated, String repoType);
+	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, String repoType);
 
 	/**
 	 * 获取仓库名列表 - 当前项目或组织的
@@ -102,19 +94,20 @@ public interface NexusRepositoryService {
 	 * 查询maven 仓库配置指引信息
 	 * @param repositoryName 仓库名称
 	 * @param showPushFlag 是否返回发布的配置信息  true:返回  false:不反回
+	 * @param repositoryId 仓库Id
 	 * @return NexusGuideDTO
 	 */
-	NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag);
+	NexusGuideDTO mavenRepoGuide(Long repositoryId, String repositoryName, Boolean showPushFlag);
 
-	/**
-	 * 查询maven仓库列表
-	 *
-	 * @param pageRequest 分页参数
-	 * @param queryDTO    查询参数
-	 * @param queryData   查看： NexusConstants.RepoQueryData
-	 * @return Page<NexusRepositoryDTO>
-	 */
-	Page<NexusRepositoryDTO> listNpmRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
+//	/**
+//	 * 查询maven仓库列表
+//	 *
+//	 * @param pageRequest 分页参数
+//	 * @param queryDTO    查询参数
+//	 * @param queryData   查看： NexusConstants.RepoQueryData
+//	 * @return Page<NexusRepositoryDTO>
+//	 */
+//	Page<NexusRepositoryDTO> listNpmRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO, String queryData);
 
 	/**
 	 * 平台层-查询所有的nexus仓库信息
@@ -162,4 +155,24 @@ public interface NexusRepositoryService {
 	 * @return List<NexusRepoDTO>
 	 */
 	List<NexusRepoDTO> getRepoUserByProject(Long organizationId, Long projectId, List<Long> repositoryIds);
+
+	/**
+	 * 关联仓库
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param nexusRepositoryRelatedDTO 关联仓库信息
+	 * @return NexusRepositoryRelatedDTO
+	 */
+	NexusRepositoryRelatedDTO relatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO);
+
+	/**
+	 * 关联仓库
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param repoType 类型
+	 * @param repositoryName 仓库名
+	 * @param serverConfig nexus服务配置
+	 */
+	void selfRelatedMavenRepo(Long organizationId, Long projectId, String repoType, String repositoryName, NexusServerConfig serverConfig);
+
 }

@@ -70,6 +70,13 @@ public class HarborChoerodonRepoController extends BaseController {
         return Results.success(harborCustomRepoService.getHarborRepoConfig(projectId, appServiceId));
     }
 
-
+    @ApiOperation(value = "根据Harbor仓库ID查询仓库配置")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/project/{projectId}/{repoId}/harbor_config_by_id")
+    public ResponseEntity<HarborRepoDTO> queryHarborRepoConfigById(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
+                                                                   @ApiParam(value = "仓库ID", required = true) @PathVariable("repoId") Long repoId,
+                                                                   @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType){
+        return Results.success(harborCustomRepoService.getHarborRepoConfigByRepoId(projectId, repoId, repoType));
+    }
 
 }

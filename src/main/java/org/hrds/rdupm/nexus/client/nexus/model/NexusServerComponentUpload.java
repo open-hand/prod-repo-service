@@ -2,6 +2,8 @@ package org.hrds.rdupm.nexus.client.nexus.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/3/19
  */
 @ApiModel("包上传")
+@Getter
+@Setter
 public class NexusServerComponentUpload {
 
 	public static final String REPOSITORY_NAME = "repository";
@@ -31,6 +35,8 @@ public class NexusServerComponentUpload {
 
 	@ApiModelProperty(value = "仓库名称",required = true)
 	@NotBlank
+	private Long repositoryId;
+	@ApiModelProperty(value = "仓库名称",required = true)
 	private String repositoryName;
 	@ApiModelProperty(value = "groupId",required = true)
 	@NotBlank
@@ -43,48 +49,4 @@ public class NexusServerComponentUpload {
 	private String version;
 	private List<NexusServerAssetUpload> assetUploads;
 
-	public String getRepositoryName() {
-		return repositoryName;
-	}
-
-	public NexusServerComponentUpload setRepositoryName(String repositoryName) {
-		this.repositoryName = repositoryName;
-		return this;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public NexusServerComponentUpload setGroupId(String groupId) {
-		this.groupId = groupId;
-		return this;
-	}
-
-	public String getArtifactId() {
-		return artifactId;
-	}
-
-	public NexusServerComponentUpload setArtifactId(String artifactId) {
-		this.artifactId = artifactId;
-		return this;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public NexusServerComponentUpload setVersion(String version) {
-		this.version = version;
-		return this;
-	}
-
-	public List<NexusServerAssetUpload> getAssetUploads() {
-		return assetUploads;
-	}
-
-	public NexusServerComponentUpload setAssetUploads(List<NexusServerAssetUpload> assetUploads) {
-		this.assetUploads = assetUploads;
-		return this;
-	}
 }

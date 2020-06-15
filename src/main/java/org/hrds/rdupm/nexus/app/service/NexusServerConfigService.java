@@ -3,6 +3,8 @@ package org.hrds.rdupm.nexus.app.service;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
+import java.util.List;
+
 /**
  * 制品库_nexus服务信息配置表应用服务
  *
@@ -12,36 +14,76 @@ public interface NexusServerConfigService {
 
 
 	/**
-	 * 设置并返回当前nexus服务信息
+	 * 设置并返回项目下启用nexus服务信息 - 设置admin信息
+	 * @param nexusClient nexus服务client
+	 * @param projectId 项目Id
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId);
+
+	/**
+	 * 设置并返回Choerodon默认nexus服务 - 设置admin信息
 	 * @param nexusClient nexus服务client
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig setNexusInfo(NexusClient nexusClient);
+	NexusServerConfig setNexusDefaultInfo(NexusClient nexusClient);
 
 	/**
-	 * 设置当前用户为nexus服务访问用户
+	 * 设置并返回当前主键对应nexus服务信息 - 设置admin信息
 	 * @param nexusClient nexus服务client
-	 */
-	void setCurrentNexusInfo(NexusClient nexusClient);
-
-	/**
-	 * nexus服务配置信息创建
-	 * @param nexusServerConfig nexusServerConfig
+	 * @param configId nexus服务配置主键Id
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig createServerConfig(NexusServerConfig nexusServerConfig);
+	NexusServerConfig setNexusInfoByConfigId(NexusClient nexusClient, Long configId);
+	/**
+	 * 设置并返回当前仓库对应的nexus服务信息 - 设置admin信息
+	 * @param nexusClient nexus服务client
+	 * @param repositoryId 仓库主键Id
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig setNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId);
+
+	/**
+	 * 设置当前用户为nexus服务访问用户 - 设置当前用户信息
+	 * @param nexusClient nexus服务client
+	 * @param repositoryId 仓库主键Id
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId);
+
+
+	/**
+	 * 制品库-创建自定义nexus服务
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param nexusProjectService 服务配置信息
+	 * @return NexusServerConfig 服务配置信息
+	 */
+	NexusServerConfig createServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusProjectService);
 
 	/**
 	 * nexus服务配置信息更新
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
 	 * @param nexusServerConfig nexusServerConfig
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig updateServerConfig(NexusServerConfig nexusServerConfig);
+	NexusServerConfig updateServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
+
 
 	/**
-	 * 查询 nexus服务信息配置
-	 * @return NexusServerConfig
+	 * 项目层-nexus服务信息列表
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @return List<NexusServerConfig>
 	 */
-	NexusServerConfig queryServerConfig();
+	List<NexusServerConfig> listServerConfig(Long organizationId, Long projectId);
 
+	/**
+	 * 项目层-nexus服务启用
+	 * @param organizationId 组织Id
+	 * @param projectId 项目Id
+	 * @param nexusServerConfig 启用服务
+	 */
+	void enableProjectServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
 }

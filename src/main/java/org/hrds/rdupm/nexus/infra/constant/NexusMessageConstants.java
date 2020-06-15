@@ -20,7 +20,7 @@ public interface NexusMessageConstants {
 	String NEXUS_SERVER_CONFIG_MUL = "error.nexus.server.config.multi";
 
 	/**
-	 * nexus服务信息未配置，请联系管理员配置
+	 * 没有可用的nexus服务配置
 	 */
 	String NEXUS_SERVER_INFO_NOT_CONFIG = "error.nexus.server.info.not.config";
 
@@ -77,6 +77,14 @@ public interface NexusMessageConstants {
 	 * 用户名或密码错误
 	 */
 	String NEXUS_USER_AND_PASSWORD_ERROR = "error.nexus.user.and.password.error";
+	/**
+	 * 关联仓库不存在：{0}
+	 */
+	String NEXUS_REPO_RELATED_NOT_EXIST = "error.nexus.repo.related.not.exist";
+	/**
+	 * 仓库类型错误，{0}仓库不是{1}类型的仓库
+	 */
+	String NEXUS_REPO_RELATED_TYPE_ERROR = "error.nexus.repo.related.type.error";
 	/**
 	 * 仓库{0}已被关联，不能再关联
 	 */
@@ -173,6 +181,24 @@ public interface NexusMessageConstants {
 	 * 参数错误
 	 */
 	String NEXUS_PARAM_ERROR = "error.nexus.param.error";
-
-
+	/**
+	 * 请填写admin管理员用户
+	 */
+	String NEXUS_INPUT_ADMIN_USER = "error.nexus.input.admin.user";
+	/**
+	 * 输入的管理用户，权限不足
+	 */
+	String NEXUS_USER_NOT_PERMISSIONS = "error.nexus.user.not.permissions";
+	/**
+	 * 匿名用户不存在
+	 */
+	String NEXUS_ANONYMOUS_USER_NOT_EXIST = "error.nexus.anonymous.user.not.exist";
+	/**
+	 * 匿名用户对应角色不存在
+	 */
+	String NEXUS_ANONYMOUS_ROLE_USER_NOT_EXIST = "error.nexus.anonymous.role.user.not.exist";
+	/**
+	 * 新密码输入错误
+	 */
+	String NEXUS_NEW_PASSWORD_ERROR = "error.nexus.new.password";
 }

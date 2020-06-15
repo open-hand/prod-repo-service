@@ -16,6 +16,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
@@ -67,8 +68,17 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	@Override
 	public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
 														 NexusComponentQuery componentQuery, PageRequest pageRequest) {
+		NexusRepository queryExist = new NexusRepository();
+		queryExist.setRepositoryId(componentQuery.getRepositoryId());
+		queryExist.setOrganizationId(organizationId);
+		NexusRepository exist = nexusRepositoryRepository.selectOne(queryExist);
+		if (exist == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+
+		componentQuery.setRepositoryName(exist.getNeRepositoryName());
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, componentQuery.getRepositoryId());
 
 		// 查询所有数据
 		List<NexusServerComponentInfo> componentInfoList = new ArrayList<>();
@@ -88,7 +98,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			query.setOrganizationId(organizationId);
 			query.setRepoType(componentQuery.getRepoType());
 
-			List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query);
+			List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query, serverConfig.getConfigId());
 			Map<String, NexusRepository> repositoryMap = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, k -> k));
 			List<String> proRepoList = repositoryList.stream().filter(nexusRepository -> Objects.equals(nexusRepository.getProjectId(), projectId)).map(NexusRepository::getNeRepositoryName).collect(Collectors.toList());
 
@@ -202,7 +212,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	public Page<NexusServerComponent> listComponentsVersion(Long organizationId, Long projectId, Boolean deleteFlag,
 															NexusComponentQuery componentQuery, PageRequest pageRequest) {
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		configService.setNexusInfoByRepositoryId(nexusClient, componentQuery.getRepositoryId());
 
 		List<NexusServerComponentInfo> componentInfoList = nexusClient.getComponentsApi().searchNpmComponentInfo(componentQuery);
 		Map<String, NexusServerComponentInfo> componentInfoMap = componentInfoList.stream().collect(Collectors.toMap(NexusServerComponentInfo::getName, k -> k));
@@ -221,11 +231,14 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	}
 
 	@Override
-	public void deleteComponents(Long organizationId, Long projectId, String repositoryName, List<String> componentIds) {
-		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+	public void deleteComponents(Long organizationId, Long projectId, Long repositoryId, List<String> componentIds) {
 
-		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(repositoryName);
+		NexusRepository nexusRepository = this.validateAuth(projectId, repositoryId);
+
+		// 设置并返回当前nexus服务信息
+		configService.setNexusInfoByRepositoryId(nexusClient, repositoryId);
+
+		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
 		if (serverRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
@@ -233,12 +246,10 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			throw new CommonException(NexusMessageConstants.NEXUS_GROUP_NOT_DELETE_COMPONENT);
 		}
 
-		this.validateAuth(projectId, repositoryName);
-
 
 		if (CollectionUtils.isNotEmpty(componentIds)) {
 			NexusComponentDeleteParam deleteParam = new NexusComponentDeleteParam();
-			deleteParam.setRepositoryName(repositoryName);
+			deleteParam.setRepositoryName(nexusRepository.getNeRepositoryName());
 			deleteParam.setComponents(componentIds);
 			nexusClient.getComponentsApi().deleteComponentScript(deleteParam);
 		}
@@ -250,10 +261,11 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	public void componentsUpload(Long organizationId, Long projectId,
 								 NexusServerComponentUpload componentUpload,
 								 MultipartFile assetJar, MultipartFile assetPom) {
-		this.validateAuth(projectId, componentUpload.getRepositoryName());
-
+		NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
+		componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 		// 设置并返回当前nexus服务信息
-		configService.setCurrentNexusInfo(nexusClient);
+		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+
 		try (
 				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
 				InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
@@ -286,19 +298,18 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 
 	@Override
-	public void npmComponentsUpload(Long organizationId, Long projectId, String repositoryName, MultipartFile assetTgz) {
+	public void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, MultipartFile assetTgz) {
 
-		this.validateAuth(projectId, repositoryName);
-
+		NexusRepository nexusRepository = this.validateAuth(projectId, repositoryId);
 		// 设置并返回当前nexus服务信息
-		configService.setCurrentNexusInfo(nexusClient);
+		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 		try (
 				InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
 		) {
 
 			if (assetTgzStream != null) {
 				InputStreamResource streamResource = new InputStreamResource(assetTgzStream);
-				nexusClient.getComponentsApi().createNpmComponent(repositoryName, streamResource);
+				nexusClient.getComponentsApi().createNpmComponent(nexusRepository.getNeRepositoryName(), streamResource);
 			}
 		} catch (IOException e) {
 			logger.error("上传jar包错误", e);
@@ -310,36 +321,39 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
 	}
 
-	private void validateAuth(Long projectId, String repositoryName) {
+	private NexusRepository validateAuth(Long projectId, Long repositoryId) {
 		NexusRepository query = new NexusRepository();
 		query.setProjectId(projectId);
-		query.setNeRepositoryName(repositoryName);
+		query.setRepositoryId(repositoryId);
 		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
 		if (nexusRepository == null) {
-			throw new CommonException(NexusMessageConstants.NEXUS_NOT_DELETE_COMPONENT);
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
 		// 校验
 		List<String> validateRoleCode = new ArrayList<>();
 		validateRoleCode.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
 		validateRoleCode.add(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode());
 		nexusAuthService.validateRoleAuth(nexusRepository.getRepositoryId(), validateRoleCode);
+
+		return nexusRepository;
 	}
 
 	@Override
 	public NexusComponentGuideDTO componentGuide(NexusServerComponentInfo componentInfo) {
+		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(componentInfo.getRepositoryId());
+		if (nexusRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		componentInfo.setRepository(nexusRepository.getNeRepositoryName());
 
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfo(nexusClient);
+		configService.setNexusInfoByRepositoryId(nexusClient, componentInfo.getRepositoryId());
 
-		NexusRepository query = new NexusRepository();
-		query.setNeRepositoryName(componentInfo.getRepository());
-		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
-		NexusUser nexusUser = null;
-		if (nexusRepository != null) {
-			NexusUser queryUser = new NexusUser();
-			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
-			nexusUser = nexusUserRepository.selectOne(queryUser);
-		}
+
+		NexusUser queryUser = new NexusUser();
+		queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+		NexusUser nexusUser = nexusUserRepository.selectOne(queryUser);
+
 		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(componentInfo.getRepository());
 		if (nexusServerRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
