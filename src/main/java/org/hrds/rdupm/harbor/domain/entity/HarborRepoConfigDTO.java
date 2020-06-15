@@ -14,7 +14,8 @@ import lombok.Setter;
 @Setter
 @ApiModel("Harbor仓库配置DTO")
 public class HarborRepoConfigDTO {
-
+    @ApiModelProperty(value = "仓库ID")
+    private Long repoId;
     @ApiModelProperty(value = "仓库地址")
     private String repoUrl;
     @ApiModelProperty(value = "仓库名称")
@@ -28,12 +29,14 @@ public class HarborRepoConfigDTO {
     public HarborRepoConfigDTO() {
     }
 
-    public HarborRepoConfigDTO(String repoUrl, String repoName) {
+    public HarborRepoConfigDTO(Long repoId, String repoUrl, String repoName) {
+        this.repoId = repoId;
         this.repoUrl = repoUrl;
         this.repoName = repoName;
     }
 
-    public HarborRepoConfigDTO(String repoUrl, String repoName, String loginName, String password) {
+    public HarborRepoConfigDTO(Long repoId, String repoUrl, String repoName, String loginName, String password) {
+        this.repoId = repoId;
         this.repoUrl = repoUrl;
         this.repoName = repoName;
         this.loginName = loginName;

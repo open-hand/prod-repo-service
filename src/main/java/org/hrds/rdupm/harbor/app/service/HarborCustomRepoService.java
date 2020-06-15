@@ -177,7 +177,7 @@ public interface HarborCustomRepoService {
     void deleteRelationByService(Long projectId, Long appServiceId, Long customRepoId);
 
     /**
-     * 查询Harbor仓库配置接口
+     * 流水线-查询Harbor仓库配置接口
      *
      * @param projectId 猪齿鱼项目ID
      * @param appServiceId 应用服务ID
@@ -185,4 +185,15 @@ public interface HarborCustomRepoService {
      * @return
      */
     HarborRepoDTO getHarborRepoConfig(Long projectId, Long appServiceId);
+
+    /**
+     * 根据harbor仓库ID查询仓库配置
+     *
+     * @param projectId 猪齿鱼项目ID
+     * @param repoId 仓库ID
+     * @param repoType 仓库类型
+     * @return
+     */
+    HarborRepoDTO getHarborRepoConfigByRepoId(Long projectId, Long repoId, String repoType);
+
 }

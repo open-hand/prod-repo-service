@@ -47,6 +47,7 @@ public class HarborCustomRepo extends AuditDomain {
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_PUBLIC_FLAG = "publicFlag";
     public static final String FIELD_PROJECT_SHARE = "projectShare";
+    public static final String FIELD_ENABLED_FLAG = "enabledFlag";
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_CREATED_BY = "createdBy";
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";
@@ -115,6 +116,8 @@ public class HarborCustomRepo extends AuditDomain {
     @ApiModelProperty(value = "是否项目下共享，默认false")
     @NotBlank
     private String projectShare;
+    @ApiModelProperty(value = "是否启用，默认Y")
+    private String enabledFlag;
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------
