@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-harbor自定义镜像仓库表
@@ -54,6 +55,8 @@ public class HarborCustomRepo extends AuditDomain {
     public static final String FIELD_LAST_UPDATE_DATE = "lastUpdateDate";
     public static final String FIELD_LAST_UPDATE_LOGIN = "lastUpdateLogin";
 
+    public static final String ENCRYPT_KEY = "rdupm_harbor_custom_repo";
+
     //
     // 业务方法(按public protected private顺序排列)
     // ------------------------------------------------------------------------------
@@ -86,6 +89,7 @@ public class HarborCustomRepo extends AuditDomain {
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
+    @Encrypt(HarborCustomRepo.ENCRYPT_KEY)
     private Long id;
 
     @ApiModelProperty(value = "猪齿鱼项目ID")
