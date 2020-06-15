@@ -35,9 +35,11 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRole;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.annotation.NexusOperateLog;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
@@ -94,10 +96,35 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     private NexusClient nexusClient;
     @Autowired
     private NexusServerConfigService configService;
+    @Autowired
+    private NexusServerConfigRepository nexusServerConfigRepository;
 
 
     @Override
     public Page<NexusAuth> pageList(PageRequest pageRequest, NexusAuth nexusAuth) {
+        NexusServerConfig serverConfig = nexusServerConfigRepository.queryEnableServiceConfig(nexusAuth.getProjectId());
+        nexusAuth.setConfigId(serverConfig.getConfigId());
+        return this.pageListOrg(pageRequest, nexusAuth);
+    }
+
+    @Override
+    public Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
+        return this.pageList(pageRequest, nexusAuth);
+    }
+
+    @Override
+    public Page<NexusAuth> pageListOrg(PageRequest pageRequest, NexusAuth nexusAuth) {
+        return this.pageInfo(pageRequest, nexusAuth);
+    }
+
+    @Override
+    @ExcelExport(NexusAuth.class)
+    public Page<NexusAuth> exportOrg(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
+        return this.pageListOrg(pageRequest, nexusAuth);
+    }
+
+
+    private Page<NexusAuth> pageInfo (PageRequest pageRequest, NexusAuth nexusAuth) {
         Page<NexusAuth> authPage = PageHelper.doPageAndSort(pageRequest, () -> nexusAuthMapper.list(nexusAuth));
         List<NexusAuth> dataList = authPage.getContent();
         if(CollectionUtils.isEmpty(dataList)){
@@ -143,12 +170,6 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         });
 
         return authPage;
-    }
-
-    @Override
-    @ExcelExport(NexusAuth.class)
-    public Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
-        return this.pageList(pageRequest, nexusAuth);
     }
 
     @Override

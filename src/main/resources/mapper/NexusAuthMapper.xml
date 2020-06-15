@@ -50,6 +50,9 @@
         <if test=" organizationId != null ">
             AND rnr.organization_id = #{organizationId}
         </if>
+        <if test="configId != null">
+            AND rnr.config_Id = #{configId}
+        </if>
         <if test=" neRepositoryName != null and neRepositoryName != '' ">
             <bind name="neRepositoryNameLike" value=" '%'+neRepositoryName + '%'" />
             AND rnr.ne_repository_name LIKE #{neRepositoryNameLike}

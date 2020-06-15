@@ -184,7 +184,25 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/related")
     public ResponseEntity<List<NexusRepositoryDTO>> listRelatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                          @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, true, NexusConstants.RepoType.MAVEN));
+        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, NexusConstants.RepoType.MAVEN));
+    }
+
+    @ApiOperation(value = "npm仓库 关联， 获取仓库列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/{organizationId}/project/{projectId}/npm/repo/related")
+    public ResponseEntity<List<NexusRepositoryDTO>> listRelatedNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+        return Results.success(nexusRepositoryService.listRepoNameAll(projectId, NexusConstants.RepoType.NPM));
+    }
+
+    @ApiOperation(value = "maven仓库 关联")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/{organizationId}/project/{projectId}/maven/repo/related")
+    public ResponseEntity<NexusRepositoryRelatedDTO> relatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                      @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                      @RequestBody NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
+        validObject(nexusRepositoryRelatedDTO);
+        return Results.success(nexusRepositoryService.relatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO));
     }
 
 //    @ApiOperation(value = "获取当前项目关联列表")

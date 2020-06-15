@@ -124,7 +124,6 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 		// 参数校验
 		nexusServerConfig.validParam(nexusClient);
-
 		nexusServerConfig.setDefaultFlag(BaseConstants.Flag.NO);
 		nexusServerConfig.setTenantId(organizationId);
 		nexusServerConfig.setPassword(DESEncryptUtil.encode(nexusServerConfig.getPassword()));
@@ -139,48 +138,30 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 		nexusServerConfig.setProjectServiceId(nexusProjectService.getProjectServiceId());
 		nexusServerConfig.setProjectId(nexusProjectService.getProjectId());
+
+		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;
 	}
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public NexusServerConfig updateServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
-		return null;
-	}
 
+		String newPassword = nexusServerConfig.getPassword();
 
-	@Override
-	public NexusServerConfig updatePwd(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
 		NexusServerConfig existConfig = nexusServerConfigRepository.queryServiceConfig(nexusServerConfig.getConfigId(), projectId);
 		if (existConfig == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-		if (!DESEncryptUtil.decode(existConfig.getPassword()).equals(nexusServerConfig.getOldPassword())) {
-			throw new CommonException(NexusMessageConstants.NEXUS_OLD_PASSWORD_ERROR);
-		}
+		existConfig.setPassword(newPassword);
+		existConfig.validaUserPassword(nexusClient);
 
-		String newPassword = nexusServerConfig.getPassword();
-
-		// 新密码校验
-		NexusServer nexusServer = new NexusServer(existConfig.getServerUrl(), existConfig.getUserName(), newPassword);
-		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusServerUser> nexusExistUser = null;
-		try {
-			nexusExistUser = nexusClient.getNexusUserApi().getUsers(existConfig.getUserName());
-		} catch (NexusResponseException e) {
-			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-				throw new CommonException(NexusMessageConstants.NEXUS_NEW_PASSWORD_ERROR);
-			}
-			if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-				throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
-			}
-			throw e;
-		}
-
-		// 数据库更新密码
+		// 只更新，密码
 		String encryptPassword = DESEncryptUtil.encode(newPassword);
 		existConfig.setPassword(encryptPassword);
-		nexusServerConfigRepository.updateOptional(existConfig, NexusServerConfig.FIELD_PASSWORD);
+		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_PASSWORD);
+
+		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;
 	}
 

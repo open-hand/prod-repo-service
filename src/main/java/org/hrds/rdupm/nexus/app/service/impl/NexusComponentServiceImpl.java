@@ -68,6 +68,15 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	@Override
 	public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
 														 NexusComponentQuery componentQuery, PageRequest pageRequest) {
+		NexusRepository queryExist = new NexusRepository();
+		queryExist.setRepositoryId(componentQuery.getRepositoryId());
+		queryExist.setOrganizationId(organizationId);
+		NexusRepository exist = nexusRepositoryRepository.selectOne(queryExist);
+		if (exist == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+
+		componentQuery.setRepositoryName(exist.getNeRepositoryName());
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, componentQuery.getRepositoryId());
 

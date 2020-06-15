@@ -70,14 +70,6 @@ public interface NexusServerConfigService {
 	 */
 	NexusServerConfig updateServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
 
-	/**
-	 * 修改密码
-	 * @param organizationId 组织Id
-	 * @param projectId 项目Id
-	 * @param nexusServerConfig 修改信息
-	 * @return NexusServerConfig
-	 */
-	NexusServerConfig updatePwd(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig);
 
 	/**
 	 * 项目层-nexus服务信息列表

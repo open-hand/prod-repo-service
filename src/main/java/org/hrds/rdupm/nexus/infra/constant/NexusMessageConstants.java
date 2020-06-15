@@ -78,6 +78,14 @@ public interface NexusMessageConstants {
 	 */
 	String NEXUS_USER_AND_PASSWORD_ERROR = "error.nexus.user.and.password.error";
 	/**
+	 * 关联仓库不存在：{0}
+	 */
+	String NEXUS_REPO_RELATED_NOT_EXIST = "error.nexus.repo.related.not.exist";
+	/**
+	 * 仓库类型错误，{0}仓库不是{1}类型的仓库
+	 */
+	String NEXUS_REPO_RELATED_TYPE_ERROR = "error.nexus.repo.related.type.error";
+	/**
 	 * 仓库{0}已被关联，不能再关联
 	 */
 	String NEXUS_REPO_ALREADY_RELATED = "error.nexus.repo.already.related";

@@ -29,7 +29,7 @@ public interface NexusRepositoryMapper extends BaseMapper<NexusRepository> {
 	 * @param configId nexus服务配置Id
 	 * @return 仓库列表
 	 */
-	List<NexusRepository> listRepositoryByProject(NexusRepository nexusRepository, Long configId);
+	List<NexusRepository> listRepositoryByProject(@Param("nexusRepository") NexusRepository nexusRepository, @Param("configId") Long configId);
 
 
 	/**

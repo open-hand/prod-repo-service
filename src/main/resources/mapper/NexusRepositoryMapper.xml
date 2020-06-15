@@ -49,14 +49,14 @@
             <if test="configId != null">
                 config_id = #{configId}
             </if>
-            <if test="organizationId != null">
-                AND organization_id = #{organizationId}
+            <if test="nexusRepository.organizationId != null">
+                AND organization_id = #{nexusRepository.organizationId}
             </if>
-            <if test="projectId != null">
-                AND project_id = #{projectId}
+            <if test="nexusRepository.projectId != null">
+                AND project_id = #{nexusRepository.projectId}
             </if>
-            <if test="repoType != null">
-                AND repo_type = #{repoType}
+            <if test="nexusRepository.repoType != null">
+                AND repo_type = #{nexusRepository.repoType}
             </if>
         </where>
     </select>

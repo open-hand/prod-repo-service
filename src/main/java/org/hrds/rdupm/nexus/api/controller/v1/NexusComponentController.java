@@ -15,6 +15,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.XMLValidator;
 import org.hzero.core.base.BaseController;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class NexusComponentController extends BaseController {
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 																		 NexusComponentQuery componentQuery,
 																		 @ApiIgnore PageRequest pageRequest) {
+		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
 		componentQuery.setRepoType(NexusConstants.RepoType.MAVEN);
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
 	}
@@ -52,6 +54,7 @@ public class NexusComponentController extends BaseController {
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 																		 NexusComponentQuery componentQuery,
 																		 @ApiIgnore PageRequest pageRequest) {
+		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
 		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
 	}

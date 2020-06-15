@@ -62,23 +62,7 @@ public class NexusServerConfig extends AuditDomain {
         if (!ADMIN_USER.equals(this.userName)) {
             throw new CommonException(NexusMessageConstants.NEXUS_INPUT_ADMIN_USER);
         }
-
-        this.serverUrl = this.serverUrl.replaceAll("/*$", "");
-        NexusServer nexusServer = new NexusServer(this.serverUrl, this.userName, this.password);
-        nexusClient.setNexusServerInfo(nexusServer);
-        List<NexusServerUser> nexusExistUser = null;
-        try {
-            nexusExistUser = nexusClient.getNexusUserApi().getUsers(this.userName);
-        } catch (NexusResponseException e) {
-            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
-            }
-            if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
-                throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
-            }
-            throw e;
-        }
-
+        this.validaUserPassword(nexusClient);
         if (this.enableAnonymousFlag.equals(BaseConstants.Flag.YES)) {
             // 启用匿名访问控制
             if (StringUtils.isBlank(this.anonymous)) {
@@ -98,6 +82,24 @@ public class NexusServerConfig extends AuditDomain {
         } else {
             this.anonymous = null;
             this.anonymousRole = null;
+        }
+    }
+
+    public void  validaUserPassword(NexusClient nexusClient) {
+        this.serverUrl = this.serverUrl.replaceAll("/*$", "");
+        NexusServer nexusServer = new NexusServer(this.serverUrl, this.userName, this.password);
+        nexusClient.setNexusServerInfo(nexusServer);
+        List<NexusServerUser> nexusExistUser = null;
+        try {
+            nexusExistUser = nexusClient.getNexusUserApi().getUsers(this.userName);
+        } catch (NexusResponseException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
+            }
+            if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
+                throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
+            }
+            throw e;
         }
     }
     //

@@ -40,13 +40,14 @@ public class NexusServerConfigController extends BaseController {
         return Results.success(nexusServerConfigService.createServerConfig(organizationId, projectId, nexusProjectService));
     }
 
-    @ApiOperation(value = "项目层-制品库-修改nexus服务密码")
+    @ApiOperation(value = "项目层-制品库-更新自定义nexus服务")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PutMapping("/project/{projectId}/updatePwd")
-    public ResponseEntity<NexusServerConfig> updatePassword(@ApiParam(value = "组织ID", required = true) @PathVariable Long organizationId,
-                                                            @ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
-                                                            @ApiParam("必输字段configId、旧密码oldPassword、新密码password、确认密码rePassword") @RequestBody NexusServerConfig nexusServerConfig) {
-        return Results.success(nexusServerConfigService.updatePwd(organizationId, projectId, nexusServerConfig));
+    @PutMapping("/project/{projectId}")
+    public ResponseEntity<NexusServerConfig> update(@ApiParam(value = "组织ID", required = true) @PathVariable Long organizationId,
+                                                    @ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
+                                                    @RequestBody NexusServerConfig nexusProjectService) {
+        validObject(nexusProjectService);
+        return Results.success(nexusServerConfigService.updateServerConfig(organizationId, projectId, nexusProjectService));
     }
 
     @ApiOperation(value = "项目层-制品库-nexus服务信息列表")
