@@ -100,7 +100,6 @@ public class HarborInitServiceImpl implements HarborInitService {
 		LOGGER.debug("初始化完成：{}(ms)",end-start);
 	}
 
-	@Async("init-executor")
 	public void defaultRepoInitToDb(int page){
 		//分页查询Harbor项目信息
 		Map<String,Object> paramMap = new HashMap<>(2);
@@ -288,7 +287,9 @@ public class HarborInitServiceImpl implements HarborInitService {
 				dto.setHarborId(harborRepository.getHarborId());
 				dto.setHarborRoleValue(dto.getHarborRoleValue());
 				dto.setHarborAuthId(-1L);
-				insertAuthList.add(dto);
+				if(!"admin".equals(dto.getLoginName())){
+					insertAuthList.add(dto);
+				}
 			}
 		}
 		useSaga(harborRepository,insertAuthList);

@@ -23,6 +23,8 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hzero.core.base.BaseConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -47,6 +49,8 @@ public class HarborAuthInitHandler {
 	private final String sagaCodeUser = "rdupm-docker-auth-create-init.user";
 	private final String sagaCodeAuth = "rdupm-docker-auth-create-init.auth";
 	private final String sagaCodeDb = "rdupm-docker-auth-create-init.db";
+	private static final Logger LOGGER = LoggerFactory.getLogger(HarborAuthInitHandler.class);
+
 
 	@Autowired
 	private ProdUserService prodUserService;
@@ -84,14 +88,21 @@ public class HarborAuthInitHandler {
 			sagaCode = sagaCode,seq = 2,maxRetryCount = 3,outputSchemaClass = List.class)
 	private List<HarborAuth> insertToHarbor(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
-		for(HarborAuth dto : dtoList){
-			Map<String,Object> bodyMap = new HashMap<>(2);
-			Map<String,Object> memberMap = new HashMap<>(1);
-			memberMap.put("username",dto.getLoginName());
-			bodyMap.put("role_id",dto.getHarborRoleId());
-			bodyMap.put("member_user",memberMap);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,true,dto.getHarborId());
-		}
+		Long harborId = dtoList.get(0).getHarborId();
+
+		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
+		List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+		Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
+		dtoList.stream().forEach(dto->{
+			if(harborAuthVoMap.get(dto.getLoginName()) == null){
+				Map<String,Object> bodyMap = new HashMap<>(2);
+				Map<String,Object> memberMap = new HashMap<>(1);
+				memberMap.put("username",dto.getLoginName());
+				bodyMap.put("role_id",dto.getHarborRoleId());
+				bodyMap.put("member_user",memberMap);
+				harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,true,dto.getHarborId());
+			}
+		});
 		return dtoList;
 	}
 

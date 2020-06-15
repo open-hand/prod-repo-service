@@ -21,16 +21,6 @@ public class RdupmApplication {
     public static void main(String[] args) {
         SpringApplication.run(RdupmApplication.class, args);
     }
-
-	@Bean
-	@Qualifier("init-executor")
-	public AsyncTaskExecutor excelImportUserExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setThreadNamePrefix("init-executor");
-		executor.setMaxPoolSize(5);
-		executor.setCorePoolSize(4);
-		return executor;
-	}
 }
 
 
