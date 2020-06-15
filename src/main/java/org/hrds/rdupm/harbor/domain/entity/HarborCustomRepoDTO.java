@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hzero.mybatis.domian.SecurityToken;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * description
@@ -20,7 +21,10 @@ import org.hzero.mybatis.domian.SecurityToken;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel("制品库-自定义仓库DTO")
 public class HarborCustomRepoDTO implements SecurityToken {
+    public static final String ENCRYPT_KEY = "HarborCustomRepoDTO";
+
     @ApiModelProperty("customRepo, 主键")
+    @Encrypt(HarborCustomRepoDTO.ENCRYPT_KEY)
     private Long repoId;
     @ApiModelProperty(value = "名称")
     private String repoName;
