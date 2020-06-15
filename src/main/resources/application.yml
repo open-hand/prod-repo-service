@@ -128,8 +128,8 @@ choerodon:
   cleanPermission: false
 
 harbor:
-#  baseUrl: https://registry.staging.saas.hand-china.com
-  baseUrl: https://192.168.17.187
+  baseUrl: https://registry.staging.saas.hand-china.com
+#  baseUrl: https://192.168.17.187
   username: admin
   password: Harbor12345
   init:

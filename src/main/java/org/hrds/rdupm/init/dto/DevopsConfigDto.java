@@ -16,6 +16,8 @@ import org.hrds.rdupm.util.DESEncryptUtil;
 @Setter
 public class DevopsConfigDto {
 
+	private Long id;
+
 	private Long appServiceId;
 
 	private Long organizationId;

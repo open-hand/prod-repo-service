@@ -41,7 +41,6 @@ public class HarborProjectVo {
 
 	public static final String ENCRYPT_KEY = "HarborProjectVo";
 
-	@Encrypt(HarborProjectVo.ENCRYPT_KEY)
 	private Integer harborId;
 
 	private String code;

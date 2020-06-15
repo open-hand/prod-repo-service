@@ -55,7 +55,6 @@ public class ProductLibraryDTO extends AuditDomain {
 	private String publicFlag;
 
 	@ApiModelProperty(value = "harbor项目ID")
-	@Encrypt(HarborProjectVo.ENCRYPT_KEY)
 	private Long harborId;
 
 	@ApiModelProperty(value = "镜像数")

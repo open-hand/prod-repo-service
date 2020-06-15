@@ -241,6 +241,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 			BeanUtils.copyProperties(devopsConfigDto,harborCustomRepo);
 			harborCustomRepo.setProjectId(harborRepoService.getProjectId());
 			harborCustomRepo.setOrganizationId(harborRepoService.getOrganizationId());
+			harborCustomRepo.setProjectShare(HarborConstants.FALSE);
 			harborCustomRepoRepository.insertSelective(harborCustomRepo);
 
 			harborRepoService.setCustomRepoId(harborCustomRepo.getId());
