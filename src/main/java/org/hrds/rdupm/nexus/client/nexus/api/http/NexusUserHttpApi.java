@@ -54,7 +54,11 @@ public class NexusUserHttpApi implements NexusUserApi{
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.GET_USER_LIST, HttpMethod.GET, paramMap, null);
 		String response = responseEntity.getBody();
-		return JSONObject.parseArray(response, NexusServerUser.class);
+		List<NexusServerUser> nexusServerUsers = JSONObject.parseArray(response, NexusServerUser.class);
+		if (CollectionUtils.isEmpty(nexusServerUsers)) {
+			return new ArrayList<>();
+		}
+		return nexusServerUsers.stream().filter(nexusServerUser -> nexusServerUser.getUserId().equals(userId)).collect(Collectors.toList());
 	}
 
 	@Override
