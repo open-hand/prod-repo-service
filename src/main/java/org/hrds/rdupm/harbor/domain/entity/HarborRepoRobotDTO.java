@@ -18,4 +18,12 @@ public class HarborRepoRobotDTO {
     private String name;
     @ApiModelProperty(value = "账户token")
     private String token;
+
+    public HarborRepoRobotDTO() {
+    }
+
+    public HarborRepoRobotDTO(String name, String token) {
+        this.name = name;
+        this.token = token;
+    }
 }

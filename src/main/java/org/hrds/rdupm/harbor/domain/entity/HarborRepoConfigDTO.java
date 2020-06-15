@@ -25,4 +25,18 @@ public class HarborRepoConfigDTO {
     @ApiModelProperty(value = "密码")
     private String password;
 
+    public HarborRepoConfigDTO() {
+    }
+
+    public HarborRepoConfigDTO(String repoUrl, String repoName) {
+        this.repoUrl = repoUrl;
+        this.repoName = repoName;
+    }
+
+    public HarborRepoConfigDTO(String repoUrl, String repoName, String loginName, String password) {
+        this.repoUrl = repoUrl;
+        this.repoName = repoName;
+        this.loginName = loginName;
+        this.password = password;
+    }
 }

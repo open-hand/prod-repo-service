@@ -527,6 +527,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                 throw new CommonException("error.harbor.custom.repo.not.exist");
             }
             HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
+            harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
             HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,harborCustomRepo);
             return harborRepoDTO;
         }
@@ -538,10 +539,14 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                 .build());
         if (CollectionUtils.isNotEmpty(shareCustomRepoList)) {
             HarborCustomRepo shareCustomRepo = shareCustomRepoList.get(0);
+            shareCustomRepo.setPassword(DESEncryptUtil.decode(shareCustomRepo.getPassword()));
             HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,shareCustomRepo);
             return harborRepoDTO;
         } else {
             List<HarborRepository> harborRepositoryList = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID, projectId);
+            if (CollectionUtils.isEmpty(harborRepositoryList)) {
+                throw new CommonException("error.harbor.project.not.exist");
+            }
             HarborRepository harborRepository = harborRepositoryList.get(0);
             List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
             if (CollectionUtils.isEmpty(harborRobotList)) {
