@@ -244,6 +244,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 			harborCustomRepo.setProjectId(harborRepoService.getProjectId());
 			harborCustomRepo.setOrganizationId(harborRepoService.getOrganizationId());
 			harborCustomRepo.setProjectShare(HarborConstants.FALSE);
+			harborCustomRepo.setEnabledFlag(HarborConstants.Y);
 			harborCustomRepoRepository.insertSelective(harborCustomRepo);
 
 			harborRepoService.setCustomRepoId(harborCustomRepo.getId());
