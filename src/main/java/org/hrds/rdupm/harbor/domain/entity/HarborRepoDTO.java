@@ -37,11 +37,11 @@ public class HarborRepoDTO {
     public HarborRepoDTO() {
     }
 
-    public HarborRepoDTO(Long appServiceId, Long projectId, Long repoId, String repoUrl, String repoName, List<HarborRobot> harborRobotList) {
+    public HarborRepoDTO(Long appServiceId, Long projectId, Long repoId, String repoUrl, String repoName, String isPrivate, List<HarborRobot> harborRobotList) {
         this.appServiceId = appServiceId;
         this.projectId = projectId;
         this.repoType = DEFAULT_REPO;
-        this.harborRepoConfig = new HarborRepoConfigDTO(repoId, repoUrl, repoName);
+        this.harborRepoConfig = new HarborRepoConfigDTO(repoId, repoUrl, repoName, isPrivate);
         harborRobotList.stream().forEach(harborRobot -> {
             if (harborRobot.getAction().equals(HarborConstants.HarborRobot.ACTION_PULL)) {
                 this.pullRobot = new HarborRepoRobotDTO(harborRobot.getName(), harborRobot.getToken());
@@ -55,6 +55,6 @@ public class HarborRepoDTO {
         this.appServiceId = appServiceId;
         this.projectId = projectId;
         this.repoType = CUSTOM_REPO;
-        this.harborRepoConfig = new HarborRepoConfigDTO(harborCustomRepo.getId(), harborCustomRepo.getRepoUrl(),harborCustomRepo.getRepoName(),harborCustomRepo.getLoginName(), harborCustomRepo.getPassword());
+        this.harborRepoConfig = new HarborRepoConfigDTO(harborCustomRepo.getId(), harborCustomRepo.getRepoUrl(),harborCustomRepo.getRepoName(), harborCustomRepo.getPublicFlag(), harborCustomRepo.getLoginName(), harborCustomRepo.getPassword(), harborCustomRepo.getEmail());
     }
 }
