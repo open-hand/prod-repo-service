@@ -82,6 +82,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 	 */
 	@Override
 	public void defaultRepoInit(){
+		LOGGER.debug("=====================================默认仓库初始化=====================================");
 		long start = System.currentTimeMillis();
 
 		//获取Harbor中项目总数
@@ -97,7 +98,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 		}
 
 		long end = System.currentTimeMillis();
-		LOGGER.debug("初始化完成：{}(ms)",end-start);
+		LOGGER.debug("=====================================默认仓库初始化完成：{}(ms)============================",end-start);
 	}
 
 	public void defaultRepoInitToDb(int page){
@@ -170,6 +171,8 @@ public class HarborInitServiceImpl implements HarborInitService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void customRepoInit() {
+		LOGGER.debug("=====================================自定义仓库初始化=====================================");
+
 		//获取猪齿鱼数据库中自定义仓库配置信息
 		String selectSql = "select * from devops_config where type = 'harbor' and (app_service_id is not null or organization_id is not null or project_id is not null)";
 		List<DevopsConfigDto> devopsConfigDtoList =  getCustomJdbcTemplate().query(selectSql,new BeanPropertyRowMapper<>(DevopsConfigDto.class));
@@ -247,6 +250,9 @@ public class HarborInitServiceImpl implements HarborInitService {
 			harborRepoServiceList.add(harborRepoService);
 		}
 		harborRepoServiceRepository.batchInsert(harborRepoServiceList);
+
+		LOGGER.debug("=====================================自定义仓库初始化完成===================================");
+
 	}
 
 	public List<DevopsAppService> listAppServiceByIds(List<Long> appServiceIdList){
@@ -292,7 +298,9 @@ public class HarborInitServiceImpl implements HarborInitService {
 				}
 			}
 		}
-		useSaga(harborRepository,insertAuthList);
+		if(CollectionUtils.isNotEmpty(insertAuthList)){
+			useSaga(harborRepository,insertAuthList);
+		}
 	}
 
 	private void useSaga(HarborRepository harborRepository,List<HarborAuth> dtoList){
