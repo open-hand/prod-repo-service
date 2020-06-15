@@ -16,6 +16,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
@@ -68,7 +69,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
 														 NexusComponentQuery componentQuery, PageRequest pageRequest) {
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfoByRepositoryId(nexusClient, componentQuery.getRepositoryId());
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, componentQuery.getRepositoryId());
 
 		// 查询所有数据
 		List<NexusServerComponentInfo> componentInfoList = new ArrayList<>();
@@ -88,7 +89,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 			query.setOrganizationId(organizationId);
 			query.setRepoType(componentQuery.getRepoType());
 
-			List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query);
+			List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query, serverConfig.getConfigId());
 			Map<String, NexusRepository> repositoryMap = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, k -> k));
 			List<String> proRepoList = repositoryList.stream().filter(nexusRepository -> Objects.equals(nexusRepository.getProjectId(), projectId)).map(NexusRepository::getNeRepositoryName).collect(Collectors.toList());
 

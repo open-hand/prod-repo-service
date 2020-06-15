@@ -197,35 +197,36 @@ public class NexusRepositoryController extends BaseController {
 //        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.MAVEN));
 //    }
 
-    @ApiOperation(value = "获取nexus服务所有仓库列表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/maven/repo/all")
-    public ResponseEntity<List<NexusRepositoryDTO>> listRepoAll() {
-        return Results.success(nexusRepositoryService.listRepoNameAll(null, false, NexusConstants.RepoType.MAVEN));
-    }
+//    @ApiOperation(value = "获取nexus服务所有仓库列表")
+//    @Permission(level = ResourceLevel.ORGANIZATION)
+//    @GetMapping("/maven/repo/all")
+//    public ResponseEntity<List<NexusRepositoryDTO>> listRepoAll() {
+//        return Results.success(nexusRepositoryService.listRepoNameAll(null, false, NexusConstants.RepoType.MAVEN));
+//    }
 
-    @ApiOperation(value = "包上传，仓库列表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/component")
-    public ResponseEntity<List<NexusRepositoryDTO>> listComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-                                                                      @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listComponentRepo(projectId, NexusConstants.RepoType.MAVEN));
-    }
-
-    @ApiOperation(value = "npm包上传，仓库列表")
-    @Permission(level = ResourceLevel.ORGANIZATION)
-    @GetMapping("/{organizationId}/project/{projectId}/npm/repo/component")
-    public ResponseEntity<List<NexusRepositoryDTO>> npmListComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
-        return Results.success(nexusRepositoryService.listComponentRepo(projectId, NexusConstants.RepoType.NPM));
-    }
+//    @ApiOperation(value = "包上传，仓库列表")
+//    @Permission(level = ResourceLevel.ORGANIZATION)
+//    @GetMapping("/{organizationId}/project/{projectId}/maven/repo/component")
+//    public ResponseEntity<List<NexusRepositoryDTO>> listComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+//                                                                      @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+//        return Results.success(nexusRepositoryService.listComponentRepo(projectId, NexusConstants.RepoType.MAVEN));
+//    }
+//
+//    @ApiOperation(value = "npm包上传，仓库列表")
+//    @Permission(level = ResourceLevel.ORGANIZATION)
+//    @GetMapping("/{organizationId}/project/{projectId}/npm/repo/component")
+//    public ResponseEntity<List<NexusRepositoryDTO>> npmListComponentRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+//                                                                         @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
+//        return Results.success(nexusRepositoryService.listComponentRepo(projectId, NexusConstants.RepoType.NPM));
+//    }
 
     @ApiOperation(value = "配置指引信息，查询")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/maven/repo/guide/{repositoryName}")
     public ResponseEntity<NexusGuideDTO> mavenRepoGuide(@ApiParam(value = "仓库名称", required = true) @PathVariable(name = "repositoryName") String repositoryName,
+                                                        @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
                                                         @ApiParam(value = "showPushFlag 是否返回发布的配置信息") @RequestParam(name = "showPushFlag", defaultValue = "false") Boolean showPushFlag) {
-        return Results.success(nexusRepositoryService.mavenRepoGuide(repositoryName, showPushFlag));
+        return Results.success(nexusRepositoryService.mavenRepoGuide(repositoryId, repositoryName, showPushFlag));
     }
 
     @ApiOperation(value = "仓库生效/失效")

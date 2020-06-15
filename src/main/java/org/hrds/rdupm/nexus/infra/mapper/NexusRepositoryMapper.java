@@ -21,14 +21,15 @@ public interface NexusRepositoryMapper extends BaseMapper<NexusRepository> {
 	 * @param repoType 制品库类型
 	 * @return 仓库名称列表
 	 */
-	List<String> getRepositoryByProject(@Param("projectId") Long projectId, @Param("repoType") String repoType);
+	List<String> getRepositoryByProject(@Param("projectId") Long projectId, @Param("repoType") String repoType, @Param("configId") Long configId);
 
 	/**
 	 * 查询仓库信息
 	 * @param nexusRepository 参数
+	 * @param configId nexus服务配置Id
 	 * @return 仓库列表
 	 */
-	List<NexusRepository> listRepositoryByProject(NexusRepository nexusRepository);
+	List<NexusRepository> listRepositoryByProject(NexusRepository nexusRepository, Long configId);
 
 
 	/**

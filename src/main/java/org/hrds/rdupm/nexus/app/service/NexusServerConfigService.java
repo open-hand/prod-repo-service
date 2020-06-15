@@ -22,6 +22,13 @@ public interface NexusServerConfigService {
 	NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId);
 
 	/**
+	 * 设置并返回Choerodon默认nexus服务 - 设置admin信息
+	 * @param nexusClient nexus服务client
+	 * @return NexusServerConfig
+	 */
+	NexusServerConfig setNexusDefaultInfo(NexusClient nexusClient);
+
+	/**
 	 * 设置并返回当前主键对应nexus服务信息 - 设置admin信息
 	 * @param nexusClient nexus服务client
 	 * @param configId nexus服务配置主键Id

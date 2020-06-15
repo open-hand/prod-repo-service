@@ -18,16 +18,18 @@ public interface NexusRepositoryRepository extends BaseRepository<NexusRepositor
 	 * 查询项目关联或自建的仓库
 	 * @param projectId 项目Id
 	 * @param repoType 制品库类型
+	 * @param configId nexus服务配置Id
 	 * @return 仓库名称列表
 	 */
-	List<String> getRepositoryByProject(Long projectId, String repoType);
+	List<String> getRepositoryByProject(Long projectId, String repoType, Long configId);
 
 	/**
 	 * 查询仓库信息
 	 * @param nexusRepository 参数
+	 * @param configId nexus服务配置Id
 	 * @return 仓库列表
 	 */
-	List<NexusRepository> listRepositoryByProject(NexusRepository nexusRepository);
+	List<NexusRepository> listRepositoryByProject(NexusRepository nexusRepository, Long configId);
 
 	/**
 	 * 平台层仓库分配插入仓库数据

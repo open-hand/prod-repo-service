@@ -56,6 +56,18 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	}
 
 	@Override
+	public NexusServerConfig setNexusDefaultInfo(NexusClient nexusClient) {
+		NexusServerConfig queryConfig = new NexusServerConfig();
+		queryConfig.setDefaultFlag(BaseConstants.Flag.YES);
+		NexusServerConfig defaultInfo = nexusServerConfigRepository.selectOne(queryConfig);
+		NexusServer nexusServer = new NexusServer(defaultInfo.getServerUrl(),
+				defaultInfo.getUserName(),
+				DESEncryptUtil.decode(defaultInfo.getPassword()));
+		nexusClient.setNexusServerInfo(nexusServer);
+		return defaultInfo;
+	}
+
+	@Override
 	public NexusServerConfig setNexusInfoByConfigId(NexusClient nexusClient, Long configId) {
 		NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
 		if (nexusServerConfig == null) {

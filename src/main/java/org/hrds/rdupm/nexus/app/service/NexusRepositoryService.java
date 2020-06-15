@@ -95,9 +95,10 @@ public interface NexusRepositoryService {
 	 * 查询maven 仓库配置指引信息
 	 * @param repositoryName 仓库名称
 	 * @param showPushFlag 是否返回发布的配置信息  true:返回  false:不反回
+	 * @param repositoryId 仓库Id
 	 * @return NexusGuideDTO
 	 */
-	NexusGuideDTO mavenRepoGuide(String repositoryName, Boolean showPushFlag);
+	NexusGuideDTO mavenRepoGuide(Long repositoryId, String repositoryName, Boolean showPushFlag);
 
 //	/**
 //	 * 查询maven仓库列表

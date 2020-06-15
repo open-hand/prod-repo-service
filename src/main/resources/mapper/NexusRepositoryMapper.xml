@@ -26,8 +26,11 @@
         FROM
             rdupm_nexus_repository
         <where>
+            <if test="configId != null">
+                config_id = #{configId}
+            </if>
             <if test="projectId != null">
-                project_id = #{projectId}
+                AND project_id = #{projectId}
             </if>
             <if test="repoType != null">
                 AND repo_type = #{repoType}
@@ -43,8 +46,11 @@
         FROM
             rdupm_nexus_repository
         <where>
+            <if test="configId != null">
+                config_id = #{configId}
+            </if>
             <if test="organizationId != null">
-                organization_id = #{organizationId}
+                AND organization_id = #{organizationId}
             </if>
             <if test="projectId != null">
                 AND project_id = #{projectId}
@@ -56,6 +62,7 @@
     </select>
     <select id="selectInfoByIds" resultType="org.hrds.rdupm.nexus.api.dto.NexusRepoDTO">
         SELECT
+            nr.config_id,
             nr.repository_id,
             nr.ne_repository_name AS NAME,
             nu.ne_user_id,

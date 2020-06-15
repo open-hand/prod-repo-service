@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.infra.repository.impl;
 
 import org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
@@ -30,7 +31,7 @@ public class NexusServerConfigRepositoryImpl extends BaseRepositoryImpl<NexusSer
         if (projectConfig == null) {
             // 项目下没有自己启用的nexus配置。 获取Choerodon默认的
             NexusServerConfig queryConfig = new NexusServerConfig();
-            queryConfig.setDefaultFlag(1);
+            queryConfig.setDefaultFlag(BaseConstants.Flag.YES);
             projectConfig = nexusServerConfigMapper.selectOne(queryConfig);
         }
         return projectConfig;
