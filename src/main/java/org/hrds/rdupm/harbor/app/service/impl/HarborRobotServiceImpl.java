@@ -106,6 +106,15 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             throw new CommonException("error.harbor.robot.repository.select");
         }
         HarborRepository repository = repositoryList.get(0);
+
+        List<HarborRobot> dbRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
+                .andWhere(Sqls.custom()
+                        .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectVo.getProjectDTO().getId())
+                        .andEqualTo(HarborRobot.FIELD_ORGANIZATION_ID, projectVo.getProjectDTO().getOrganizationId()))
+                .build());
+        if (CollectionUtils.isNotEmpty(dbRobotList)) {
+            harborRobotRepository.batchDeleteByPrimaryKey(dbRobotList);
+        }
         List<HarborRobot> harborRobotList = new ArrayList<>(2);
 
         HarborRobot harborRobot = new HarborRobot();

@@ -12,6 +12,7 @@
         <result column="description" property="description" jdbcType="VARCHAR"/>
         <result column="public_flag" property="publicFlag" jdbcType="VARCHAR"/>
         <result column="project_share" property="projectShare" jdbcType="VARCHAR"/>
+        <result column="enabled_flag" property="enabledFlag" jdbcType="VARCHAR"/>
         <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
         <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
         <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
