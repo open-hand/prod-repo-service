@@ -83,7 +83,7 @@ public class IamSagaHandler {
 			if(project.equals(dto.getResourceType())){
 				HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,dto.getResourceId()).stream().findFirst().orElse(null);
 				if(harborRepository == null){
-					throw new CommonException("error.harbor.project.not.exist");
+					return;
 				}
 
 				//选举新的项目管理员角色
