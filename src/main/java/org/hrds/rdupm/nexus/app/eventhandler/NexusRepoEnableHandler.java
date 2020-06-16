@@ -16,6 +16,7 @@ import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusUserRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -152,12 +153,12 @@ public class NexusRepoEnableHandler {
         }
 
         // 设置用户匿名权限
-        if (nexusRepository.getAllowAnonymous() == 1) {
+        if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
             NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
             if (anonymousRole == null) {
                 throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
             }
-            anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, nexusRepositoryService.convertRepoTypeToFormat(nexusRepository.getRepoType()));
+            anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), nexusRepository.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepository.getRepoType()));
             nexusClient.getNexusRoleApi().updateRole(anonymousRole);
         }
 

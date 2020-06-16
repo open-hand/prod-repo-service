@@ -124,6 +124,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, projectId);
 
+		// 匿名访问控制
+		if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.NO) && nexusRepoCreateDTO.getAllowAnonymous().equals(BaseConstants.Flag.NO)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_ENABLE_ANONYMOUS_FLAG_IS_NO_NOT_SET);
+		}
+
 
 		if (nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.REPO_NAME_EXIST);
@@ -232,7 +237,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		insertRepo.setAllowAnonymous(nexusRepoCreateDTO.getAllowAnonymous());
 		insertRepo.setRepoType(nexusRepoCreateDTO.getRepoType());
 		nexusRepositoryRepository.distributeRepoInsert(insertRepo);
-		List<NexusRepository> nexusRepositories = nexusRepositoryRepository.selectByCondition(Condition.builder(NexusRepository.class).andWhere(Sqls.custom().andEqualTo(NexusRepository.FIELD_NE_REPOSITORY_NAME, insertRepo.getNeRepositoryName())).build());
+		List<NexusRepository> nexusRepositories = nexusRepositoryRepository.selectByCondition(
+				Condition.builder(NexusRepository.class).andWhere(Sqls.custom().andEqualTo(NexusRepository.FIELD_NE_REPOSITORY_NAME, insertRepo.getNeRepositoryName())
+						.andEqualTo(NexusRepository.FIELD_CONFIG_ID, defaultConfig.getConfigId())).build());
 		NexusRepository nexusRepository = nexusRepositories.get(0);
 
 		// 角色
@@ -307,6 +314,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, repositoryId);
+
+		// 匿名访问控制
+		if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.NO) && nexusRepoCreateDTO.getAllowAnonymous().equals(BaseConstants.Flag.NO)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_ENABLE_ANONYMOUS_FLAG_IS_NO_NOT_SET);
+		}
 
 
 		if (!nexusRepository.getAllowAnonymous().equals(nexusRepoCreateDTO.getAllowAnonymous())) {
@@ -594,36 +606,36 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 //		this.mavenRepoConvert(resultAll, nexusRepositoryList, nexusServerRepositoryMap);
 //	}
 
-	/**
-	 * 查询排除当前项目创建或关联的仓库后的仓库-信息处理
-	 * @param nexusServerRepositoryList nexus服务仓库信息
-	 * @param queryDTO 查询参数
-	 * @param resultAll 放回结果
-	 */
-	private void mavenRepoExcludeProject(List<NexusServerRepository> nexusServerRepositoryList, NexusRepositoryQueryDTO queryDTO, List<NexusRepositoryDTO> resultAll){
-
-		// 所有项目仓库数据
-		NexusRepository query = new NexusRepository();
-		if (queryDTO.getRepoType() != null) {
-			query.setRepoType(queryDTO.getRepoType());
-		}
-		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
-		Map<String, NexusRepository> nexusRepositoryMap = nexusRepositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, a -> a, (k1, k2) -> k1));
-		// 设置用户信息
-		this.setUserInfo(nexusRepositoryList);
-		// 过滤数据，排除当前项目的
-		Set<String> currentProject = nexusRepositoryList.stream().filter(nexusRepository -> nexusRepository.getProjectId().equals(queryDTO.getProjectId()))
-				.map(NexusRepository::getNeRepositoryName).collect(Collectors.toSet());
-		nexusServerRepositoryList = nexusServerRepositoryList.stream().filter(nexusRoleRepository ->
-				!currentProject.contains(nexusRoleRepository.getName())
-		).collect(Collectors.toList());
-
-		nexusServerRepositoryList.forEach(serverRepository -> {
-			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
-			nexusRepositoryDTO.convert(nexusRepositoryMap.get(serverRepository.getName()), serverRepository);
-			resultAll.add(nexusRepositoryDTO);
-		});
-	}
+//	/**
+//	 * 查询排除当前项目创建或关联的仓库后的仓库-信息处理
+//	 * @param nexusServerRepositoryList nexus服务仓库信息
+//	 * @param queryDTO 查询参数
+//	 * @param resultAll 放回结果
+//	 */
+//	private void mavenRepoExcludeProject(List<NexusServerRepository> nexusServerRepositoryList, NexusRepositoryQueryDTO queryDTO, List<NexusRepositoryDTO> resultAll){
+//
+//		// 所有项目仓库数据
+//		NexusRepository query = new NexusRepository();
+//		if (queryDTO.getRepoType() != null) {
+//			query.setRepoType(queryDTO.getRepoType());
+//		}
+//		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.select(query);
+//		Map<String, NexusRepository> nexusRepositoryMap = nexusRepositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, a -> a, (k1, k2) -> k1));
+//		// 设置用户信息
+//		this.setUserInfo(nexusRepositoryList);
+//		// 过滤数据，排除当前项目的
+//		Set<String> currentProject = nexusRepositoryList.stream().filter(nexusRepository -> nexusRepository.getProjectId().equals(queryDTO.getProjectId()))
+//				.map(NexusRepository::getNeRepositoryName).collect(Collectors.toSet());
+//		nexusServerRepositoryList = nexusServerRepositoryList.stream().filter(nexusRoleRepository ->
+//				!currentProject.contains(nexusRoleRepository.getName())
+//		).collect(Collectors.toList());
+//
+//		nexusServerRepositoryList.forEach(serverRepository -> {
+//			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+//			nexusRepositoryDTO.convert(nexusRepositoryMap.get(serverRepository.getName()), serverRepository);
+//			resultAll.add(nexusRepositoryDTO);
+//		});
+//	}
 
 //	/**
 //	 * 查询当前项目下创建或关联的仓库-信息处理
@@ -811,13 +823,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		query.setNeRepositoryName(repositoryName);
 		query.setRepositoryId(repositoryId);
 		NexusRepository nexusRepository = nexusRepositoryRepository.selectOne(query);
-		NexusUser nexusUser = null;
-		if (nexusRepository != null) {
-			NexusUser queryUser = new NexusUser();
-			queryUser.setRepositoryId(nexusRepository.getRepositoryId());
-			nexusUser = nexusUserRepository.selectOne(queryUser);
+		if (nexusRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-
+		NexusUser queryUser = new NexusUser();
+		queryUser.setRepositoryId(nexusRepository.getRepositoryId());
+		NexusUser nexusUser = nexusUserRepository.selectOne(queryUser);
 
 
 		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(repositoryName);
@@ -828,7 +839,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 返回信息
 		NexusGuideDTO nexusGuideDTO = new NexusGuideDTO();
 		// 设置拉取配置信息
-		nexusGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser);
+		nexusGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser, serverConfig);
 		// 设置发布配置信息
 		nexusGuideDTO.handlePushGuideValue(nexusServerRepository, nexusRepository, nexusUser, showPushFlag);
 		// remove配置信息
@@ -1051,7 +1062,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepository.setNeRepositoryName(repositoryName);
 		nexusRepository.setOrganizationId(organizationId);
 		nexusRepository.setProjectId(projectId);
-		// TODO 匿名
 		nexusRepository.setAllowAnonymous(BaseConstants.Flag.YES);
 		nexusRepository.setRepoType(repoType);
 		nexusRepository.setEnableFlag(NexusConstants.Flag.Y);

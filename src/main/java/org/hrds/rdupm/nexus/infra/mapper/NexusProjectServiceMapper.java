@@ -14,7 +14,8 @@ public interface NexusProjectServiceMapper extends BaseMapper<NexusProjectServic
     /**
      * 更新项目下，所有服务为不启用
      * @param projectId 项目Id
+     * @param userId 用户Id
      */
-    void disAbleByProjectId(@Param("projectId") Long projectId);
+    void disAbleByProjectId(@Param("projectId") Long projectId, @Param("userId") Long userId);
 
 }
