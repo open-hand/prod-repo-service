@@ -1,0 +1,40 @@
+.product-lib-docker-overview {
+  padding: 20px 16px;
+  .product-lib-docker-overview-field {
+    &:first-child {
+      margin-top: 0px;
+    }
+    display: flex;
+    margin-top: 14px;
+    .product-lib-docker-overview-field-label {
+      display: inline-block;
+      width: 145px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.65);
+      line-height: 20px;
+    }
+    .product-lib-docker-overview-field-value {
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 1);
+      line-height: 20px;
+      max-width: 305px;
+      .product-lib-docker-overview-field-progress {
+        &:first-child {
+          margin-top: 0;
+        }
+        margin-top: 12px;
+        display: inline-block;
+        .product-lib-docker-overview-field-progress-top {
+          display: flex;
+          justify-content: space-between;
+        }
+        .product-lib-docker-overview-field-progress-bar {
+          height: 8px;
+          border-radius: 8px;
+        }
+      }
+    }
+  }
+}
