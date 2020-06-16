@@ -151,6 +151,7 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
         nexusAuth.setProjectId(nexusRepository.getProjectId());
         nexusAuth.setOrganizationId(nexusRepository.getOrganizationId());
         nexusAuth.setRoleCode(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
+        nexusAuth.setLocked(NexusConstants.Flag.Y);
         // 设置角色
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
 
@@ -185,7 +186,9 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
         NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, nexusAuth.getRepositoryId()).stream().findFirst().orElse(null);
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
         nexusAuth.setEndDate(null);
-        nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE, NexusAuth.FIELD_NE_ROLE_ID);
+        nexusAuth.setLocked(NexusConstants.Flag.Y);
+        nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE,
+                NexusAuth.FIELD_NE_ROLE_ID, NexusAuth.FIELD_LOCKED);
 
         List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
         if (CollectionUtils.isNotEmpty(existUserList)) {

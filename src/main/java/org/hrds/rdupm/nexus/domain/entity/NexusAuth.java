@@ -53,6 +53,7 @@ public class NexusAuth extends AuditDomain {
     public static final String FIELD_ROLE_CODE = "roleCode";
     public static final String FIELD_NE_ROLE_ID = "neRoleId";
     public static final String FIELD_END_DATE = "endDate";
+    public static final String FIELD_LOCKED = "locked";
 
     //
     // 业务方法(按public protected private顺序排列)

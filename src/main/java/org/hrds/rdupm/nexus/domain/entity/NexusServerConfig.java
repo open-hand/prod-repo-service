@@ -53,8 +53,10 @@ public class NexusServerConfig extends AuditDomain {
     public static final String FIELD_USER_NAME = "userName";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_ANONYMOUS = "anonymous";
+    public static final String FIELD_ANONYMOUS_ROLE = "anonymousRole";
     public static final String FIELD_DEFAULT_FLAG = "defaultFlag";
     public static final String FIELD_TENANT_ID = "tenantId";
+    public static final String FIELD_ENABLE_ANONYMOUS_FLAG = "enableAnonymousFlag";
 
 
 
@@ -79,9 +81,11 @@ public class NexusServerConfig extends AuditDomain {
             if (anonymousRoleExist == null) {
                 throw new CommonException(NexusMessageConstants.NEXUS_ANONYMOUS_ROLE_USER_NOT_EXIST);
             }
-        } else {
+        } else if (this.enableAnonymousFlag.equals(BaseConstants.Flag.NO)) {
             this.anonymous = null;
             this.anonymousRole = null;
+        } else {
+            throw new CommonException("enableAnonymousFlag param error");
         }
     }
 
@@ -156,10 +160,6 @@ public class NexusServerConfig extends AuditDomain {
     @Transient
     @ApiModelProperty(value = "旧密码")
     private String oldPassword;
-    @Transient
-    @ApiModelProperty(value = "确认密码")
-    private String rePassword;
-
 
     //
     // getter/setter
