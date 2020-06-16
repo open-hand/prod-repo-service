@@ -2,22 +2,29 @@ package org.hrds.rdupm.nexus.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
-import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.domain.entity.NexusProjectService;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusProjectServiceRepository;
+import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+
+import org.springframework.context.annotation.Lazy;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,13 +41,15 @@ import java.util.stream.Collectors;
 public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Autowired
 	private NexusServerConfigRepository nexusServerConfigRepository;
-
 	@Autowired
 	private ProdUserRepository prodUserRepository;
 	@Autowired
 	private NexusProjectServiceRepository nexusProjectServiceRepository;
 	@Autowired
 	private NexusClient nexusClient;
+	@Autowired
+	@Lazy
+	private NexusRepositoryRepository nexusRepositoryRepository;
 
 	@Override
 	public NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId) {
@@ -95,8 +104,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 	@Override
 	public NexusServerConfig setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId) {
-		String userName = DetailsHelper.getUserDetails().getUsername();
-		ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME, userName).stream().findFirst().orElse(null);
+		Long userId = DetailsHelper.getUserDetails().getUserId();
+		ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, userId).stream().findFirst().orElse(null);
 		if (prodUser == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
@@ -150,20 +159,43 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Transactional(rollbackFor = Exception.class)
 	public NexusServerConfig updateServerConfig(Long organizationId, Long projectId, NexusServerConfig nexusServerConfig) {
 
-		String newPassword = nexusServerConfig.getPassword();
-
 		NexusServerConfig existConfig = nexusServerConfigRepository.queryServiceConfig(nexusServerConfig.getConfigId(), projectId);
 		if (existConfig == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-		existConfig.setPassword(newPassword);
-		existConfig.validaUserPassword(nexusClient);
+
+		String newPassword = null;
+		if (!nexusServerConfig.getPassword().equals(existConfig.getPassword())) {
+			newPassword = nexusServerConfig.getPassword();
+		} else {
+			newPassword = DESEncryptUtil.decode(existConfig.getPassword());
+		}
+
+		nexusServerConfig.setPassword(newPassword);
+
+		nexusServerConfig.validParam(nexusClient);
 
 		// 只更新，密码
 		String encryptPassword = DESEncryptUtil.encode(newPassword);
-		existConfig.setPassword(encryptPassword);
-		nexusServerConfigRepository.updateOptional(existConfig, NexusServerConfig.FIELD_PASSWORD);
 
+		nexusServerConfig.setPassword(encryptPassword);
+		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_PASSWORD,
+				NexusServerConfig.FIELD_ENABLE_ANONYMOUS_FLAG, NexusServerConfig.FIELD_ANONYMOUS, NexusServerConfig.FIELD_ANONYMOUS_ROLE);
+
+		if (nexusServerConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
+			// 开启匿名访问
+			NexusServerRole anonymousRoleExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerConfig.getAnonymousRole());
+			Condition condition = Condition.builder(NexusRepository.class).where(
+					Sqls.custom().andEqualTo(NexusRepository.FIELD_CONFIG_ID, existConfig.getConfigId())).build();
+			List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.selectByCondition(condition);
+			nexusRepositoryList.forEach(nexusRepository -> {
+				NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+				if (nexusServerRepository != null) {
+					anonymousRoleExist.setPullPri(nexusRepository.getNeRepositoryName(), nexusRepository.getAllowAnonymous(), nexusServerRepository.getFormat());
+				}
+			});
+			nexusClient.getNexusRoleApi().updateRole(anonymousRoleExist);
+		}
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;
 	}
@@ -190,7 +222,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		result.add(defaultConfig);
 		result.addAll(nexusServerConfigList);
 
-		result = result.stream().peek(nexusServer -> nexusServer.setPassword(null)).collect(Collectors.toList());
+		//result = result.stream().peek(nexusServer -> nexusServer.setPassword(null)).collect(Collectors.toList());
 		return result;
 	}
 
