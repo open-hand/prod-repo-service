@@ -1,0 +1,188 @@
+@import '~choerodon-ui/lib/style/themes/default';
+
+.product-lib-site-management-lib-list {
+  overflow-x: hidden;
+  height: ~'calc(100% - 75px)' !important;
+  &-filter-form {
+    margin-top: 0.1rem;
+  }
+  .@{c7n-pro-prefix}-form-float-label .@{c7n-pro-prefix}-field-wrapper {
+    margin: 0.07rem 0 0 0;
+  }
+  &-pagination {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: end;
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  &-render-dropdown-column {
+    display: flex;
+    justify-content: space-between;
+    &-text {
+      // width: ~'calc(100% - 32px)';
+      color: #000;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+        color: @primary-color;
+      }
+    }
+  }
+  // 时间线样式
+  &-list {
+    width: 100%;
+    padding-right: 20px;
+    &-split-line {
+      height: 0.01rem;
+      margin-left: 0.22rem;
+      background-image: linear-gradient(
+        to right,
+        rgba(216, 220, 235, 0.2),
+        rgba(216, 220, 235, 1)
+      );
+    }
+    &-body {
+      ul {
+        padding-left: 0;
+        li {
+          list-style: none;
+          position: relative;
+          display: flex;
+          margin-top: 0.16rem;
+        }
+      }
+    }
+    &-card {
+      height: auto;
+      flex: 1;
+      background: rgba(250, 250, 250, 1);
+      border-radius: 0.04rem;
+      padding: 0.1rem 0.2rem;
+      &-header {
+        &-project {
+          display: flex;
+          &-name {
+            font-size: 0.13rem;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.65);
+            line-height: 0.18rem;
+          }
+        }
+        &-btn {
+          width: 0.76rem;
+          height: 0.22rem;
+          cursor: pointer;
+          float: right;
+          background: rgba(104, 135, 232, 0.08);
+          border-radius: 0.04rem;
+          border: 0.01rem solid rgba(104, 135, 232, 1);
+          text-align: center;
+          font-size: 0.13rem;
+          color: rgba(104, 135, 232, 1);
+        }
+        &-title {
+          font-size: 0.15rem;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 1);
+          line-height: 0.21rem;
+          &:hover {
+            color: @primary-color;
+            text-decoration: underline;
+            cursor: pointer;
+          }
+        }
+      }
+      &-footer {
+        font-size: 0.12rem;
+        margin-top: 0.19rem;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.54);
+        &-text {
+          color: rgba(0, 0, 0, 1);
+        }
+        &-date {
+          display: flex;
+          span {
+            font-size: 0.13rem;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(58, 52, 95, 1);
+            line-height: 0.18rem;
+          }
+        }
+        i.icon {
+          font-size: 0.17rem;
+          margin-right: 0.05rem;
+          margin-bottom: 0.02rem;
+          color: rgba(0, 0, 0, 0.42);
+        }
+        &-btn {
+          cursor: pointer;
+          text-align: right;
+          font-size: 0.13rem;
+          font-weight: 500;
+          color: @primary-color;
+          line-height: 0.15rem;
+          i.icon {
+            color: @primary-color;
+            margin-right: 0;
+          }
+        }
+        &-action {
+          i.icon {
+            font-size: 0.17rem;
+            margin-right: 0.05rem;
+            margin-bottom: 0.02rem;
+            color: rgba(0, 0, 0, 1) !important;
+          }
+        }
+      }
+    }
+    &-no-content {
+      height: 0.8rem;
+      color: rgba(0, 0, 0, 0.65);
+      -webkit-box-flex: 1;
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      background: #fafafa;
+      border-radius: 0.04rem;
+      padding: 0.1rem 0.2rem;
+      text-align: center;
+      line-height: 0.6rem;
+      margin-top: 0.1rem;
+    }
+  }
+  &-status {
+    width: 0.08rem;
+    height: 0.08rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.05rem;
+
+    &-online {
+      background: #00bfa5;
+    }
+
+    &-offline {
+      background: #e3e3e3;
+    }
+  }
+
+  .header-title {
+    font-size: 0.15rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 0.21rem;
+  }
+}

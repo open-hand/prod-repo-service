@@ -52,3 +52,16 @@ src/main/resources/application-remote.yml
 init-local-database-dev.sh
 /src/main/java/org/hrds/rdupm/config/CustomWebSecurityConfigurerAdapter.java
 /src/test/java/HarborInitServiceImplTest.java
+
+# npm
+/node_modules
+/npm-debug.log
+/yarn-error.log
+/yarn-lock.json
+/package-lock.json
+/yarn.lock
+
+# folder
+/dist
+/lib
+/.history

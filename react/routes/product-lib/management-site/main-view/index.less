@@ -1,0 +1,210 @@
+@import '~choerodon-ui/lib/style/themes/default';
+
+.product-lib-org-management {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    padding: 0;
+    border-top: 0.01rem solid rgba(0, 0, 0, 0.12);
+    .page-content {
+      padding: 20px;
+      padding-right: 0;
+    }
+  &-lib-type-list {
+    overflow: scroll;
+    height: 100%;
+    width: 1.18rem;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    border-right: 1px solid #d8d8d8;
+    padding: .20rem .24rem;
+    &-item {
+     &-selector-icon {
+      color: rgba(104, 135, 232, 1);
+      position: absolute;
+      padding-bottom: 0.42rem;
+      margin-left: 0.27rem;
+      font-size: 0.12rem;
+    }
+      cursor: pointer;
+      width: .7rem;
+      height: .6rem;
+      background: rgba(255, 255, 255, 1);
+      border-radius: .04rem;
+      border: .01rem solid  rgba(236, 238, 246, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: .20rem;
+      &-docker {
+        width: .58rem;
+        height: .48rem;
+        background: url("./image/docker.png") no-repeat;
+        background-size: contain;
+      }
+      &-maven {
+        background: url("./image/maven.png") no-repeat;
+        background-size: contain;
+        width: .58rem;
+        // height: .48rem;
+        height: .20rem;
+        margin-top: 5px;
+      }
+      &-npm {
+        background: url("./image/npm.png") no-repeat;
+        background-size: contain;
+        width: .58rem;
+        height: .30rem;
+        margin-top: 5px;
+      }
+    }
+    &-item:hover {
+      cursor: pointer;
+      width: .7rem;
+      height: .6rem;
+      background: rgba(255, 255, 255, 1);
+      border-radius: .04rem;
+      border: .01rem solid  rgba(82, 102, 212, 1);
+      box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
+      -moz-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
+      -webkit-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
+      transition: border .5s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: .20rem;
+    }
+    &-item-selected {
+      cursor: pointer;
+      width: .7rem;
+      height: .6rem;
+      background: rgba(255, 255, 255, 1);
+      border-radius: .04rem;
+      border: .01rem solid  rgba(82, 102, 212, 1);
+      box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
+      -moz-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
+      -webkit-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
+      transition: border .5s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: .20rem;
+      &-icon {
+        position: absolute;
+        /* float: right; */
+        top: .23rem;
+        left: .8rem;
+        font-size: .12rem;
+        /* margin: 1px; */
+        /* background: rgba(104,135,232,1); */
+        color: rgba(104, 135, 232, 1);
+      }
+    }
+  }
+  &-tabs {
+    > .c7n-tabs-bar {
+      margin-bottom: 0;
+    }
+    .c7n-tabs-nav-container {
+      line-height: 2;
+    }
+  }
+  &-tab-page-content {
+     height: 100%;
+    .@{c7n-prefix}-tabs {
+      height: 100%;
+    }
+    .@{c7n-prefix}-tabs:not(.@{c7n-prefix}-tabs-vertical) > .@{c7n-prefix}-tabs-content {
+      width: 100%;
+      height: 100%;
+    }
+    .@{c7n-prefix}-tabs:not(.@{c7n-prefix}-tabs-vertical) > .@{c7n-prefix}-tabs-content > .@{c7n-prefix}-tabs-tabpane {
+      -webkit-flex-shrink: 0;
+      -ms-flex-negative: 0;
+      flex-shrink: 0;
+      width: 100%;
+      opacity: 1;
+      -webkit-transition: opacity 0.45s;
+      transition: opacity 0.45s;
+      height: 100%;
+    }
+    height: 100%;
+    overflow: hidden;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    .page-content-header .description {
+      font-size: .13rem;
+      line-height: .20rem;
+      margin-bottom: 0;
+    }
+  }
+  &-tab-button-group {
+    margin: 3px 0 16px;
+    height: 0.36rem;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0px 2px 6px 0px rgba(48, 63, 159, 0.2);
+    border-radius: 6px;
+    > .c7n-radio-button-wrapper:not(:first-child)::before {
+      display: none;
+    }
+    > .c7n-radio-button-wrapper {
+      border: none;
+      height: 100%;
+      font-size: 0.14rem;
+      font-weight: 400;
+      color: @primary-color;
+      line-height: 0.36rem;
+    }
+    > .c7n-radio-button-wrapper-checked {
+      background: rgba(140, 158, 255, 0.16);
+      box-shadow: none;
+    }
+  }
+}
+
+
+
+.product-lib-org-guide-modal {
+  &-second-title {
+    height: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 1);
+    line-height: 20px;
+  }
+  &-description {
+    margin-top: 12px;
+    height: 20px;
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 20px;
+  }
+  pre {
+    position: relative;
+    overflow: hidden;
+    background: rgba(245, 246, 250, 1);
+    border-radius: 8px;
+    padding: 12px 16px;
+    button {
+      position: absolute;
+      right: 0;
+      top: 5px;
+    }
+  }
+}
