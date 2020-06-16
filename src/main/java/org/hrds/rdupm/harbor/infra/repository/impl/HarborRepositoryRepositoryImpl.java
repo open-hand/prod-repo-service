@@ -1,8 +1,11 @@
 package org.hrds.rdupm.harbor.infra.repository.impl;
 
+import io.choerodon.core.oauth.DetailsHelper;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,5 +16,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class HarborRepositoryRepositoryImpl extends BaseRepositoryImpl<HarborRepository> implements HarborRepositoryRepository {
 
+	@Override
+	public HarborRepository getHarborRepositoryById(Long projectId){
+		Long organizationId = DetailsHelper.getUserDetails().getTenantId();
+		HarborRepository harborRepository = this.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
+				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId)
+				.andEqualTo(HarborRepository.FIELD_PROJECT_ID,projectId)
+		).build()).stream().findFirst().orElse(null);
+		return harborRepository;
+	}
   
 }

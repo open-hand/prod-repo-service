@@ -1,4 +1,4 @@
-package script.nexus
+package script.db.groovy.hrds_prod_repo.nexus
 
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.common.entity.EntityId

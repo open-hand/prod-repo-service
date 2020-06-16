@@ -17,10 +17,14 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepoServiceRepository;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.dto.DevopsAppService;
 import org.hrds.rdupm.init.dto.DevopsConfigDto;
 import org.hrds.rdupm.init.dto.FdProjectDto;
@@ -72,6 +76,8 @@ public class HarborInitServiceImpl implements HarborInitService {
 	private HarborCustomRepoRepository harborCustomRepoRepository;
 	@Autowired
 	private HarborRepoServiceRepository harborRepoServiceRepository;
+	@Autowired
+	private ProdUserRepository prodUserRepository;
 
 	private final String sagaCode = "rdupm-docker-auth-create-init";
 
@@ -82,38 +88,8 @@ public class HarborInitServiceImpl implements HarborInitService {
 	 */
 	@Override
 	public void defaultRepoInit(){
+		LOGGER.debug("=====================================默认仓库初始化=====================================");
 		long start = System.currentTimeMillis();
-
-		//获取Harbor中项目总数
-		ResponseEntity<String> countResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.COUNT,null,null,true);
-		HarborCountVo harborCountVo = JSONObject.parseObject(countResponse.getBody(), HarborCountVo.class);
-		if(harborCountVo.getTotalProjectCount().intValue() < pageSize){
-			defaultRepoInitToDb(1);
-		}else {
-			int part = harborCountVo.getTotalProjectCount().intValue()/pageSize;
-			for(int i=1; i<=part;i++){
-				defaultRepoInitToDb(i);
-			}
-		}
-
-		long end = System.currentTimeMillis();
-		LOGGER.debug("初始化完成：{}(ms)",end-start);
-	}
-
-	@Async("init-executor")
-	public void defaultRepoInitToDb(int page){
-		//分页查询Harbor项目信息
-		Map<String,Object> paramMap = new HashMap<>(2);
-		paramMap.put("page",page);
-		paramMap.put("page_size",pageSize);
-		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,paramMap,null,true);
-		Map<String,HarborProjectDTO> harborProjectMap = new HashMap<>(16);
-		List<String> projectList= JSONObject.parseArray(projectResponse.getBody(),String.class);
-		Gson gson = new Gson();
-		for(String object : projectList){
-			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
-			harborProjectMap.put(projectResponseDto.getName(),projectResponseDto);
-		}
 
 		//获取猪齿鱼中项目信息
 		String selectSql = "SELECT\n" +
@@ -127,9 +103,41 @@ public class HarborInitServiceImpl implements HarborInitService {
 			return;
 		}
 
-		//harbor项目和猪齿鱼项目做关联
+		//获取Harbor中项目总数
+		ResponseEntity<String> countResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.COUNT,null,null,true);
+		HarborCountVo harborCountVo = JSONObject.parseObject(countResponse.getBody(), HarborCountVo.class);
+		int totalProjectCount = harborCountVo.getTotalProjectCount().intValue();
+		if(totalProjectCount < pageSize){
+			defaultRepoInitToDb(1,fdProjectDtoList);
+		}else {
+			int part = totalProjectCount/pageSize;
+			for(int i=1; i<=part;i++){
+				defaultRepoInitToDb(i,fdProjectDtoList);
+			}
+		}
+
+		long end = System.currentTimeMillis();
+		LOGGER.debug("=====================================默认仓库初始化完成：{}(ms)============================",end-start);
+	}
+
+	public void defaultRepoInitToDb(int page,List<FdProjectDto> fdProjectDtoList){
+		//分页查询Harbor项目信息
+		Map<String,Object> paramMap = new HashMap<>(2);
+		paramMap.put("page",page);
+		paramMap.put("page_size",pageSize);
+		ResponseEntity<String> projectResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_PROJECT,paramMap,null,true);
+		Map<String,HarborProjectDTO> harborProjectMap = new HashMap<>(16);
+		List<String> projectList= JSONObject.parseArray(projectResponse.getBody(),String.class);
+		Gson gson = new Gson();
+		for(String object : projectList){
+			HarborProjectDTO projectResponseDto = gson.fromJson(object, HarborProjectDTO.class);
+			harborProjectMap.put(projectResponseDto.getName(),projectResponseDto);
+		}
+
+		//harbor项目和猪齿鱼项目做关联:默认仓库列表、项目ID和用户关联Map、用户IDSet
 		List<HarborRepository> harborRepositoryList = new ArrayList<>();
 		Map<Long,Long> projectIdUserIdMap = new HashMap<>(16);
+		Set<Long> creatUserIdSet = new HashSet<>(16);
 		fdProjectDtoList.stream().forEach(dto->{
 			HarborProjectDTO harborProjectDTO= harborProjectMap.get(dto.getTenantProjectCode());
 			if(harborProjectDTO != null){
@@ -138,31 +146,109 @@ public class HarborInitServiceImpl implements HarborInitService {
 				if(dto.getCreatedBy() == 0){
 					UserDTO userDTO = c7nBaseService.getProjectOwnerById(dto.getProjectId());
 					projectIdUserIdMap.put(dto.getProjectId(),userDTO == null ? -1 : userDTO.getId());
+					creatUserIdSet.add(userDTO == null ? -1 : userDTO.getId());
 				}else {
 					projectIdUserIdMap.put(dto.getProjectId(),dto.getCreatedBy());
+					creatUserIdSet.add(dto.getCreatedBy());
 				}
 			}
 		});
 
-		//保存项目到数据库、创建默认用户、分配最高权限
+		/***
+		* 1.数据库：插入项目
+		* 2.数据库：批量插入用户
+		* 3.Harbor：创建用户账号
+		* 4.Harbor：创建用户权限
+		* 5.数据库：插入用户权限
+		* */
+		List<HarborAuth> authList = new ArrayList<>();
+		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(creatUserIdSet);
+
 		harborRepositoryList.forEach(dto->{
 			if(CollectionUtils.isEmpty(harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,dto.getProjectId()))){
 				harborRepositoryRepository.insertSelective(dto);
 
-				List<HarborAuth> authList = new ArrayList<>();
-				HarborAuth harborAuth = new HarborAuth();
-				harborAuth.setUserId(projectIdUserIdMap.get(dto.getProjectId()));
-				harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
-				try {
-					harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
-				} catch (ParseException e) {
-					e.printStackTrace();
+				Long userId = projectIdUserIdMap.get(dto.getProjectId());
+				UserDTO userDTO = userDtoMap.get(userId);
+				if(userDTO != null && !"admin".equals(userDTO.getLoginName())){
+					HarborAuth harborAuth = new HarborAuth();
+					harborAuth.setHarborId(dto.getHarborId());
+					harborAuth.setProjectId(dto.getProjectId());
+					harborAuth.setOrganizationId(dto.getOrganizationId());
+					harborAuth.setUserId(userId);
+					harborAuth.setLoginName(userDTO.getLoginName());
+					harborAuth.setRealName(userDTO.getRealName());
+					harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
+					try {
+						harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					authList.add(harborAuth);
 				}
-				authList.add(harborAuth);
-				save(dto,authList);
 			}
 		});
+		batchInsertUserToDb(creatUserIdSet,userDtoMap);
+		batchAssignAuthToDb(authList);
+
 		LOGGER.debug("Thread name:{},task:{}",Thread.currentThread().getName(),page);
+	}
+
+	private void batchInsertUserToDb(Set<Long> creatUserIdSet,Map<Long,UserDTO> userDtoMap){
+		List<ProdUser> prodUserList = new ArrayList<>();
+		for(Long userId : creatUserIdSet){
+			UserDTO userDTO = userDtoMap.get(userId);
+			if(!"admin".equals(userDTO.getLoginName())){
+				String password = HarborUtil.getPassword();
+				//校验DB中是否已存在用户
+				List<ProdUser> existUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId);
+				if(CollectionUtils.isEmpty(existUserList)) {
+					if (userDTO != null) {
+						ProdUser prodUser = new ProdUser(userId, userDTO.getLoginName(), password, 0);
+						prodUserList.add(prodUser);
+					}
+				}
+				//校验Harbor中是否已存在用户
+				Map<String,Object> paramMap = new HashMap<>(1);
+				paramMap.put("username",userDTO.getLoginName());
+				ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME,paramMap,null,true);
+				List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
+				Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(1) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
+				if(userMap.get(userDTO.getLoginName()) == null){
+					User user = new User(userDTO.getLoginName(),userDTO.getEmail(),password,userDTO.getRealName());
+					harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
+				}
+			}
+		}
+		prodUserRepository.batchInsert(prodUserList);
+	}
+
+	private void batchAssignAuthToDb(List<HarborAuth> authList){
+		for(HarborAuth harborAuth : authList){
+			Long harborId = harborAuth.getHarborId();
+			//Harbor:创建用户权限
+			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
+			List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
+			if(harborAuthVoMap.get(harborAuth.getLoginName()) == null){
+				Map<String,Object> bodyMap = new HashMap<>(2);
+				Map<String,Object> memberMap = new HashMap<>(1);
+				memberMap.put("username",harborAuth.getLoginName());
+				bodyMap.put("role_id",harborAuth.getHarborRoleId());
+				bodyMap.put("member_user",memberMap);
+				harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,true,harborId);
+			}
+
+			//DB：插入权限
+			ResponseEntity<String> responseEntity2 = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
+			List<HarborAuthVo> harborAuthVoList2 = new Gson().fromJson(responseEntity2.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+			Map<String,HarborAuthVo> harborAuthVoMap2 = CollectionUtils.isEmpty(harborAuthVoList2) ? new HashMap<>(1) : harborAuthVoList2.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
+			if(harborAuthVoMap2.get(harborAuth.getLoginName()) != null){
+				harborAuth.setHarborAuthId(harborAuthVoMap2.get(harborAuth.getLoginName()).getHarborAuthId());
+				repository.insertSelective(harborAuth);
+			}
+
+		}
 	}
 
 	/***
@@ -171,6 +257,8 @@ public class HarborInitServiceImpl implements HarborInitService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void customRepoInit() {
+		LOGGER.debug("=====================================自定义仓库初始化=====================================");
+
 		//获取猪齿鱼数据库中自定义仓库配置信息
 		String selectSql = "select * from devops_config where type = 'harbor' and (app_service_id is not null or organization_id is not null or project_id is not null)";
 		List<DevopsConfigDto> devopsConfigDtoList =  getCustomJdbcTemplate().query(selectSql,new BeanPropertyRowMapper<>(DevopsConfigDto.class));
@@ -241,12 +329,17 @@ public class HarborInitServiceImpl implements HarborInitService {
 			BeanUtils.copyProperties(devopsConfigDto,harborCustomRepo);
 			harborCustomRepo.setProjectId(harborRepoService.getProjectId());
 			harborCustomRepo.setOrganizationId(harborRepoService.getOrganizationId());
+			harborCustomRepo.setProjectShare(HarborConstants.FALSE);
+			harborCustomRepo.setEnabledFlag(HarborConstants.Y);
 			harborCustomRepoRepository.insertSelective(harborCustomRepo);
 
 			harborRepoService.setCustomRepoId(harborCustomRepo.getId());
 			harborRepoServiceList.add(harborRepoService);
 		}
 		harborRepoServiceRepository.batchInsert(harborRepoServiceList);
+
+		LOGGER.debug("=====================================自定义仓库初始化完成===================================");
+
 	}
 
 	public List<DevopsAppService> listAppServiceByIds(List<Long> appServiceIdList){
@@ -256,56 +349,6 @@ public class HarborInitServiceImpl implements HarborInitService {
 		NamedParameterJdbcTemplate jdbc = new NamedParameterJdbcTemplate(getCustomJdbcTemplate());
 		List<DevopsAppService> devopsAppServiceList = jdbc.query(sql, paramMap , new BeanPropertyRowMapper<>(DevopsAppService.class));
 		return devopsAppServiceList;
-	}
-
-	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
-	@Saga(code = sagaCode,description = "分配权限",inputSchemaClass = List.class)
-	public void save(HarborRepository harborRepository,List<HarborAuth> dtoList) {
-		//校验是否已分配权限
-		List<HarborAuth> existList = repository.select(HarborAuth.FIELD_PROJECT_ID,harborRepository.getProjectId());
-		Map<Long,HarborAuth> harborAuthMap = CollectionUtils.isEmpty(existList) ? new HashMap<>(1) : existList.stream().collect(Collectors.toMap(HarborAuth::getUserId,dto->dto));
-
-		//生成权限数据
-		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
-		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
-		dtoList.forEach(dto->{
-			UserDTO userDTO = userDtoMap.get(dto.getUserId());
-			dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
-			dto.setRealName(userDTO == null ? null : userDTO.getRealName());
-
-			if(harborAuthMap.get(dto.getUserId()) != null){
-				throw new CommonException("error.harbor.auth.already.exist",dto.getRealName());
-			}
-
-			dto.setProjectId(harborRepository.getProjectId());
-			dto.setOrganizationId(harborRepository.getOrganizationId());
-			dto.setHarborId(harborRepository.getHarborId());
-			dto.setHarborRoleValue(dto.getHarborRoleValue());
-			dto.setHarborAuthId(-1L);
-		});
-
-		//调用Saga
-		transactionalProducer.apply(StartSagaBuilder.newBuilder()
-						.withSagaCode(sagaCode)
-						.withLevel(ResourceLevel.PROJECT)
-						.withRefType("dockerRepo")
-						.withSourceId(harborRepository.getProjectId()),
-				startSagaBuilder -> {
-
-					//保存到数据库
-					Long harborId = dtoList.get(0).getHarborId();
-					ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
-					List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
-					Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,dto->dto));
-					dtoList.stream().forEach(dto->{
-						if(harborAuthVoMap.get(dto.getLoginName()) != null){
-							throw new CommonException("error.harbor.auth.find.harborAuthId");
-						}
-					});
-					repository.batchInsert(dtoList);
-
-					startSagaBuilder.withPayloadAndSerialize(dtoList).withSourceId(harborRepository.getProjectId());
-				});
 	}
 
 	private JdbcTemplate getDefaultJdbcTemplate(){

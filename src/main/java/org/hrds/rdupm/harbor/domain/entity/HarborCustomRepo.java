@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-harbor自定义镜像仓库表
@@ -46,15 +47,39 @@ public class HarborCustomRepo extends AuditDomain {
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_PUBLIC_FLAG = "publicFlag";
+    public static final String FIELD_PROJECT_SHARE = "projectShare";
+    public static final String FIELD_ENABLED_FLAG = "enabledFlag";
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_CREATED_BY = "createdBy";
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";
     public static final String FIELD_LAST_UPDATE_DATE = "lastUpdateDate";
     public static final String FIELD_LAST_UPDATE_LOGIN = "lastUpdateLogin";
 
+    public static final String ENCRYPT_KEY = "rdupm_harbor_custom_repo";
+
     //
     // 业务方法(按public protected private顺序排列)
     // ------------------------------------------------------------------------------
+
+
+    public HarborCustomRepo() {
+    }
+
+    public HarborCustomRepo(HarborCustomRepoDTO harborCustomRepoDTO) {
+        this.id = harborCustomRepoDTO.getRepoId();
+        this.projectId = harborCustomRepoDTO.getProjectId();
+        this.organizationId = harborCustomRepoDTO.getOrganizationId();
+        this.repoName = harborCustomRepoDTO.getRepoName();
+        this.repoUrl = harborCustomRepoDTO.getRepoUrl();
+        this.loginName = harborCustomRepoDTO.getRepoLoginName();
+        this.password = harborCustomRepoDTO.getRepoPassword();
+        this.email = harborCustomRepoDTO.getRepoEmail();
+        this.description = harborCustomRepoDTO.getRepoDescription();
+        this.publicFlag = harborCustomRepoDTO.getRepoPublicFlag();
+        this.projectShare = harborCustomRepoDTO.getProjectShare();
+        this.set_token(harborCustomRepoDTO.get_token());
+    }
+
 
     //
     // 数据库字段
@@ -64,6 +89,7 @@ public class HarborCustomRepo extends AuditDomain {
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
+    @Encrypt(HarborCustomRepo.ENCRYPT_KEY)
     private Long id;
 
     @ApiModelProperty(value = "猪齿鱼项目ID")
@@ -91,6 +117,11 @@ public class HarborCustomRepo extends AuditDomain {
     private String description;
     @ApiModelProperty(value = "是否公开访问，默认false")
     private String publicFlag;
+    @ApiModelProperty(value = "是否项目下共享，默认false")
+    @NotBlank
+    private String projectShare;
+    @ApiModelProperty(value = "是否启用，默认Y")
+    private String enabledFlag;
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------

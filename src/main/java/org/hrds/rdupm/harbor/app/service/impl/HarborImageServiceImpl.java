@@ -7,6 +7,7 @@ import io.choerodon.core.domain.Page;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +52,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 	@Override
 	public Page<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
 		Gson gson = new Gson();
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
@@ -129,7 +130,10 @@ public class HarborImageServiceImpl implements HarborImageService {
 
 	@Override
 	public void delete(HarborImageVo harborImageVo) {
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborImageVo.getHarborId()).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
+				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID, DetailsHelper.getUserDetails().getTenantId())
+				.andEqualTo(HarborRepository.FIELD_HARBOR_ID,harborImageVo.getHarborId())
+		).build()).stream().findFirst().orElse(null);
 		if(harborRepository != null){
 			harborAuthService.checkProjectAdmin(harborRepository.getProjectId());
 		}
@@ -160,7 +164,10 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(harborImageVo.getHarborId() == null || StringUtils.isEmpty(harborImageVo.getImageName())){
 			throw new CommonException("error.harbor.image.param.empty");
 		}
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborImageVo.getHarborId()).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
+				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID, DetailsHelper.getUserDetails().getTenantId())
+				.andEqualTo(HarborRepository.FIELD_HARBOR_ID,harborImageVo.getHarborId())
+		).build()).stream().findFirst().orElse(null);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}

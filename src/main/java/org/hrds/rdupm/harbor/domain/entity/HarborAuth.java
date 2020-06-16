@@ -23,6 +23,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelColumn;
 import org.hzero.export.annotation.ExcelSheet;
 import org.hzero.export.render.ValueRenderer;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -54,6 +55,7 @@ public class HarborAuth extends AuditDomain {
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";
     public static final String FIELD_LAST_UPDATE_DATE = "lastUpdateDate";
     public static final String FIELD_LAST_UPDATE_LOGIN = "lastUpdateLogin";
+    public static final String ENCRYPT_KEY = "rdupm_harbor_auth";
 
     //
     // 业务方法(按public protected private顺序排列)
@@ -64,6 +66,7 @@ public class HarborAuth extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
+	@Encrypt(HarborAuth.ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue

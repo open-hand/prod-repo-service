@@ -76,7 +76,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	 * @param tagVo
 	 */
 	public void setTagAuthor(Long projectId,String repoName, String tagName,HarborImageTagVo tagVo){
-		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID,projectId).stream().findFirst().orElse(null);
+		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}

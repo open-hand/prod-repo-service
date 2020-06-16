@@ -9,5 +9,6 @@ import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
  * @author xiuhong.chen@hand-china.com 2020-04-22 09:53:19
  */
 public interface HarborRepositoryRepository extends BaseRepository<HarborRepository> {
-    
+
+	HarborRepository getHarborRepositoryById(Long projectId);
 }
