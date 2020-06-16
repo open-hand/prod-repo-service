@@ -41,24 +41,18 @@ const AssociateModal = ({ repositoryId, modal, refresh }) => {
   useEffect(() => {
     modal.handleOk(async () => {
       const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-      try {
-        const body = createdSVCList.map(o => o.id && o.id).filter(Boolean);
-        if (body.length === 0) {
-          message.error('请选择应用服务');
-          return false;
-        }
-
-        await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/relate-service/${projectId}`, {
-          ...detail,
-          appServiceIds: [...new Set([...detail.appServiceIds, ...body])],
-        });
-        refresh();
-        modal.close();
-        message.success('关联成功');
-      } catch (error) {
-        // message.error(error);
+      const body = createdSVCList.map(o => o.id && o.id).filter(Boolean);
+      if (body.length === 0) {
+        message.error('请选择应用服务');
         return false;
       }
+
+      await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/relate-service/${projectId}`, {
+        ...detail,
+        appServiceIds: [...new Set([...(detail.appServiceIds || []), ...body])],
+      });
+      refresh();
+      message.success('关联成功');
     });
   }, [createdSVCList, detail]);
 
