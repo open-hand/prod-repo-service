@@ -163,7 +163,7 @@ public interface NexusRepositoryService {
 	 * @param nexusRepositoryRelatedDTO 关联仓库信息
 	 * @return NexusRepositoryRelatedDTO
 	 */
-	NexusRepositoryRelatedDTO relatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO);
+	NexusRepositoryRelatedDTO relatedRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO);
 
 	/**
 	 * 关联仓库

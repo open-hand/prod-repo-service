@@ -33,7 +33,7 @@ public class NexusServerComponentUpload {
 	 */
 	public static final String NPM_TGX = "npm.asset";
 
-	@ApiModelProperty(value = "仓库名称",required = true)
+	@ApiModelProperty(value = "仓库Id",required = true)
 	@NotBlank
 	private Long repositoryId;
 	@ApiModelProperty(value = "仓库名称",required = true)

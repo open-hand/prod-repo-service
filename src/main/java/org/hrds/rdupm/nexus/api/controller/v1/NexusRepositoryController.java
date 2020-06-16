@@ -1,8 +1,6 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.List;
 
@@ -202,7 +199,19 @@ public class NexusRepositoryController extends BaseController {
                                                                       @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
                                                                       @RequestBody NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
         validObject(nexusRepositoryRelatedDTO);
-        return Results.success(nexusRepositoryService.relatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO));
+        nexusRepositoryRelatedDTO.setRepoType(NexusConstants.RepoType.MAVEN);
+        return Results.success(nexusRepositoryService.relatedRepo(organizationId, projectId, nexusRepositoryRelatedDTO));
+    }
+
+    @ApiOperation(value = "npm仓库 关联")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/{organizationId}/project/{projectId}/npm/repo/related")
+    public ResponseEntity<NexusRepositoryRelatedDTO> relatedNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                    @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                    @RequestBody NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
+        validObject(nexusRepositoryRelatedDTO);
+        nexusRepositoryRelatedDTO.setRepoType(NexusConstants.RepoType.NPM);
+        return Results.success(nexusRepositoryService.relatedRepo(organizationId, projectId, nexusRepositoryRelatedDTO));
     }
 
 //    @ApiOperation(value = "获取当前项目关联列表")

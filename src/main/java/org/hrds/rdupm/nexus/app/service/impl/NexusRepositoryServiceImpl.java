@@ -1015,7 +1015,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public NexusRepositoryRelatedDTO relatedMavenRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
+	public NexusRepositoryRelatedDTO relatedRepo(Long organizationId, Long projectId, NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
 
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, projectId);
 		// 参数校验
