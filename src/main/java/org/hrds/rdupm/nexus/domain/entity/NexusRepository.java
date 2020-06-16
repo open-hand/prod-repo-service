@@ -97,6 +97,10 @@ public class NexusRepository extends AuditDomain {
 	@ApiModelProperty(value = "用户权限信息", hidden = true)
     @Transient
 	private List<NexusAuth> nexusAuthList;
+
+    @ApiModelProperty(value = "删除团队成员， nexus（maven/npm）仓库权限处理: 删除用户Id", hidden = true)
+	@Transient
+    private Long deleteUserId;
     //
     // getter/setter
     // ------------------------------------------------------------------------------

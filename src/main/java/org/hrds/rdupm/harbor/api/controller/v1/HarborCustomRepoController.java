@@ -14,6 +14,7 @@ import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -92,7 +93,7 @@ public class HarborCustomRepoController extends BaseController {
     @ApiOperation(value = "项目层-查询自定义仓库明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/project/{customRepoId}")
-    public ResponseEntity<HarborCustomRepo> detailByProject(@ApiParam(value = "自定义仓库ID", required = true) @PathVariable("customRepoId") Long customRepoId) {
+    public ResponseEntity<HarborCustomRepo> detailByProject(@ApiParam(value = "自定义仓库ID", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @PathVariable("customRepoId") Long customRepoId) {
         return Results.success(harborCustomRepoService.detailByRepoId(customRepoId));
     }
 
@@ -100,7 +101,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/update/{projectId}")
     public ResponseEntity updateByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                          @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+                                          @ApiParam(value = "自定义镜像仓库", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @RequestBody HarborCustomRepo harborCustomRepo) {
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.updateByProject(projectId, harborCustomRepo);
         return Results.success();
@@ -110,7 +111,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping("/delete/{projectId}")
     public ResponseEntity deleteByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                          @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepoDTO harborCustomRepoDTO) {
+                                          @ApiParam(value = "自定义镜像仓库", required = true) @Encrypt(HarborCustomRepoDTO.ENCRYPT_KEY) @RequestBody HarborCustomRepoDTO harborCustomRepoDTO) {
         HarborCustomRepo harborCustomRepo = new HarborCustomRepo(harborCustomRepoDTO);
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.deleteByProject(projectId,harborCustomRepo);
@@ -122,7 +123,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/relate-service/{projectId}")
     public ResponseEntity relateServiceByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                 @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+                                                 @ApiParam(value = "自定义镜像仓库", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @RequestBody HarborCustomRepo harborCustomRepo) {
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.relateServiceByProject(projectId, harborCustomRepo);
         return Results.success();
@@ -132,7 +133,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/relate-service/{projectId}")
     public ResponseEntity<Page<AppServiceDTO>> pageRelatedServiceByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                                           @ApiParam(value = "自定义镜像仓库ID", required = true) @RequestParam Long customRepoId,
+                                                                           @ApiParam(value = "自定义镜像仓库ID", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @RequestParam Long customRepoId,
                                                                            @ApiParam(value = "应用服务名称") @RequestParam(required = false) String appServiceName,
                                                                            @ApiParam(value = "应用服务编码") @RequestParam(required = false) String appServiceCode,
                                                                            @ApiIgnore PageRequest pageRequest) {
@@ -143,7 +144,7 @@ public class HarborCustomRepoController extends BaseController {
     @ApiOperation(value = "项目层-查询未关联应用服务列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/no-relate-service/{repoId}")
-    public ResponseEntity<List<AppServiceDTO>> pageNoRelatedService(@ApiParam(value = "自定义仓库id", required = true) @PathVariable("repoId") Long repoId) {
+    public ResponseEntity<List<AppServiceDTO>> pageNoRelatedService(@ApiParam(value = "自定义仓库id", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @PathVariable("repoId") Long repoId) {
         List<AppServiceDTO> unRelatedServices = harborCustomRepoService.getNoRelatedAppService(repoId);
         return Results.success(unRelatedServices);
     }
@@ -152,7 +153,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping("/delete-relation/{appServiceId}")
     public ResponseEntity deleteRelation(@ApiParam(value = "关联应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId,
-                                         @ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+                                         @ApiParam(value = "自定义镜像仓库", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @RequestBody HarborCustomRepo harborCustomRepo) {
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.deleteRelation(appServiceId, harborCustomRepo);
         return Results.success();
