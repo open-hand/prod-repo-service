@@ -38,10 +38,10 @@ public class NexusRepositoryOrgController extends BaseController {
     @ApiOperation(value = "组织层-maven包列表（下拉列表）")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/maven/repo/name")
-    public ResponseEntity<List<NexusRepositoryDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId) {
+    public ResponseEntity<List<NexusRepository>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId) {
         NexusRepository query = new NexusRepository();
         query.setOrganizationId(organizationId);
-        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.MAVEN));
+        return Results.success(nexusRepositoryService.listOrgRepoName(query, NexusConstants.RepoType.MAVEN));
     }
 
     @ApiOperation(value = "组织层-maven仓库列表")
@@ -69,9 +69,9 @@ public class NexusRepositoryOrgController extends BaseController {
     @ApiOperation(value = "组织层-npm包列表（下拉列表）")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/npm/repo/name")
-    public ResponseEntity<List<NexusRepositoryDTO>> npmRepoName(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId) {
+    public ResponseEntity<List<NexusRepository>> npmRepoName(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId) {
         NexusRepository query = new NexusRepository();
         query.setOrganizationId(organizationId);
-        return Results.success(nexusRepositoryService.listRepoName(query, NexusConstants.RepoType.NPM));
+        return Results.success(nexusRepositoryService.listOrgRepoName(query, NexusConstants.RepoType.NPM));
     }
 }

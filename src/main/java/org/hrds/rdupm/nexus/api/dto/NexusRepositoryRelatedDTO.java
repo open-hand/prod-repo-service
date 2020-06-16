@@ -81,7 +81,7 @@ public class NexusRepositoryRelatedDTO {
 					throw new CommonException(NexusMessageConstants.NEXUS_REPO_ALREADY_RELATED, repositoryItem);
 				}
 				// 类型是否正确
-				if (!nexusServerRepository.getType().equals(nexusRepositoryService.convertRepoTypeToFormat(this.repoType))) {
+				if (!nexusServerRepository.getFormat().equals(nexusRepositoryService.convertRepoTypeToFormat(this.repoType))) {
 					// 仓库类型错误，{0}仓库不是{1}类型的仓库
 					throw new CommonException(NexusMessageConstants.NEXUS_REPO_RELATED_TYPE_ERROR, repositoryItem, this.repoType);
 				}
