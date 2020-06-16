@@ -564,7 +564,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (CollectionUtils.isNotEmpty(shareCustomRepoList)) {
             HarborCustomRepo shareCustomRepo = shareCustomRepoList.get(0);
             shareCustomRepo.setPassword(DESEncryptUtil.decode(shareCustomRepo.getPassword()));
-            shareCustomRepo.setPublicFlag(Boolean.parseBoolean(shareCustomRepo.getPassword()) ? HarborConstants.FALSE : HarborConstants.TRUE);
+            shareCustomRepo.setPublicFlag(Boolean.parseBoolean(shareCustomRepo.getPublicFlag()) ? HarborConstants.FALSE : HarborConstants.TRUE);
             HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,shareCustomRepo);
             return harborRepoDTO;
         } else {
@@ -675,7 +675,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         }
         HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
         harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
-        harborCustomRepo.setPublicFlag(Boolean.parseBoolean(harborCustomRepo.getPassword()) ? HarborConstants.FALSE : HarborConstants.TRUE);
+        harborCustomRepo.setPublicFlag(Boolean.parseBoolean(harborCustomRepo.getPublicFlag()) ? HarborConstants.FALSE : HarborConstants.TRUE);
         HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId,projectId,harborCustomRepo);
         return harborRepoDTO;
     }
