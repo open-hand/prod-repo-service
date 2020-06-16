@@ -347,7 +347,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		componentInfo.setRepository(nexusRepository.getNeRepositoryName());
 
 		// 设置并返回当前nexus服务信息
-		configService.setNexusInfoByRepositoryId(nexusClient, componentInfo.getRepositoryId());
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, componentInfo.getRepositoryId());
 
 
 		NexusUser queryUser = new NexusUser();
@@ -364,7 +364,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		componentGuideDTO.handleDepGuideValue(componentInfo);
 
 		// 设置拉取配置信息
-		componentGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser);
+		componentGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser, serverConfig);
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return componentGuideDTO;

@@ -201,4 +201,8 @@ public interface NexusMessageConstants {
 	 * 新密码输入错误
 	 */
 	String NEXUS_NEW_PASSWORD_ERROR = "error.nexus.new.password";
+	/**
+	 * 当前项目，启用的nexus服务，未开启匿名访问控制。不能设置为：不允许匿名访问。(请在自定义nexus服务中查看)
+	 */
+	String NEXUS_ENABLE_ANONYMOUS_FLAG_IS_NO_NOT_SET = "error.nexus.enable.anonymous.flag.is.no.not.set";
 }

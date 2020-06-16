@@ -1,6 +1,7 @@
 package org.hrds.rdupm.common.app.service.sagahandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrBuilder;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.domain.entity.User;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
@@ -18,7 +21,11 @@ import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.util.DESEncryptUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -30,6 +37,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ProdUserUpdateHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProdUserUpdateHandler.class);
 
 	@Autowired
 	private HarborHttpClient harborHttpClient;
@@ -39,6 +47,8 @@ public class ProdUserUpdateHandler {
 
 	@Autowired
 	private NexusServerConfigService configService;
+	@Autowired
+	private NexusServerConfigRepository nexusServerConfigRepository;
 	@Autowired
 	private NexusClient nexusClient;
 
@@ -77,15 +87,31 @@ public class ProdUserUpdateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		// TODO 用户密码更新
-		configService.setNexusInfo(nexusClient, null);
-		List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(prodUser.getLoginName());
-		if (CollectionUtils.isNotEmpty(existUserList)) {
-			// 密码解密
-			String password = DESEncryptUtil.decode(prodUser.getPassword());
-			nexusClient.getNexusUserApi().changePassword(prodUser.getLoginName(), password);
+
+		List<NexusServerConfig> serverConfigList =  nexusServerConfigRepository.selectAll();
+
+		boolean errorFlag = false;
+		List<String> errorInfoList = new ArrayList<>();
+		for (NexusServerConfig serverConfig : serverConfigList) {
+			try {
+				configService.setNexusInfoByConfigId(nexusClient, serverConfig.getConfigId());
+				List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(prodUser.getLoginName());
+				if (CollectionUtils.isNotEmpty(existUserList)) {
+					// 密码解密
+					String password = DESEncryptUtil.decode(prodUser.getPassword());
+					nexusClient.getNexusUserApi().changePassword(prodUser.getLoginName(), password);
+				}
+			} catch (Exception e) {
+				String error = "密码更新错误, configId: " + serverConfig.getConfigId() + "; userLoginName: " + prodUser.getLoginName();
+				errorInfoList.add(error);
+				LOGGER.error(error, e);
+				errorFlag = true;
+			}
+			// remove配置信息
 		}
-		// remove配置信息
+		if (errorFlag) {
+			throw new CommonException(StringUtils.join(errorInfoList, ";    "));
+		}
 		nexusClient.removeNexusServerInfo();
 
 		return message;

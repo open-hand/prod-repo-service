@@ -19,12 +19,8 @@ public class NexusProjectServiceRepositoryImpl extends BaseRepositoryImpl<NexusP
     private NexusProjectServiceMapper nexusProjectServiceMapper;
 
     @Override
-    public void disAbleByProjectId(Long projectId) {
-        nexusProjectServiceMapper.disAbleByProjectId(projectId);
+    public void disAbleByProjectId(Long projectId, Long userId) {
+        nexusProjectServiceMapper.disAbleByProjectId(projectId, userId);
     }
 
-    @Override
-    public void enableById(Long projectServiceId) {
-
-    }
 }
