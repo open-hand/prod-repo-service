@@ -111,7 +111,7 @@ public class HarborCustomRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @DeleteMapping("/delete/{projectId}")
     public ResponseEntity deleteByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                          @ApiParam(value = "自定义镜像仓库", required = true) @Encrypt(HarborCustomRepoDTO.ENCRYPT_KEY) @RequestBody HarborCustomRepoDTO harborCustomRepoDTO) {
+                                          @ApiParam(value = "自定义镜像仓库", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @RequestBody HarborCustomRepoDTO harborCustomRepoDTO) {
         HarborCustomRepo harborCustomRepo = new HarborCustomRepo(harborCustomRepoDTO);
         SecurityTokenHelper.validToken(harborCustomRepo);
         harborCustomRepoService.deleteByProject(projectId,harborCustomRepo);
