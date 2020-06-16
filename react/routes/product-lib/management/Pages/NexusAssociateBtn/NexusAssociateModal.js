@@ -67,17 +67,27 @@ const NexusAssociateModal = ({ formatMessage }) => {
               </div>
               <div className="prod-lib-nexus-associate-list-card-info-addr">{o.serverUrl}</div>
             </div>
-
-            <Action data={[{
-              service: [],
-              text: formatMessage({ id: 'write', defaultMessage: '编辑' }),
-              action: () => openSubEditModal(o),
-            }, {
-              service: [],
-              text: formatMessage({ id: 'active', defaultMessage: '启用' }),
-              action: () => enableNexusSvc(o),
-            }]}
-            />
+            {o.defaultFlag === 1 ?
+              <Action
+                data={[{
+                  service: [],
+                  text: formatMessage({ id: 'active', defaultMessage: '启用' }),
+                  action: () => enableNexusSvc(o),
+                }]}
+              />
+              :
+              <Action
+                data={[{
+                  service: [],
+                  text: formatMessage({ id: 'write', defaultMessage: '编辑' }),
+                  action: () => openSubEditModal(o),
+                }, {
+                  service: [],
+                  text: formatMessage({ id: 'active', defaultMessage: '启用' }),
+                  action: () => enableNexusSvc(o),
+                }]}
+              />
+            }
           </section>
         ))
       }

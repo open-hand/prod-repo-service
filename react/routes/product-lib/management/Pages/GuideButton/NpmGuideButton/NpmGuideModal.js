@@ -32,6 +32,7 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
       <pre> <Button icon="content_copy" onClick={() => handleCopy(info.setRegistory)} />{info.setRegistory}</pre>
       <div className="product-lib-npm-guide-modal-description">
         2.命令行登陆
+        <span>&quot;个人信息--&gt;个人设置--&gt;制品库设置&quot;中可查看默认密码</span>
       </div>
       <pre> <Button icon="content_copy" onClick={() => handleCopy(info.login)} />{info.login}</pre>
       {!info.hidePush &&

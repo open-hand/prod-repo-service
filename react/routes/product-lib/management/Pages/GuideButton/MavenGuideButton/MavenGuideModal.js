@@ -59,7 +59,7 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
           </div>
           <div className="product-lib-selfrepo-guide-modal-description">
             {'1. 修改maven安装目录下settings.xml文件，在<servers>节点添加如下配置（替换用户名密码为自己的）'}
-            <span style={{ color: 'rgb(239, 78, 66)' }}>&quot;个人信息--&gt;个人设置--&gt;制品库设置&quot;中可查看默认密码</span>
+            <span>&quot;个人信息--&gt;个人设置--&gt;制品库设置&quot;中可查看默认密码</span>
           </div>
           <pre><Button icon="content_copy" onClick={() => handleCopy(info.pushServerInfoPassword)} />{info.pushServerInfo}</pre>
           <div className="product-lib-selfrepo-guide-modal-description">
