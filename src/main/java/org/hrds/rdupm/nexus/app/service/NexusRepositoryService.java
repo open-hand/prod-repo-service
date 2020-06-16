@@ -75,12 +75,20 @@ public interface NexusRepositoryService {
 	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, String repoType);
 
 	/**
-	 * 获取仓库名列表 - 当前项目或组织的
+	 * 获取仓库名列表 - 当前项目
 	 * @param query 查询
 	 * @param repoType 制品库类型
 	 * @return List<NexusRepositoryDTO>
 	 */
 	List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType);
+
+	/**
+	 * 获取仓库名列表 - 当前项目
+	 * @param query 查询
+	 * @param repoType 制品库类型
+	 * @return List<NexusRepositoryDTO>
+	 */
+	List<NexusRepository> listOrgRepoName(NexusRepository query, String repoType);
 
 	/**
 	 * 包上传 - 仓库列表

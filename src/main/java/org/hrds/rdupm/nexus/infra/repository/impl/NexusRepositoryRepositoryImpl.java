@@ -43,7 +43,7 @@ public class NexusRepositoryRepositoryImpl extends BaseRepositoryImpl<NexusRepos
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listOrgRepo(Long organizationId, String repoType) {
+	public List<NexusRepository> listOrgRepo(Long organizationId, String repoType) {
 		return nexusRepositoryMapper.listOrgRepo(organizationId, repoType);
 	}
 }

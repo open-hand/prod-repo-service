@@ -58,6 +58,8 @@ public class NexusRepository extends AuditDomain {
     @ApiModelProperty(value = "nexus仓库名称",required = true)
     @NotBlank
     private String neRepositoryName;
+    @Transient
+    private String name;
     @ApiModelProperty(value = "组织Id",required = true)
     @NotNull
     private Long organizationId;

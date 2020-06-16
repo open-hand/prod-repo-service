@@ -53,5 +53,5 @@ public interface NexusRepositoryMapper extends BaseMapper<NexusRepository> {
 	 * @param repoType 仓库类型
 	 * @return List<NexusRepository>
 	 */
-	List<NexusRepositoryDTO> listOrgRepo(@Param("organizationId") Long organizationId, @Param("repoType") String repoType);
+	List<NexusRepository> listOrgRepo(@Param("organizationId") Long organizationId, @Param("repoType") String repoType);
 }

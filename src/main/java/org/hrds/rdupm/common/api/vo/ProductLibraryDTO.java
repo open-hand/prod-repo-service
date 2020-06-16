@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
@@ -26,6 +27,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	public static final String TYPE_DOCKER = "DOCKER";
 	public static final String TYPE_NPM = "NPM";
 	public static final String TYPE_DOCKER_CUSTOM = "DOCKER_CUSTOM";
+
 
 	@ApiModelProperty(value = "行记录唯一Id, UUID")
 	private String uniqueId;
@@ -64,6 +66,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * harbor-customize
 	 */
 	@ApiModelProperty("customRepo, 主键")
+	@Encrypt(HarborCustomRepo.ENCRYPT_KEY)
 	private Long repoId;
 	@ApiModelProperty(value = "名称")
 	private String repoName;
