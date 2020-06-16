@@ -83,6 +83,7 @@
         nr.repository_id,
         nr.config_id,
         nr.ne_repository_name,
+        nr.ne_repository_name as name,
         nr.organization_id,
         nr.project_id,
         nr.allow_anonymous,
@@ -93,7 +94,7 @@
         nr.created_by,
         nr.repo_type
     </sql>
-    <select id="listOrgRepo" resultType="org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO">
+    <select id="listOrgRepo" resultType="org.hrds.rdupm.nexus.domain.entity.NexusRepository">
         SELECT temp.* FROM (
             SELECT
                 <include refid="listOrgRepoField"></include>
