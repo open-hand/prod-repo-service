@@ -2,11 +2,15 @@ package org.hrds.rdupm.nexus.api.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
 import org.hrds.rdupm.nexus.infra.util.VelocityUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
+import org.hzero.core.base.BaseConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +20,8 @@ import java.util.Map;
  * @author weisen.yang@hand-china.com 2020/5/13
  */
 @ApiModel("nexus maven-配置信息父类")
+@Setter
+@Getter
 public class NexusBaseGuideDTO {
 
 
@@ -27,7 +33,8 @@ public class NexusBaseGuideDTO {
      */
     public void handlePullGuideValue(NexusServerRepository nexusServerRepository,
                                      NexusRepository nexusRepository,
-                                     NexusUser nexusUser){
+                                     NexusUser nexusUser,
+                                     NexusServerConfig serverConfig){
         // 拉取配置，仓库信息
         Map<String, Object> map = new HashMap<>(16);
         map.put("versionPolicy", nexusServerRepository.getVersionPolicy());
@@ -37,7 +44,9 @@ public class NexusBaseGuideDTO {
 
 
         // 拉取信息
-        this.setPullServerFlag(nexusRepository != null && nexusRepository.getAllowAnonymous() != 1);
+        // 仓库是匿名访问，且nexus开启了匿名访问控制。 则不显示，否则显示
+        this.setPullServerFlag(!(nexusRepository.getAllowAnonymous().equals(BaseConstants.Flag.NO)
+                && serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)));
         if (this.getPullServerFlag() && nexusUser != null) {
             // 要显示的时候，返回数据
             String nePullUserPassword = DESEncryptUtil.decode(nexusUser.getNePullUserPassword());
@@ -65,58 +74,4 @@ public class NexusBaseGuideDTO {
     private String pullPomRepoInfo;
     @ApiModelProperty(value = "拉取配置：拉取配置是否显示")
     private Boolean showPushFlag;
-
-    public Boolean getPullServerFlag() {
-        return pullServerFlag;
-    }
-
-    public NexusBaseGuideDTO setPullServerFlag(Boolean pullServerFlag) {
-        this.pullServerFlag = pullServerFlag;
-        return this;
-    }
-
-    public String getPullServerInfo() {
-        return pullServerInfo;
-    }
-
-    public NexusBaseGuideDTO setPullServerInfo(String pullServerInfo) {
-        this.pullServerInfo = pullServerInfo;
-        return this;
-    }
-
-    public String getPullServerInfoPassword() {
-        return pullServerInfoPassword;
-    }
-
-    public NexusBaseGuideDTO setPullServerInfoPassword(String pullServerInfoPassword) {
-        this.pullServerInfoPassword = pullServerInfoPassword;
-        return this;
-    }
-
-    public String getPullPassword() {
-        return pullPassword;
-    }
-
-    public NexusBaseGuideDTO setPullPassword(String pullPassword) {
-        this.pullPassword = pullPassword;
-        return this;
-    }
-
-    public String getPullPomRepoInfo() {
-        return pullPomRepoInfo;
-    }
-
-    public NexusBaseGuideDTO setPullPomRepoInfo(String pullPomRepoInfo) {
-        this.pullPomRepoInfo = pullPomRepoInfo;
-        return this;
-    }
-
-    public Boolean getShowPushFlag() {
-        return showPushFlag;
-    }
-
-    public NexusBaseGuideDTO setShowPushFlag(Boolean showPushFlag) {
-        this.showPushFlag = showPushFlag;
-        return this;
-    }
 }

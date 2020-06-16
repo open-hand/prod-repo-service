@@ -1,5 +1,8 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +10,8 @@ import java.util.List;
  * 角色查询返回
  * @author weisen.yang@hand-china.com 2020/3/18
  */
+@Getter
+@Setter
 public class NexusServerRole {
 	//     允许，赋予匿名用户权限：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
 	//     不允许，去除匿名用户权限：nx-repository-view-maven2-[仓库名]-read   nx-repository-view-maven2-[仓库名]-browse
@@ -132,57 +137,4 @@ public class NexusServerRole {
 	private List<String> privileges;
 	private List<String> roles;
 
-	public String getId() {
-		return id;
-	}
-
-	public NexusServerRole setId(String id) {
-		this.id = id;
-		return this;
-	}
-
-	public String getSource() {
-		return source;
-	}
-
-	public NexusServerRole setSource(String source) {
-		this.source = source;
-		return this;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public NexusServerRole setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public NexusServerRole setDescription(String description) {
-		this.description = description;
-		return this;
-	}
-
-	public List<String> getPrivileges() {
-		return privileges;
-	}
-
-	public NexusServerRole setPrivileges(List<String> privileges) {
-		this.privileges = privileges;
-		return this;
-	}
-
-	public List<String> getRoles() {
-		return roles;
-	}
-
-	public NexusServerRole setRoles(List<String> roles) {
-		this.roles = roles;
-		return this;
-	}
 }

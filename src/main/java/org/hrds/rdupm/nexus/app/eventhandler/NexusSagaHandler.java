@@ -178,13 +178,13 @@ public class NexusSagaHandler {
 		}
 
 		// 匿名访问
-		if (nexusRepository.getAllowAnonymous() == 1) {
+		if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
 			// 允许匿名
 			NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
 			if (anonymousRole == null) {
 				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
 			}
-			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 1, nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
+			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), nexusRepository.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
 			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 
@@ -314,15 +314,15 @@ public class NexusSagaHandler {
 			}
 		}
 
-
-
 		// 匿名访问
-		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
-		if (anonymousRole == null) {
-			throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+		if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
+			NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
+			if (anonymousRole == null) {
+				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+			}
+			anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepoCreateDTO.getRepoType()));
+			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
-		anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepoCreateDTO.getRepoType()));
-		nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
@@ -363,6 +363,9 @@ public class NexusSagaHandler {
 		// 默认用户
 		if (nexusUser.getNePullUserId() != null) {
 			nexusClient.getNexusUserApi().deleteUser(nexusUser.getNePullUserId());
+		}
+		if (nexusUser.getNeUserId() != null) {
+			nexusClient.getNexusUserApi().deleteUser(nexusUser.getNeUserId());
 		}
 
 		nexusClient.removeNexusServerInfo();

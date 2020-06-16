@@ -52,11 +52,11 @@ public class NexusRepositoryRelatedDTO {
 		try {
 			nexusExistUser = nexusClient.getNexusUserApi().getUsers(this.userName);
 		} catch (NexusResponseException e) {
-			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-				throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
-			}
 			if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
 				throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
+			}
+			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+				throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
 			}
 			throw e;
 		}

@@ -139,6 +139,9 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		nexusServerConfig.setProjectServiceId(nexusProjectService.getProjectServiceId());
 		nexusServerConfig.setProjectId(nexusProjectService.getProjectId());
 
+		// 更新脚本信息
+		nexusClient.getNexusScriptApi().initScript();
+
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;
 	}
@@ -202,8 +205,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		if (existConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
 			// 启用默认的服务
 			// 直接更新该项目下所有服务为不启用
-			// TODO 直接更新？
-			nexusProjectServiceRepository.disAbleByProjectId(projectId);
+			nexusProjectServiceRepository.disAbleByProjectId(projectId, DetailsHelper.getUserDetails().getUserId());
 		} else {
 			// 启用自定义的服务
 			// 将项目下的所有nexus服务都设置为不启用，启用该服务
@@ -222,7 +224,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 			}
 
 			// 所有设为不启用
-			nexusProjectServiceRepository.disAbleByProjectId(projectId);
+			nexusProjectServiceRepository.disAbleByProjectId(projectId, DetailsHelper.getUserDetails().getUserId());
 			// 启用
 			nexusProjectService.setEnableFlag(BaseConstants.Flag.YES);
 			nexusProjectServiceRepository.updateOptional(nexusProjectService, NexusProjectService.FIELD_ENABLE_FLAG);

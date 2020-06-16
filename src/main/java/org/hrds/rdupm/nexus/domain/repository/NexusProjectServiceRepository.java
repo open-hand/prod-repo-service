@@ -10,7 +10,11 @@ import org.hrds.rdupm.nexus.domain.entity.NexusProjectService;
  */
 public interface NexusProjectServiceRepository extends BaseRepository<NexusProjectService> {
 
-    void disAbleByProjectId(Long projectId);
+    /**
+     * 更新项目下，所有服务为不启用
+     * @param projectId 项目Id
+     * @param userId 用户Id
+     */
+    void disAbleByProjectId(Long projectId, Long userId);
 
-    void enableById(Long projectServiceId);
 }
