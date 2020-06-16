@@ -779,7 +779,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 	@Override
 	public List<NexusRepository> listOrgRepoName(NexusRepository query, String repoType) {
-		return nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), query.getRepoType());
+		return nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), repoType);
 	}
 
 	@Override
