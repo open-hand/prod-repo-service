@@ -134,10 +134,10 @@ public class HarborCustomRepoController extends BaseController {
     @GetMapping("/relate-service/{projectId}")
     public ResponseEntity<Page<AppServiceDTO>> pageRelatedServiceByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                                            @ApiParam(value = "自定义镜像仓库ID", required = true) @Encrypt(HarborCustomRepo.ENCRYPT_KEY) @RequestParam Long customRepoId,
-                                                                           @ApiParam(value = "应用服务名称") @RequestParam(required = false) String appServiceName,
-                                                                           @ApiParam(value = "应用服务编码") @RequestParam(required = false) String appServiceCode,
+                                                                           @ApiParam(value = "应用服务名称") @RequestParam(required = false) String name,
+                                                                           @ApiParam(value = "应用服务编码") @RequestParam(required = false) String code,
                                                                            @ApiIgnore PageRequest pageRequest) {
-        Page<AppServiceDTO> page = harborCustomRepoService.pageRelatedServiceByProject(projectId, customRepoId, appServiceName, appServiceCode, pageRequest);
+        Page<AppServiceDTO> page = harborCustomRepoService.pageRelatedServiceByProject(projectId, customRepoId, name, code, pageRequest);
         return Results.success(page);
     }
 
