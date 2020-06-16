@@ -222,7 +222,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		result.add(defaultConfig);
 		result.addAll(nexusServerConfigList);
 
-		result = result.stream().peek(nexusServer -> nexusServer.setPassword(null)).collect(Collectors.toList());
+		//result = result.stream().peek(nexusServer -> nexusServer.setPassword(null)).collect(Collectors.toList());
 		return result;
 	}
 
