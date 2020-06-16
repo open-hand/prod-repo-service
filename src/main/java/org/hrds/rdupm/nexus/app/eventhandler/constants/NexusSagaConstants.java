@@ -103,4 +103,15 @@ public interface NexusSagaConstants {
 		 */
 		String NEXUS_REPO_ENABLE_AND_DISABLE_AUTH = "rdupm-nexus-repo-enable-and-disable.auth";
 	}
+
+	interface NexusAuthDeleteUserHandle {
+		/**
+		 * 删除团队成员， nexus（maven/npm）权限处理  Saga code
+		 */
+		String NEXUS_AUTH_DELETE_USER_HANDLE = "rdupm-nexus-auth-delete-user-handle";
+		/**
+		 * 删除团队成员， nexus（maven/npm）权限处理   SagaTask code
+		 */
+		String NEXUS_AUTH_DELETE_USER_HANDLE_AUTH = "rdupm-nexus-auth-delete-user-handle.auth";
+	}
 }

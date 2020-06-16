@@ -205,7 +205,7 @@ public class NexusRepositoryController extends BaseController {
 
     @ApiOperation(value = "npm仓库 关联")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    @PostMapping("/{organizationId}/project/{projectId}/maven/repo/related")
+    @PostMapping("/{organizationId}/project/{projectId}/npm/repo/related")
     public ResponseEntity<NexusRepositoryRelatedDTO> relatedNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                     @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
                                                                     @RequestBody NexusRepositoryRelatedDTO nexusRepositoryRelatedDTO) {
