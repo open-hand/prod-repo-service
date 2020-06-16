@@ -18,6 +18,7 @@ import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
@@ -63,7 +64,7 @@ public class ProdUserServiceImpl implements ProdUserService {
 	public ProdUser saveOneUser(ProdUser prodUser) {
 		check(prodUser);
 		if(StringUtils.isEmpty(prodUser.getPassword())){
-			String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+			String password = HarborUtil.getPassword();
 			prodUser.setPassword(password);
 		}
 		List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID,prodUser.getUserId());

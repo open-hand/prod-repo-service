@@ -37,6 +37,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelExport;
@@ -315,7 +316,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		String realName = userDTO.getRealName();
 
 		//数据库插入制品库用户
-		String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
+		String password = HarborUtil.getPassword();
 		ProdUser prodUser = new ProdUser(userId,loginName,password,0);
 		ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
 		String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
