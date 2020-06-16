@@ -162,7 +162,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		// 只更新，密码
 		String encryptPassword = DESEncryptUtil.encode(newPassword);
 		existConfig.setPassword(encryptPassword);
-		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_PASSWORD);
+		nexusServerConfigRepository.updateOptional(existConfig, NexusServerConfig.FIELD_PASSWORD);
 
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;

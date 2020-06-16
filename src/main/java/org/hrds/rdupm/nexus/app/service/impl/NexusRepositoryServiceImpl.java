@@ -395,14 +395,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	@Override
 	public Page<NexusRepositoryDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
 		// 查询某个组织项目数据
-		Page<NexusRepositoryDTO> nexusRepositoryPage = PageHelper.doPage(pageRequest, () -> nexusRepositoryRepository.listOrgRepo(queryDTO.getOrganizationId(), queryDTO.getRepoType()));
+		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.listOrgRepo(queryDTO.getOrganizationId(), queryDTO.getRepoType());
 
-		if (CollectionUtils.isEmpty(nexusRepositoryPage.getContent())) {
-			return nexusRepositoryPage;
+		if (CollectionUtils.isEmpty(nexusRepositoryList)) {
+			return new Page<>();
 		}
 		Map<String, NexusServerRepository> nexusServerRepositoryMapAll = new HashMap<>(16);
 		// nexus服务仓库数据查询
-		Map<Long, List<NexusRepositoryDTO>> projectRepoMap = nexusRepositoryPage.getContent().stream().collect(Collectors.groupingBy(NexusRepositoryDTO::getConfigId));
+		Map<Long, List<NexusRepository>> projectRepoMap = nexusRepositoryList.stream().collect(Collectors.groupingBy(NexusRepository::getConfigId));
 		projectRepoMap.forEach((key, value) -> {
 			// 设置并返回当前nexus服务信息
 			configService.setNexusInfoByConfigId(nexusClient, key);
@@ -413,14 +413,22 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			}
 		});
 
-		nexusRepositoryPage.getContent().forEach(nexusRepositoryDTO -> {
-			NexusServerRepository nexusServerRepository = nexusServerRepositoryMapAll.get(nexusRepositoryDTO.getConfigId() + "-" + nexusRepositoryDTO.getNeRepositoryName());
-			nexusRepositoryDTO.convert(null, nexusServerRepository);
-		});
+		this.setUserInfo(nexusRepositoryList);
+
+		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+
+		for(NexusRepository repository : nexusRepositoryList) {
+			NexusServerRepository nexusServerRepository = nexusServerRepositoryMapAll.get(repository.getConfigId() + "-" + repository.getNeRepositoryName());
+			NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+			nexusRepositoryDTO.convert(repository, nexusServerRepository);
+			resultAll.add(nexusRepositoryDTO);
+		}
+		resultAll = this.setInfoAndQuery(resultAll, queryDTO);
+
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 
-		return nexusRepositoryPage;
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
 	}
 
 	@Override
@@ -770,6 +778,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
+	public List<NexusRepository> listOrgRepoName(NexusRepository query, String repoType) {
+		return nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), query.getRepoType());
+	}
+
+	@Override
 	public List<NexusRepositoryDTO> listComponentRepo(Long projectId, String repoType) {
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, projectId);
@@ -1033,7 +1046,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		nexusRepositoryRelatedDTO.validParam(nexusClient, serverConfig, nexusRepositoryRelatedDTO.getRepoType(), this, nexusRepositoryRepository);
 
 		List<String> errorNameList = new ArrayList<>();
-		nexusRepositoryRelatedDTO.getRepositoryList().forEach(repositoryName -> {
+		List<String> nexusRepositoryNameList = nexusRepositoryRelatedDTO.getRepositoryList().stream().distinct().collect(Collectors.toList());
+		nexusRepositoryNameList.forEach(repositoryName -> {
 			try {
 				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO.getRepoType(), repositoryName, serverConfig);
 			} catch (Exception e) {

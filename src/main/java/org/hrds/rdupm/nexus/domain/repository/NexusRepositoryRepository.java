@@ -49,8 +49,8 @@ public interface NexusRepositoryRepository extends BaseRepository<NexusRepositor
 	 * 组织层 - 仓库列表查询
 	 * @param organizationId 组织Id
 	 * @param repoType 仓库类型
-	 * @return List<NexusRepositoryDTO>
+	 * @return List<NexusRepository>
 	 */
-	List<NexusRepositoryDTO> listOrgRepo(Long organizationId, String repoType);
+	List<NexusRepository> listOrgRepo(Long organizationId, String repoType);
 
 }
