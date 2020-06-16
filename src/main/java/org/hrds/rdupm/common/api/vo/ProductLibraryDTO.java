@@ -9,6 +9,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hzero.core.util.UUIDUtils;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -24,6 +25,8 @@ public class ProductLibraryDTO extends AuditDomain {
 	public static final String TYPE_DOCKER = "DOCKER";
 	public static final String TYPE_NPM = "NPM";
 	public static final String TYPE_DOCKER_CUSTOM = "DOCKER_CUSTOM";
+
+	public static final String ENCRYPT_KEY = "ProductLibraryDTO";
 
 	@ApiModelProperty(value = "行记录唯一Id, UUID")
 	private String uniqueId;
@@ -60,6 +63,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * harbor-customize
 	 */
 	@ApiModelProperty("customRepo, 主键")
+	@Encrypt(ProductLibraryDTO.ENCRYPT_KEY)
 	private Long repoId;
 	@ApiModelProperty(value = "名称")
 	private String repoName;
