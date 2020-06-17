@@ -10,6 +10,7 @@ import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
+import org.hrds.rdupm.nexus.app.service.NexusApiService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
@@ -46,6 +47,8 @@ public class NexusAuthHandler {
 	private ProdUserService prodUserService;
 	@Autowired
 	private ProdUserRepository prodUserRepository;
+	@Autowired
+	private NexusApiService nexusApiService;
 
 	@SagaTask(code = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE_USER, description = "分配权限：插入nexus用户与角色",
 			sagaCode = NexusSagaConstants.NexusAuthCreate.NEXUS_AUTH_CREATE, seq = 1, maxRetryCount = 3, outputSchemaClass = String.class)
@@ -86,18 +89,8 @@ public class NexusAuthHandler {
 		for (NexusAuth nexusAuth : nexusAuthList) {
 			ProdUser prodUser = prodUserMap.get(nexusAuth.getUserId());
 
-			List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-			if (CollectionUtils.isEmpty(existUserList)) {
-				// 创建用户
-				NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), prodUser.getPassword(), Collections.singletonList(nexusAuth.getNeRoleId()));
-				nexusClient.getNexusUserApi().createUser(nexusServerUser);
-			} else {
-				// 更新用户
-				NexusServerUser nexusServerUser = existUserList.get(0);
-				nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
-				nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-			}
-
+			NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), prodUser.getPassword(), Collections.singletonList(nexusAuth.getNeRoleId()));
+			nexusApiService.createAndUpdateUser(nexusServerUser, Collections.singletonList(nexusAuth.getNeRoleId()), new ArrayList<>());
 		}
 	}
 }

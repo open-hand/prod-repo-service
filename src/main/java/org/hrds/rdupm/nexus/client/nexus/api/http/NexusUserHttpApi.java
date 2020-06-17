@@ -46,7 +46,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 	private NexusRepositoryApi nexusRepositoryApi;
 
 	@Override
-	public List<NexusServerUser> getUsers(String userId) {
+	public NexusServerUser getUsers(String userId) {
 		Map<String, Object> paramMap = null;
 		if (StringUtils.isNotEmpty(userId)) {
 			paramMap = new HashMap<>(2);
@@ -56,9 +56,9 @@ public class NexusUserHttpApi implements NexusUserApi{
 		String response = responseEntity.getBody();
 		List<NexusServerUser> nexusServerUsers = JSONObject.parseArray(response, NexusServerUser.class);
 		if (CollectionUtils.isEmpty(nexusServerUsers)) {
-			return new ArrayList<>();
+			return null;
 		}
-		return nexusServerUsers.stream().filter(nexusServerUser -> nexusServerUser.getUserId().equals(userId)).collect(Collectors.toList());
+		return nexusServerUsers.stream().filter(nexusServerUser -> nexusServerUser.getUserId().equals(userId)).findFirst().orElse(null);
 	}
 
 	@Override
@@ -78,8 +78,8 @@ public class NexusUserHttpApi implements NexusUserApi{
 	@Override
 	public void createUser(NexusServerUser nexusUser) {
 		// 唯一性校验
-		List<NexusServerUser> nexusUserList = this.getUsers(nexusUser.getUserId());
-		if (CollectionUtils.isNotEmpty(nexusUserList)) {
+		NexusServerUser existUser = this.getUsers(nexusUser.getUserId());
+		if (existUser != null) {
 			throw new CommonException(NexusApiConstants.ErrorMessage.USER_EXIST);
 		}
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.User.CREATE_USER, HttpMethod.POST, null, nexusUser);
@@ -99,16 +99,15 @@ public class NexusUserHttpApi implements NexusUserApi{
 
 	@Override
 	public List<String> validPush(List<String> repositoryList, String userName, List<String> ruleList) {
-		List<NexusServerUser> nexusServerUserList = this.getUsers(userName);
-		if (CollectionUtils.isEmpty(nexusServerUserList)) {
+		NexusServerUser existNexusServerUser = this.getUsers(userName);
+		if (existNexusServerUser == null) {
 			throw new CommonException("用户不存在");
 		}
 
 		// 该用户拥有的所有权限
 		List<String> userPrivileges = new ArrayList<>();
 
-		NexusServerUser nexusServerUser = nexusServerUserList.get(0);
-		nexusServerUser.getRoles().forEach(roleId -> {
+		existNexusServerUser.getRoles().forEach(roleId -> {
 			NexusServerRole nexusServerRole = nexusRoleApi.getRoleById(roleId);
 			if (nexusServerRole != null) {
 				userPrivileges.addAll(nexusServerRole.getPrivileges());
