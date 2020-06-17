@@ -55,6 +55,6 @@ public class HarborRepoDTO {
         this.appServiceId = appServiceId;
         this.projectId = projectId;
         this.repoType = CUSTOM_REPO;
-        this.harborRepoConfig = new HarborRepoConfigDTO(harborCustomRepo.getId(), harborCustomRepo.getRepoUrl(),harborCustomRepo.getRepoName(), harborCustomRepo.getPublicFlag(), harborCustomRepo.getLoginName(), harborCustomRepo.getPassword(), harborCustomRepo.getEmail());
+        this.harborRepoConfig = new HarborRepoConfigDTO(harborCustomRepo.getId(), harborCustomRepo.getRepoUrl(),harborCustomRepo.getRepoName(), harborCustomRepo.getPublicFlag(), harborCustomRepo.getLoginName(), harborCustomRepo.getPassword(), harborCustomRepo.getEmail(),harborCustomRepo.getProjectShare());
     }
 }

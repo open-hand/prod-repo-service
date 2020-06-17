@@ -1,9 +1,12 @@
 package org.hrds.rdupm.harbor.domain.entity;
 
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 
 /**
  * description
@@ -22,6 +25,10 @@ public class HarborRepoConfigDTO {
     private String repoName;
     @ApiModelProperty(value = "是否私有")
     private String isPrivate;
+    @ApiModelProperty(value = "pull机器人账户")
+    private HarborRepoRobotDTO pullRobot;
+    @ApiModelProperty(value = "push机器人账户")
+    private HarborRepoRobotDTO pushRobot;
 
     @ApiModelProperty(value = "登录名")
     private String loginName;
@@ -29,6 +36,8 @@ public class HarborRepoConfigDTO {
     private String password;
     @ApiModelProperty(value = "邮箱")
     private String email;
+    @ApiModelProperty(value = "项目共享")
+    private String projectShare;
 
     public HarborRepoConfigDTO() {
     }
@@ -40,7 +49,7 @@ public class HarborRepoConfigDTO {
         this.isPrivate = isPrivate;
     }
 
-    public HarborRepoConfigDTO(Long repoId, String repoUrl, String repoName, String isPrivate, String loginName, String password, String email) {
+    public HarborRepoConfigDTO(Long repoId, String repoUrl, String repoName, String isPrivate, String loginName, String password, String email, String projectShare) {
         this.repoId = repoId;
         this.repoUrl = repoUrl;
         this.repoName = repoName;
@@ -48,5 +57,20 @@ public class HarborRepoConfigDTO {
         this.loginName = loginName;
         this.password = password;
         this.email = email;
+        this.projectShare = projectShare;
+    }
+
+    public HarborRepoConfigDTO(Long repoId, String repoUrl, String repoName, String isPrivate, List<HarborRobot> harborRobotList) {
+        this.repoId = repoId;
+        this.repoUrl = repoUrl;
+        this.repoName = repoName;
+        this.isPrivate = isPrivate;
+        harborRobotList.stream().forEach(harborRobot -> {
+            if (harborRobot.getAction().equals(HarborConstants.HarborRobot.ACTION_PULL)) {
+                this.pullRobot = new HarborRepoRobotDTO(harborRobot.getName(), harborRobot.getToken());
+            } else {
+                this.pushRobot = new HarborRepoRobotDTO(harborRobot.getName(), harborRobot.getToken());
+            }
+        });
     }
 }

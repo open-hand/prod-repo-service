@@ -7,6 +7,7 @@ import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAllRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hzero.core.base.BaseController;
@@ -77,6 +78,13 @@ public class HarborChoerodonRepoController extends BaseController {
                                                                    @ApiParam(value = "仓库ID",required = false) @RequestParam(required = false) Long repoId,
                                                                    @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType){
         return Results.success(harborCustomRepoService.getHarborRepoConfigByRepoId(projectId, repoId, repoType));
+    }
+
+    @ApiOperation(value = "查询项目下所有Harbor仓库")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/project/{projectId}/all_harbor_config")
+    public ResponseEntity<HarborAllRepoDTO> queryAllHarborRepoConfig(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId){
+        return Results.success(harborCustomRepoService.getAllHarborRepoConfigByProject(projectId));
     }
 
 }
