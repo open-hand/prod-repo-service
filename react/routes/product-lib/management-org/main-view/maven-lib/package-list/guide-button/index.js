@@ -12,7 +12,7 @@ import GuideModal from './GuideModal';
 
 const intlPrefix = 'infra.prod.lib';
 
-const GuideButton = ({ formatMessage, text, record }) => {
+const GuideButton = ({ formatMessage, text, record, repositoryId }) => {
   const guideInfo = useLocalStore(() => ({
     info: {},
     setGuideInfo(data) {
@@ -24,7 +24,7 @@ const GuideButton = ({ formatMessage, text, record }) => {
     const { repository, group, name, version } = record;
     try {
       const res = await axios.get('/rdupm/v1/nexus-components/guide', {
-        params: { repository, group, name, version },
+        params: { repository, group, name, version, repositoryId },
       });
 
       guideInfo.setGuideInfo(res);

@@ -116,7 +116,7 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
         </div>
       </Form>
       <div className="product-lib-pages-associate-divider" />
-      <span className="product-lib-pages-associate-second-title">{formatMessage({ id: `${intlPrefix}.view.publishAccount`, defaultMessage: '发布时需要的管理用户' })}</span>
+      <span className="product-lib-pages-associate-second-title">{formatMessage({ id: `${intlPrefix}.view.publishAccount`, defaultMessage: '管理员用户' })}</span>
       <Form dataSet={npmAssociateDs} columns={1}>
         <TextField name="userName" autoComplete="off" />
         <Password name="password" autoComplete="off" />

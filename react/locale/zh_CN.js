@@ -260,7 +260,7 @@ const prodManagement = {
   'infra.prod.lib.view.createRepo': '创建仓库',
   'infra.prod.lib.view.associateRepo': '关联仓库',
   'infra.prod.lib.view.addAssociateRepo': '添加关联仓库',
-  'infra.prod.lib.view.publishAccount': '发布时需要的管理用户',
+  'infra.prod.lib.view.publishAccount': '管理员用户',
   'infra.prod.lib.view.repo': '仓库列表',
   'infra.prod.lib.view.guide': '配置指引',
   'infra.prod.lib.view.seeDetail': '查看详情',

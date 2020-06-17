@@ -7,11 +7,13 @@ export default (formatMessage => ({
     {
       name: 'userName',
       type: 'string',
+      required: true,
       label: formatMessage({ id: 'userName' }),
     },
     {
       name: 'password',
       type: 'string',
+      required: true,
       label: formatMessage({ id: 'password' }),
     },
   ],

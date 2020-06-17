@@ -36,9 +36,9 @@ const EditModal = ({ createDs, formatMessage, modal, init, data }) => {
   return (
     <React.Fragment>
       <Form dataSet={createDs} columns={1}>
-        <TextField name="serverName" />
-        <TextField name="serverUrl" />
-        <TextField name="userName" />
+        <TextField name="serverName" disabled />
+        <TextField name="serverUrl" disabled />
+        <TextField name="userName" disabled />
         <Password name="password" />
         <SelectBox name="enableAnonymousFlag" className="prod-lib-create-custom-nexus-selectbox">
           <Option value={1}>{formatMessage({ id: 'yes' })}</Option>

@@ -16,7 +16,7 @@ import { useProdStore } from '../../../stores';
 import './index.less';
 
 const LibList = () => {
-  const { prodStore: { setNpmPackageName, getSelectedMenu } } = useProdStore();
+  const { prodStore: { setNpmPackageId, getSelectedMenu } } = useProdStore();
   const {
     tabs: {
       LIB_TAB,
@@ -46,9 +46,9 @@ const LibList = () => {
   }, [getTabKey, getSelectedMenu]);
   const listData = libListDs.current && libListDs.toData();
 
-  const handleToPackage = (name) => {
+  const handleToPackage = (repositoryId) => {
     setTabKey(LIST_TAB);
-    setNpmPackageName(name);
+    setNpmPackageId(repositoryId);
   };
 
   function renderFilterForm() {
@@ -115,7 +115,7 @@ const LibList = () => {
     }, {
       service: [],
       text: formatMessage({ id: `${intlPrefix}.view.seeDetail` }),
-      action: () => handleToPackage(item.name),
+      action: () => handleToPackage(item.repositoryId),
     }];
     return (
       <Action
@@ -131,16 +131,16 @@ const LibList = () => {
       <ul>
         {
           listData.map(item => {
-            const { id, name, projectName, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type } = item;
+            const { repositoryId, name, projectName, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type } = item;
             return (
-              <li key={id + name}>
+              <li key={repositoryId + name}>
                 <div className="product-lib-org-management-lib-list-list-card">
                   <Row className="product-lib-org-management-lib-list-list-card-header">
                     <Col span={9} className="product-lib-org-management-lib-list-list-card-header-icon">
                       {/* {rendererOnlineStatus(online)} */}
                       <span
                         className="product-lib-org-management-lib-list-list-card-header-title"
-                        onClick={() => handleToPackage(item.name)}
+                        onClick={() => handleToPackage(item.repositoryId)}
                       >
                         {name}
                       </span>

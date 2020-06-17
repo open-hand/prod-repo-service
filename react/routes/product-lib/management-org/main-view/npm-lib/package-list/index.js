@@ -18,7 +18,7 @@ import './index.less';
 const modalKey = Modal.key();
 
 const MirrorList = () => {
-  const { prodStore: { getNpmPackageName, getSelectedMenu } } = useProdStore();
+  const { prodStore: { getNpmPackageId, getSelectedMenu } } = useProdStore();
   const {
     organizationId,
     tabs: {
@@ -33,17 +33,18 @@ const MirrorList = () => {
 
   useEffect(() => {
     if (getTabKey === LIST_TAB) {
-      if (!isUndefined(getNpmPackageName)) {
-        packageListDs.queryDataSet.records[0].set('repositoryName', getNpmPackageName);
+      if (!isUndefined(getNpmPackageId)) {
+        packageListDs.queryDataSet.records[0].set('repositoryId', getNpmPackageId);
         packageListDs.query();
       }
       packageListDs.queryDataSet.validate();
     }
-  }, [getTabKey, getSelectedMenu, getNpmPackageName]);
+  }, [getTabKey, getSelectedMenu, getNpmPackageId]);
   const listData = packageListDs.current && packageListDs.toData();
 
   function openTagModal(name, repository) {
-    const tagListDs = new DataSet(TagListDS({ intlPrefix, formatMessage, organizationId, repositoryName: repository, name }));
+    const repositoryId = packageListDs.queryDataSet.records[0].get('repositoryId');
+    const tagListDs = new DataSet(TagListDS({ intlPrefix, formatMessage, organizationId, repositoryName: repository, name, repositoryId }));
     const tagPros = {
       formatMessage,
       intlPrefix,
@@ -80,7 +81,7 @@ const MirrorList = () => {
         columns={9}
         className="product-lib-org-management-package-list-filter-form"
       >
-        <Select name="repositoryName" onChange={handleSearch} colSpan={2} />
+        <Select name="repositoryId" onChange={handleSearch} colSpan={2} />
         <TextField name="name" onChange={handleSearch} colSpan={2} />
         <div colSpan={5} style={{ width: '0.46rem', float: 'right' }}>
           <Button funcType="raised" type="reset" className="product-lib-org-management-package-list-filter-form-btn">

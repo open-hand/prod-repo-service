@@ -18,7 +18,7 @@ import './index.less';
 
 const { Column } = Table;
 const PackageList = () => {
-  const { prodStore: { getRepositoryName, getSelectedMenu } } = useProdStore();
+  const { prodStore: { getRepositoryId, getSelectedMenu } } = useProdStore();
   const {
     tabs: {
       PACKAGE_TAB,
@@ -31,12 +31,12 @@ const PackageList = () => {
 
   useEffect(() => {
     if (getTabKey === PACKAGE_TAB) {
-      packageListDs.queryDataSet.records[0].set('repositoryName', getRepositoryName);
-      if (getRepositoryName) {
+      packageListDs.queryDataSet.records[0].set('repositoryId', getRepositoryId);
+      if (getRepositoryId) {
         packageListDs.query();
       }
     }
-  }, [getTabKey, getSelectedMenu, getRepositoryName]);
+  }, [getTabKey, getSelectedMenu, getRepositoryId]);
 
   const handleSearch = () => {
     packageListDs.query();
@@ -47,7 +47,7 @@ const PackageList = () => {
       style={{ display: 'flex', alignItems: 'center' }}
     >
       <Form dataSet={queryDataSet} columns={4} className="product-lib-org-nexusComponent-queryform">
-        <Select name="repositoryName" onChange={handleSearch} />
+        <Select name="repositoryId" onChange={handleSearch} />
         <TextField name="version" onChange={handleSearch} />
         <TextField name="group" onChange={handleSearch} />
         <TextField name="name" onChange={handleSearch} />
@@ -64,7 +64,7 @@ const PackageList = () => {
 
   const rendererDropDown = ({ text, record }) => (
     <div className="product-lib-org-management-lib-list-render-dropdown-column">
-      <GuideButton text={text} record={record} formatMessage={formatMessage} />
+      <GuideButton text={text} record={record} repositoryId={packageListDs.queryDataSet.records[0].get('repositoryId')} formatMessage={formatMessage} />
     </div>
   );
 

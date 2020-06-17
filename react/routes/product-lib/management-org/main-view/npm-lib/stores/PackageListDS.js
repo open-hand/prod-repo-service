@@ -41,12 +41,12 @@ export default ((intlPrefix, formatMessage, organizationId) => ({
   ],
   queryFields: [
     {
-      name: 'repositoryName',
-      type: 'string',
+      name: 'repositoryId',
+      type: 'number',
       label: formatMessage({ id: `${intlPrefix}.model.repoName` }),
       required: true,
       textField: 'name',
-      valueField: 'name',
+      valueField: 'repositoryId',
       lookupUrl: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/npm/repo/name`,
     },
     {

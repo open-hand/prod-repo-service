@@ -7,6 +7,7 @@
 import React from 'react';
 import { Button, message } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
+import { stores } from '@choerodon/boot';
 import './index.less';
 
 export const intlPrefix = 'infra.prod.lib';
@@ -24,6 +25,8 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
     message.success(formatMessage({ id: 'success.copy', defaultMessage: '复制成功' }), 1);
   };
 
+  const { currentMenuType: { organizationId } } = stores.AppState;
+
   return (
     <div className="product-lib-npm-guide-modal">
       <div className="product-lib-npm-guide-modal-description">
@@ -31,7 +34,15 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
       </div>
       <pre> <Button icon="content_copy" onClick={() => handleCopy(info.setRegistory)} />{info.setRegistory}</pre>
       <div className="product-lib-npm-guide-modal-description">
-        2.命令行登陆
+        2.命令行登陆。
+        &quot;
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+        >
+          个人信息--&gt;个人设置
+        </a>--&gt; 制品库设置&quot;中可查看默认密码
       </div>
       <pre> <Button icon="content_copy" onClick={() => handleCopy(info.login)} />{info.login}</pre>
       {!info.hidePush &&
