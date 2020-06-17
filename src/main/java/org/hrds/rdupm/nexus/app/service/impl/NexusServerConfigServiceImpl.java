@@ -148,8 +148,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		nexusServerConfig.setProjectServiceId(nexusProjectService.getProjectServiceId());
 		nexusServerConfig.setProjectId(nexusProjectService.getProjectId());
 
-		// 更新脚本信息
-		nexusClient.getNexusScriptApi().initScript();
+		// 初始化数据
+		nexusClient.initData();
 
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;

@@ -45,7 +45,7 @@ public class NexusInitServiceImpl implements NexusInitService {
 			serverConfigList.forEach(nexusServerConfig -> {
 				// 设置并返回当前nexus服务信息
 				configService.setNexusInfoByConfigId(nexusClient, nexusServerConfig.getConfigId());
-				nexusClient.getNexusScriptApi().initScript();
+				nexusClient.initData();
 			});
 		} finally {
 			// remove配置信息

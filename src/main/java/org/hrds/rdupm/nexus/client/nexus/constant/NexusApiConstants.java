@@ -10,6 +10,14 @@ import java.util.List;
 public interface NexusApiConstants {
 
 	/**
+	 * 默认角色，无权限
+	 */
+	interface defaultRole {
+		String DEFAULT_ROLE = "Choerodon-hrds-default";
+		String DEFAULT_ROLE_NAME = "Choerodon初始默认角色";
+	}
+
+	/**
 	 * 发布类型
 	 */
 	interface packageType {

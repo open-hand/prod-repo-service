@@ -385,21 +385,19 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
         String params = buildSearchParam(appServiceName, appServiceCode);
+        ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.pageByOptions(dbRepo.getProjectId(), false, 0, 0, params);
+        if (CollectionUtils.isEmpty(Objects.requireNonNull(responseEntity.getBody()).getContent())) {
+            return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
+        }
+        List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();
         if (dbRepo.getProjectShare().equals(HarborConstants.TRUE)) {
-            ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.pageByOptions(dbRepo.getProjectId(), false, 0, 0, params);
-            if (!CollectionUtils.isEmpty(Objects.requireNonNull(responseEntity.getBody()).getContent())) {
-                List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();
-                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), appServiceDTOS);
-            } else {
-                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
-            }
+            return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), appServiceDTOS);
         } else {
             List<HarborRepoService> harborRepoServiceList = harborRepoServiceRepository.select(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId());
             if (CollectionUtils.isNotEmpty(harborRepoServiceList)) {
                 Set<Long> appServiceIds = harborRepoServiceList.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
-                List<AppServiceDTO> relatedAppServices = batchQueryAppServiceByIds(projectId, appServiceIds, false, true, "");
-                Page<AppServiceDTO> page = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), relatedAppServices);
-                return page;
+                List<AppServiceDTO> relatedAppServices = appServiceDTOS.stream().filter(appServiceDTO -> appServiceIds.contains(appServiceDTO.getId())).collect(Collectors.toList());
+                return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), relatedAppServices);
             } else {
                 return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), Collections.emptyList());
             }

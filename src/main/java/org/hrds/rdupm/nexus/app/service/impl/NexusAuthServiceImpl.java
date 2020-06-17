@@ -31,6 +31,7 @@ import org.hrds.rdupm.nexus.app.job.ExpiredNexusAuthJob;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
@@ -352,6 +353,10 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             NexusServerUser nexusServerUser = existUserList.get(0);
             // 删除旧角色
             nexusServerUser.getRoles().remove(nexusAuth.getNeRoleId());
+            if (CollectionUtils.isEmpty(nexusServerUser.getRoles())) {
+                // 为空时，给默认值
+                nexusServerUser.getRoles().add(NexusApiConstants.defaultRole.DEFAULT_ROLE);
+            }
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
         }
     }
