@@ -10,6 +10,11 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 public interface NexusClient {
 
 	/**
+	 * 初始化数据
+	 */
+	void initData();
+
+	/**
 	 * 设置nexus服务信息
 	 * @param nexusServer 服务信息
 	 */

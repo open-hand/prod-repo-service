@@ -8,6 +8,7 @@ import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.*;
@@ -97,6 +98,10 @@ public class NexusRepoEnableHandler {
                 NexusServerUser nexusServerUser = existUserList.get(0);
                 // 删除旧角色
                 nexusServerUser.getRoles().remove(nexusAuth.getNeRoleId());
+                if (CollectionUtils.isEmpty(nexusServerUser.getRoles())) {
+                    // 为空时，给默认值
+                    nexusServerUser.getRoles().add(NexusApiConstants.defaultRole.DEFAULT_ROLE);
+                }
                 nexusClient.getNexusUserApi().updateUser(nexusServerUser);
             }
         });
@@ -108,17 +113,22 @@ public class NexusRepoEnableHandler {
             NexusServerUser nexusServerUser = pullUserList.get(0);
             // 删除旧角色
             nexusServerUser.getRoles().remove(nexusRole.getNePullRoleId());
+            if (CollectionUtils.isEmpty(nexusServerUser.getRoles())) {
+                // 为空时，给默认值
+                nexusServerUser.getRoles().add(NexusApiConstants.defaultRole.DEFAULT_ROLE);
+            }
             nexusClient.getNexusUserApi().updateUser(nexusServerUser);
         }
 
-        // 不允许匿名
-        NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
-        if (anonymousRole == null) {
-            throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+        if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
+            // 不允许匿名
+            NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
+            if (anonymousRole == null) {
+                throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+            }
+            anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 0, nexusRepositoryService.convertRepoTypeToFormat(nexusRepository.getRepoType()));
+            nexusClient.getNexusRoleApi().updateRole(anonymousRole);
         }
-        anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), 0, nexusRepositoryService.convertRepoTypeToFormat(nexusRepository.getRepoType()));
-        nexusClient.getNexusRoleApi().updateRole(anonymousRole);
-
     }
 
     /**
