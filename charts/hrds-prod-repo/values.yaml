@@ -50,9 +50,9 @@ preJob:
 env:
   open:
     # 本实例服务端口
-    SERVER_PORT: 7140
+    SERVER_PORT: 7144
     # 本实例管理端口
-    MANAGEMENT_SERVER_PORT: 7141
+    MANAGEMENT_SERVER_PORT: 7145
 
     # 是否启用配置中心
     SPRING_CLOUD_CONFIG_ENABLED: false
