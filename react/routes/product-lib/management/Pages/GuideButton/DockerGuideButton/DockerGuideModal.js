@@ -25,7 +25,7 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
   };
 
   const { currentMenuType: { organizationId } } = stores.AppState;
-  
+
   return (
     <div className="product-lib-docker-guide-modal">
 

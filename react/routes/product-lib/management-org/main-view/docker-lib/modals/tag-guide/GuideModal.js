@@ -11,7 +11,7 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const GuideModal = ({ tagPullDs, formatMessage }) => {
+const GuideModal = ({ tagPullDs, formatMessage, organizationId }) => {
   function refresh() {
     tagPullDs.query();
   }
@@ -41,7 +41,15 @@ const GuideModal = ({ tagPullDs, formatMessage }) => {
         {formatMessage({
           id: `${intlPrefix}.view.pullTagGuide.configStep1`,
           defaultMessage: '1. 登陆制品库，认证用户',
-        })}
+        })}。
+        “
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+        >
+          个人信息--&gt;个人设置
+        </a>--&gt; 制品库设置”中可查看默认密码
       </div>
       <pre><Icon type="content_copy" onClick={() => handleCopy(record.get('loginCmd'))} />{record.get('loginCmd')}</pre>
 

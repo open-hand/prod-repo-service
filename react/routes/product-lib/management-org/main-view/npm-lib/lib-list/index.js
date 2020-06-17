@@ -26,6 +26,7 @@ const LibList = () => {
     npmStore,
     intl: { formatMessage },
     libListDs,
+    organizationId,
   } = useNpmStore();
   const { setTabKey, getTabKey } = npmStore;
 
@@ -97,7 +98,7 @@ const LibList = () => {
       okCancel: false,
       drawer: true,
       style: { width: '7.4rem' },
-      children: <GuideModal guideInfo={item} formatMessage={formatMessage} />,
+      children: <GuideModal guideInfo={item} formatMessage={formatMessage} organizationId={organizationId} />,
       okText: formatMessage({ id: 'close', defaultMessage: '关闭' }),
     });
   };

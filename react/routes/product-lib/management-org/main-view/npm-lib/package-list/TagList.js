@@ -20,7 +20,7 @@ const { Column } = Table;
 
 const modalKey = Modal.key();
 
-const TagList = observer(({ dataSet, intlPrefix, formatMessage }) => {
+const TagList = observer(({ dataSet, intlPrefix, formatMessage, organizationId }) => {
   function refresh() {
     dataSet.query();
   }
@@ -37,6 +37,7 @@ const TagList = observer(({ dataSet, intlPrefix, formatMessage }) => {
       version: record.get('version'),
       repositoryUrl: record.get('repositoryUrl'),
       intlPrefix,
+      organizationId,
     };
     Modal.open({
       key: modalKey,
