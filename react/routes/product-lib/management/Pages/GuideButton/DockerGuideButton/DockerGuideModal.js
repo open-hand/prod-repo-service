@@ -7,6 +7,7 @@
 import React from 'react';
 import { Button, message } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
+import { stores } from '@choerodon/boot';
 import { intlPrefix } from '../../../index';
 import './index.less';
 
@@ -23,6 +24,8 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
     message.success(formatMessage({ id: 'success.copy', defaultMessage: '复制成功' }), 1);
   };
 
+  const { currentMenuType: { organizationId } } = stores.AppState;
+  
   return (
     <div className="product-lib-docker-guide-modal">
 
@@ -72,7 +75,14 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
 
       <div className="product-lib-docker-guide-modal-description">
         1. 打开docker客户端，使用harbor用户名密码登陆harbor访问地址。
-        <span>&quot;个人信息--&gt;个人设置--&gt;制品库设置&quot;中可查看默认密码</span>
+        &quot;
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+        >
+          个人信息--&gt;个人设置
+        </a>--&gt; 制品库设置&quot;中可查看默认密码
       </div>
       <pre><Button icon="content_copy" onClick={() => handleCopy(info.loginCmd)} />{info.loginCmd}</pre>
 
