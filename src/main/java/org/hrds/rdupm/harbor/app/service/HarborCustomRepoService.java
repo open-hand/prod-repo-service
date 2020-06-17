@@ -5,6 +5,7 @@ import java.util.Set;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hrds.rdupm.harbor.domain.entity.HarborAllRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
@@ -196,4 +197,11 @@ public interface HarborCustomRepoService {
      */
     HarborRepoDTO getHarborRepoConfigByRepoId(Long projectId, Long repoId, String repoType);
 
+    /**
+     * 查询项目所有harbor仓库配置
+     *
+     * @param projectId
+     * @return HarborAllRepoDTO
+     */
+    HarborAllRepoDTO getAllHarborRepoConfigByProject(Long projectId);
 }
