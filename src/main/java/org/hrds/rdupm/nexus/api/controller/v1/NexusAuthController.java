@@ -11,6 +11,7 @@ import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -136,7 +137,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层--分配权限, 必输字段 endDate、roleCode 、userId、repositoryId")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/{projectId}/create")
-    public ResponseEntity<List<NexusAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
+    public ResponseEntity<List<NexusAuth>> create(@ApiParam("猪齿鱼项目ID") @Encrypt(NexusAuth.ENCRYPT_KEY) @PathVariable Long projectId,
                                                    @RequestBody List<NexusAuth> nexusAuthList) {
         validObject(nexusAuthList);
         nexusAuthService.create(projectId, nexusAuthList);
