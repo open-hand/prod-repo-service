@@ -25,6 +25,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.AssertUtils;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.http.HttpStatus;
 
 import java.lang.reflect.Array;
@@ -44,6 +45,9 @@ import java.util.Map;
 @Getter
 @Setter
 public class NexusServerConfig extends AuditDomain {
+
+    public static final String ENCRYPT_KEY = "rdupm_nexus_server_config";
+
 
     public static final String ADMIN_USER = "admin";
 
@@ -115,6 +119,7 @@ public class NexusServerConfig extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
+    @Encrypt(ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
