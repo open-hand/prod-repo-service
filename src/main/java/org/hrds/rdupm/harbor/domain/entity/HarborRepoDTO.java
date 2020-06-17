@@ -2,6 +2,7 @@ package org.hrds.rdupm.harbor.domain.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 @Getter
 @Setter
 @ApiModel("Harbor仓库DTO")
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborRepoDTO {
     public static final String DEFAULT_REPO = "DEFAULT_REPO";
     public static final String CUSTOM_REPO = "CUSTOM_REPO";
