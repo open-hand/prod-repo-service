@@ -39,9 +39,6 @@ public class IamSageNexusAuthOneHandler {
     @Autowired
     private NexusAuthSageService nexusAuthSageService;
 
-
-
-
     @SagaTask(code = NexusSagaConstants.NexusAuthDeleteUserHandle.NEXUS_AUTH_DELETE_USER_HANDLE_AUTH, description = "制品库删除权限同步事件-nexus(maven与npm)", sagaCode = NexusSagaConstants.NexusAuthDeleteUserHandle.NEXUS_AUTH_DELETE_USER_HANDLE, maxRetryCount = 3, seq = 1)
     @Transactional
     public String delete(String payload) {

@@ -8,6 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
+import org.hrds.rdupm.nexus.app.service.NexusApiService;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,6 +55,8 @@ public class NexusSagaHandler {
 	private NexusAuthHandler nexusAuthHandler;
 	@Autowired
 	private NexusRepositoryService nexusRepositoryService;
+	@Autowired
+	private NexusApiService nexusApiService;
 
 
 	@SagaTask(code = NexusSagaConstants.NexusMavenRepoCreate.MAVEN_REPO_CREATE_REPO,
@@ -179,13 +183,12 @@ public class NexusSagaHandler {
 
 		// 匿名访问
 		if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
-			// 允许匿名
-			NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
-			if (anonymousRole == null) {
-				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+			List<String> privileges = NexusServerRole.getAnonymousPrivileges(nexusRepository.getNeRepositoryName(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
+			if (nexusRepository.getAllowAnonymous().equals(BaseConstants.Flag.YES)) {
+				nexusApiService.updateRole(serverConfig.getAnonymousRole(), privileges, new ArrayList<>());
+			} else {
+				nexusApiService.updateRole(serverConfig.getAnonymousRole(), new ArrayList<>(), privileges);
 			}
-			anonymousRole.setPullPri(nexusRepository.getNeRepositoryName(), nexusRepository.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(exist.getRepoType()));
-			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 
 		// remove配置信息
@@ -246,15 +249,9 @@ public class NexusSagaHandler {
 		pullNexusServerUser.setPassword(DESEncryptUtil.decode(nexusUser.getNePullUserPassword()));
 
 		// 创建用户
-		List<NexusServerUser> pushExistUserList = nexusClient.getNexusUserApi().getUsers(nexusServerUser.getUserId());
-		if (CollectionUtils.isEmpty(pushExistUserList)) {
-			nexusClient.getNexusUserApi().createUser(nexusServerUser);
-		}
+		nexusApiService.createAndUpdateUser(nexusServerUser, new ArrayList<>(), new ArrayList<>());
 		// 创建用户
-		List<NexusServerUser> pullExistUserList = nexusClient.getNexusUserApi().getUsers(pullNexusServerUser.getUserId());
-		if (CollectionUtils.isEmpty(pullExistUserList)) {
-			nexusClient.getNexusUserApi().createUser(pullNexusServerUser);
-		}
+		nexusApiService.createAndUpdateUser(pullNexusServerUser, new ArrayList<>(), new ArrayList<>());
 
 		// 创建用户权限
 		nexusAuthHandler.createUserAuth(nexusRepository.getNexusAuthList());
@@ -316,12 +313,12 @@ public class NexusSagaHandler {
 
 		// 匿名访问
 		if (serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
-			NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(serverConfig.getAnonymousRole());
-			if (anonymousRole == null) {
-				throw new CommonException("default anonymous role not found:" + serverConfig.getAnonymousRole());
+			List<String> privileges = NexusServerRole.getAnonymousPrivileges(nexusRepoCreateDTO.getName(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepoCreateDTO.getRepoType()));
+			if (nexusRepoCreateDTO.getAllowAnonymous().equals(BaseConstants.Flag.YES)) {
+				nexusApiService.updateRole(serverConfig.getAnonymousRole(), privileges, new ArrayList<>());
+			} else {
+				nexusApiService.updateRole(serverConfig.getAnonymousRole(), new ArrayList<>(), privileges);
 			}
-			anonymousRole.setPullPri(nexusRepoCreateDTO.getName(), nexusRepoCreateDTO.getAllowAnonymous(), nexusRepositoryService.convertRepoTypeToFormat(nexusRepoCreateDTO.getRepoType()));
-			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
 		}
 
 		// remove配置信息

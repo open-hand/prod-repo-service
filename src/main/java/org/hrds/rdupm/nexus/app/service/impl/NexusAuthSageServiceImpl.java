@@ -13,10 +13,7 @@ import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
-import org.hrds.rdupm.nexus.app.service.NexusAuthSageService;
-import org.hrds.rdupm.nexus.app.service.NexusAuthService;
-import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
-import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
+import org.hrds.rdupm.nexus.app.service.*;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
@@ -40,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +48,7 @@ import java.util.stream.Collectors;
  * @author weisen.yang@hand-china.com 2020-03-27
  */
 @Service
-public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<NexusRepositoryService> {
+public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<NexusAuthSageService> {
     @Autowired
     private TransactionalProducer producer;
     @Autowired
@@ -69,6 +67,8 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
     private ProdUserService prodUserService;
     @Autowired
     private ProdUserRepository prodUserRepository;
+    @Autowired
+    private NexusApiService nexusApiService;
 
 
     @Saga(code = NexusSagaConstants.NexusAuthDeleteUserHandle.NEXUS_AUTH_DELETE_USER_HANDLE,
@@ -137,7 +137,7 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
         }
     }
 
-    public void saveAuth(NexusRepository nexusRepository, UserDTO userDTO) {
+    private void saveAuth(NexusRepository nexusRepository, UserDTO userDTO) {
 
         // 仓库角色查询
         NexusRole nexusRole = nexusRoleRepository.select(NexusRole.FIELD_REPOSITORY_ID, nexusRepository.getRepositoryId()).stream().findFirst().orElse(null);
@@ -164,20 +164,10 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
 
         nexusAuthRepository.insertSelective(nexusAuth);
 
-        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-        if (CollectionUtils.isEmpty(existUserList)) {
-            // 创建用户
-            NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), newPassword, Collections.singletonList(nexusAuth.getNeRoleId()));
-            nexusClient.getNexusUserApi().createUser(nexusServerUser);
-        } else {
-            // 更新用户
-            NexusServerUser nexusServerUser = existUserList.get(0);
-            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
-            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-        }
+        NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), newPassword, Collections.singletonList(nexusAuth.getNeRoleId()));
+        nexusApiService.createAndUpdateUser(nexusServerUser, Collections.singletonList(nexusAuth.getNeRoleId()), new ArrayList<>());
     }
 
-    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_UPDATE, content = "%s 更新 %s 【%s】仓库的权限角色为 【%s】,过期日期为【%s】")
     private void updateAuth(NexusRepository nexusRepository, NexusAuth nexusAuth) {
         String oldRoleCode = nexusAuth.getRoleCode();
         String oldNeRoleId = nexusAuth.getNeRoleId();
@@ -190,31 +180,19 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
         nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE,
                 NexusAuth.FIELD_NE_ROLE_ID, NexusAuth.FIELD_LOCKED);
 
-        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-        if (CollectionUtils.isNotEmpty(existUserList)) {
-            // 更新用户
-            NexusServerUser nexusServerUser = existUserList.get(0);
-            // 删除旧角色
-            nexusServerUser.getRoles().remove(oldNeRoleId);
-            // 添加新角色
-            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
 
-            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
+        ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, nexusAuth.getUserId()).stream().findFirst().orElse(null);
+        String password = null;
+        if (prodUser.getPwdUpdateFlag() == 1) {
+            password = DESEncryptUtil.decode(prodUser.getPassword());
         } else {
-            ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, nexusAuth.getUserId()).stream().findFirst().orElse(null);
-            String password = null;
-            if (prodUser.getPwdUpdateFlag() == 1) {
-                password = DESEncryptUtil.decode(prodUser.getPassword());
-            } else {
-                password = prodUser.getPassword();
-            }
-            // 创建用户
-            NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), password, Collections.singletonList(nexusAuth.getNeRoleId()));
-            nexusClient.getNexusUserApi().createUser(nexusServerUser);
+            password = prodUser.getPassword();
         }
+        // 创建用户
+        NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), password, Collections.singletonList(nexusAuth.getNeRoleId()));
+        nexusApiService.createAndUpdateUser(nexusServerUser, Collections.singletonList(nexusAuth.getNeRoleId()), Collections.singletonList(oldNeRoleId));
     }
 
-    @NexusOperateLog(operateType = NexusConstants.LogOperateType.AUTH_DELETE, content = "%s 删除 %s 【%s】仓库的权限角色 【%s】")
     private void deleteAuth(NexusAuth nexusAuth) {
         nexusAuthService.deleteNexusServerAuth(nexusAuth);
     }

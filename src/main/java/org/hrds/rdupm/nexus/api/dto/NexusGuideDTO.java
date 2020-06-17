@@ -4,6 +4,8 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
@@ -21,6 +23,8 @@ import java.util.Map;
  * @author weisen.yang@hand-china.com 2020/4/1
  */
 @ApiModel("nexus maven-仓库配置")
+@Getter
+@Setter
 public class NexusGuideDTO extends NexusBaseGuideDTO{
 	public static final String PUSH_CMD = "mvn clean deploy -DskipTests";
 
@@ -56,11 +60,6 @@ public class NexusGuideDTO extends NexusBaseGuideDTO{
 				if (nexusUser == null) {
 					throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 				}
-
-				//String neUserPassword = DESEncryptUtil.decode(nexusUser.getNeUserPassword());
-
-				//map.put("username", );
-				//this.setPushPassword(neUserPassword);
 				this.setPushServerInfo(VelocityUtils.getJsonString(map, VelocityUtils.SET_SERVER_FILE_NAME));
 				this.setPushServerInfoPassword(this.getPushServerInfo());
 
@@ -81,49 +80,4 @@ public class NexusGuideDTO extends NexusBaseGuideDTO{
 	private String pushPomManageInfo;
 	@ApiModelProperty(value = "发布配置：运行命令")
 	private String pushCmd;
-
-	public String getPushServerInfo() {
-		return pushServerInfo;
-	}
-
-	public NexusGuideDTO setPushServerInfo(String pushServerInfo) {
-		this.pushServerInfo = pushServerInfo;
-		return this;
-	}
-
-	public String getPushServerInfoPassword() {
-		return pushServerInfoPassword;
-	}
-
-	public NexusGuideDTO setPushServerInfoPassword(String pushServerInfoPassword) {
-		this.pushServerInfoPassword = pushServerInfoPassword;
-		return this;
-	}
-
-	public String getPushPassword() {
-		return pushPassword;
-	}
-
-	public NexusGuideDTO setPushPassword(String pushPassword) {
-		this.pushPassword = pushPassword;
-		return this;
-	}
-
-	public String getPushPomManageInfo() {
-		return pushPomManageInfo;
-	}
-
-	public NexusGuideDTO setPushPomManageInfo(String pushPomManageInfo) {
-		this.pushPomManageInfo = pushPomManageInfo;
-		return this;
-	}
-
-	public String getPushCmd() {
-		return pushCmd;
-	}
-
-	public NexusGuideDTO setPushCmd(String pushCmd) {
-		this.pushCmd = pushCmd;
-		return this;
-	}
 }

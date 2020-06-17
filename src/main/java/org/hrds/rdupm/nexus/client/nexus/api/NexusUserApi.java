@@ -13,9 +13,9 @@ public interface NexusUserApi {
 	/**
 	 * 获取nexus服务,用户信息
 	 * @param userId 用户ID 不必传
-	 * @return List<NexusUser>
+	 * @return NexusServerUser
 	 */
-	List<NexusServerUser> getUsers(String userId);
+	NexusServerUser getUsers(String userId);
 
 	/**
 	 * 删除用户信息
