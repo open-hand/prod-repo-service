@@ -73,8 +73,8 @@ public class NexusServerConfig extends AuditDomain {
             if (StringUtils.isBlank(this.anonymousRole)) {
                 throw new CommonException("anonymousRole not null");
             }
-            List<NexusServerUser> anonymousUser = nexusClient.getNexusUserApi().getUsers(this.anonymous);
-            if (CollectionUtils.isEmpty(anonymousUser)) {
+            NexusServerUser anonymousUser = nexusClient.getNexusUserApi().getUsers(this.anonymous);
+            if (anonymousUser == null) {
                 throw new CommonException(NexusMessageConstants.NEXUS_ANONYMOUS_USER_NOT_EXIST);
             }
             NexusServerRole anonymousRoleExist = nexusClient.getNexusRoleApi().getRoleById(this.anonymousRole);
@@ -93,7 +93,7 @@ public class NexusServerConfig extends AuditDomain {
         this.serverUrl = this.serverUrl.replaceAll("/*$", "");
         NexusServer nexusServer = new NexusServer(this.serverUrl, this.userName, this.password);
         nexusClient.setNexusServerInfo(nexusServer);
-        List<NexusServerUser> nexusExistUser = null;
+        NexusServerUser nexusExistUser = null;
         try {
             nexusExistUser = nexusClient.getNexusUserApi().getUsers(this.userName);
         } catch (NexusResponseException e) {

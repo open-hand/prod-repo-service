@@ -28,6 +28,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.job.ExpiredNexusAuthJob;
+import org.hrds.rdupm.nexus.app.service.NexusApiService;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -99,6 +100,8 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     private NexusServerConfigService configService;
     @Autowired
     private NexusServerConfigRepository nexusServerConfigRepository;
+    @Autowired
+    private NexusApiService nexusApiService;
 
 
     @Override
@@ -220,31 +223,20 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         nexusAuth.setNeRoleIdByRoleCode(nexusRole);
         nexusAuthRepository.updateOptional(nexusAuth, NexusAuth.FIELD_ROLE_CODE, NexusAuth.FIELD_END_DATE, NexusAuth.FIELD_NE_ROLE_ID);
 
-        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-        if (CollectionUtils.isNotEmpty(existUserList)) {
-            // 更新用户
-            NexusServerUser nexusServerUser = existUserList.get(0);
-            // 删除旧角色
-            nexusServerUser.getRoles().remove(existAuth.getNeRoleId());
-            // 添加新角色
-            nexusServerUser.getRoles().add(nexusAuth.getNeRoleId());
 
-            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-        } else {
-            ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, existAuth.getUserId()).stream().findFirst().orElse(null);
-            if (prodUser == null) {
-                throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-            }
-            String password = null;
-            if (prodUser.getPwdUpdateFlag() == 1) {
-                password = DESEncryptUtil.decode(prodUser.getPassword());
-            } else {
-                password = prodUser.getPassword();
-            }
-            // 创建用户
-            NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), password, Collections.singletonList(nexusAuth.getNeRoleId()));
-            nexusClient.getNexusUserApi().createUser(nexusServerUser);
+        ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, existAuth.getUserId()).stream().findFirst().orElse(null);
+        if (prodUser == null) {
+            throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
+        String password = null;
+        if (prodUser.getPwdUpdateFlag() == 1) {
+            password = DESEncryptUtil.decode(prodUser.getPassword());
+        } else {
+            password = prodUser.getPassword();
+        }
+        // 创建用户
+        NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), password, Collections.singletonList(nexusAuth.getNeRoleId()));
+        nexusApiService.createAndUpdateUser(nexusServerUser, Collections.singletonList(nexusAuth.getNeRoleId()), Collections.singletonList(nexusAuth.getNeRoleId()));
 
         nexusClient.removeNexusServerInfo();
     }
@@ -347,18 +339,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @Override
     public void deleteNexusServerAuth(NexusAuth nexusAuth) {
         nexusAuthRepository.deleteByPrimaryKey(nexusAuth);
-        List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(nexusAuth.getLoginName());
-        if (CollectionUtils.isNotEmpty(existUserList)) {
-            // 更新用户
-            NexusServerUser nexusServerUser = existUserList.get(0);
-            // 删除旧角色
-            nexusServerUser.getRoles().remove(nexusAuth.getNeRoleId());
-            if (CollectionUtils.isEmpty(nexusServerUser.getRoles())) {
-                // 为空时，给默认值
-                nexusServerUser.getRoles().add(NexusApiConstants.defaultRole.DEFAULT_ROLE);
-            }
-            nexusClient.getNexusUserApi().updateUser(nexusServerUser);
-        }
+        nexusApiService.updateUser(nexusAuth.getLoginName(), new ArrayList<>(), Collections.singletonList(nexusAuth.getNeRoleId()));
     }
 
 

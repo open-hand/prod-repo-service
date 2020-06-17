@@ -2,9 +2,9 @@ package org.hrds.rdupm.nexus.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hrds.rdupm.nexus.app.service.NexusApiService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 制品库_nexus服务信息配置表应用服务默认实现
@@ -50,6 +49,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	@Autowired
 	@Lazy
 	private NexusRepositoryRepository nexusRepositoryRepository;
+	@Autowired
+	private NexusApiService nexusApiService;
 
 	@Override
 	public NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId) {
@@ -184,17 +185,23 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
 		if (nexusServerConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
 			// 开启匿名访问
-			NexusServerRole anonymousRoleExist = nexusClient.getNexusRoleApi().getRoleById(nexusServerConfig.getAnonymousRole());
+			List<String> addPrivileges = new ArrayList<>();
+			List<String> deletePrivileges = new ArrayList<>();
 			Condition condition = Condition.builder(NexusRepository.class).where(
 					Sqls.custom().andEqualTo(NexusRepository.FIELD_CONFIG_ID, existConfig.getConfigId())).build();
 			List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.selectByCondition(condition);
 			nexusRepositoryList.forEach(nexusRepository -> {
 				NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
 				if (nexusServerRepository != null) {
-					anonymousRoleExist.setPullPri(nexusRepository.getNeRepositoryName(), nexusRepository.getAllowAnonymous(), nexusServerRepository.getFormat());
+					List<String> privilegeList = NexusServerRole.getAnonymousPrivileges(nexusRepository.getNeRepositoryName(), nexusServerRepository.getFormat());
+					if (nexusRepository.getAllowAnonymous().equals(BaseConstants.Flag.YES)) {
+						addPrivileges.addAll(privilegeList);
+					} else {
+						deletePrivileges.addAll(privilegeList);
+					}
 				}
 			});
-			nexusClient.getNexusRoleApi().updateRole(anonymousRoleExist);
+			nexusApiService.updateRole(nexusServerConfig.getAnonymousRole(), addPrivileges, deletePrivileges);
 		}
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;

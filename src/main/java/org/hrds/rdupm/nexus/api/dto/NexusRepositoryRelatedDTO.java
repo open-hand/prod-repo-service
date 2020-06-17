@@ -48,7 +48,7 @@ public class NexusRepositoryRelatedDTO {
 
 		NexusServer nexusServer = new NexusServer(serverConfig.getServerUrl(), this.userName, this.password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		List<NexusServerUser> nexusExistUser = null;
+		NexusServerUser nexusExistUser = null;
 		try {
 			nexusExistUser = nexusClient.getNexusUserApi().getUsers(this.userName);
 		} catch (NexusResponseException e) {

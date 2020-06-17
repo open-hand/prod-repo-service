@@ -130,6 +130,19 @@ public class NexusServerRole {
 		}
 	}
 
+	/**
+	 * 获取匿名访问所需的，权限列表
+	 * @return 权限list
+	 */
+	public static List<String> getAnonymousPrivileges(String repositoryName, String format) {
+		String readPri = DEFAULT_ANONYMOUS_READ.replace("{repositoryName}", repositoryName).replace("{format}", format);
+		String browsePri = DEFAULT_ANONYMOUS_BROWSE.replace("{repositoryName}", repositoryName).replace("{format}", format);
+		List<String> privilegeList = new ArrayList<>();
+		privilegeList.add(readPri);
+		privilegeList.add(browsePri);
+		return privilegeList;
+	}
+
 	private String id;
 	private String source;
 	private String name;

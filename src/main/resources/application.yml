@@ -102,6 +102,11 @@ logging:
 hzero:
   scheduler:
     autoRegister: false
+  lock:
+    pattern: single
+    single-server:
+      address: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
 
 choerodon:
   category:

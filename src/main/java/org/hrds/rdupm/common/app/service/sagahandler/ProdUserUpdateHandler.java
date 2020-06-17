@@ -95,8 +95,8 @@ public class ProdUserUpdateHandler {
 		for (NexusServerConfig serverConfig : serverConfigList) {
 			try {
 				configService.setNexusInfoByConfigId(nexusClient, serverConfig.getConfigId());
-				List<NexusServerUser> existUserList = nexusClient.getNexusUserApi().getUsers(prodUser.getLoginName());
-				if (CollectionUtils.isNotEmpty(existUserList)) {
+				NexusServerUser existUser = nexusClient.getNexusUserApi().getUsers(prodUser.getLoginName());
+				if (existUser != null) {
 					// 密码解密
 					String password = DESEncryptUtil.decode(prodUser.getPassword());
 					nexusClient.getNexusUserApi().changePassword(prodUser.getLoginName(), password);
