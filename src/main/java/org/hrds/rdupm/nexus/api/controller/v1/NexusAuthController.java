@@ -129,7 +129,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层--权限明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
-    public ResponseEntity<NexusAuth> detail(@PathVariable Long authId) {
+    public ResponseEntity<NexusAuth> detail(@Encrypt(NexusAuth.ENCRYPT_KEY) @PathVariable Long authId) {
         NexusAuth nexusAuth = nexusAuthRepository.selectByPrimaryKey(authId);
         return Results.success(nexusAuth);
     }
@@ -137,7 +137,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层--分配权限, 必输字段 endDate、roleCode 、userId、repositoryId")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/{projectId}/create")
-    public ResponseEntity<List<NexusAuth>> create(@ApiParam("猪齿鱼项目ID") @Encrypt(NexusAuth.ENCRYPT_KEY) @PathVariable Long projectId,
+    public ResponseEntity<List<NexusAuth>> create(@ApiParam("猪齿鱼项目ID") @PathVariable Long projectId,
                                                    @RequestBody List<NexusAuth> nexusAuthList) {
         validObject(nexusAuthList);
         nexusAuthService.create(projectId, nexusAuthList);
