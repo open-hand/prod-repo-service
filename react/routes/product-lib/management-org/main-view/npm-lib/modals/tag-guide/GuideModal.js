@@ -4,7 +4,7 @@ import { Icon, message } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import './index.less';
 
-const GuideModal = ({ name, version, repositoryUrl, intlPrefix, formatMessage }) => {
+const GuideModal = ({ name, version, repositoryUrl, intlPrefix, formatMessage, organizationId }) => {
   const setInfo = `npm config set registry=${repositoryUrl}`;
   const loginInfo = 'npm login';
   const pullInfo = `npm install ${name}@${version} --registry=${repositoryUrl}`;
@@ -29,10 +29,18 @@ const GuideModal = ({ name, version, repositoryUrl, intlPrefix, formatMessage })
       </div>
       <pre> <Icon type="content_copy" onClick={() => handleCopy(setInfo)} />{setInfo}</pre>
       <div className="product-lib-org-npm-tag-guide-modal-description">
-        2.命令行登陆
+        2.命令行登陆。
+        “
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+        >
+          个人信息--&gt;个人设置
+        </a>--&gt; 制品库设置”中可查看默认密码
       </div>
       <pre> <Icon type="content_copy" onClick={() => handleCopy(loginInfo)} />
-        <span>{formatMessage({ id: `${intlPrefix}.view.loginTips` })}</span><br />
+        {/* <span>{formatMessage({ id: `${intlPrefix}.view.loginTips` })}</span><br /> */}
         {loginInfo}
       </pre>
 
