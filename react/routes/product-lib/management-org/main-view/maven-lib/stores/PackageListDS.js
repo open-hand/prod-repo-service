@@ -26,12 +26,12 @@ export default ((organizationId, formatMessage, intlPrefix) => ({
   ],
   queryFields: [
     {
-      name: 'repositoryName',
-      type: 'string',
+      name: 'repositoryId',
+      type: 'number',
       label: formatMessage({ id: 'libName' }),
       lookupUrl: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/maven/repo/name`,
       textField: 'name',
-      valueField: 'name',
+      valueField: 'repositoryId',
       required: true,
     },
     { name: 'version', type: 'string', label: 'version' },

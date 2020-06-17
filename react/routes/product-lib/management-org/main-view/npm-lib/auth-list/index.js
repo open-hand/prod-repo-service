@@ -43,11 +43,10 @@ const AuthList = () => {
             <div style={{ display: 'inline-flex' }}>
               <UserAvatar
                 user={{
-                  loginName: record.get('projectName'),
+                  loginName: record.get('projectId'),
                   realName: record.get('projectName'),
                   imageUrl: record.get('projectImgUrl'), // TODO
                 }}
-                showToolTip={false}
               />
             </div>
           )}

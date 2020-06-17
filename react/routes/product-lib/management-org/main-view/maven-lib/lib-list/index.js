@@ -17,7 +17,7 @@ import './index.less';
 
 
 const MirrorLib = () => {
-  const { prodStore: { setRepositoryName, getSelectedMenu } } = useProdStore();
+  const { prodStore: { setRepositoryId, getSelectedMenu } } = useProdStore();
   const {
     tabs: {
       LIB_TAB,
@@ -46,17 +46,17 @@ const MirrorLib = () => {
   }, [getTabKey, getSelectedMenu]);
   const listData = libListDs.current && libListDs.toData();
 
-  async function fetchGuide(name) {
+  async function fetchGuide(name, repositoryId) {
     try {
-      const res = await axios.get(`/rdupm/v1/nexus-repositorys/maven/repo/guide/${name}?showPushFlag=false`);
+      const res = await axios.get(`/rdupm/v1/nexus-repositorys/maven/repo/guide/${name}?repositoryId=${repositoryId}&showPushFlag=false`);
       setGuideInfo(res);
     } catch (error) {
       // message.error(error);
     }
   }
 
-  const handleOpenModal = (name) => {
-    fetchGuide(name);
+  const handleOpenModal = (name, repositoryId) => {
+    fetchGuide(name, repositoryId);
     const key = Modal.key();
     Modal.open({
       key,
@@ -83,9 +83,9 @@ const MirrorLib = () => {
   //     <span className={online ? 'product-lib-org-management-lib-list-status product-lib-org-management-lib-list-status-online' : 'product-lib-org-management-lib-list-status product-lib-org-management-lib-list-status-offline'} />
   //   </Tooltip>
   // );
-  const handleToPackage = (name) => {
+  const handleToPackage = (repositoryId) => {
     setTabKey(PACKAGE_TAB);
-    setRepositoryName(name);
+    setRepositoryId(repositoryId);
   };
 
   const handleSearch = () => {
@@ -116,11 +116,11 @@ const MirrorLib = () => {
     const actionData = [{
       service: [],
       text: formatMessage({ id: `${intlPrefix}.view.guide` }),
-      action: () => handleOpenModal(item.name),
+      action: () => handleOpenModal(item.name, item.repositoryId),
     }, {
       service: [],
       text: formatMessage({ id: `${intlPrefix}.view.seeDetail` }),
-      action: () => handleToPackage(item.name),
+      action: () => handleToPackage(item.repositoryId),
     }];
     return (
       <Action
@@ -150,7 +150,7 @@ const MirrorLib = () => {
                       {/* {rendererOnlineStatus(online)} */}
                       <span
                         className="product-lib-org-management-lib-list-list-card-header-title"
-                        onClick={() => handleToPackage(name)}
+                        onClick={() => handleToPackage(repositoryId)}
                       >
                         {name}
                       </span>

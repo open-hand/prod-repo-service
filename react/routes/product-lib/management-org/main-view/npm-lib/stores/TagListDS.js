@@ -1,10 +1,10 @@
-export default (({ intlPrefix, formatMessage, organizationId, repositoryName, name }) => ({
+export default (({ intlPrefix, formatMessage, organizationId, repositoryName, name, repositoryId }) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
   transport: {
     read: () => ({
-      url: `/rdupm/v1/nexus-components/organizations/${organizationId}/npm/version?repositoryName=${repositoryName}&name=${name}`,
+      url: `/rdupm/v1/nexus-components/organizations/${organizationId}/npm/version?repositoryName=${repositoryName}&name=${name}&repositoryId=${repositoryId}`,
       method: 'GET',
     }),
   },

@@ -18,12 +18,12 @@ export default function useStore(MAVEN) {
       return this.selectedMenu;
     },
 
-    repositoryName: '',
-    setRepositoryName(value) {
-      this.repositoryName = value;
+    repositoryId: null,
+    setRepositoryId(value) {
+      this.repositoryId = value;
     },
-    get getRepositoryName() {
-      return this.repositoryName;
+    get getRepositoryId() {
+      return this.repositoryId;
     },
     dockerRepoInfo: {},
     setDockerRepoInfo(data) {
@@ -33,10 +33,10 @@ export default function useStore(MAVEN) {
       return this.dockerRepoInfo;
     },
     npmPackageName: undefined,
-    setNpmPackageName(data) {
+    setNpmPackageId(data) {
       this.npmPackageName = data;
     },
-    get getNpmPackageName() {
+    get getNpmPackageId() {
       return this.npmPackageName;
     },
   }));
