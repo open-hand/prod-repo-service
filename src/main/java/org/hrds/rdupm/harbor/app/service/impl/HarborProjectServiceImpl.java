@@ -94,7 +94,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		* */
 		//获取猪齿鱼项目信息
 		ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
-		String code = DetailsHelper.getUserDetails().getTenantNum() + "-" + projectDTO.getCode();
+		String code = DetailsHelper.getUserDetails().getTenantNum().toLowerCase() + "-" + projectDTO.getCode();
 		harborProjectVo.setCode(code);
 		harborProjectVo.setProjectDTO(projectDTO);
 		harborProjectVo.setUserDTO(new UserDTO(DetailsHelper.getUserDetails()));

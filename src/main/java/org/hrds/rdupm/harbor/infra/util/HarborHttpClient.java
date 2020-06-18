@@ -191,7 +191,7 @@ public class HarborHttpClient {
 		switch (apiEnum){
 			case CREATE_PROJECT:
 				switch (statusCode){
-					case 400: throw new CommonException("Unsatisfied with constraints of the project creation.");
+					case 400: throw new CommonException("error.harbor.api.create.project.name.valid");
 					case 409: throw new CommonException("Project name already exists.");
 					default: throw new CommonException(e.getMessage());
 				}
