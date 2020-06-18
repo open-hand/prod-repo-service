@@ -30,14 +30,14 @@ const GuideModal = ({ name, version, repositoryUrl, intlPrefix, formatMessage, o
       <pre> <Icon type="content_copy" onClick={() => handleCopy(setInfo)} />{setInfo}</pre>
       <div className="product-lib-org-npm-tag-guide-modal-description">
         2.命令行登陆。
-        “
         <a
           target="_blank"
           rel="noreferrer"
-          href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+          href={`#/rducm/personal-setting/product?type=site&organizationId=${organizationId}`}
         >
-          个人信息--&gt;个人设置
-        </a>--&gt; 制品库设置”中可查看默认密码
+          {formatMessage({ id: `${intlPrefix}.view.personal.setting` })}
+        </a>
+        {formatMessage({ id: `${intlPrefix}.view.personal.tips` })}
       </div>
       <pre> <Icon type="content_copy" onClick={() => handleCopy(loginInfo)} />
         {/* <span>{formatMessage({ id: `${intlPrefix}.view.loginTips` })}</span><br /> */}

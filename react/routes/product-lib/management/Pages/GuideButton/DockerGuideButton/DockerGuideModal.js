@@ -75,14 +75,14 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
 
       <div className="product-lib-docker-guide-modal-description">
         1. 打开docker客户端，使用harbor用户名密码登陆harbor访问地址。
-        &quot;
         <a
           target="_blank"
           rel="noreferrer"
-          href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+          href={`#/rducm/personal-setting/product?type=site&organizationId=${organizationId}`}
         >
-          个人信息--&gt;个人设置
-        </a>--&gt; 制品库设置&quot;中可查看默认密码
+          {formatMessage({ id: `${intlPrefix}.view.personal.setting` })}
+        </a>
+        {formatMessage({ id: `${intlPrefix}.view.personal.tips` })}
       </div>
       <pre><Button icon="content_copy" onClick={() => handleCopy(info.loginCmd)} />{info.loginCmd}</pre>
 
