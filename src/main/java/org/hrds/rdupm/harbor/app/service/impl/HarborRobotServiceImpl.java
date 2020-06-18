@@ -11,6 +11,7 @@ import com.google.gson.reflect.TypeToken;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.domain.AuditDomain;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -175,11 +176,12 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             throw new CommonException("error.harbor.robot.action.wrong");
         }
         //校验Harbor机器人账户
+        Boolean adminFlag = DetailsHelper.getUserDetails().getUsername().equals("ANONYMOUS");
         if (CollectionUtils.isNotEmpty(harborRobotList)) {
             for (HarborRobot robot:harborRobotList
             ) {
                 robot.setHarborProjectId(repositoryList.get(0).getHarborId());
-                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,false, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
+                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,adminFlag, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
                 HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
                 checkRobotInfo(robot, harborRobotVO);
             }
