@@ -171,8 +171,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 				if ( bodyStr != null && bodyStr.contains("Repository does not allow updating assets")) {
 					throw new NexusResponseException(e.getStatusCode(), NexusApiConstants.ErrorMessage.REPO_NOT_UPDATE_ASSET);
 				}
-				throw e;
 			}
+			throw e;
 		}
 	}
 
