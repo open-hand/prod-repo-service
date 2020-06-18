@@ -533,7 +533,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                         .andEqualTo(HarborRepoService.FIELD_APP_SERVICE_ID, appServiceId)
                         .andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, customRepoId))
                 .build());
-        if (CollectionUtils.isNotEmpty(existRelation)) {
+        if (CollectionUtils.isEmpty(existRelation)) {
             throw new CommonException("error.harbor.repo.service.relation.not.exist");
         }
         harborRepoServiceRepository.batchDeleteByPrimaryKey(existRelation);
