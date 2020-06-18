@@ -60,6 +60,12 @@ public interface NexusApiConstants {
 		String RELEASE = "RELEASE";
 	}
 
+	interface WritePolicy {
+		String ALLOW = "ALLOW";
+		String ALLOW_ONCE = "ALLOW_ONCE";
+		String DENY = "DENY";
+	}
+
 	/**
 	 * script脚本列表
 	 */
@@ -163,5 +169,10 @@ public interface NexusApiConstants {
 		 * 对应资源已不存在
 		 */
 		String RESOURCE_NOT_EXIST = "error.nexus.client.resource.not.exist";
+
+		/**
+		 * 包上传错误： 该仓库，不允许去更新已有包
+		 */
+		String REPO_NOT_UPDATE_ASSET = "error.nexus.client.not.update.asset";
 	}
 }

@@ -236,7 +236,7 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
         }
         // 创建用户
         NexusServerUser nexusServerUser = new NexusServerUser(nexusAuth.getLoginName(), nexusAuth.getRealName(), nexusAuth.getRealName(), password, Collections.singletonList(nexusAuth.getNeRoleId()));
-        nexusApiService.createAndUpdateUser(nexusServerUser, Collections.singletonList(nexusAuth.getNeRoleId()), Collections.singletonList(nexusAuth.getNeRoleId()));
+        nexusApiService.createAndUpdateUser(nexusServerUser, Collections.singletonList(nexusAuth.getNeRoleId()), Collections.singletonList(existAuth.getNeRoleId()));
 
         nexusClient.removeNexusServerInfo();
     }

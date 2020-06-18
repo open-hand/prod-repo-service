@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import javax.sql.rowset.serial.SerialStruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,8 +149,7 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			body.add(NexusServerComponentUpload.VERSION, componentUpload.getVersion());
 		}
 
-		ResponseEntity<String> responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
-
+		componentExceptHandler(paramMap, body);
 	}
 
 	@Override
@@ -160,7 +158,22 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 		paramMap.put(NexusServerComponentUpload.REPOSITORY_NAME, repositoryName);
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 		body.add(NexusServerComponentUpload.NPM_TGX, streamResource);
-		nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
+		componentExceptHandler(paramMap, body);
+	}
+
+	private void componentExceptHandler(Map<String, Object> paramMap, MultiValueMap<String, Object> body) {
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
+		} catch (NexusResponseException e) {
+			if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+				String bodyStr = responseEntity.getBody();
+				if ( bodyStr != null && bodyStr.contains("Repository does not allow updating assets")) {
+					throw new NexusResponseException(e.getStatusCode(), NexusApiConstants.ErrorMessage.REPO_NOT_UPDATE_ASSET);
+				}
+				throw e;
+			}
+		}
 	}
 
 	/**

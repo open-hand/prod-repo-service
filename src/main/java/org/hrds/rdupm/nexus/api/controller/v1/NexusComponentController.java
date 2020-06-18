@@ -107,6 +107,7 @@ public class NexusComponentController extends BaseController {
 		}
 		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
 		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
+		XMLValidator.validXMLDefault(assetPom);
 		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, assetJar, assetPom);
 		return Results.success();
 	}
