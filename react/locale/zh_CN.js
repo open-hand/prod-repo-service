@@ -284,6 +284,8 @@ const prodManagement = {
   'infra.prod.lib.view.enter.osVersion': '请查询版本号',
   'infra.prod.lib.view.version.pull': '版本拉取',
   'infra.prod.lib.view.versionCopy': '版本复制',
+  'infra.prod.lib.view.personal.setting': '“个人信息-->个人设置-->制品库设置”',
+  'infra.prod.lib.view.personal.tips': '中可查看默认密码',
   'infra.prod.lib.view.loginTips': '#"个人信息-->个人设置-->制品库设置"中可查看默认密码',
   'infra.prod.lib.action.disable': '失效仓库',
   'infra.prod.lib.action.disable.title': '失效仓库“{name}”',

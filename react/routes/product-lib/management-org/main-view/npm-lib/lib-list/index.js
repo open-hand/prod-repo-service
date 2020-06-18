@@ -98,7 +98,7 @@ const LibList = () => {
       okCancel: false,
       drawer: true,
       style: { width: '7.4rem' },
-      children: <GuideModal guideInfo={item} formatMessage={formatMessage} organizationId={organizationId} />,
+      children: <GuideModal intlPrefix={intlPrefix} guideInfo={item} formatMessage={formatMessage} organizationId={organizationId} />,
       okText: formatMessage({ id: 'close', defaultMessage: '关闭' }),
     });
   };

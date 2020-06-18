@@ -25,7 +25,7 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
   };
 
   const { currentMenuType: { organizationId } } = stores.AppState;
-  
+
   return (
     <div className="product-lib-selfrepo-guide-modal">
       <div className="product-lib-selfrepo-guide-modal-second-title">
@@ -62,14 +62,14 @@ const GuideModal = ({ guideInfo, formatMessage }) => {
           </div>
           <div className="product-lib-selfrepo-guide-modal-description">
             {'1. 修改maven安装目录下settings.xml文件，在<servers>节点添加如下配置（替换用户名密码为自己的）'}
-            &quot;
             <a
               target="_blank"
               rel="noreferrer"
-              href={`#/rducm/personal-setting?type=site&organizationId=${organizationId}`}
+              href={`#/rducm/personal-setting/product?type=site&organizationId=${organizationId}`}
             >
-              个人信息--&gt;个人设置
-            </a>--&gt; 制品库设置&quot;中可查看默认密码
+              {formatMessage({ id: `${intlPrefix}.view.personal.setting` })}
+            </a>
+            {formatMessage({ id: `${intlPrefix}.view.personal.tips` })}
           </div>
           <pre><Button icon="content_copy" onClick={() => handleCopy(info.pushServerInfoPassword)} />{info.pushServerInfo}</pre>
           <div className="product-lib-selfrepo-guide-modal-description">
