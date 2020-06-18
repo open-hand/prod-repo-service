@@ -265,9 +265,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 								 MultipartFile assetJar, MultipartFile assetPom) {
 		NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
 		componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
-		// 设置并返回当前nexus服务信息
-		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 
+		configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
 		if (serverRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
@@ -275,6 +274,10 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
 			throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
 		}
+		// 设置并返回当前nexus服务信息
+		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+
+
 
 		try (
 				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
@@ -311,10 +314,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 	public void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, MultipartFile assetTgz) {
 
 		NexusRepository nexusRepository = this.validateAuth(projectId, repositoryId);
-		// 设置并返回当前nexus服务信息
-		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 
-
+		configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
 		if (serverRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
@@ -322,6 +323,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
 			throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
 		}
+
+		// 设置并返回当前nexus服务信息
+		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 
 		try (
 				InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
