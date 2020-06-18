@@ -1,4 +1,4 @@
-package script.db.groovy.hrds_prod_repo
+package script.db.groovy.hrds_prod_repo.harbor
 
 databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_custom_repo.groovy') {
     changeSet(author: "mofei.li@hand-china.com", id: "2020-06-05-rdupm_harbor_custom_repo") {
@@ -21,7 +21,9 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_custom_repo.groovy') 
             column(name: "password", type: "varchar(" + 100 * weight + ")",  remarks: "密码")  {constraints(nullable:"false")}  
             column(name: "email", type: "varchar(" + 100 * weight + ")",  remarks: "邮箱")  {constraints(nullable:"false")}  
             column(name: "description", type: "varchar(" + 255 * weight + ")",  remarks: "描述")   
-            column(name: "public_flag", type: "varchar(" + 10 * weight + ")",  remarks: "是否公开访问，默认false")  {constraints(nullable:"false")}  
+            column(name: "public_flag", type: "varchar(" + 10 * weight + ")",  remarks: "是否公开访问，默认false")  {constraints(nullable:"false")}
+            column(name: "project_share", type: "varchar(" + 10 * weight + ")",  remarks: "是否项目下共用，默认false")  {constraints(nullable:"false")}
+            column(name: "enabled_flag", type: "varchar(" + 10 * weight + ")",  remarks: "是否启用")
             column(name: "object_version_number", type: "bigint(20)",   defaultValue:"1",   remarks: "行版本号，用来处理锁")  {constraints(nullable:"false")}  
             column(name: "CREATION_DATE", type: "datetime",   defaultValueComputed:"CURRENT_TIMESTAMP",   remarks: "")  {constraints(nullable:"false")}  
             column(name: "CREATED_BY", type: "int(11)",   defaultValue:"-1",   remarks: "")  {constraints(nullable:"false")}  
