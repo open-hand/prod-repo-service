@@ -205,4 +205,13 @@ public interface NexusMessageConstants {
 	 * 当前项目，启用的nexus服务，未开启匿名访问控制。不能设置为：不允许匿名访问。(请在自定义nexus服务中查看)
 	 */
 	String NEXUS_ENABLE_ANONYMOUS_FLAG_IS_NO_NOT_SET = "error.nexus.enable.anonymous.flag.is.no.not.set";
+	/**
+	 * 仓库是只读的，不允许删除包
+	 */
+	String NEXUS_REPO_IS_READ_ONLY_NOT_DELETE = "error.nexus.repo.is.rea.only.not.delete";
+
+	/**
+	 * 仓库是只读的，不允许删除包
+	 */
+	String NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD = "error.nexus.repo.is.rea.only.not.upload";
 }

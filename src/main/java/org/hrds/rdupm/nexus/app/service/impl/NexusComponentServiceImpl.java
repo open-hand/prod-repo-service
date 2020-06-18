@@ -245,7 +245,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		if (serverRepository.getType().equals(NexusApiConstants.RepositoryType.GROUP)) {
 			throw new CommonException(NexusMessageConstants.NEXUS_GROUP_NOT_DELETE_COMPONENT);
 		}
-
+		if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_DELETE);
+		}
 
 		if (CollectionUtils.isNotEmpty(componentIds)) {
 			NexusComponentDeleteParam deleteParam = new NexusComponentDeleteParam();
@@ -265,6 +267,14 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 		// 设置并返回当前nexus服务信息
 		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+
+		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+		if (serverRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
+		}
 
 		try (
 				InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
@@ -303,6 +313,16 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 		NexusRepository nexusRepository = this.validateAuth(projectId, repositoryId);
 		// 设置并返回当前nexus服务信息
 		configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+
+
+		NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+		if (serverRepository == null) {
+			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+		if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
+			throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
+		}
+
 		try (
 				InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
 		) {
