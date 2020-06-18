@@ -29,7 +29,7 @@ export const useOpenModal = ({
   }));
 
   const validateStore = useLocalStore(() => ({
-    isValidate: false,
+    isValidate: undefined,
     setIsValidate(value) {
       validateStore.isValidate = value;
     },

@@ -182,7 +182,7 @@ const RepoList = ({ setActiveRepository }) => {
   };
 
   const validateStore = useLocalStore(() => ({
-    isValidate: false,
+    isValidate: undefined,
     setIsValidate(value) {
       validateStore.isValidate = value;
     },

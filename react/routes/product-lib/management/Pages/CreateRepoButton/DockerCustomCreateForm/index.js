@@ -64,6 +64,12 @@ const DockerCustomCreateForm = ({ validateStore, dockerCustomCreateDs, formatMes
     });
   }, [dockerCustomCreateDs, modal, createdRepoList]);
 
+  useEffect(() => {
+    modal.handleCancel(() => {
+      validateStore.setIsValidate(undefined);
+    });
+  }, [modal, validateStore]);
+
   const handleSelectProject = useCallback((val, id) => {
     // eslint-disable-next-line
     const index = createdRepoList.findIndex(o => o._id === id)
@@ -140,7 +146,10 @@ const DockerCustomCreateForm = ({ validateStore, dockerCustomCreateDs, formatMes
         }
       </Form>
       <div className="prod-lib-test-connect">
-        测试连接：{validateStore.isValidate ? <span style={{ color: '#00BFA5' }}>成功</span> : <span style={{ color: 'red' }}>失败</span>}
+        测试连接：
+        {validateStore.isValidate === true && <span style={{ color: '#00BFA5' }}>成功</span>}
+        {validateStore.isValidate === false && <span style={{ color: 'red' }}>失败</span>}
+        {validateStore.isValidate === undefined && <span style={{ color: 'red' }}>未测试</span>}
       </div>
     </React.Fragment >
   );

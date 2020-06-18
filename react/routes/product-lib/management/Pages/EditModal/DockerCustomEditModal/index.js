@@ -36,6 +36,7 @@ const DockerCustomEditForm = ({ validateStore, dockerCustomCreateDs, modal, repo
         setLoading(true);
         const res = await axios.get(`/rdupm/v1/${organizationId}/harbor-custom-repos/detail/project/${repositoryId}`);
         setOriginProjectShare(res.projectShare);
+        res.password = undefined;
         dockerCustomCreateDs.create({
           ...res,
         });
@@ -65,6 +66,12 @@ const DockerCustomEditForm = ({ validateStore, dockerCustomCreateDs, modal, repo
     });
   }, [dockerCustomCreateDs, modal]);
 
+  useEffect(() => {
+    modal.handleCancel(() => {
+      validateStore.setIsValidate(undefined);
+    });  
+  }, [modal, validateStore]);
+  
   return (
     <Spin spinning={loading}>
       <Form dataSet={dockerCustomCreateDs} columns={1}>
@@ -84,7 +91,10 @@ const DockerCustomEditForm = ({ validateStore, dockerCustomCreateDs, modal, repo
         </SelectBox>
       </Form>
       <div className="prod-lib-test-connect-edit">
-        测试连接：{validateStore.isValidate ? <span style={{ color: '#00BFA5' }}>成功</span> : <span style={{ color: 'red' }}>失败</span>}
+        测试连接：
+        {validateStore.isValidate === true && <span style={{ color: '#00BFA5' }}>成功</span>}
+        {validateStore.isValidate === false && <span style={{ color: 'red' }}>失败</span>}
+        {validateStore.isValidate === undefined && <span style={{ color: 'red' }}>未测试</span>}
       </div>
     </Spin>
   );
