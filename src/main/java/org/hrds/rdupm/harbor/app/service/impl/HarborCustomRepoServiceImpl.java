@@ -704,15 +704,10 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (CollectionUtils.isEmpty(harborCustomRepoList)) {
             return null;
         }
-        List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
-        if (CollectionUtils.isEmpty(harborRobotList)) {
-            throw new CommonException("error.harbor.robot.not.exist");
-        }
         HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
         harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
         harborCustomRepo.setPublicFlag(Boolean.parseBoolean(harborCustomRepo.getPublicFlag()) ? HarborConstants.FALSE : HarborConstants.TRUE);
-        HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborCustomRepo.getId(),
-                harborCustomRepo.getRepoUrl(), harborCustomRepo.getRepoName(), harborCustomRepo.getPublicFlag(), harborRobotList);
+        HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId,  harborCustomRepo);
         return harborRepoDTO;
     }
 
