@@ -89,8 +89,6 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public ResponseEntity<String> exchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body,boolean adminAccountFlag, Object... pathParam){
-		//String userName = DetailsHelper.getUserDetails().getUsername();
-        String userName = "lfqrlx8pfg";
 		String url = harborInfo.getBaseUrl() + apiEnum.getApiUrl();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
@@ -98,8 +96,9 @@ public class HarborHttpClient {
 		if(adminAccountFlag){
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
+			String userName = DetailsHelper.getUserDetails().getUsername();
 			ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,userName).stream().findFirst().orElse(null);
-			String passwd = prodUser == null ? null : prodUser.getPassword();
+			String passwd = prodUser == null ? null : (prodUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(prodUser.getPassword()) : prodUser.getPassword());
 			buildBasicAuth(userName,passwd);
 		}
 
