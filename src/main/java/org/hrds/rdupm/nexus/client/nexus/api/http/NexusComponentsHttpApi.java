@@ -167,12 +167,12 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 			responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body);
 		} catch (NexusResponseException e) {
 			if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-				String bodyStr = responseEntity.getBody();
+				String bodyStr = e.getMessage();
 				if ( bodyStr != null && bodyStr.contains("Repository does not allow updating assets")) {
 					throw new NexusResponseException(e.getStatusCode(), NexusApiConstants.ErrorMessage.REPO_NOT_UPDATE_ASSET);
 				}
-				throw e;
 			}
+			throw e;
 		}
 	}
 

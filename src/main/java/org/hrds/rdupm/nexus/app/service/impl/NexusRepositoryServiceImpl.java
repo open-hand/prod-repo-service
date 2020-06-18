@@ -36,6 +36,8 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.omg.CORBA.COMM_FAILURE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopProxy<NexusRepositoryService> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(NexusRepositoryServiceImpl.class);
 
 	@Autowired
 	private NexusRepositoryRepository nexusRepositoryRepository;
@@ -903,6 +906,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			try {
 				self().selfRelatedMavenRepo(organizationId, projectId, nexusRepositoryRelatedDTO.getRepoType(), repositoryName, serverConfig);
 			} catch (Exception e) {
+				LOGGER.error("关联仓库失败", e);
 				errorNameList.add(repositoryName);
 			}
 		});
