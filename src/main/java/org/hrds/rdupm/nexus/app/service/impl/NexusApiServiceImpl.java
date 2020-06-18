@@ -10,6 +10,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hzero.core.base.AopProxy;
 import org.hzero.lock.annotation.Lock;
+import org.hzero.lock.annotation.LockKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,8 @@ public class NexusApiServiceImpl implements NexusApiService, AopProxy<NexusApiSe
     private NexusClient nexusClient;
 
     @Override
-    @Lock(keys = {"#nexusUser.userId"})
-    public void updateUser(String neUserId, List<String> addRoles, List<String> deleteRoles) {
+    @Lock()
+    public void updateUser(@LockKey String neUserId, List<String> addRoles, List<String> deleteRoles) {
 
         NexusServerUser existUser = nexusClient.getNexusUserApi().getUsers(neUserId);
         if (existUser != null) {
@@ -61,8 +62,8 @@ public class NexusApiServiceImpl implements NexusApiService, AopProxy<NexusApiSe
     }
 
     @Override
-    @Lock(keys = {"#nexusUser.userId"})
-    public void updateRole(String roleId, List<String> addPrivileges, List<String> deletePrivileges) {
+    @Lock()
+    public void updateRole(@LockKey String roleId, List<String> addPrivileges, List<String> deletePrivileges) {
         NexusServerRole existRole = nexusClient.getNexusRoleApi().getRoleById(roleId);
         if (existRole == null) {
             throw new CommonException("role not found:" + roleId);
