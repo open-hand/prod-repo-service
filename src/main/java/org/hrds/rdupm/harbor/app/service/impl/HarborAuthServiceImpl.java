@@ -25,6 +25,7 @@ import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
+import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.entity.User;
@@ -77,6 +78,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 	@Autowired
 	private ProdUserService prodUserService;
+
+	@Autowired
+	private HarborInfoConfiguration harborInfoConfiguration;
 
 	@Override
 	@OperateLog(operateType = HarborConstants.ASSIGN_AUTH,content = "%s 分配 %s 权限角色为 【%s】,过期日期为【%s】")
@@ -317,10 +321,17 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
 		//数据库插入制品库用户
 		String password = HarborUtil.getPassword();
+		if(loginName.equals(harborInfoConfiguration.getUsername())){
+			password = harborInfoConfiguration.getPassword();
+		}
 		ProdUser prodUser = new ProdUser(userId,loginName,password,0);
 		ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
 		String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
 
+		//若为管理员用户，则不创建
+		if(loginName.equals(harborInfoConfiguration.getUsername())){
+			return;
+		}
 		//判断harbor中是否存在当前用户
 		Map<String,Object> paramMap = new HashMap<>(1);
 		paramMap.put("username",loginName);
