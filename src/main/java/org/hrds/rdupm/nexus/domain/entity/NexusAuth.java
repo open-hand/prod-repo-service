@@ -24,7 +24,6 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.export.annotation.ExcelColumn;
 import org.hzero.export.annotation.ExcelSheet;
 import org.hzero.export.render.ValueRenderer;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -79,7 +78,6 @@ public class NexusAuth extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-    @Encrypt(ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue

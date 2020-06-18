@@ -11,7 +11,6 @@ import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
-import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -129,7 +128,8 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层--权限明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
-    public ResponseEntity<NexusAuth> detail(@Encrypt(NexusAuth.ENCRYPT_KEY) @PathVariable Long authId) {
+    public ResponseEntity<NexusAuth> detail(@PathVariable Long authId) {
+        // TODO
         NexusAuth nexusAuth = nexusAuthRepository.selectByPrimaryKey(authId);
         return Results.success(nexusAuth);
     }
