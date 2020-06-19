@@ -20,9 +20,11 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.api.vo.IamGroupMemberVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
+import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.DevopsProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -62,6 +64,9 @@ public class DevopsSagaHandler {
 	@Resource
 	private TransactionalProducer transactionalProducer;
 
+	@Autowired
+	private HarborQuotaService harborQuotaService;
+
 	/**
 	 * 监听IAM服务，创建项目，然后创建默认仓库
 	 */
@@ -95,6 +100,12 @@ public class DevopsSagaHandler {
 		harborProjectVo.setAutoScanFlag("false");
 		harborProjectVo.setUseSysCveFlag("true");
 		harborProjectVo.setUseProjectCveFlag("false");
+
+		HarborQuotaVo harborQuotaVo = harborQuotaService.getGlobalQuota();
+		harborProjectVo.setCountLimit(harborQuotaVo.getCountLimit());
+		harborProjectVo.setStorageNum(harborQuotaVo.getStorageNum());
+		harborProjectVo.setStorageUnit(harborQuotaVo.getStorageUnit());
+
 		createHarborProject(harborProjectVo);
 		return payload;
 	}
