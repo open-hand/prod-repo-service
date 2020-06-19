@@ -60,16 +60,26 @@ const LibList = () => {
         columns={9}
         className="product-lib-org-management-lib-list-filter-form"
       >
-        <Select name="repositoryName" onChange={refresh} colSpan={2} />
+        <Select
+          name="repositoryName"
+          onChange={refresh}
+          colSpan={2}
+          searchable
+          clearButton
+        />
         <Select
           name="projectId"
           onChange={refresh}
           colSpan={2}
+          searchable
+          clearButton
         />
         <Select
           name="type"
           onChange={refresh}
           colSpan={2}
+          searchable
+          clearButton
         />
         {/* eslint-disable-next-line */}
         <div colSpan={3} style={{ width: '0.46rem', float: 'right' }}>
@@ -132,9 +142,9 @@ const LibList = () => {
       <ul>
         {
           listData.map(item => {
-            const { repositoryId, name, projectName, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type } = item;
+            const { repositoryId, neRepositoryName, projectName, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type } = item;
             return (
-              <li key={repositoryId + name}>
+              <li key={repositoryId + neRepositoryName}>
                 <div className="product-lib-org-management-lib-list-list-card">
                   <Row className="product-lib-org-management-lib-list-list-card-header">
                     <Col span={9} className="product-lib-org-management-lib-list-list-card-header-icon">
@@ -143,7 +153,7 @@ const LibList = () => {
                         className="product-lib-org-management-lib-list-list-card-header-title"
                         onClick={() => handleToPackage(item.repositoryId)}
                       >
-                        {name}
+                        {neRepositoryName}
                       </span>
                     </Col>
                     <Col span={12} className="product-lib-org-management-lib-list-list-card-header-project">

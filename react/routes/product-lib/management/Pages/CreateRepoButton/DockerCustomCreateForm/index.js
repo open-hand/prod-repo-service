@@ -6,7 +6,7 @@
 */
 import React, { useEffect, useCallback } from 'react';
 import { Form, TextField, Select, Button, Password, SelectBox } from 'choerodon-ui/pro';
-import { message } from 'choerodon-ui';
+// import { message } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
 import uuidv4 from 'uuid/v4';
@@ -44,12 +44,14 @@ const DockerCustomCreateForm = ({ validateStore, dockerCustomCreateDs, formatMes
           const submitData = dockerCustomCreateDs.current.toData();
           if (submitData.projectShare === 'false') {
             const appServiceIds = createdRepoList.map(o => o.id).filter(Boolean);
-            if (appServiceIds.length === 0) {
-              // eslint-disable-next-line
-              message.error(formatMessage({ id: `${intlPrefix}.view.chooseAppService`, defaultMessage: '请选择应用服务' }));
-              return false;
+            // if (appServiceIds.length === 0) {
+            //   // eslint-disable-next-line
+            //   message.error(formatMessage({ id: `${intlPrefix}.view.chooseAppService`, defaultMessage: '请选择应用服务' }));
+            //   return false;
+            // }
+            if (appServiceIds.length !== 0) {
+              submitData.appServiceIds = appServiceIds;
             }
-            submitData.appServiceIds = appServiceIds;
           }
 
           await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/create/${projectId}`, submitData);
@@ -63,6 +65,12 @@ const DockerCustomCreateForm = ({ validateStore, dockerCustomCreateDs, formatMes
       return false;
     });
   }, [dockerCustomCreateDs, modal, createdRepoList]);
+
+  useEffect(() => {
+    modal.handleCancel(() => {
+      validateStore.setIsValidate(undefined);
+    });
+  }, [modal, validateStore]);
 
   const handleSelectProject = useCallback((val, id) => {
     // eslint-disable-next-line
@@ -140,7 +148,10 @@ const DockerCustomCreateForm = ({ validateStore, dockerCustomCreateDs, formatMes
         }
       </Form>
       <div className="prod-lib-test-connect">
-        测试连接：{validateStore.isValidate ? <span style={{ color: '#00BFA5' }}>成功</span> : <span style={{ color: 'red' }}>失败</span>}
+        测试连接：
+        {validateStore.isValidate === true && <span style={{ color: '#00BFA5' }}>成功</span>}
+        {validateStore.isValidate === false && <span style={{ color: 'red' }}>失败</span>}
+        {validateStore.isValidate === undefined && <span style={{ color: 'red' }}>未测试</span>}
       </div>
     </React.Fragment >
   );

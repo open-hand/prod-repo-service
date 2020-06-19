@@ -45,6 +45,8 @@ export default observer(() => {
         <Select
           name="storageUnit"
           colSpan={2}
+          searchable
+          clearButton
         />
       </Form>
     </Spin>

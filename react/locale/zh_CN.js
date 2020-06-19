@@ -220,6 +220,7 @@ const infraCommon = {
   'infra.permission': '权限',
 };
 const prodManagement = {
+  'infra.service': '应用服务',
   'infra.docManage.message.exportSuccess': '导出成功',
   'infra.docManage.message.exportConfirm': '权限导出确认',
   'infra.docManage.message.confirm.export': '确定导出',

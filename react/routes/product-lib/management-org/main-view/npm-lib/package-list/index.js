@@ -81,7 +81,13 @@ const MirrorList = () => {
         columns={9}
         className="product-lib-org-management-package-list-filter-form"
       >
-        <Select name="repositoryId" onChange={handleSearch} colSpan={2} />
+        <Select
+          name="repositoryId"
+          onChange={handleSearch}
+          colSpan={2}
+          searchable
+          clearButton
+        />
         <TextField name="name" onChange={handleSearch} colSpan={2} />
         <div colSpan={5} style={{ width: '0.46rem', float: 'right' }}>
           <Button funcType="raised" type="reset" className="product-lib-org-management-package-list-filter-form-btn">

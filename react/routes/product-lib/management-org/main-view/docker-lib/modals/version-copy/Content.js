@@ -33,7 +33,11 @@ export default observer(() => {
   return (
     <div>
       <Form dataSet={copyFormDs}>
-        <Select name="destProjectCode" />
+        <Select
+          name="destProjectCode"
+          searchable
+          clearButton
+        />
         <TextField name="destImageName" />
         <TextField name="destImageTagName" />
       </Form>

@@ -8,10 +8,10 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Stores, Select, TextField } from 'choerodon-ui/pro';
 import { DatePicker, Radio } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
-import { isEmpty } from 'lodash';
-import { Content } from '@choerodon/boot';
-import Empty from '@/components/empty';
-import empty from '@/assets/empty.png';
+// import { isEmpty } from 'lodash';
+// import { Content } from '@choerodon/boot';
+// import Empty from '@/components/empty';
+// import empty from '@/assets/empty.png';
 import './log.less';
 import { useDockerStore } from '../stores';
 import { useProdStore } from '../../../stores';
@@ -31,11 +31,11 @@ const ListView = observer(() => {
     dockerStore,
     logListDs,
   } = useDockerStore();
-  const { getTabKey, setOpeLoading, getLoading, getLoadMoreBtn, setLogTabKey, getLogTabKey } = dockerStore;
+  const { getTabKey, setOpeLoading, getLoadMoreBtn, setLogTabKey, getLogTabKey } = dockerStore;
 
   const [opEventTypeLookupData, setOpEventTypeLookupData] = useState([]);
   const [opMirrorLibLookupData, setOpMirrorLibLookupData] = useState([]);
-  const [searchParamFlag, setFlag] = useState(false);
+  // const [searchParamFlag, setFlag] = useState(false);
   const [defaultMirror, setDefaultMirror] = useState(undefined);
 
   const handleTabChange = useCallback((e) => {
@@ -102,7 +102,7 @@ const ListView = observer(() => {
       }
       logListDs.setQueryParameter(o[0], o[1]);
     });
-    setFlag(isEmpty(logListDs.queryParameter));
+    // setFlag(isEmpty(logListDs.queryParameter));
     loadData();
   };
 
@@ -125,7 +125,14 @@ const ListView = observer(() => {
       <div className="product-lib-org-management-log-search">
         {getLogTabKey === 'ImgLog' && (
           <React.Fragment>
-            <Select clearButton={false} value={defaultMirror} placeholder={formatMessage({ id: 'infra.prod.lib.view.mirrorLib' })} onChange={(value) => handleSearch({ projectCode: value })} style={{ marginRight: '0.12rem', width: '3.35rem' }}>
+            <Select
+              searchable
+              clearButton
+              value={defaultMirror}
+              placeholder={formatMessage({ id: 'infra.prod.lib.view.mirrorLib' })}
+              onChange={(value) => handleSearch({ projectCode: value })}
+              style={{ marginRight: '0.12rem', width: '3.35rem' }}
+            >
               {
                 (opMirrorLibLookupData || []).map(o => (
                   <Option key={o.value} value={o.value}>
@@ -139,7 +146,13 @@ const ListView = observer(() => {
               onChange={(_, dateString) => handleSearch({ startDate: dateString[0] ? `${dateString[0]} 00:00:00` : undefined, endDate: dateString[1] ? `${dateString[1]} 23:59:59` : undefined })}
               style={{ width: '2.46rem' }}
             />
-            <Select placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })} onChange={(value) => handleSearch({ operateType: value })} style={{ marginLeft: '0.12rem', width: '2.2rem' }}>
+            <Select
+              searchable
+              clearButton
+              placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })}
+              onChange={(value) => handleSearch({ operateType: value })}
+              style={{ marginLeft: '0.12rem', width: '2.2rem' }}
+            >
               {
                 (opEventTypeLookupData || []).map(o => (
                   <Option key={o.value} value={o.value}>{o.meaning}</Option>
@@ -155,7 +168,13 @@ const ListView = observer(() => {
               onChange={(_, dateString) => handleSearch({ startDate: dateString[0] ? `${dateString[0]} 00:00:00` : undefined, endDate: dateString[1] ? `${dateString[1]} 23:59:59` : undefined })}
               style={{ width: '2.46rem' }}
             />
-            <Select placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })} onChange={(value) => handleSearch({ operateType: value })} style={{ marginLeft: '0.12rem', width: '2.2rem' }}>
+            <Select
+              searchable
+              clearButton
+              placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })}
+              onChange={(value) => handleSearch({ operateType: value })}
+              style={{ marginLeft: '0.12rem', width: '2.2rem' }}
+            >
               {
                 (opEventTypeLookupData || []).map(o => (
                   <Option key={o.value} value={o.value}>{o.meaning}</Option>
@@ -169,21 +188,22 @@ const ListView = observer(() => {
   );
 
   return (
-    logListDs.totalCount === 0 && searchParamFlag ? (
-      <Content>
-        <Empty
-          loading={getLoading}
-          pic={empty}
-          title=""
-          description={formatMessage({ id: 'infra.docManage.message.noOperationLog' })}
-        />
-      </Content>
-    ) :
-      (
-        <div className="product-lib-org-management-log-page" >
-          {renderHeaderTool()}
-          <TimeLine {...timeLineProps} />
-        </div >)
+    // logListDs.totalCount === 0 && searchParamFlag ? (
+    //   <Content>
+    //     <Empty
+    //       loading={getLoading}
+    //       pic={empty}
+    //       title=""
+    //       description={formatMessage({ id: 'infra.docManage.message.noOperationLog' })}
+    //     />
+    //   </Content>
+    // ) :
+    //   (
+    <div className="product-lib-org-management-log-page" >
+      {renderHeaderTool()}
+      <TimeLine {...timeLineProps} />
+    </div >
+    // )
   );
 });
 

@@ -29,7 +29,7 @@ export const useOpenModal = ({
   }));
 
   const validateStore = useLocalStore(() => ({
-    isValidate: false,
+    isValidate: undefined,
     setIsValidate(value) {
       validateStore.isValidate = value;
     },
@@ -39,8 +39,12 @@ export const useOpenModal = ({
     const { currentMenuType: { organizationId } } = stores.AppState;
     const validate = await dockerCustomCreateDs.current.validate();
     if (validate) {
-      const res = await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/check/custom-repo`, dockerCustomCreateDs.current.toData());
-      validateStore.setIsValidate(res);
+      try {
+        const res = await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/check/custom-repo`, dockerCustomCreateDs.current.toData());
+        validateStore.setIsValidate(res);
+      } catch (e) {
+        validateStore.setIsValidate(false);
+      }
     }
   };
 
@@ -81,6 +85,11 @@ export const useOpenModal = ({
       drawer: true,
       className: 'product-lib-create-model',
       children: <CreateRepoModal {...createRepoModalProps} />,
+      onCancel: () => {
+        testBtnStore.setIsShow(false);
+        validateStore.setIsValidate(false);
+        return true;
+      },
       footer: (okBtn, cancelBtn) => (
         <Observer>
           {() => (

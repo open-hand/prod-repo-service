@@ -146,7 +146,15 @@ const MirrorList = () => {
         columns={9}
         className="product-lib-org-management-mirror-list-filter-form"
       >
-        <Select name="code" onChange={handleSearch} optionRenderer={optionRenderer} renderer={renderer} colSpan={2} />
+        <Select
+          name="code"
+          onChange={handleSearch}
+          optionRenderer={optionRenderer}
+          renderer={renderer}
+          colSpan={2}
+          searchable
+          clearButton
+        />
         <TextField name="imageName" onChange={handleSearch} colSpan={2} />
         <div colSpan={5} style={{ width: '0.46rem', float: 'right' }}>
           <Button funcType="raised" type="reset" className="product-lib-org-management-mirror-list-filter-form-btn" >

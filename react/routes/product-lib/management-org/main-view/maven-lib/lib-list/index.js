@@ -101,8 +101,20 @@ const MirrorLib = () => {
         className="product-lib-org-management-lib-list-filter-form"
       >
         <TextField name="repositoryName" onChange={handleSearch} colSpan={2} />
-        <Select name="type" onChange={handleSearch} colSpan={2} />
-        <Select name="versionPolicy" onChange={handleSearch} colSpan={2} />
+        <Select
+          name="type"
+          onChange={handleSearch}
+          colSpan={2}
+          searchable
+          clearButton
+        />
+        <Select
+          name="versionPolicy"
+          onChange={handleSearch}
+          colSpan={2}
+          searchable
+          clearButton
+        />
         <div colSpan={3} style={{ width: '0.46rem', float: 'right' }}>
           <Button funcType="raised" type="reset" className="product-lib-org-management-lib-list-filter-form-btn">
             {formatMessage({ id: 'reset' })}
