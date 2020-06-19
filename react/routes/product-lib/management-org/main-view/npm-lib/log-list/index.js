@@ -87,7 +87,13 @@ const ListView = observer(() => {
           onChange={(_, dateString) => handleSearch({ startDate: dateString[0] ? `${dateString[0]} 00:00:00` : undefined, endDate: dateString[1] ? `${dateString[1]} 23:59:59` : undefined })}
           style={{ width: '2.46rem' }}
         />
-        <Select placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })} onChange={(value) => handleSearch({ operateType: value })} style={{ marginLeft: '0.12rem', width: '2.2rem' }}>
+        <Select
+          searchable
+          clearButton
+          placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })}
+          onChange={(value) => handleSearch({ operateType: value })}
+          style={{ marginLeft: '0.12rem', width: '2.2rem' }}
+        >
           {
             (opEventTypeLookupData || []).map(o => (
               <Option key={o.value} value={o.value}>{o.meaning}</Option>

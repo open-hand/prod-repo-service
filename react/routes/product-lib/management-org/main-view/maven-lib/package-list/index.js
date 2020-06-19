@@ -47,7 +47,12 @@ const PackageList = () => {
       style={{ display: 'flex', alignItems: 'center' }}
     >
       <Form dataSet={queryDataSet} columns={4} className="product-lib-org-nexusComponent-queryform">
-        <Select name="repositoryId" onChange={handleSearch} />
+        <Select
+          name="repositoryId"
+          onChange={handleSearch}
+          searchable
+          clearButton
+        />
         <TextField name="version" onChange={handleSearch} />
         <TextField name="group" onChange={handleSearch} />
         <TextField name="name" onChange={handleSearch} />

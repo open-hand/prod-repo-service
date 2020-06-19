@@ -135,13 +135,21 @@ const MirrorLib = () => {
         className="product-lib-org-management-mirror-lib-filter-form"
       >
         <Select
+          searchable
+          clearButton
           name="code"
           onChange={refresh}
           optionRenderer={optionRenderer}
           renderer={renderer}
           colSpan={2}
         />
-        <Select name="publicFlag" onChange={refresh} colSpan={2}>
+        <Select
+          name="publicFlag"
+          onChange={refresh}
+          colSpan={2}
+          searchable
+          clearButton
+        >
           <Option value="true">公开</Option>
           <Option value="false">不公开</Option>
         </Select>
