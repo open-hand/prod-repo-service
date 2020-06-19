@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
-import { Form, TextField, Select, Password, SelectBox } from 'choerodon-ui/pro';
+import {
+  Form,
+  TextField,
+  Select,
+  Password,
+  SelectBox,
+  Modal,
+} from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
+import AnonymousModal from './AnonymousModal';
 import './index.less';
 
 // const intlPrefix = 'infra.prod.lib';
@@ -33,6 +41,20 @@ const CreateModal = ({ createDs, formatMessage, modal, init }) => {
     });
   }, [createDs, modal]);
 
+  const openSubCreateModal = React.useCallback(() => {
+    const key = Modal.key();
+    Modal.open({
+      key,
+      title: '匿名访问控制说明',
+      maskClosable: false,
+      destroyOnClose: true,
+      drawer: true,
+      className: 'product-lib-create-model',
+      okCancel: false,
+      children: <AnonymousModal />,
+    });
+  }, []);
+
   return (
     <React.Fragment>
       <Form dataSet={createDs} columns={1}>
@@ -40,10 +62,17 @@ const CreateModal = ({ createDs, formatMessage, modal, init }) => {
         <TextField name="serverUrl" />
         <TextField name="userName" />
         <Password name="password" />
-        <SelectBox name="enableAnonymousFlag" className="prod-lib-create-custom-nexus-selectbox">
+        <SelectBox
+          name="enableAnonymousFlag" 
+          className="prod-lib-create-custom-nexus-selectbox"
+        >
           <Option value={1}>{formatMessage({ id: 'yes' })}</Option>
           <Option value={0}>{formatMessage({ id: 'no' })}</Option>
+          
         </SelectBox>
+      </Form>
+      <a className="prod-lib-custom-nexus-info-enableAnonymousFlag" onClick={openSubCreateModal}>查看匿名访问控制说明</a>
+      <Form dataSet={createDs} columns={1}>
         {createDs.current && createDs.current.get('enableAnonymousFlag') === 1 &&
           [
             <TextField key="anonymous" name="anonymous" />,
