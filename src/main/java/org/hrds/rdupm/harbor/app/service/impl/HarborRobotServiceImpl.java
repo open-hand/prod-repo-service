@@ -181,7 +181,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             for (HarborRobot robot:harborRobotList
             ) {
                 robot.setHarborProjectId(repositoryList.get(0).getHarborId());
-                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,adminFlag, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
+                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,true, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
                 HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
                 checkRobotInfo(robot, harborRobotVO);
             }
@@ -196,7 +196,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         //删除原机器人账户
         if (robot.getHarborRobotId()!= null) {
             Boolean adminFlag = DetailsHelper.getUserDetails().getUsername().equals("ANONYMOUS");
-            ResponseEntity<String> deleteRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ROBOT,null,null,adminFlag, robot.getHarborProjectId(), robot.getHarborRobotId());
+            ResponseEntity<String> deleteRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ROBOT,null,null,true, robot.getHarborProjectId(), robot.getHarborRobotId());
             if (deleteRobotResponseEntity.getStatusCode().is2xxSuccessful()) {
                 //生成新账户
                 String robotResource = String.format(HarborConstants.HarborRobot.ROBOT_RESOURCE, robot.getHarborProjectId());
@@ -204,7 +204,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
                 accessVOList.add(new HarborRobotAccessVO(robot.getAction(), robotResource));
                 String robotName = robot.getName().replace(HarborConstants.HarborRobot.ROBOT_NAME_PREFIX, "");
                 HarborRobotVO createRobotVo  = new HarborRobotVO(robotName, robot.getDescription(), accessVOList);
-                ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT,null,createRobotVo,adminFlag, robot.getHarborProjectId());
+                ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT,null,createRobotVo,true, robot.getHarborProjectId());
                 HarborRobotVO newRobotVO = new Gson().fromJson(robotResponseEntity.getBody(), HarborRobotVO.class);
                 AssertUtils.notNull(newRobotVO.getToken(),"the robot response token empty");
                 AssertUtils.notNull(newRobotVO.getName(),"the robot response name empty");
@@ -212,7 +212,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
                 robot.setToken(newRobotVO.getToken());
 
                 //查找所有harbor
-                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_ALL_ROBOTS,null,null,adminFlag,robot.getHarborProjectId());
+                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_ALL_ROBOTS,null,null,true,robot.getHarborProjectId());
                 List<HarborRobotVO> allRobotVOList = new ArrayList<>();
                 if ( null != allRobotResponseEntity && StringUtils.isNotBlank(allRobotResponseEntity.getBody())) {
                     allRobotVOList = new Gson().fromJson(allRobotResponseEntity.getBody(),new TypeToken<List<HarborRobotVO>>(){}.getType());
