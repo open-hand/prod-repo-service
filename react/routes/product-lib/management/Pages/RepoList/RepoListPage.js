@@ -201,8 +201,12 @@ const RepoList = ({ setActiveRepository }) => {
     const { currentMenuType: { organizationId } } = stores.AppState;
     const validate = await dockerCustomCreateDs.current.validate();
     if (validate) {
-      const res = await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/check/custom-repo`, dockerCustomCreateDs.current.toData());
-      validateStore.setIsValidate(res);
+      try {
+        const res = await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/check/custom-repo`, dockerCustomCreateDs.current.toData());
+        validateStore.setIsValidate(res);
+      } catch (e) {
+        validateStore.setIsValidate(false);  
+      }
     }
   };
 
