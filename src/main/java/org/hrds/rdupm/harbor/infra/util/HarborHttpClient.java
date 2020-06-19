@@ -149,6 +149,12 @@ public class HarborHttpClient {
 			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 		} catch (HttpClientErrorException e) {
 			e.printStackTrace();
+			int statusCode = e.getStatusCode().value();
+			switch (statusCode){
+				case 401: throw new CommonException("error.harbor.custom.repo.current.user");
+				case 500: throw new CommonException("error.harbor.custom.repo.url");
+				default: break;
+			}
 			handleStatusCode(apiEnum,e);
 		}finally {
 			LOGGER.debug("api：{}",apiEnum);
