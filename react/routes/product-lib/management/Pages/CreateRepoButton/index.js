@@ -85,6 +85,11 @@ export const useOpenModal = ({
       drawer: true,
       className: 'product-lib-create-model',
       children: <CreateRepoModal {...createRepoModalProps} />,
+      onCancel: () => {
+        testBtnStore.setIsShow(false);
+        validateStore.setIsValidate(false);
+        return true;
+      },
       footer: (okBtn, cancelBtn) => (
         <Observer>
           {() => (

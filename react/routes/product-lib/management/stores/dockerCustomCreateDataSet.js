@@ -1,3 +1,5 @@
+import { validateUrl } from '@/utils';
+
 export default ((intlPrefix, formatMessage) => ({
   autoQuery: false,
   selection: false,
@@ -14,7 +16,7 @@ export default ((intlPrefix, formatMessage) => ({
       name: 'repoUrl',
       type: 'string',
       required: true,
-      pattern: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
+      validator: (value) => validateUrl(value),
       label: formatMessage({ id: `${intlPrefix}.model.repoUrl`, defaultMessage: '仓库地址' }),
     },
     {
