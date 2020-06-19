@@ -165,6 +165,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             List<AppServiceDTO> appServiceDTOS = responseEntity.getBody().getContent();
             List<HarborRepoService> relatedAppService = harborRepoServiceRepository.select(HarborRepoService.FIELD_PROJECT_ID, projectId);
             if (CollectionUtils.isNotEmpty(relatedAppService)) {
+                //去除未启用的自定义仓库的关联关系
+                relatedAppService = filterDisableCustomRepo(relatedAppService);
                 Set<Long> relatedAppServiceIds = relatedAppService.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
                 appServiceDTOS = appServiceDTOS.stream().filter(appServiceDTO -> !relatedAppServiceIds.contains(appServiceDTO.getId())).collect(Collectors.toList());
             }
@@ -372,6 +374,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         }
         if (CollectionUtils.isNotEmpty(harborRepoServices)){
             //去除已经关联应用服务
+            harborRepoServices = filterDisableCustomRepo(harborRepoServices);
             Set<Long> ids = harborRepoServices.stream().map(HarborRepoService::getAppServiceId).collect(Collectors.toSet());
             allAppServices = allAppServices.stream().filter(appServiceDTO -> !ids.contains(appServiceDTO.getId())).collect(Collectors.toList());
         }
@@ -706,4 +709,18 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         return harborRepoDTO;
     }
 
+    private List<HarborRepoService> filterDisableCustomRepo(List<HarborRepoService> repoServiceList) {
+        //去除未启用的自定义仓库的关联关系
+        Set<Long> customRepoServiceIds = repoServiceList.stream().map(HarborRepoService::getCustomRepoId).collect(Collectors.toSet());
+        List<HarborCustomRepo> disableHarborCustomRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+                .andWhere(Sqls.custom()
+                        .andIn(HarborCustomRepo.FIELD_ID, customRepoServiceIds)
+                        .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.N))
+                .build());
+        if (CollectionUtils.isNotEmpty(disableHarborCustomRepoList)) {
+            Set<Long> disableCustomRepoServiceIds = disableHarborCustomRepoList.stream().map(HarborCustomRepo::getId).collect(Collectors.toSet());
+            repoServiceList = repoServiceList.stream().filter(harborRepoService -> !disableCustomRepoServiceIds.contains(harborRepoService.getCustomRepoId())).collect(Collectors.toList());
+        }
+        return repoServiceList;
+    }
 }
