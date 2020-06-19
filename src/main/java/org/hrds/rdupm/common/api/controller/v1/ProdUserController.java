@@ -1,5 +1,7 @@
 package org.hrds.rdupm.common.api.controller.v1;
 
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
@@ -43,9 +45,12 @@ public class ProdUserController extends BaseController {
 	private HarborAuthRepository harborAuthRepository;
 
     @ApiOperation(value = "个人层--查询制品库用户信息")
-	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{userId}")
     public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
+    	if(!userId.equals(DetailsHelper.getUserDetails().getUserId())){
+    		throw new CommonException("error.user.not.current.user");
+		}
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId).stream().findFirst().orElse(null);
         if(prodUser != null && prodUser.getPwdUpdateFlag().intValue()==1){
         	prodUser.setPassword(null);
@@ -54,7 +59,7 @@ public class ProdUserController extends BaseController {
     }
 
 	@ApiOperation(value = "个人层--修改制品库用户默认密码")
-	@Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping("/updatePwd")
 	public ResponseEntity<ProdUser> updatePwd(@RequestBody @ApiParam("必输字段用户IDuserId、旧密码oldPassword、新密码password、确认密码rePassword") ProdUser prodUser) {
 		prodUserService.updatePwd(prodUser);

@@ -72,7 +72,7 @@ public class HarborChoerodonRepoController extends BaseController {
     }
 
     @ApiOperation(value = "根据Harbor仓库ID查询仓库配置")
-    @Permission(level = ResourceLevel.ORGANIZATION,permissionPublic = true)
+    @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/project/{projectId}/harbor_config_by_id")
     public ResponseEntity<HarborRepoDTO> queryHarborRepoConfigById(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                                    @ApiParam(value = "仓库ID",required = false) @RequestParam(required = false) Long repoId,

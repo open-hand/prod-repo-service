@@ -11,6 +11,7 @@ import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,6 +81,9 @@ public class ProdUserServiceImpl implements ProdUserService {
 	@Saga(code = HarborConstants.HarborSagaCode.UPDATE_PWD,description = "更新密码",inputSchemaClass = ProdUser.class)
 	public void updatePwd(ProdUser dto) {
 		checkPwd(dto);
+		if(!dto.getUserId().equals(DetailsHelper.getUserDetails().getUserId())){
+			throw new CommonException("error.user.not.current.user");
+		}
 		ProdUser existUser = prodUserRepository.select(ProdUser.FIELD_USER_ID,dto.getUserId()).stream().findFirst().orElse(null);
 		if(existUser == null){
 			throw new CommonException("error.user.not.exist");
