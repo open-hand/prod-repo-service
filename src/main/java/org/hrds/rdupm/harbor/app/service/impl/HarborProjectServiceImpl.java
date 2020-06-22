@@ -327,7 +327,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		}
 
 		AssertUtils.notNull(harborProjectVo.getStorageUnit(),"error.harbor.project.StorageUnit.empty");
-		HarborUtil.notIn(harborProjectVo.getStorageUnit(),"存储容量单位","error.harbor.project.StorageUnit.value.not.in",HarborConstants.KB,HarborConstants.MB,HarborConstants.GB,HarborConstants.TB);
+		HarborUtil.notIn(harborProjectVo.getStorageUnit(),"存储容量单位","error.harbor.project.StorageUnit.value.not.in",HarborConstants.B,HarborConstants.KB,HarborConstants.MB,HarborConstants.GB,HarborConstants.TB);
 		HarborUtil.notIn(harborProjectVo.getPublicFlag(),"访问级别","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
 		HarborUtil.notIn(harborProjectVo.getContentTrustFlag(),"内容信任","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);
 		HarborUtil.notIn(harborProjectVo.getPreventVulnerableFlag(),"阻止潜在漏洞","error.harbor.project.flag.value.not.in",HarborConstants.TRUE,HarborConstants.FALSE);

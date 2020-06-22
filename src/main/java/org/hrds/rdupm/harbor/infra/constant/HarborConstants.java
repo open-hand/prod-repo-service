@@ -18,6 +18,8 @@ public interface HarborConstants {
 
 	String FALSE = "false";
 
+	String B = "B";
+
 	String KB = "KB";
 
 	String MB = "MB";

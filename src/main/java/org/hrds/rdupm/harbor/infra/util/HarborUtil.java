@@ -28,6 +28,8 @@ public class HarborUtil {
 			return storageLimit;
 		}
 		switch (storageUnit){
+			case HarborConstants.B: storageLimit = new BigDecimal(storageNum).longValue();break;
+			case HarborConstants.KB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(1))).longValue();break;
 			case HarborConstants.MB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(2))).longValue();break;
 			case HarborConstants.GB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(3))).longValue();break;
 			case HarborConstants.TB: storageLimit = new BigDecimal(storageNum).multiply((new BigDecimal(1024).pow(4))).longValue();break;
