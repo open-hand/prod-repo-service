@@ -25,7 +25,7 @@ public class NexusDefaultInitTask {
     private NexusInitService nexusInitService;
 
     @JobTask(maxRetryCount = 3, code = "nexusDefaultServiceInit", description = "Nexus默认服务初始化")
-    @TimedTask(name = "nexusDefaultServiceInit", description = "Harbor-关联默认仓库",
+    @TimedTask(name = "nexusDefaultServiceInit", description = "Nexus默认服务初始化",
             oneExecution = true, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
             params = {})
     public void nexusDefaultInit(Map<String, Object> map) {
