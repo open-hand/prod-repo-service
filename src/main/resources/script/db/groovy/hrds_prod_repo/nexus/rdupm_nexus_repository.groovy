@@ -38,7 +38,5 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_repository.groovy') {
    createIndex(tableName: "rdupm_nexus_repository", indexName: "ne_repository_name_N3") {
             column(name: "repo_type")
         }
-
-        addUniqueConstraint(columnNames:"ne_repository_name",tableName:"rdupm_nexus_repository",constraintName: "ne_repository_name")
     }
 }
