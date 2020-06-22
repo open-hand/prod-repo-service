@@ -1,6 +1,8 @@
 package org.hrds.rdupm.init.service;
 
+import io.choerodon.asgard.schedule.QuartzDefinition;
 import io.choerodon.asgard.schedule.annotation.JobTask;
+import io.choerodon.asgard.schedule.annotation.TimedTask;
 import org.hrds.rdupm.nexus.app.service.NexusInitService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,9 @@ public class NexusDefaultInitTask {
     private NexusInitService nexusInitService;
 
     @JobTask(maxRetryCount = 3, code = "nexusDefaultServiceInit", description = "Nexus默认服务初始化")
+    @TimedTask(name = "nexusDefaultServiceInit", description = "Harbor-关联默认仓库",
+            oneExecution = true, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
+            params = {})
     public void nexusDefaultInit(Map<String, Object> map) {
         logger.info("Nexus默认服务初始化，定时任务开始执行");
         nexusInitService.initScript();
