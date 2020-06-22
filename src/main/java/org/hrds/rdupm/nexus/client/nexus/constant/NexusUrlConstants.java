@@ -5,6 +5,16 @@ package org.hrds.rdupm.nexus.client.nexus.constant;
  */
 public interface NexusUrlConstants {
 
+
+	interface  Nexus {
+		String NEXUS_VERSION = "/swagger.json";
+
+		String NEXUS_VERSION_BASIC = "3.21.0";
+		String NEXUS_VERSION_INFO = "info";
+		String NEXUS_VERSION_INFO_VERSION = "version";
+
+	}
+
 	/**
 	 * 仓库相关API
 	 */

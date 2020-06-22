@@ -214,4 +214,9 @@ public interface NexusMessageConstants {
 	 * 仓库是只读的，不允许删除包
 	 */
 	String NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD = "error.nexus.repo.is.rea.only.not.upload";
+
+	/**
+	 * 仓库是只读的，不允许删除包
+	 */
+	String NEXUS_SERVER_VERSION_ERROR = "error.nexus.server.version";
 }
