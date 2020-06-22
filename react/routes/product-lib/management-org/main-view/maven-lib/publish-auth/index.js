@@ -1,5 +1,5 @@
 /**
-* 制品库发布权限
+* 制品库用户权限
 * @author LZY <zhuyan.luo@hand-china.com>
 * @creationDate 2020/4/7
 * @copyright 2020 ® HAND

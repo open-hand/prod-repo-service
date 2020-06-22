@@ -64,7 +64,7 @@ const MavenContent = observer(() => {
           </TabPane>
           <TabPane
             key={AUTH_TAB}
-            tab={formatMessage({ id: `${intlPrefix}.view.publishAuth`, defaultMessage: '发布权限' })}
+            tab={formatMessage({ id: `${intlPrefix}.view.userAuth`, defaultMessage: '用户权限' })}
           >
             <Suspense fallback={<Spin />}>
               <PublishAuth />
