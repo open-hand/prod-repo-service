@@ -37,16 +37,18 @@ const NexusAssociateModal = ({ formatMessage }) => {
   }, []);
 
   const openSubEditModal = React.useCallback((data) => {
-    const key = Modal.key();
-    Modal.open({
-      key,
-      title: '更新自定义nexus服务信息',
-      maskClosable: false,
-      destroyOnClose: true,
-      drawer: true,
-      className: 'product-lib-create-model',
-      children: <EditModal createDs={createDs} formatMessage={formatMessage} init={fetchList} data={data} />,
-    });
+    if (data.defaultFlag !== 1) {
+      const key = Modal.key();
+      Modal.open({
+        key,
+        title: '更新自定义nexus服务信息',
+        maskClosable: false,
+        destroyOnClose: true,
+        drawer: true,
+        className: 'product-lib-create-model',
+        children: <EditModal createDs={createDs} formatMessage={formatMessage} init={fetchList} data={data} />,
+      });
+    }
   }, []);
 
   const enableNexusSvc = React.useCallback(async (data) => {
@@ -62,7 +64,7 @@ const NexusAssociateModal = ({ formatMessage }) => {
           <section key={o.configId} className="prod-lib-nexus-associate-list-card">
             <div className="prod-lib-nexus-associate-list-card-info">
               <div className="prod-lib-nexus-associate-list-card-info-title">
-                <span className="edit-link-cell" onClick={() => openSubEditModal(o)}>{o.serverName}</span>
+                <span className={o.defaultFlag !== 1 && 'edit-link-cell'} onClick={() => openSubEditModal(o)}>{o.serverName}</span>
                 {o.enableFlag === 1 && <span className="prod-lib-nexus-associate-list-card-info-title-enable-tag">启用</span>}
               </div>
               <div className="prod-lib-nexus-associate-list-card-info-addr">{o.serverUrl}</div>
