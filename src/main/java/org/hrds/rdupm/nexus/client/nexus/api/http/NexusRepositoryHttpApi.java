@@ -38,10 +38,10 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 
 	@Override
 	public String getVersion() {
-		ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Nexus.NEXUS_VERSION, HttpMethod.GET, null, null);
-		JSONObject jsonObject = JSON.parseObject(responseEntity.getBody());
 		String version = null;
 		try {
+			ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Nexus.NEXUS_VERSION, HttpMethod.GET, null, null);
+			JSONObject jsonObject = JSON.parseObject(responseEntity.getBody());
 			version = jsonObject.getJSONObject(NexusUrlConstants.Nexus.NEXUS_VERSION_INFO).getString(NexusUrlConstants.Nexus.NEXUS_VERSION_INFO_VERSION);
 		} catch (Exception e) {
 			LOGGER.error(" get version error", e);
