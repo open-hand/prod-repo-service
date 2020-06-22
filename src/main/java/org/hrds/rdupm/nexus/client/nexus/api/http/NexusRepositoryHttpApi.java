@@ -44,6 +44,7 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 		try {
 			version = jsonObject.getJSONObject(NexusUrlConstants.Nexus.NEXUS_VERSION_INFO).getString(NexusUrlConstants.Nexus.NEXUS_VERSION_INFO_VERSION);
 		} catch (Exception e) {
+			LOGGER.error(" get version error", e);
 			return null;
 		}
 		return version;
