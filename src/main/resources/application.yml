@@ -133,17 +133,16 @@ choerodon:
   cleanPermission: false
 
 harbor:
-#  baseUrl: https://registry.staging.saas.hand-china.com
-  baseUrl: https://192.168.17.187
-  username: admin
-  password: Harbor12345
+  baseUrl: ${HARBOR_BASE_URL:https://192.168.17.187}
+  username: ${HARBOR_USER_NAME:admin}
+  password: ${HARBOR_PASSWORD:Harbor12345}
   init:
-    defaultRepoUrl: jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    defaultRepoUsername: root
-    defaultRepoPassword: handhand
-    customRepoUrl: jdbc:mysql://192.168.16.215:3306/devops_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    customRepoUsername: root
-    customRepoPassword: handhand
+    defaultRepoUrl: ${HARBOR_INIT_DEFAULT_REPO_URL:jdbc:mysql://192.168.16.214:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false}
+    defaultRepoUsername: ${HARBOR_INIT_DEFAULT_REPO_USERNAME:root}
+    defaultRepoPassword: ${HARBOR_INIT_DEFAULT_REPO_PASSWORD:handhand}
+    customRepoUrl: ${HARBOR_INIT_CUSTOM_REPO_URL:jdbc:mysql://192.168.16.215:3306/devops_service?useUnicode=true&characterEncoding=utf-8&useSSL=false}
+    customRepoUsername: ${HARBOR_INIT_CUSTOM_REPO_USERNAME:root}
+    customRepoPassword: ${HARBOR_INIT_CUSTOM_REPO_PASSWORD:handhand}
 
 DesEncrypt:
   # DES 加解密密钥

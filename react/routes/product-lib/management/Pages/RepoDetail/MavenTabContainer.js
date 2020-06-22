@@ -95,7 +95,7 @@ const MavenTabContainer = () => {
           <TabPane tab={formatMessage({ id: `${intlPrefix}.view.nexusComponent`, defaultMessage: '包列表' })} key={TabKeyEnum.NEXUS_COMPONENT}>
             <NexusComponent {...nexusComponentProps} />
           </TabPane>
-          <TabPane tab={formatMessage({ id: `${intlPrefix}.view.publishAuth`, defaultMessage: '发布权限' })} key={TabKeyEnum.PUBLIST_AUTH}>
+          <TabPane tab={formatMessage({ id: `${intlPrefix}.view.userAuth`, defaultMessage: '用户权限' })} key={TabKeyEnum.PUBLIST_AUTH}>
             <PublishAuth {...publishAuthProps} />
           </TabPane>
           {ownerPermission &&
