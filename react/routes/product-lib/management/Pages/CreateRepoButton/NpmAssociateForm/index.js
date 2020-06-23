@@ -36,14 +36,12 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
             return false;
           }
           submitData.repositoryList = repositoryList;
-          const res = await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/related`, submitData);
-          if (res.failed) {
-            throw res.message;
-          }
+          await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/related`, submitData);
+          await new Promise(resolve => setTimeout(() => resolve(), 1000));
           init();
           return true;
         } catch (error) {
-          message.error(error);
+          // message.error(error);
           return false;
         }
       }

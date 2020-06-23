@@ -20,6 +20,7 @@ const AppModals = observer(() => {
     authListDs,
     logListDs,
     npmStore,
+    repoListDs,
   } = useNpmStore();
   const currentTab = npmStore.getTabKey;
 
@@ -45,6 +46,7 @@ const AppModals = observer(() => {
   }, [logListDs]);
 
   function refresh() {
+    repoListDs.query();
     switch (currentTab) {
       case LIB_TAB:
         libListDs.query();

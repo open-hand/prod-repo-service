@@ -37,6 +37,7 @@ const MavenAssociateForm = ({ formatMessage, mavenAssociateDs, modal, init }) =>
           }
           submitData.repositoryList = repositoryList;
           await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/related`, submitData);
+          await new Promise(resolve => setTimeout(() => resolve(), 1000));
           init();
           return true;
         } catch (error) {

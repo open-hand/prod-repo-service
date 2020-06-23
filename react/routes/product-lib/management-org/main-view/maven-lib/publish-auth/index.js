@@ -9,6 +9,7 @@ import { Table } from 'choerodon-ui/pro';
 // import { Tag } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
+import renderFullName from '@/utils/renderer';
 import { useMavenStore } from '../stores';
 import { useProdStore } from '../../../stores';
 import './index.less';
@@ -44,7 +45,7 @@ const PublishAuth = () => {
     <div style={{ overflowX: 'hidden', height: 'calc(100% - 75px)' }}>
       <Table dataSet={publishAuthDs} className="no-border-top-table" >
         {/* <Column name="neUserId" /> */}
-        <Column name="neRepositoryName" width={150} />
+        <Column name="neRepositoryName" width={150} renderer={renderFullName} />
         <Column
           name="projectName"
           renderer={({ record }) => (
@@ -80,7 +81,7 @@ const PublishAuth = () => {
         />
         <Column name="memberRole" />
         <Column name="roleCode" />
-        <Column name="endDate" />
+        <Column name="endDate" renderer={renderFullName} />
       </Table>
     </div>
   );

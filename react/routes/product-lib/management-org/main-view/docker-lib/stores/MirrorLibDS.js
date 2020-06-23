@@ -1,4 +1,4 @@
-export default ((intlPrefix, formatMessage, organizationId) => ({
+export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -62,7 +62,8 @@ export default ((intlPrefix, formatMessage, organizationId) => ({
       label: formatMessage({ id: `${intlPrefix}.model.mirrorLibName` }),
       textField: 'name',
       valueField: 'code',
-      lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
+      options: repoListDs,
+      // lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
     },
     {
       name: 'publicFlag',

@@ -1,7 +1,7 @@
 // import React from 'react';
 // import Tips from '@/components/new-tips';
 
-export default ((intlPrefix, formatMessage, organizationId) => ({
+export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
   autoQuery: false,
   selection: false,
   page: 10,
@@ -71,7 +71,7 @@ export default ((intlPrefix, formatMessage, organizationId) => ({
       label: formatMessage({ id: 'libName' }),
       textField: 'name',
       valueField: 'name',
-      lookupUrl: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/npm/repo/name`,
+      options: repoListDs,
     },
     {
       name: 'loginName',

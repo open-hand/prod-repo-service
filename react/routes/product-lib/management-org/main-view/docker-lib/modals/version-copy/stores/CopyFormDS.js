@@ -1,7 +1,7 @@
 
 import omit from 'lodash/omit';
 
-export default ((intlPrefix, formatMessage, organizationId, srcRepoName, digest) => ({
+export default ((intlPrefix, formatMessage, organizationId, srcRepoName, digest, repoListDs) => ({
   autoQuery: false,
   transport: {
     create: ({ data: [data] }) => {
@@ -21,7 +21,8 @@ export default ((intlPrefix, formatMessage, organizationId, srcRepoName, digest)
       label: formatMessage({ id: `${intlPrefix}.model.destProject` }),
       textField: 'name',
       valueField: 'code',
-      lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
+      options: repoListDs,
+      // lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
     },
     {
       name: 'destImageName',
