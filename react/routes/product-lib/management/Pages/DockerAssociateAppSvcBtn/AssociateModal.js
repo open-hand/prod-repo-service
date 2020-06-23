@@ -83,6 +83,11 @@ const AssociateModal = ({ repositoryId, modal, refresh }) => {
           // eslint-disable-next-line
           onChange={val => handleSelectProject(val, list._id)}
           dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}
+          optionsFilter={(record) => {
+            // eslint-disable-next-line
+            const ids = createdSVCList.filter(o => o._id !== list._id).map(o => o.id && o.id).filter(Boolean);
+            return !ids.includes(record.get('value'));
+          }}
         >
           {
             svcList.map(o => (

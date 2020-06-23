@@ -93,13 +93,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		if (nexusRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
-
-		configService.setNexusInfoByRepositoryId(nexusClient, repositoryId);
+		NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, repositoryId);
 
 		NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
 		if (nexusServerRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
+
+		nexusRepository.setEnableAnonymousFlag(serverConfig.getEnableAnonymousFlag());
 		NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
 		nexusRepositoryDTO.convert(nexusRepository, nexusServerRepository);
 		nexusClient.removeNexusServerInfo();
@@ -534,13 +535,12 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		Condition condition = builder.build();
 		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.selectByCondition(condition);
+		nexusRepositoryList.forEach(nexusRepository -> nexusRepository.setEnableAnonymousFlag(nexusServerConfig.getEnableAnonymousFlag()));
 
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
 
 		this.mavenRepoConvert(resultAll, nexusRepositoryList, nexusServerRepositoryMap);
-		// this.mavenRepoProject(nexusServerRepositoryList, queryDTO, resultAll, );
 		resultAll = this.setInfoAndQuery(resultAll, queryDTO);
-		//List<NexusRepositoryDTO> resultAll = this.queryRepo(queryDTO, queryData, this.convertRepoTypeToFormat(queryDTO.getRepoType()));
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 		return resultAll;
@@ -599,7 +599,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 查询参数
 		if (queryDTO.getRepositoryName() != null) {
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->
-					nexusRepositoryDTO.getName().toLowerCase().contains(queryDTO.getRepositoryName().toLowerCase())).collect(Collectors.toList());
+					nexusRepositoryDTO.getNeRepositoryName().toLowerCase().contains(queryDTO.getRepositoryName().toLowerCase())).collect(Collectors.toList());
 		}
 		if (queryDTO.getType() != null) {
 			resultAll = resultAll.stream().filter(nexusRepositoryDTO ->

@@ -68,14 +68,6 @@ export default ((formatMessage, organizationId) => ({
       type: 'string',
     },
     {
-      name: 'code',
-      type: 'string',
-      // required: true,
-      textField: 'name',
-      valueField: 'code',
-      lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
-    },
-    {
       name: 'name',
       type: 'string',
     },

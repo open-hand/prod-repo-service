@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { Table } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
+import renderFullName from '@/utils/renderer';
 import { useDockerStore } from '../stores';
 import { useProdStore } from '../../../stores';
 
@@ -36,8 +37,8 @@ const AuthList = () => {
   return (
     <div style={{ overflowX: 'hidden', height: 'calc(100% - 75px)' }}>
       <Table dataSet={authListDs} className="no-border-top-table">
-        <Column name="code" />
-        <Column name="name" />
+        <Column name="code" renderer={renderFullName} />
+        <Column name="name" renderer={renderFullName} />
         <Column name="loginName" />
         <Column
           name="realName"
@@ -57,7 +58,7 @@ const AuthList = () => {
         />
         <Column name="memberRole" />
         <Column name="harborRoleValue" />
-        <Column name="endDate" />
+        <Column name="endDate" renderer={renderFullName} />
       </Table>
     </div>
   );

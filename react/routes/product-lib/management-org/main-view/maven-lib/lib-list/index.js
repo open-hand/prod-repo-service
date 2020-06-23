@@ -153,9 +153,9 @@ const MirrorLib = () => {
       <ul>
         {
           listData.map(item => {
-            const { repositoryId, projectName, creatorLoginName, creatorRealName, creationDate, name, projectImgUrl, type, versionPolicy } = item;
+            const { repositoryId, neRepositoryName, projectName, creatorLoginName, creatorRealName, creationDate, projectImgUrl, type, versionPolicy } = item;
             return (
-              <li key={repositoryId + name}>
+              <li key={repositoryId + neRepositoryName}>
                 <div className="product-lib-org-management-lib-list-list-card">
                   <Row className="product-lib-org-management-lib-list-list-card-header">
                     <Col span={7} className="product-lib-org-management-lib-list-list-card-header-icon">
@@ -164,7 +164,7 @@ const MirrorLib = () => {
                         className="product-lib-org-management-lib-list-list-card-header-title"
                         onClick={() => handleToPackage(repositoryId)}
                       >
-                        {name}
+                        {neRepositoryName}
                       </span>
                     </Col>
                     <Col span={12} className="product-lib-org-management-lib-list-list-card-header-project">

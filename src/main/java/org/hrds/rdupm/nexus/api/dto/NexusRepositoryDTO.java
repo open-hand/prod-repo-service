@@ -8,6 +8,7 @@ import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.mybatis.domian.SecurityToken;
 
+import javax.persistence.Transient;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +46,7 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 			this.creatorLoginName = nexusRepository.getCreatorLoginName();
 			this.creatorRealName = nexusRepository.getCreatorRealName();
 			this.enableFlag = nexusRepository.getEnableFlag();
+			this.enableAnonymousFlag = nexusRepository.getEnableAnonymousFlag();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -81,6 +83,8 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	private Integer allowAnonymous;
 	@ApiModelProperty(value = "仓库是否启用")
 	private String enableFlag;
+	@Transient
+	private Integer enableAnonymousFlag;
 
 	@ApiModelProperty(value = "存储器")
 	private String blobStoreName;

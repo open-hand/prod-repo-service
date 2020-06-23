@@ -32,6 +32,7 @@ const MirrorList = () => {
     intlPrefix,
     intl: { formatMessage },
     mirrorListDS,
+    repoListDs,
   } = useDockerStore();
   const { getTabKey } = dockerStore;
 
@@ -58,6 +59,7 @@ const MirrorList = () => {
       imageName,
       mirrorListDS,
       dataSet: tagListDs,
+      repoListDs,
     };
 
     Modal.open({

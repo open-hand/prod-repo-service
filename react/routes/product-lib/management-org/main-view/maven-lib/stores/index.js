@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useEffect } from 'react';
 import { DataSet } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { injectIntl } from 'react-intl';
@@ -6,6 +6,7 @@ import LibListDS from './LibListDS';
 import PackageListDS from './PackageListDS';
 import PublishAuthDS from './PublishAuthDS';
 import LogListDS from './LogListDS';
+import RepoListDS from './RepoListDS';
 import { useProdStore } from '../../../stores';
 import useStore from './useStore';
 // import useConfigMapStore from './useConfigMapStore';
@@ -34,15 +35,21 @@ export const StoreProvider = injectIntl(observer((props) => {
   }), []);
   const mavenStore = useStore(tabs);
 
+  const repoListDs = useMemo(() => new DataSet(RepoListDS({ organizationId })), [organizationId]);
+
+
   const libListDs = useMemo(() => new DataSet(LibListDS(intlPrefix, formatMessage, organizationId)), [organizationId]);
-  const packageListDs = useMemo(() => new DataSet(PackageListDS(organizationId, formatMessage, intlPrefix)), [organizationId]);
-  const publishAuthDs = useMemo(() => new DataSet(PublishAuthDS(intlPrefix, formatMessage, organizationId)), [organizationId]);
+  const packageListDs = useMemo(() => new DataSet(PackageListDS(organizationId, formatMessage, intlPrefix, repoListDs)), [organizationId]);
+  const publishAuthDs = useMemo(() => new DataSet(PublishAuthDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
   const logListDs = useMemo(() => new DataSet(LogListDS(formatMessage, organizationId)), [organizationId]);
 
-  // const mappingStore = useConfigMapStore();
-  // const cipherStore = useSecretStore();
-  // const domainStore = useDomainStore();
-  // const networkStore = useNetworkStore();
+  useEffect(() => {
+    repoListDs.transport.read = () => ({
+      url: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/maven/repo/name`,
+      method: 'get',
+    });
+    repoListDs.query();
+  }, [organizationId]);
 
   const value = {
     ...props,
@@ -54,6 +61,7 @@ export const StoreProvider = injectIntl(observer((props) => {
     publishAuthDs,
     logListDs,
     mavenStore,
+    repoListDs,
   };
   return (
     <Store.Provider value={value}>

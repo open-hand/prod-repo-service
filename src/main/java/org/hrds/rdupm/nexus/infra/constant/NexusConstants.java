@@ -20,7 +20,7 @@ public interface NexusConstants {
 	}
 
 	enum NexusRoleEnum {
-		PROJECT_ADMIN("projectAdmin","项目管理员"),
+		PROJECT_ADMIN("projectAdmin","仓库管理员"),
 		DEVELOPER("developer","开发人员"),
 		GUEST("guest","访客");
 

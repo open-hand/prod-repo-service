@@ -1,6 +1,6 @@
 
 
-export default ((formatMessage, organizationId, logTabKey) => ({
+export default ((formatMessage, organizationId, logTabKey, repoListDs) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -76,7 +76,8 @@ export default ((formatMessage, organizationId, logTabKey) => ({
       // required: true,
       textField: 'name',
       valueField: 'code',
-      lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
+      options: repoListDs,
+      // lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
     },
     {
       name: 'name',
