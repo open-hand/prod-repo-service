@@ -98,7 +98,7 @@ public class NexusAuth extends AuditDomain {
     @ExcelColumn(title = "用户名", order = 4)
     @ApiModelProperty(value = "用户名")
     private String realName;
-    @ExcelColumn(title = "权限角色", renderers = NexusAuth.AuthorityNameRenderer.class, order = 6)
+    @ExcelColumn(title = "权限角色", order = 6)
     @ApiModelProperty(value = "角色编码", required = true)
     @NotBlank
     private String roleCode;
@@ -141,12 +141,12 @@ public class NexusAuth extends AuditDomain {
     // getter/setter
     // ------------------------------------------------------------------------------
 
-    public static class AuthorityNameRenderer implements ValueRenderer {
+    /*public static class AuthorityNameRenderer implements ValueRenderer {
         @Override
         public Object render(Object value, Object data) {
             NexusAuth nexusAuth = (NexusAuth) data;
             return NexusConstants.NexusRoleEnum.getNameByCode(nexusAuth.getRoleCode());
         }
-    }
+    }*/
 
 }

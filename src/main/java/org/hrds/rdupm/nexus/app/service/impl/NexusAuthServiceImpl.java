@@ -113,7 +113,13 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
 
     @Override
     public Page<NexusAuth> export(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
-        return this.pageList(pageRequest, nexusAuth);
+        Page<NexusAuth> page = this.pageList(pageRequest, nexusAuth);
+        if (CollectionUtils.isNotEmpty(page.getContent())) {
+            page.getContent().forEach(nexusAuthItem -> {
+                nexusAuthItem.setRoleCode(NexusConstants.NexusRoleEnum.getNameByCode(nexusAuthItem.getRoleCode()));
+            });
+        }
+        return page;
     }
 
     @Override
@@ -124,7 +130,13 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
     @Override
     @ExcelExport(NexusAuth.class)
     public Page<NexusAuth> exportOrg(PageRequest pageRequest, NexusAuth nexusAuth, ExportParam exportParam, HttpServletResponse response) {
-        return this.pageListOrg(pageRequest, nexusAuth);
+        Page<NexusAuth> page = this.pageListOrg(pageRequest, nexusAuth);
+        if (CollectionUtils.isNotEmpty(page.getContent())) {
+            page.getContent().forEach(nexusAuthItem -> {
+                nexusAuthItem.setRoleCode(NexusConstants.NexusRoleEnum.getNameByCode(nexusAuthItem.getRoleCode()));
+            });
+        }
+        return page;
     }
 
 

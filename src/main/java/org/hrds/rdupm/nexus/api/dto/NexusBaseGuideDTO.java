@@ -45,7 +45,7 @@ public class NexusBaseGuideDTO {
 
         // 拉取信息
         // 仓库是匿名访问，且nexus开启了匿名访问控制。 则不显示，否则显示
-        this.setPullServerFlag(!(nexusRepository.getAllowAnonymous().equals(BaseConstants.Flag.NO)
+        this.setPullServerFlag(!(nexusRepository.getAllowAnonymous().equals(BaseConstants.Flag.YES)
                 && serverConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)));
         if (this.getPullServerFlag() && nexusUser != null) {
             // 要显示的时候，返回数据

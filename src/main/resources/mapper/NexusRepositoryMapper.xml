@@ -95,52 +95,61 @@
         nr.repo_type
     </sql>
     <select id="listOrgRepo" resultType="org.hrds.rdupm.nexus.domain.entity.NexusRepository">
-        SELECT temp.* FROM (
-            SELECT
-                <include refid="listOrgRepoField"></include>
-            FROM
-                rdupm_nexus_repository nr
-            WHERE
-                nr.organization_id = #{organizationId}
-                AND nr.repo_type = #{repoType}
-                AND EXISTS (
-                SELECT
-                    1
-                FROM
-                    rdupm_nexus_project_service nps
-                WHERE
-                    nps.enable_flag = 1
-                    AND nps.project_id = nr.project_id
-                )
+        SELECT
+            <include refid="listOrgRepoField"></include>
+        FROM
+            rdupm_nexus_repository nr
+        WHERE
+            nr.organization_id = #{organizationId}
+            AND nr.repo_type = #{repoType}
 
-            UNION
 
-            SELECT
-                <include refid="listOrgRepoField"></include>
-            FROM
-                rdupm_nexus_repository nr
-            WHERE
-                nr.organization_id = #{organizationId}
-                AND nr.repo_type = #{repoType}
-                AND NOT EXISTS (
-                SELECT
-                    1
-                FROM
-                    rdupm_nexus_project_service nps
-                WHERE
-                    nps.enable_flag = 1
-                    AND nps.project_id = nr.project_id
-                )
-                AND nr.config_id = (
-                SELECT
-                    nsc.config_id
-                FROM
-                    rdupm_nexus_server_config nsc
-                WHERE
-                nsc.default_flag = 1
-                )
+<!--        SELECT temp.* FROM (-->
+<!--            SELECT-->
+<!--                <include refid="listOrgRepoField"></include>-->
+<!--            FROM-->
+<!--                rdupm_nexus_repository nr-->
+<!--            WHERE-->
+<!--                nr.organization_id = #{organizationId}-->
+<!--                AND nr.repo_type = #{repoType}-->
+<!--                AND EXISTS (-->
+<!--                SELECT-->
+<!--                    1-->
+<!--                FROM-->
+<!--                    rdupm_nexus_project_service nps-->
+<!--                WHERE-->
+<!--                    nps.enable_flag = 1-->
+<!--                    AND nps.project_id = nr.project_id-->
+<!--                )-->
 
-            ) AS temp
-            ORDER BY temp.project_id, temp.ne_repository_name
+<!--            UNION-->
+
+<!--            SELECT-->
+<!--                <include refid="listOrgRepoField"></include>-->
+<!--            FROM-->
+<!--                rdupm_nexus_repository nr-->
+<!--            WHERE-->
+<!--                nr.organization_id = #{organizationId}-->
+<!--                AND nr.repo_type = #{repoType}-->
+<!--                AND NOT EXISTS (-->
+<!--                SELECT-->
+<!--                    1-->
+<!--                FROM-->
+<!--                    rdupm_nexus_project_service nps-->
+<!--                WHERE-->
+<!--                    nps.enable_flag = 1-->
+<!--                    AND nps.project_id = nr.project_id-->
+<!--                )-->
+<!--                AND nr.config_id = (-->
+<!--                SELECT-->
+<!--                    nsc.config_id-->
+<!--                FROM-->
+<!--                    rdupm_nexus_server_config nsc-->
+<!--                WHERE-->
+<!--                nsc.default_flag = 1-->
+<!--                )-->
+
+<!--            ) AS temp-->
+<!--            ORDER BY temp.project_id, temp.ne_repository_name-->
     </select>
 </mapper>
