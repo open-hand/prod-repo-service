@@ -92,7 +92,8 @@ public class HarborAuthController extends BaseController {
     @ApiOperation(value = "项目层--权限明细")
 	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
-    public ResponseEntity<HarborAuth> detail(@Encrypt(HarborAuth.ENCRYPT_KEY) @PathVariable Long authId) {
+    //public ResponseEntity<HarborAuth> detail(@Encrypt(HarborAuth.ENCRYPT_KEY) @PathVariable Long authId) {
+    public ResponseEntity<HarborAuth> detail(@PathVariable Long authId) {
         HarborAuth harborAuth = harborAuthRepository.selectByCondition(Condition.builder(HarborAuth.class).where(Sqls.custom()
 				.andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
 				.andEqualTo(HarborAuth.FIELD_AUTH_ID,authId)
