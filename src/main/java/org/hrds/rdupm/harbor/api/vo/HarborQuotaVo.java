@@ -42,4 +42,12 @@ public class HarborQuotaVo {
 	@ApiModelProperty(value = "已使用存储容量--单位")
 	private String usedStorageUnit;
 
+	public HarborQuotaVo(){}
+
+	public HarborQuotaVo( Integer storageNum, String storageUnit, Long usedStorage,  String usedStorageUnit) {
+		this.storageNum = storageNum;
+		this.storageUnit = storageUnit;
+		this.usedStorage = usedStorage;
+		this.usedStorageUnit = usedStorageUnit;
+	}
 }

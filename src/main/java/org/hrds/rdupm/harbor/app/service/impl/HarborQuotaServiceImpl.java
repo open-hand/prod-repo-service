@@ -72,9 +72,13 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		if(harborRepository == null){
 			throw new CommonException("error.harbor.project.not.exist");
 		}
-
+		ResponseEntity<String> quotaResponseEntity = null;
 		//获取存储容量
-		ResponseEntity<String> quotaResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_QUOTA,null,null,true,harborRepository.getHarborId());
+		try{
+			quotaResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_QUOTA,null,null,true,harborRepository.getHarborId());
+		}catch (Exception e){
+			return new HarborQuotaVo(-1,"-",-1L,"-");
+		}
 		Map<String,Object> quotaMap = new Gson().fromJson(quotaResponseEntity.getBody(),Map.class);
 		Map<String,Object> hardMap = (Map<String, Object>) quotaMap.get("hard");
 		Map<String,Object> usedMap = (Map<String, Object>) quotaMap.get("used");
