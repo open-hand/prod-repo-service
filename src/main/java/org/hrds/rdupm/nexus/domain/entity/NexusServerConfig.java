@@ -18,6 +18,7 @@ import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.constant.NexusUrlConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
@@ -91,6 +92,13 @@ public class NexusServerConfig extends AuditDomain {
         } else {
             throw new CommonException("enableAnonymousFlag param error");
         }
+
+        // 版本校验
+        String version = nexusClient.getRepositoryApi().getVersion();
+        if (version == null || version.compareTo(NexusUrlConstants.Nexus.NEXUS_VERSION_BASIC) < 0) {
+            throw new CommonException(NexusMessageConstants.NEXUS_SERVER_VERSION_ERROR);
+        }
+
     }
 
     public void  validaUserPassword(NexusClient nexusClient) {
@@ -119,7 +127,7 @@ public class NexusServerConfig extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-    @Encrypt(ENCRYPT_KEY)
+    //@Encrypt(ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
