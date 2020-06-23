@@ -18,9 +18,10 @@ export const StoreProvider = injectIntl(inject('AppState')((props) => {
     intlPrefix,
     srcRepoName,
     digest,
+    repoListDs,
   } = props;
 
-  const copyFormDs = useMemo(() => new DataSet(CopyFormDS(intlPrefix, formatMessage, organizationId, srcRepoName, digest)), [formatMessage, organizationId, srcRepoName]);
+  const copyFormDs = useMemo(() => new DataSet(CopyFormDS(intlPrefix, formatMessage, organizationId, srcRepoName, digest, repoListDs)), [formatMessage, organizationId, srcRepoName]);
 
   useEffect(() => {
     copyFormDs.create();

@@ -1,4 +1,4 @@
-export default ((intlPrefix, formatMessage, organizationId, userId) => ({
+export default ((intlPrefix, formatMessage, organizationId, userId, repoListDs) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -69,7 +69,7 @@ export default ((intlPrefix, formatMessage, organizationId, userId) => ({
       label: formatMessage({ id: `${intlPrefix}.model.repoName` }),
       textField: 'name',
       valueField: 'name',
-      lookupUrl: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/npm/repo/name`,
+      options: repoListDs,
     },
     {
       name: 'type',
