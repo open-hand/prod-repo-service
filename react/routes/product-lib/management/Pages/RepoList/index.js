@@ -43,6 +43,8 @@ const RepoList = ({ setActiveRepository, init }) => {
     npmAssociateDs,
   ]);
 
+  const nexusAssociateButtonProps = useMemo(() => ({ init, formatMessage }), [init, formatMessage]); 
+
   const repoListProps = useMemo(() => ({ setActiveRepository }), []);
   const noRepoListPageProps = useMemo(() => ({
     init,
@@ -69,7 +71,7 @@ const RepoList = ({ setActiveRepository, init }) => {
     <Page>
       <Header>
         <CreateRepoButton {...createButtonProps} />
-        <NexusAssociateBtn {...createButtonProps} />
+        <NexusAssociateBtn {...nexusAssociateButtonProps} />
         <Button
           icon="refresh"
           onClick={() => init()}

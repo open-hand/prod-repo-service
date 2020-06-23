@@ -57,6 +57,7 @@ const CreateModal = ({ createDs, formatMessage, modal, init }) => {
 
   return (
     <React.Fragment>
+      <span style={{ color: 'red' }}>nexus服务要求版本：3.21.0及其以上</span>
       <Form dataSet={createDs} columns={1}>
         <TextField name="serverName" />
         <TextField name="serverUrl" />

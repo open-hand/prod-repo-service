@@ -15,7 +15,7 @@ import { intlPrefix } from '../../../index';
 
 const { Option } = Select;
 
-const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originData }) => {
+const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originData, enableAnonymousFlag }) => {
   const [typeLookupData, setTypeLookupData] = useState([]);
 
   const { repoList, createdRepoList, setCreatedRepoList } = useRepoList();
@@ -152,10 +152,12 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
           </Button>
         </div>
       }
+      {enableAnonymousFlag === 1 &&
       <SelectBox name="allowAnonymous" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')}>
         <Option value={1}>{formatMessage({ id: 'yes', defaultMessage: '是' })}</Option>
         <Option value={0}>{formatMessage({ id: 'no', defaultMessage: '否' })}</Option>
       </SelectBox>
+      }
     </Form>
   );
 };
