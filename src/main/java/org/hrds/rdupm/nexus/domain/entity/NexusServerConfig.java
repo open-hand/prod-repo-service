@@ -115,6 +115,9 @@ public class NexusServerConfig extends AuditDomain {
             if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
                 throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
             }
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                throw new CommonException(NexusMessageConstants.NEXUS_SERVER_VERSION_ERROR);
+            }
             throw e;
         }
     }
