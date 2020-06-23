@@ -1,7 +1,7 @@
 import React from 'react';
 import Tips from '@/components/new-tips';
 
-export default ((intlPrefix, formatMessage, organizationId) => ({
+export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
   autoQuery: false,
   selection: false,
   page: 10,
@@ -72,7 +72,8 @@ export default ((intlPrefix, formatMessage, organizationId) => ({
       label: formatMessage({ id: `${intlPrefix}.model.repoCode` }),
       textField: 'code',
       valueField: 'code',
-      lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
+      options: repoListDs,
+      // lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
     },
     {
       name: 'name',
@@ -80,7 +81,8 @@ export default ((intlPrefix, formatMessage, organizationId) => ({
       label: formatMessage({ id: `${intlPrefix}.model.mirrorLibName` }),
       textField: 'name',
       valueField: 'name',
-      lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
+      options: repoListDs,
+      // lookupUrl: `/rdupm/v1/harbor-project/all/${organizationId}`,
       // cascadeMap: { parentCodeValueId: 'code' },
     },
     {

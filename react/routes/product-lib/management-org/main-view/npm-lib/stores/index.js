@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useEffect } from 'react';
 import { DataSet } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { injectIntl } from 'react-intl';
@@ -7,6 +7,7 @@ import PackageListDS from './PackageListDS';
 import AuthListDS from './AuthListDS';
 import BaseInfoDS from './BaseInfoDS';
 import LogListDS from './LogListDS';
+import RepoListDS from './RepoListDS';
 import { useProdStore } from '../../../stores';
 import useStore from './useStore';
 // import useConfigMapStore from './useConfigMapStore';
@@ -35,19 +36,25 @@ export const StoreProvider = injectIntl(observer((props) => {
   }), []);
   const npmStore = useStore(tabs.LIB_TAB, organizationId);
 
+  const repoListDs = useMemo(() => new DataSet(RepoListDS({ organizationId })), [organizationId]);
+
+
   const libListDs = useMemo(() => new DataSet(LibListDS(intlPrefix, formatMessage, organizationId, userId)), [organizationId]);
-  const packageListDs = useMemo(() => new DataSet(PackageListDS(intlPrefix, formatMessage, organizationId)), [organizationId]);
-  const authListDs = useMemo(() => new DataSet(AuthListDS(intlPrefix, formatMessage, organizationId)), [organizationId]);
+  const packageListDs = useMemo(() => new DataSet(PackageListDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
+  const authListDs = useMemo(() => new DataSet(AuthListDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
   const logListDs = useMemo(() => new DataSet(LogListDS(formatMessage, organizationId)), [organizationId]);
 
 
   const baseInfoDs = useMemo(() => new DataSet(BaseInfoDS()), []);
 
 
-  // const mappingStore = useConfigMapStore();
-  // const cipherStore = useSecretStore();
-  // const domainStore = useDomainStore();
-  // const networkStore = useNetworkStore();
+  useEffect(() => {
+    repoListDs.transport.read = () => ({
+      url: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/npm/repo/name`,
+      method: 'get',
+    });
+    repoListDs.query();
+  }, [organizationId]);
 
   const value = {
     ...props,
@@ -61,10 +68,7 @@ export const StoreProvider = injectIntl(observer((props) => {
     logListDs,
     baseInfoDs,
     npmStore,
-    // mappingStore,
-    // cipherStore,
-    // domainStore,
-    // networkStore,
+    repoListDs,
   };
   return (
     <Store.Provider value={value}>

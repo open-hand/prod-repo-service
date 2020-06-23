@@ -19,6 +19,7 @@ const AppModals = observer(() => {
     publishAuthDs,
     logListDs,
     mavenStore,
+    repoListDs,
   } = useMavenStore();
 
   const tableRef = useRef();
@@ -44,6 +45,7 @@ const AppModals = observer(() => {
   }, [logListDs]);
 
   function refresh() {
+    repoListDs.query();
     switch (currentTab) {
       case LIB_TAB:
         libListDs.query();

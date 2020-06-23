@@ -24,7 +24,7 @@ const { Column } = Table;
 
 const modalKey = Modal.key();
 
-const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatMessage, organizationId }) => {
+const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatMessage, organizationId, repoListDs }) => {
   function refresh() {
     dataSet.query();
   }
@@ -138,6 +138,7 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
         intlPrefix={intlPrefix}
         srcRepoName={repoName}
         digest={record.get('digest')}
+        repoListDs={repoListDs}
       />,
       key: modalKey,
       drawer: true,

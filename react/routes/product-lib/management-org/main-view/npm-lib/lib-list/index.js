@@ -6,7 +6,7 @@
 */
 import React, { useEffect, useState } from 'react';
 import { Icon, Row, Col } from 'choerodon-ui';
-import { Stores, Pagination, Spin, Modal, Form, Select, Button } from 'choerodon-ui/pro';
+import { Stores, Pagination, Spin, Modal, Form, Select, Button, TextField } from 'choerodon-ui/pro';
 import { Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
@@ -60,13 +60,7 @@ const LibList = () => {
         columns={9}
         className="product-lib-org-management-lib-list-filter-form"
       >
-        <Select
-          name="repositoryName"
-          onChange={refresh}
-          colSpan={2}
-          searchable
-          clearButton
-        />
+        <TextField name="repositoryName" onChange={refresh} colSpan={2} />
         <Select
           name="projectId"
           onChange={refresh}

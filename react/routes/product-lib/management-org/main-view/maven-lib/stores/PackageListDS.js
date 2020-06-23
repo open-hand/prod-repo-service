@@ -1,4 +1,4 @@
-export default ((organizationId, formatMessage, intlPrefix) => ({
+export default ((organizationId, formatMessage, intlPrefix, repoListDs) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -29,9 +29,9 @@ export default ((organizationId, formatMessage, intlPrefix) => ({
       name: 'repositoryId',
       type: 'number',
       label: formatMessage({ id: 'libName' }),
-      lookupUrl: `/rdupm/v1/nexus-repositorys/organizations/${organizationId}/maven/repo/name`,
       textField: 'name',
       valueField: 'repositoryId',
+      options: repoListDs,
       required: true,
     },
     { name: 'version', type: 'string', label: 'version' },

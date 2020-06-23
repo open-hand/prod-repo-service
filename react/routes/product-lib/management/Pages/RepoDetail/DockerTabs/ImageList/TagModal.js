@@ -208,7 +208,14 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
         </Form>
       </div>
       <Table dataSet={dockerImageTagDs} queryBar="none">
-        <Column name="tagName" />
+        <Column 
+          name="tagName"
+          renderer={({ text }) => (
+            <Tooltip title={text} placement="top" >
+              {text}
+            </Tooltip>
+          )}
+        />
         <Column renderer={renderAction} width={70} />
         <Column name="sizeDesc" />
         <Column name="dockerVersion" />

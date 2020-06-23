@@ -28,6 +28,7 @@ const AppModals = observer(() => {
     authListDs,
     logListDs,
     dockerStore,
+    repoListDs,
   } = useDockerStore();
   const currentTab = dockerStore.getTabKey;
   const tableRef = useRef();
@@ -52,6 +53,7 @@ const AppModals = observer(() => {
   }, [logListDs]);
 
   function refresh() {
+    repoListDs.query();
     switch (currentTab) {
       case MIRROR_TAB:
         mirrorLibDs.query();

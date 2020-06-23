@@ -56,6 +56,7 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, modal, init }) => {
             submitData.repoMemberList = repoMemberList;
           }
           await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo`, submitData);
+          await new Promise(resolve => setTimeout(() => resolve(), 1000));
           init();
           return true;
         } catch (error) {
