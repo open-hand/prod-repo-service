@@ -89,11 +89,14 @@ public class HarborAuth extends AuditDomain {
 
     private Long harborRoleId;
 
-	@ExcelColumn(title = "权限角色", order = 6)
 	@ApiModelProperty(value = "harbor权限角色值，必输")
 	@NotNull
 	@Transient
     private String harborRoleValue;
+
+	@ExcelColumn(title = "权限角色", order = 6)
+	@Transient
+	private String harborRoleMeaning;
 
 	@ExcelColumn(title = "有效期",pattern = BaseConstants.Pattern.DATE ,order = 7)
 	@ApiModelProperty(value = "有效期，必输")

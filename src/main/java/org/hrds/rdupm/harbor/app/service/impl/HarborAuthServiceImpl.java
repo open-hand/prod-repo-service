@@ -183,7 +183,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		}
 
 		dataList.forEach(dto->{
-			dto.setHarborRoleValue(HarborConstants.HarborRoleEnum.getNameById(dto.getHarborRoleId()));
+			dto.setHarborRoleMeaning(HarborConstants.HarborRoleEnum.getNameById(dto.getHarborRoleId()));
 			dto.setHarborRoleValueById(dto.getHarborRoleId());
 			UserWithGitlabIdDTO userDto = userDtoMap.get(dto.getUserId());
 			if(userDto != null){
