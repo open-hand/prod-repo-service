@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.client.nexus.api.http;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusRepositoryApi;
@@ -34,6 +35,20 @@ public class NexusRepositoryHttpApi implements NexusRepositoryApi{
 	private NexusRequest nexusRequest;
 	@Autowired
 	private NexusScriptApi nexusScriptApi;
+
+	@Override
+	public String getVersion() {
+		String version = null;
+		try {
+			ResponseEntity<String> responseEntity = nexusRequest.exchange(NexusUrlConstants.Nexus.NEXUS_VERSION, HttpMethod.GET, null, null);
+			JSONObject jsonObject = JSON.parseObject(responseEntity.getBody());
+			version = jsonObject.getJSONObject(NexusUrlConstants.Nexus.NEXUS_VERSION_INFO).getString(NexusUrlConstants.Nexus.NEXUS_VERSION_INFO_VERSION);
+		} catch (Exception e) {
+			LOGGER.error(" get version error", e);
+			return null;
+		}
+		return version;
+	}
 
 	@Override
 	public List<NexusServerRepository> getRepository(String nexusFormat) {
