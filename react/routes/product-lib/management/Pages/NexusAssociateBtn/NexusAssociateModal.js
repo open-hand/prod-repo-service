@@ -9,7 +9,7 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const NexusAssociateModal = ({ formatMessage }) => {
+const NexusAssociateModal = ({ init, formatMessage }) => {
   const [svcList, setSvcList] = React.useState([]);
   const createDs = React.useRef(new DataSet(nexusCustomDataSet(intlPrefix, formatMessage))).current;
 
@@ -55,6 +55,7 @@ const NexusAssociateModal = ({ formatMessage }) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
     await axios.post(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/enable`, data);
     fetchList();
+    init();
   }, []);
 
   return (

@@ -75,8 +75,15 @@ export const useOpenModal = ({
     npmAssociateDs,
   }), [init, validateStore, mavenCreateDs, formatMessage, dockerCreateBasicDs, dockerCustomCreateDs, testBtnStore]);
 
-  const openModal = useCallback(() => {
+  const openModal = useCallback(async () => {
     const key = Modal.key();
+    
+    const { currentMenuType: { projectId, organizationId } } = stores.AppState;
+    const res = await axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`);
+    const enableFlagItem = res.find(o => o.enableFlag === 1);
+    const enableAnonymousFlag = { enableFlagItem };
+    
+    
     modal.current = Modal.open({
       key,
       title: formatMessage({ id: `${intlPrefix}.view.createProdlib`, defaultMessage: '创建制品库' }),
@@ -84,7 +91,7 @@ export const useOpenModal = ({
       destroyOnClose: true,
       drawer: true,
       className: 'product-lib-create-model',
-      children: <CreateRepoModal {...createRepoModalProps} />,
+      children: <CreateRepoModal {...createRepoModalProps} enableAnonymousFlag={enableAnonymousFlag} />,
       onCancel: () => {
         testBtnStore.setIsShow(false);
         validateStore.setIsValidate(false);
@@ -101,7 +108,7 @@ export const useOpenModal = ({
         </Observer>
       ),
     });
-  }, []);
+  }, [stores.AppState]);
   return openModal;
 };
 

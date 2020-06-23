@@ -139,8 +139,17 @@ const RepoList = ({ setActiveRepository }) => {
 
   const handleEditMaven = async (data) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-    const res = await axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${data.repositoryId}`);
+  
     const key = Modal.key();
+
+    const [res, nuxesList] = await Promise.all([
+      axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${data.repositoryId}`),
+      axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`),
+    ]);
+    
+    const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
+    const enableAnonymousFlag = { enableFlagItem };
+
     Modal.open({
       key,
       title: formatMessage({ id: `${intlPrefix}.view.changeRepo`, defaultMessage: '修改仓库' }),
@@ -148,14 +157,24 @@ const RepoList = ({ setActiveRepository }) => {
       destroyOnClose: true,
       drawer: true,
       className: 'product-lib-edit-model',
-      children: <MavenEditModal {...mavenEditModalProps} originData={res} />,
+      children: <MavenEditModal {...mavenEditModalProps} originData={res} enableAnonymousFlag={enableAnonymousFlag} />,
     });
   };
 
   const handleEditNpm = async (data) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-    const res = await axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${data.repositoryId}`);
+    
     const key = Modal.key();
+
+    const [res, nuxesList] = await Promise.all([
+      axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${data.repositoryId}`),
+      axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`),
+    ]);
+    
+    
+    const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
+    const enableAnonymousFlag = { enableFlagItem };
+
     Modal.open({
       key,
       title: formatMessage({ id: `${intlPrefix}.view.changeRepo`, defaultMessage: '修改仓库' }),
@@ -163,7 +182,7 @@ const RepoList = ({ setActiveRepository }) => {
       destroyOnClose: true,
       drawer: true,
       className: 'product-lib-edit-model',
-      children: <NpmEditModal {...npmEditModalProps} originData={res} />,
+      children: <NpmEditModal {...npmEditModalProps} originData={res} enableAnonymousFlag={enableAnonymousFlag} />,
     });
   };
 

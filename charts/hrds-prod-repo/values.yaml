@@ -37,7 +37,7 @@ preJob:
   timeout: 1200
   preInitDB:
     # 是否初始化iam_service数据库
-    enabled: false
+    enabled: true
     datasource:
       # 初始化数据库更新数据的时候忽略的表或列
       exclusion: ""
@@ -49,28 +49,30 @@ preJob:
 ## 实例运行时的环境变量
 env:
   open:
-    # 本实例服务端口
-    SERVER_PORT: 7144
-    # 本实例管理端口
-    MANAGEMENT_SERVER_PORT: 7145
-
-    # 是否启用配置中心
-    SPRING_CLOUD_CONFIG_ENABLED: false
-    # 配置中心地址
-    SPRING_CLOUD_CONFIG_URI: http://register-server:8000
-
     # 注册服务地址
-    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://register-server:8000/eureka/
-
+    EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://register-server:8080
+    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/hrds_prod_repo?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true&serverTimezone=Asia/Shanghai
+    SPRING_DATASOURCE_USERNAME: choerodon
+    SPRING_DATASOURCE_PASSWORD: 123456
+    # redis
     SPRING_REDIS_HOST: localhost
     SPRING_REDIS_PORT: 6379
     SPRING_REDIS_DATABASE: 0
-    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/hrds_code_repo?useUnicode=true&characterEncoding=utf-8&useSSL=false&useInformationSchema=true&remarks=true&serverTimezone=Asia/Shanghai
-    SPRING_DATASOURCE_USERNAME: root
-    SPRING_DATASOURCE_PASSWORD: root
-
-    DES_ENCRYPT_DES_KEY: W1CLYB54T44PAL8NCGV4999OVSDCAEIPY76W32INQNXTH86ZEF1R1HTTWBLMQ5LQ5D9FLTUDNBLUQM9YF94NJTIJNOVIUFS13FRXUZD6D52JIPMUNI0AE9QN1Q2G1HHN
-    DES_ENCRYPT_DES_IV: 7HHT5EVO
+    #harbor地址、用户名、密码
+    HARBOR_BASE_URL: https://registry.com
+    HARBOR_USER_NAME: admin
+    HARBOR_PASSWORD: admin
+    #平台服务数据库地址、迁移数据-关联默认仓库使用
+    HARBOR_INIT_DEFAULT_REPO_URL: jdbc:mysql://localhost:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    HARBOR_INIT_DEFAULT_REPO_USERNAME:  choerodon
+    HARBOR_INIT_DEFAULT_REPO_PASSWORD: 123456
+    #devops服务数据库地址、迁移数据-自定义仓库使用
+    HARBOR_INIT_CUSTOM_REPO_URL: jdbc:mysql://localhost:3306/devops_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    HARBOR_INIT_CUSTOM_REPO_USERNAME: choerodon
+    HARBOR_INIT_CUSTOM_REPO_PASSWORD: 123456
+    #加密密钥（直接使用该文件的内容）
+    DES_ENCRYPT_DES_KEY: uhNT5moFYsw1xYEQTaSkpUSXJLa7VcerZiXYOwiRo1kLRIkX4kw2UPlIt5cbHtXxIsJbeipgX5HerWoGeCpG
+    DES_ENCRYPT_DES_IV: HH123456
 
 ## Liveness 和 Readiness 探针相关配置
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
