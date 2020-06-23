@@ -19,7 +19,7 @@ const intlPrefix = 'infra.prod.lib';
 const { Option } = Select;
 
 
-const MavenCreateForm = ({ formatMessage, mavenCreateDs, modal, init }) => {
+const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, modal, init }) => {
   const { repoList, createdRepoList, setCreatedRepoList } = useRepoList();
   useEffect(() => {
     mavenCreateDs.create({
@@ -165,10 +165,12 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, modal, init }) => {
           </Button>
         </div>
       }
+      {enableAnonymousFlag === 1 &&
       <SelectBox name="allowAnonymous" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')}>
         <Option value={1}>{formatMessage({ id: 'yes', defaultMessage: '是' })}</Option>
         <Option value={0}>{formatMessage({ id: 'no', defaultMessage: '否' })}</Option>
       </SelectBox>
+      }
     </Form>
   );
 };

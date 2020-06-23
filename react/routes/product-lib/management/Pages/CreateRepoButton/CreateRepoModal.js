@@ -49,6 +49,7 @@ const CreateRepoModal = ({
   testBtnStore,
   mavenAssociateDs,
   npmAssociateDs,
+  enableAnonymousFlag,
 }) => {
   const [hasHarborRepo, setHasHarborRepo] = useState(true);
 
@@ -108,10 +109,10 @@ const CreateRepoModal = ({
 
   const npmAssociateFormProps = useMemo(() => ({ modal, formatMessage, npmAssociateDs, init }), [modal, init, npmAssociateDs, formatMessage]);
   const mavenAssociateFormProps = useMemo(() => ({ modal, formatMessage, mavenAssociateDs, init }), [modal, init, mavenAssociateDs, formatMessage]);
-  const mavenCreateFormProps = useMemo(() => ({ modal, formatMessage, mavenCreateDs, init }), [modal, init, mavenCreateDs, formatMessage]);
+  const mavenCreateFormProps = useMemo(() => ({ modal, formatMessage, mavenCreateDs, enableAnonymousFlag, init }), [modal, init, enableAnonymousFlag, mavenCreateDs, formatMessage]);
   const dockerCreateFormProps = useMemo(() => ({ modal, formatMessage, dockerCreateBasicDs, init }), [modal, init, dockerCreateBasicDs, formatMessage]);
   const dockerCustomCreateProps = useMemo(() => ({ modal, validateStore, dockerCustomCreateDs, formatMessage, init }), [validateStore, dockerCustomCreateDs, modal, init, formatMessage]);
-  const npmCreateFormProps = useMemo(() => ({ modal, formatMessage, npmCreateDs, init }), [modal, init, npmCreateDs, formatMessage]);
+  const npmCreateFormProps = useMemo(() => ({ modal, formatMessage, enableAnonymousFlag, npmCreateDs, init }), [modal, init, enableAnonymousFlag, npmCreateDs, formatMessage]);
 
   return (
     <React.Fragment>

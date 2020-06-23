@@ -6,8 +6,8 @@ import NexusAssociateModal from './NexusAssociateModal';
 
 const intlPrefix = 'infra.prod.lib';
 
-const NexusAssociateBtn = ({ repositoryId, formatMessage, publishAuthDs }) => {
-  const nexusAssociateModalProps = useMemo(() => ({ repositoryId, formatMessage, publishAuthDs }), [repositoryId, publishAuthDs, formatMessage]);
+const NexusAssociateBtn = ({ formatMessage, init }) => {
+  const nexusAssociateModalProps = useMemo(() => ({ init, formatMessage }), [init, formatMessage]);
 
   const title =
     (
