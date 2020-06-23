@@ -3,6 +3,8 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -582,14 +584,15 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (!StringUtils.equalsAny(repoType, HarborRepoDTO.CUSTOM_REPO, HarborRepoDTO.DEFAULT_REPO)) {
             throw new CommonException("error.harbor.config.repoType");
         }
-        if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
+        if(repoId == null){
+			return getDefaultHarborConfig(projectId, repoId, null);
+		} else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
             Set<Long> ids = new HashSet<Long>() {{
                 add(repoId);
             }};
             return getCustomHarborConfig(projectId, ids, null, null);
-        } else {
-            return getDefaultHarborConfig(projectId, repoId, null);
         }
+        return null;
     }
 
     @Override
@@ -686,7 +689,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         HarborRepository harborRepository = harborRepositoryList.get(0);
         List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
         if (CollectionUtils.isEmpty(harborRobotList)) {
-            throw new CommonException("error.harbor.robot.not.exist");
+            //TODO 创建机器人账户 throw new CommonException("error.harbor.robot.not.exist");
+			harborRobotList = harborRobotService.generateRobotWhenNo(projectId);
         }
         harborRepository.setPublicFlag(Boolean.parseBoolean(harborRepository.getPublicFlag()) ? HarborConstants.FALSE : HarborConstants.TRUE);
         HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborRepository.getId(), harborInfoConfiguration.getBaseUrl(), harborRepository.getCode(), harborRepository.getPublicFlag(), harborRobotList);

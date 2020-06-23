@@ -176,10 +176,8 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             throw new CommonException("error.harbor.robot.action.wrong");
         }
         //校验Harbor机器人账户
-        Boolean adminFlag = DetailsHelper.getUserDetails().getUsername().equals("ANONYMOUS");
         if (CollectionUtils.isNotEmpty(harborRobotList)) {
-            for (HarborRobot robot:harborRobotList
-            ) {
+            for (HarborRobot robot:harborRobotList) {
                 robot.setHarborProjectId(repositoryList.get(0).getHarborId());
                 ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,true, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
                 HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
@@ -254,4 +252,58 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             robotInvalidProcess(robot);
         }
     }
+
+    @Override
+	public List<HarborRobot> generateRobotWhenNo(Long projectId){
+		List<HarborRepository> repositoryList = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class)
+				.andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_PROJECT_ID, projectId))
+				.build());
+		if (CollectionUtils.isEmpty(repositoryList)) {
+			throw new CommonException("error.harbor.robot.repository.select");
+		}
+		HarborRepository repository = repositoryList.get(0);
+
+		List<HarborRobot> dbRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
+				.andWhere(Sqls.custom()
+						.andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
+						.andEqualTo(HarborRobot.FIELD_ORGANIZATION_ID, repository.getOrganizationId()))
+				.build());
+		if (CollectionUtils.isNotEmpty(dbRobotList)) {
+			harborRobotRepository.batchDeleteByPrimaryKey(dbRobotList);
+		}
+
+		//查找所有harbor robot
+		ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_ALL_ROBOTS,null,null,true,repository.getHarborId());
+		List<HarborRobotVO> allRobotVOList = new ArrayList<>();
+		if ( null != allRobotResponseEntity && StringUtils.isNotBlank(allRobotResponseEntity.getBody())) {
+			allRobotVOList = new Gson().fromJson(allRobotResponseEntity.getBody(),new TypeToken<List<HarborRobotVO>>(){}.getType());
+			allRobotVOList.forEach(harborRobotVO -> {
+				ResponseEntity<String> deleteRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ROBOT,null,null,true, repository.getHarborId(), harborRobotVO.getId());
+				if (!deleteRobotResponseEntity.getStatusCode().is2xxSuccessful()) {
+					throw new CommonException("error.harbor.robot.delete.expired");
+				}
+			});
+		}
+
+
+		List<HarborRobot> harborRobotList = new ArrayList<>(2);
+
+		HarborRobot harborRobot = new HarborRobot();
+		harborRobot.setProjectId(repository.getProjectId());
+		harborRobot.setHarborProjectId(repository.getHarborId());
+		harborRobot.setOrganizationId(repository.getOrganizationId());
+		//创建pull账户
+		harborRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PULL);
+		harborRobot.setAction(HarborConstants.HarborRobot.ACTION_PULL);
+		harborRobot.setDescription(repository.getCode() + BaseConstants.Symbol.SPACE  + HarborConstants.HarborRobot.ACTION_PULL + BaseConstants.Symbol.SPACE + HarborConstants.HarborRobot.ROBOT);
+		harborRobotList.add(this.createRobot(harborRobot));
+
+		//创建push账户
+		HarborUtil.resetDomain(harborRobot);
+		harborRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PUSH);
+		harborRobot.setAction(HarborConstants.HarborRobot.ACTION_PUSH);
+		harborRobot.setDescription(repository.getCode() + BaseConstants.Symbol.SPACE  + HarborConstants.HarborRobot.ACTION_PUSH + BaseConstants.Symbol.SPACE + HarborConstants.HarborRobot.ROBOT);
+		harborRobotList.add(this.createRobot(harborRobot));
+		return harborRobotList;
+	}
 }

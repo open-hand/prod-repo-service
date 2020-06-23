@@ -45,4 +45,5 @@ public interface HarborRobotService {
      */
     void robotInvalidProcess(HarborRobot robot);
 
+	List<HarborRobot> generateRobotWhenNo(Long projectId);
 }
