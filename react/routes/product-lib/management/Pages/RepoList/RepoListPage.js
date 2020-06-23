@@ -148,7 +148,7 @@ const RepoList = ({ setActiveRepository }) => {
     ]);
     
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
-    const enableAnonymousFlag = { enableFlagItem };
+    const { enableAnonymousFlag } = enableFlagItem;
 
     Modal.open({
       key,
@@ -173,7 +173,7 @@ const RepoList = ({ setActiveRepository }) => {
     
     
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
-    const enableAnonymousFlag = { enableFlagItem };
+    const { enableAnonymousFlag } = enableFlagItem;
 
     Modal.open({
       key,
