@@ -436,6 +436,9 @@ const prodManagement = {
   'infra.prod.lib.model.userName': '管理用户',
   'infra.prod.lib.model.enableAnonymousFlag': '是否启用匿名访问控制',
   'infra.prod.lib.model.anonymous': '匿名用户',
+  'infra.prod.lib.validate.destImageName': '至少包含一个小写字母、数字，分隔符可选小数点、破折号或下划线，不允许中文、大写英文字母。如test-123_123.test',
+  'infra.prod.lib.validate.destImageTagName': '数字，小数点，破折号分割。如：123-123.123',
+
 };
 
 const zhCN = {
