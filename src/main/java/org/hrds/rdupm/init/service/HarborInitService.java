@@ -9,4 +9,6 @@ public interface HarborInitService {
 	void defaultRepoInit();
 
 	void customRepoInit();
+
+	void initHarborCustomRepoNoAnyId();
 }

@@ -325,18 +325,22 @@ public class HarborInitServiceImpl implements HarborInitService {
 			}
 
 			//创建自定义仓库
-			HarborCustomRepo harborCustomRepo = new HarborCustomRepo();
-			BeanUtils.copyProperties(devopsConfigDto,harborCustomRepo);
-			harborCustomRepo.setProjectId(harborRepoService.getProjectId());
-			harborCustomRepo.setOrganizationId(harborRepoService.getOrganizationId());
-			harborCustomRepo.setProjectShare(HarborConstants.FALSE);
-			harborCustomRepo.setEnabledFlag(HarborConstants.Y);
-			harborCustomRepoRepository.insertSelective(harborCustomRepo);
+			if(harborCustomRepoRepository.selectByPrimaryKey(devopsConfigDto.getId()) == null) {
+				HarborCustomRepo harborCustomRepo = new HarborCustomRepo();
+				BeanUtils.copyProperties(devopsConfigDto, harborCustomRepo);
+				harborCustomRepo.setProjectId(harborRepoService.getProjectId());
+				harborCustomRepo.setOrganizationId(harborRepoService.getOrganizationId());
+				harborCustomRepo.setProjectShare(HarborConstants.FALSE);
+				harborCustomRepo.setEnabledFlag(HarborConstants.Y);
+				harborCustomRepoRepository.insertSelective(harborCustomRepo);
 
-			harborRepoService.setCustomRepoId(harborCustomRepo.getId());
-			harborRepoServiceList.add(harborRepoService);
+
+				harborRepoService.setCustomRepoId(harborCustomRepo.getId());
+				harborRepoServiceList.add(harborRepoService);
+			}
 		}
 		harborRepoServiceRepository.batchInsert(harborRepoServiceList);
+		initHarborCustomRepoNoAnyId();
 
 		LOGGER.debug("=====================================自定义仓库初始化完成===================================");
 
@@ -367,6 +371,34 @@ public class HarborInitServiceImpl implements HarborInitService {
 		mysqlDataSource.setPassword(harborInitConfiguration.getCustomRepoPassword());
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(mysqlDataSource);
 		return jdbcTemplate;
+	}
+
+	/***
+	 * 服务ID、组织ID、项目ID都为空时初始化进去，不保存关联关系
+	 */
+	@Override
+	public void initHarborCustomRepoNoAnyId() {
+		LOGGER.info("=====================================自定义仓库初始化修复=====================================");
+
+		//获取猪齿鱼数据库中自定义仓库配置信息
+		String selectSql = "select * from devops_config where type = 'harbor' and (app_service_id is null and organization_id is null and project_id is null)";
+		List<DevopsConfigDto> devopsConfigDtoList =  getCustomJdbcTemplate().query(selectSql,new BeanPropertyRowMapper<>(DevopsConfigDto.class));
+		if(CollectionUtils.isEmpty(devopsConfigDtoList)){
+			return;
+		}
+		devopsConfigDtoList.forEach(dto->dto.parseConfig());
+		for(DevopsConfigDto devopsConfigDto : devopsConfigDtoList){
+			//创建自定义仓库
+			if(harborCustomRepoRepository.selectByPrimaryKey(devopsConfigDto.getId()) == null){
+				HarborCustomRepo harborCustomRepo = new HarborCustomRepo();
+				BeanUtils.copyProperties(devopsConfigDto,harborCustomRepo);
+				harborCustomRepo.setProjectShare(HarborConstants.FALSE);
+				harborCustomRepo.setEnabledFlag(HarborConstants.Y);
+				harborCustomRepoRepository.insertSelective(harborCustomRepo);
+			}
+		}
+		LOGGER.info("=====================================自定义仓库初始化修复完成=====================================");
+
 	}
 
 }
