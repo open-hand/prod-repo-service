@@ -73,7 +73,7 @@ const AddMemberModal = ({ repositoryId, formatMessage, modal, publishAuthDs }) =
       {ds.data.map((record) =>
         (
           <Form key={record.id} columns={4} record={record}>
-            <Select name="userId" dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}>
+            <Select name="userId" dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }} searchable>
               {memberDataSource.map(o => (
                 <Select.Option key={o.id} value={o.id}>{o.realName}</Select.Option>
               ))}
