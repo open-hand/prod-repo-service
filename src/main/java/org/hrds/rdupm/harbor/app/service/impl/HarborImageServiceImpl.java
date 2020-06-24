@@ -61,8 +61,8 @@ public class HarborImageServiceImpl implements HarborImageService {
 		//获得镜像数
 		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-		Integer totalSize = harborProjectDTO.getRepoCount();
-		String repoName = harborProjectDTO.getName();
+		Integer totalSize = harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
+		String repoName = harborProjectDTO == null ? null : harborProjectDTO.getName();
 		if(totalSize <= 0){
 			return PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), new ArrayList<>());
 		}
@@ -122,7 +122,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 			//获得镜像数
 			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborRepository.getHarborId());
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-			totalSize += harborProjectDTO.getRepoCount();
+			totalSize += harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
 		}
 		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;

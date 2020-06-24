@@ -108,6 +108,9 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 	public HarborQuotaVo getGlobalQuota() {
 		ResponseEntity<String> quotaResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_GLOBAL_QUOTA,null,null,true);
 		Map<String,Object> quotaMap = new Gson().fromJson(quotaResponseEntity.getBody(),Map.class);
+		if(quotaMap == null){
+			return null;
+		}
 		Map<String,Object> countMap = (Map<String, Object>) quotaMap.get("count_per_project");
 		Map<String,Object> storageMap = (Map<String, Object>) quotaMap.get("storage_per_project");
 		Double hardCount = (Double) countMap.get("value");

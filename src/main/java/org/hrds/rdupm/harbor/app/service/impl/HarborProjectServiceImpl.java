@@ -121,6 +121,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		Gson gson = new Gson();
 		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+		if(harborProjectDTO == null){
+			return null;
+		}
 		HarborProjectVo harborProjectVo = new HarborProjectVo(harborProjectDTO);
 
 		//获取镜像仓库名称
@@ -234,7 +237,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 			//获得镜像数
 			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,dto.getHarborId());
 			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-			dto.setRepoCount(harborProjectDTO.getRepoCount());
+			dto.setRepoCount(harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount());
 
 			//设置创建人登录名、真实名称、创建人头像
 			UserDTO userDTO = userDtoMap.get(dto.getCreatedBy());
