@@ -66,43 +66,6 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,true,harborId);
 	}
 
-//	@Override
-//	public HarborQuotaVo getProjectQuota(Long projectId) {
-//		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
-//		if(harborRepository == null){
-//			throw new CommonException("error.harbor.project.not.exist");
-//		}
-//		ResponseEntity<String> quotaResponseEntity = null;
-//		//获取存储容量
-//		try{
-//			quotaResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_QUOTA,null,null,true,harborRepository.getHarborId());
-//		}catch (Exception e){
-//			return new HarborQuotaVo(-1,"-",-1L,"-");
-//		}
-//		Map<String,Object> quotaMap = new Gson().fromJson(quotaResponseEntity.getBody(),Map.class);
-//		Map<String,Object> hardMap = (Map<String, Object>) quotaMap.get("hard");
-//		Map<String,Object> usedMap = (Map<String, Object>) quotaMap.get("used");
-//		Double hardCount = (Double) hardMap.get("count");
-//		Long hardStorage = ((Double) hardMap.get("storage")).longValue();
-//		Double usedCount = (Double) usedMap.get("count");
-//		Long usedStorage = ((Double) usedMap.get("storage")).longValue();
-//
-//		HarborQuotaVo harborQuotaVo = new HarborQuotaVo();
-//		harborQuotaVo.setCountLimit(hardCount.intValue());
-//		harborQuotaVo.setUsedCount(usedCount.intValue());
-//		harborQuotaVo.setStorageLimit(hardStorage);
-//		harborQuotaVo.setUsedStorage(usedStorage);
-//
-//		Map<String,Object> storageLimitMap = HarborUtil.getStorageNumUnit(hardStorage);
-//		harborQuotaVo.setStorageNum(((Long) storageLimitMap.get("storageNum")).intValue());
-//		harborQuotaVo.setStorageUnit((String) storageLimitMap.get("storageUnit"));
-//		Map<String,Object> usedStorageMap = HarborUtil.getUsedStorageNumUnit(usedStorage);
-//		harborQuotaVo.setUsedStorageNum((BigDecimal) usedStorageMap.get("storageNum"));
-//		harborQuotaVo.setUsedStorageUnit((String) usedStorageMap.get("storageUnit"));
-//
-//		return harborQuotaVo;
-//	}
-
 	@Override
 	public HarborQuotaVo getProjectQuota(Long projectId) {
 		HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
