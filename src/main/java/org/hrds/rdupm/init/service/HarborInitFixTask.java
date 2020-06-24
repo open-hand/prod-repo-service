@@ -32,13 +32,6 @@ public class HarborInitFixTask {
 	@Autowired
 	private HarborInitService harborInitService;
 
-	@Autowired
-	private HarborRepositoryRepository harborRepositoryRepository;
-	@Autowired
-	private HarborInitConfiguration harborInitConfiguration;
-	@Autowired
-	private HarborCustomRepoRepository harborCustomRepoRepository;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(HarborInitFixTask.class);
 
 
@@ -50,21 +43,13 @@ public class HarborInitFixTask {
 		harborInitService.initHarborCustomRepoNoAnyId();
 	}
 
-	private JdbcTemplate getDefaultJdbcTemplate(){
-		MysqlDataSource mysqlDataSource = new MysqlDataSource();
-		mysqlDataSource.setURL(harborInitConfiguration.getDefaultRepoUrl());
-		mysqlDataSource.setUser(harborInitConfiguration.getDefaultRepoUsername());
-		mysqlDataSource.setPassword(harborInitConfiguration.getDefaultRepoPassword());
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(mysqlDataSource);
-		return jdbcTemplate;
+
+	@JobTask(maxRetryCount = 3,code = "fixHarborUserAuth23.0",description = "Harbor-用户权限修复-0.23.0")
+	@TimedTask(name = "fixHarborUserAuth23.0", description = "Harbor-用户权限修复-0.23.0",
+			oneExecution = true, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
+			params = {})
+	public void fixHarborUserAuth(Map<String, Object> map) {
+		harborInitService.fixHarborUserAuth();
 	}
 
-	private JdbcTemplate getCustomJdbcTemplate(){
-		MysqlDataSource mysqlDataSource = new MysqlDataSource();
-		mysqlDataSource.setURL(harborInitConfiguration.getCustomRepoUrl());
-		mysqlDataSource.setUser(harborInitConfiguration.getCustomRepoUsername());
-		mysqlDataSource.setPassword(harborInitConfiguration.getCustomRepoPassword());
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(mysqlDataSource);
-		return jdbcTemplate;
-	}
 }

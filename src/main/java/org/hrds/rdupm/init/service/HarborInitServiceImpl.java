@@ -24,6 +24,7 @@ import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepoServiceRepository;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.dto.DevopsAppService;
 import org.hrds.rdupm.init.dto.DevopsConfigDto;
@@ -78,6 +79,8 @@ public class HarborInitServiceImpl implements HarborInitService {
 	private HarborRepoServiceRepository harborRepoServiceRepository;
 	@Autowired
 	private ProdUserRepository prodUserRepository;
+	@Resource
+	private HarborRepositoryMapper harborRepositoryMapper;
 
 	private final String sagaCode = "rdupm-docker-auth-create-init";
 
@@ -171,20 +174,16 @@ public class HarborInitServiceImpl implements HarborInitService {
 				Long userId = projectIdUserIdMap.get(dto.getProjectId());
 				UserDTO userDTO = userDtoMap.get(userId);
 				if(userDTO != null && !"admin".equals(userDTO.getLoginName())){
-					HarborAuth harborAuth = new HarborAuth();
-					harborAuth.setHarborId(dto.getHarborId());
-					harborAuth.setProjectId(dto.getProjectId());
-					harborAuth.setOrganizationId(dto.getOrganizationId());
-					harborAuth.setUserId(userId);
-					harborAuth.setLoginName(userDTO.getLoginName());
-					harborAuth.setRealName(userDTO.getRealName());
-					harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
-					try {
-						harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
+					HarborAuth harborAuth = getOwnerAuth(dto,userDTO);
 					authList.add(harborAuth);
+				}else {
+					UserDTO projectOwnerDTO = c7nBaseService.getProjectOwnerById(dto.getProjectId());
+					if(projectOwnerDTO != null && !"admin".equals(projectOwnerDTO.getLoginName())){
+						creatUserIdSet.add(projectOwnerDTO.getId());
+						userDtoMap.put(projectOwnerDTO.getId(),projectOwnerDTO);
+						HarborAuth harborAuth = getOwnerAuth(dto,projectOwnerDTO);
+						authList.add(harborAuth);
+					}
 				}
 			}
 		});
@@ -192,6 +191,23 @@ public class HarborInitServiceImpl implements HarborInitService {
 		batchAssignAuthToDb(authList);
 
 		LOGGER.debug("Thread name:{},task:{}",Thread.currentThread().getName(),page);
+	}
+
+	public HarborAuth getOwnerAuth(HarborRepository dto,UserDTO userDTO){
+		HarborAuth harborAuth = new HarborAuth();
+		harborAuth.setHarborId(dto.getHarborId());
+		harborAuth.setProjectId(dto.getProjectId());
+		harborAuth.setOrganizationId(dto.getOrganizationId());
+		harborAuth.setUserId(userDTO.getId());
+		harborAuth.setLoginName(userDTO.getLoginName());
+		harborAuth.setRealName(userDTO.getRealName());
+		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
+		try {
+			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return harborAuth;
 	}
 
 	private void batchInsertUserToDb(Set<Long> creatUserIdSet,Map<Long,UserDTO> userDtoMap){
@@ -395,9 +411,42 @@ public class HarborInitServiceImpl implements HarborInitService {
 				harborCustomRepo.setProjectShare(HarborConstants.FALSE);
 				harborCustomRepo.setEnabledFlag(HarborConstants.Y);
 				harborCustomRepoRepository.insertSelective(harborCustomRepo);
+			}else {
+				LOGGER.info("自定义数据已存在：id:{},repo_url:{},repo_name:{}",devopsConfigDto.getId(),devopsConfigDto.getRepoUrl(),devopsConfigDto.getRepoName());
 			}
 		}
 		LOGGER.info("=====================================自定义仓库初始化修复完成=====================================");
+	}
+
+	/***
+	 * 当仓库下没有任何管理员用户时，初始化项目所有者为仓库管理员权限
+	 */
+	@Override
+	public void fixHarborUserAuth(){
+		LOGGER.info("=====================================默认仓库初始化修复=====================================");
+
+		List<HarborRepository> harborRepositoryList = harborRepositoryMapper.selectRepoNoAuth();
+		if(CollectionUtils.isEmpty(harborRepositoryList)){
+			return;
+		}
+		Set<Long> creatUserIdSet = new HashSet<>(16);
+		Map<Long,UserDTO> userDtoMap = new HashMap<>(16);
+		List<HarborAuth> authList = new ArrayList<>();
+
+		for(HarborRepository dto : harborRepositoryList){
+			Long projectId = dto.getProjectId();
+			UserDTO userDTO = c7nBaseService.getProjectOwnerById(projectId);
+			if(userDTO != null && !"admin".equals(userDTO.getLoginName())){
+				creatUserIdSet.add(userDTO.getId());
+				userDtoMap.put(userDTO.getId(),userDTO);
+
+				HarborAuth harborAuth = getOwnerAuth(dto,userDTO);
+				authList.add(harborAuth);
+			}
+		}
+		batchInsertUserToDb(creatUserIdSet,userDtoMap);
+		batchAssignAuthToDb(authList);
+		LOGGER.info("=====================================默认仓库初始化修复完成=====================================");
 
 	}
 

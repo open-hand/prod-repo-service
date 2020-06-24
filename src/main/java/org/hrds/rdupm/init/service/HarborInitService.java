@@ -11,4 +11,6 @@ public interface HarborInitService {
 	void customRepoInit();
 
 	void initHarborCustomRepoNoAnyId();
+
+	void fixHarborUserAuth();
 }

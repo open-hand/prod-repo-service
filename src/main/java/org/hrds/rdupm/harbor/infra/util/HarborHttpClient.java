@@ -113,6 +113,10 @@ public class HarborHttpClient {
 			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
 		} catch (HttpClientErrorException e) {
 			e.printStackTrace();
+			int statusCode = e.getStatusCode().value();
+			if(statusCode == 404){
+				return new ResponseEntity<String>((String) null,HttpStatus.NO_CONTENT);
+			}
 			handleStatusCode(apiEnum,e);
 		}finally {
 			LOGGER.debug("api：{}",apiEnum);
