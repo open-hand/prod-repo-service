@@ -180,9 +180,14 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             for (HarborRobot robot:harborRobotList) {
                 robot.setHarborProjectId(repositoryList.get(0).getHarborId());
                 ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,true, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
-                HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
-                checkRobotInfo(robot, harborRobotVO);
+                if (StringUtils.isBlank(allRobotResponseEntity.getBody())){
+                    return generateRobotWhenNo(robot.getProjectId());
+                } else {
+                    HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
+                    checkRobotInfo(robot, harborRobotVO);
+                }
             }
+
         }
         return harborRobotList;
     }
