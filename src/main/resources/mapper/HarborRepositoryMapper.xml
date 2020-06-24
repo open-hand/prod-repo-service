@@ -21,4 +21,21 @@
     <update id="updateHarborIdByProjectId" >
         update rdupm_harbor_repository set harbor_id = #{harborId} where project_id = #{projectId}
     </update>
+
+    <select id="selectRepoNoAuth" resultMap="BaseResultMap">
+        SELECT
+            temp.*
+        FROM
+            (
+            SELECT
+                hr.project_id,
+                hr.organization_id,
+                hr.harbor_id,
+                ( SELECT ha.auth_id FROM rdupm_harbor_auth ha WHERE hr.project_id = ha.project_id AND ha.harbor_role_id = 1 LIMIT 1 ) auth_id
+            FROM
+                rdupm_harbor_repository hr
+            ) temp
+        WHERE
+            auth_id IS NULL
+    </select>
 </mapper>

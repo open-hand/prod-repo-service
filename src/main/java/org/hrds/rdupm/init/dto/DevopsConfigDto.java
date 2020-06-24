@@ -66,7 +66,12 @@ public class DevopsConfigDto {
 		}else {
 			this.repoName = "project_harbor_default";
 		}
-		this.email = configMap.get("email").toString();
+		if(configMap.get("email") != null){
+			this.email = configMap.get("email").toString();
+		}else {
+			this.email = loginName + "@c7n.com";
+		}
+
 		if(configMap.get("isPrivate") != null){
 			String isPrivate = configMap.get("isPrivate").toString();
 			this.publicFlag = "true".equals(isPrivate) ? "false" : "true";
