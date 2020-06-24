@@ -11,6 +11,12 @@ import java.util.List;
  */
 public class NexusServerUser {
 
+	/**
+	 * 管理员 角色
+	 */
+	public static final String ADMIN_ROLE = "nx-admin";
+
+
 	private static String STATUS_ACTIVE = "active";
 
 	/**

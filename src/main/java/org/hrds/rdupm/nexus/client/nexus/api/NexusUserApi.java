@@ -43,7 +43,7 @@ public interface NexusUserApi {
 	void changePassword(String userId, String newPassword);
 
 	/**
-	 * 校验改用户是否有仓库对应发布权限
+	 * 校验该用户是否有仓库对应发布权限
 	 * @param repositoryList 仓库名列表
 	 * @param userName 用户名称（ID）
 	 * @param ruleList 发布权限规则列表,一组规则有多个时用逗号隔开
@@ -51,6 +51,13 @@ public interface NexusUserApi {
 	 * @return 返回repositoryList中该用户有发布权限的仓库
 	 */
 	List<String> validPush(List<String> repositoryList, String userName, List<String> ruleList);
+
+	/**
+	 * 校验该用户是否有管理员权限
+	 * @param userName 用户名称（ID）
+	 * @return Boolean true:有   false：无
+	 */
+	Boolean validAdmin(String userName);
 
 	/**
 	 * 校验用户与用户名是否正确
