@@ -160,7 +160,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
             throw new CommonException("error.harbor.robot.repository.select", projectId);
         }
         //查询DB机器人账户
-        List<HarborRobot> harborRobotList;
+        List<HarborRobot> harborRobotList = new ArrayList<>();
         if (StringUtils.isEmpty(action)) {
             harborRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
                     .andWhere(Sqls.custom()
@@ -172,25 +172,24 @@ public class HarborRobotServiceImpl implements HarborRobotService {
                             .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectId)
                             .andEqualTo(HarborRobot.FIELD_ACTION, action))
                     .build());
-        } else {
-            throw new CommonException("error.harbor.robot.action.wrong");
         }
+
         //校验Harbor机器人账户
-        if (CollectionUtils.isNotEmpty(harborRobotList)) {
-            for (HarborRobot robot:harborRobotList) {
-                robot.setHarborProjectId(repositoryList.get(0).getHarborId());
-                ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,true, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
-                if (StringUtils.isBlank(allRobotResponseEntity.getBody())){
-                    return generateRobotWhenNo(robot.getProjectId());
-                } else {
-                    HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
-                    checkRobotInfo(robot, harborRobotVO);
-                }
-            }
-            return harborRobotList;
-        } else {
-            return generateRobotWhenNo(projectId);
+        if (CollectionUtils.isEmpty(harborRobotList)) {
+			return generateRobotWhenNo(projectId);
         }
+		for (HarborRobot robot:harborRobotList) {
+			robot.setHarborProjectId(repositoryList.get(0).getHarborId());
+			ResponseEntity<String> allRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_ONE_ROBOT,null,null,true, repositoryList.get(0).getHarborId(), robot.getHarborRobotId());
+			if (StringUtils.isBlank(allRobotResponseEntity.getBody())){
+				return generateRobotWhenNo(robot.getProjectId());
+			} else {
+				HarborRobotVO harborRobotVO = new Gson().fromJson(allRobotResponseEntity.getBody(), HarborRobotVO.class);
+				checkRobotInfo(robot, harborRobotVO);
+			}
+		}
+		return harborRobotList;
+
     }
 
     @Override
