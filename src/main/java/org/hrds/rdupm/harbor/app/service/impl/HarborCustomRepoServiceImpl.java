@@ -700,7 +700,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     private HarborRepoDTO getCustomHarborConfig(Long projectId, Set<Long> repoIds, Long appServiceId, String enabledFlag) {
         Sqls sql = Sqls.custom()
-                .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                //.andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
                 .andIn(HarborCustomRepo.FIELD_ID, repoIds);
         if (StringUtils.equalsAny(enabledFlag, HarborConstants.Y, HarborConstants.N)) {
             sql.andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, enabledFlag);
