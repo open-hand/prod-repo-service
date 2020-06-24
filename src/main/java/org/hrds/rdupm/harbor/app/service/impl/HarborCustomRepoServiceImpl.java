@@ -584,7 +584,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (!StringUtils.equalsAny(repoType, HarborRepoDTO.CUSTOM_REPO, HarborRepoDTO.DEFAULT_REPO)) {
             throw new CommonException("error.harbor.config.repoType");
         }
-        if(repoId == null){
+        //fix 0624
+        if(repoId == null || HarborRepoDTO.DEFAULT_REPO.equals(repoType)){
 			return getDefaultHarborConfig(projectId, repoId, null);
 		} else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
             Set<Long> ids = new HashSet<Long>() {{
