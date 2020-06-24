@@ -305,10 +305,15 @@ public class HarborRobotServiceImpl implements HarborRobotService {
 
 		//创建push账户
 		HarborUtil.resetDomain(harborRobot);
-		harborRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PUSH);
-		harborRobot.setAction(HarborConstants.HarborRobot.ACTION_PUSH);
-		harborRobot.setDescription(repository.getCode() + BaseConstants.Symbol.SPACE  + HarborConstants.HarborRobot.ACTION_PUSH + BaseConstants.Symbol.SPACE + HarborConstants.HarborRobot.ROBOT);
-		harborRobotList.add(this.createRobot(harborRobot));
+		HarborRobot pushRobot = new HarborRobot();
+		pushRobot.setHarborProjectId(harborRobot.getHarborProjectId());
+		pushRobot.setEnableFlag(harborRobot.getEnableFlag());
+		pushRobot.setOrganizationId(harborRobot.getOrganizationId());
+		pushRobot.setProjectId(harborRobot.getProjectId());
+        pushRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PUSH);
+        pushRobot.setAction(HarborConstants.HarborRobot.ACTION_PUSH);
+        pushRobot.setDescription(repository.getCode() + BaseConstants.Symbol.SPACE  + HarborConstants.HarborRobot.ACTION_PUSH + BaseConstants.Symbol.SPACE + HarborConstants.HarborRobot.ROBOT);
+		harborRobotList.add(this.createRobot(pushRobot));
 		return harborRobotList;
 	}
 }
