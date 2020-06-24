@@ -187,9 +187,10 @@ public class HarborRobotServiceImpl implements HarborRobotService {
                     checkRobotInfo(robot, harborRobotVO);
                 }
             }
-
+            return harborRobotList;
+        } else {
+            return generateRobotWhenNo(projectId);
         }
-        return harborRobotList;
     }
 
     @Override
