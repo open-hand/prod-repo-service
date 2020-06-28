@@ -77,12 +77,18 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		try{
 			quotaResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY,null,null,true,harborRepository.getHarborId());
 		}catch (Exception e){
-			return new HarborQuotaVo(-1,"-",-1L,"-");
+			return new HarborQuotaVo(-1,0,-1L,-1,"B",0L,new BigDecimal(0),"B");
 		}
 		Map<String,Object> summaryMap = new Gson().fromJson(quotaResponseEntity.getBody(),Map.class);
+		if(summaryMap == null){
+			return new HarborQuotaVo(-1,0,-1L,-1,"B",0L,new BigDecimal(0),"B");
+		}
 		Map<String,Object> quotaMap = (Map<String, Object>) summaryMap.get("quota");
 		Map<String,Object> hardMap = (Map<String, Object>) quotaMap.get("hard");
 		Map<String,Object> usedMap = (Map<String, Object>) quotaMap.get("used");
+		if(hardMap == null || usedMap == null){
+			return new HarborQuotaVo(-1,0,-1L,-1,"B",0L,new BigDecimal(0),"B");
+		}
 		Double hardCount = (Double) hardMap.get("count");
 		Long hardStorage = ((Double) hardMap.get("storage")).longValue();
 		Double usedCount = (Double) usedMap.get("count");
