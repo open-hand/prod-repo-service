@@ -44,10 +44,17 @@ public class HarborQuotaVo {
 
 	public HarborQuotaVo(){}
 
-	public HarborQuotaVo( Integer storageNum, String storageUnit, Long usedStorage,  String usedStorageUnit) {
+	public HarborQuotaVo(Integer countLimit, Integer usedCount,
+						 Long storageLimit, Integer storageNum, String storageUnit,
+						 Long usedStorage, BigDecimal usedStorageNum, String usedStorageUnit) {
+		this.countLimit = countLimit;
+		this.usedCount = usedCount;
+		this.storageLimit = storageLimit;
 		this.storageNum = storageNum;
 		this.storageUnit = storageUnit;
 		this.usedStorage = usedStorage;
+		this.usedStorageNum = usedStorageNum;
 		this.usedStorageUnit = usedStorageUnit;
 	}
+
 }
