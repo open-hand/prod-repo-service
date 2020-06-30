@@ -88,10 +88,11 @@ public class DevopsSagaHandler {
 		projectDTO.setOrganizationId(devopsProjectDTO.getOrganizationId());
 
 		UserDTO userDTO = c7nBaseService.listUserById(devopsProjectDTO.getUserId());
+		UserDTO userDTO2 = new UserDTO(userDTO.getId(),userDTO.getLoginName(),userDTO.getRealName(),userDTO.getEmail());
 
 		HarborProjectVo harborProjectVo = new HarborProjectVo();
 		harborProjectVo.setProjectDTO(projectDTO);
-		harborProjectVo.setUserDTO(userDTO);
+		harborProjectVo.setUserDTO(userDTO2);
 		harborProjectVo.setCode(harborProjectCode);
 		harborProjectVo.setName(devopsProjectDTO.getProjectName());
 		harborProjectVo.setPublicFlag("false");
