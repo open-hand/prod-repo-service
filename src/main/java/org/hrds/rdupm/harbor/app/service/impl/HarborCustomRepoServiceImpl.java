@@ -633,10 +633,13 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                         .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
                 .build());
         if (CollectionUtils.isEmpty(harborCustomRepoList)) {
-            throw new CommonException("error.harbor.custom.repo.not.exist");
+            return null;
         }
         HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
         getHarborProjectId(harborCustomRepo);
+        if (null == harborCustomRepo.getHarborProjectId()) {
+            return null;
+        }
 
         List<HarborImageVo> harborImageVoList = getImageList(harborCustomRepo.getHarborProjectId(), imageName, harborCustomRepo.getRepoName());
         return harborImageVoList;
@@ -651,17 +654,20 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         paramMap.put("name", harborCustomRepo.getRepoName());
         ResponseEntity<String> listProjectResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_PROJECT, paramMap, null);
         if (listProjectResponse.getBody() == null) {
-            throw new CommonException("error.harbor.custom.repo.no.match.project", harborCustomRepo.getRepoName());
+            LOGGER.info("the response body of list project is null");
+            return;
         }
 
         List<HarborProjectDTO> harborProjectDTOList = new Gson().fromJson(listProjectResponse.getBody(), new TypeToken<List<HarborProjectDTO>>() {
         }.getType());
         if (CollectionUtils.isEmpty(harborProjectDTOList)) {
-            throw new CommonException("error.harbor.custom.repo.no.match.project", harborCustomRepo.getRepoName());
+            LOGGER.info("the harborProjectDTOList from json is null");
+            return;
         }
         List<HarborProjectDTO> matchProjectDTO = harborProjectDTOList.stream().filter(a -> a.getName().equals(harborCustomRepo.getRepoName())).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(matchProjectDTO)) {
-            throw new CommonException("error.harbor.custom.repo.no.match.project", harborCustomRepo.getRepoName());
+            LOGGER.info("no match project from harborProjectDTOList ,the repoName is {}", harborCustomRepo.getRepoName());
+            return;
         }
         harborCustomRepo.setHarborProjectId(matchProjectDTO.get(0).getHarborId());
     }

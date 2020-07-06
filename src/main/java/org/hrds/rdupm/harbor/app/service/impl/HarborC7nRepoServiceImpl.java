@@ -58,7 +58,7 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
     @Override
     public List<HarborImageVo> getImagesByRepoId(Long repoId, String repoType, String imageName) {
         if (!StringUtils.equalsAnyIgnoreCase(repoType, HarborConstants.HarborRepoType.CUSTOM_REPO, HarborConstants.HarborRepoType.DEFAULT_REPO)) {
-            throw new CommonException("error.harbor.config.repoType");
+            return null;
         }
         if (HarborConstants.HarborRepoType.CUSTOM_REPO.equalsIgnoreCase(repoType)) {
             return harborCustomRepoService.getImagesByRepoId(repoId, imageName);
@@ -71,7 +71,7 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
         Gson gson = new Gson();
         HarborRepository harborRepository = harborRepositoryRepository.selectByPrimaryKey(repoId);
         if(harborRepository == null){
-            throw new CommonException("error.harbor.project.not.exist");
+        	return null;
         }
         Long harborId = harborRepository.getHarborId();
 
