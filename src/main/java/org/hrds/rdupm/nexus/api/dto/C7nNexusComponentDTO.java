@@ -28,4 +28,6 @@ public class C7nNexusComponentDTO {
     private String name;
     @ApiModelProperty(value = "版本")
     private String version;
+    @ApiModelProperty(value = "下载地址")
+    private String downloadUrl;
 }

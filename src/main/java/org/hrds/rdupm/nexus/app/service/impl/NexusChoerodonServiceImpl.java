@@ -10,10 +10,7 @@ import org.hrds.rdupm.nexus.app.service.NexusChoerodonService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
+import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
@@ -40,6 +37,10 @@ import java.util.stream.Collectors;
  */
 @Service
 public class NexusChoerodonServiceImpl implements NexusChoerodonService {
+
+    private static final String BACK_SLASH = "/";
+    private static final String DOR = ".";
+    private static final String HYPHEN = "-";
 
     @Autowired
     private NexusServerConfigRepository nexusServerConfigRepository;
@@ -111,6 +112,11 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
         componentQuery.setName(artifactId);
 
 
+        NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+        if (nexusServerRepository == null) {
+            return new ArrayList<>();
+        }
+
         List<C7nNexusComponentDTO> result = new ArrayList<>();
 
         if (repoType.equals(NexusConstants.RepoType.MAVEN)) {
@@ -119,6 +125,16 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
             for (NexusServerComponentInfo componentInfo : componentList) {
                 C7nNexusComponentDTO componentDTO = new C7nNexusComponentDTO();
                 BeanUtils.copyProperties(componentInfo, componentDTO);
+
+                NexusServerComponent serverComponent = componentInfo.getComponents().stream().max(Comparator.comparing(NexusServerComponent::getVersion)).orElse(null);
+                if (serverComponent == null) {
+                    // release版本没有，下级
+                    componentDTO.setDownloadUrl(nexusServerRepository.getUrl() + BACK_SLASH + componentInfo.getPath() + BACK_SLASH
+                            + componentInfo.getName() + HYPHEN + componentInfo.getVersion() + DOR + componentInfo.getExtension());
+                } else {
+                    componentDTO.setDownloadUrl(nexusServerRepository.getUrl() + BACK_SLASH + serverComponent.getPath() + BACK_SLASH
+                            + serverComponent.getName() + HYPHEN + serverComponent.getVersion() + DOR + componentInfo.getExtension());
+                }
                 result.add(componentDTO);
             }
             result = result.stream().sorted(Comparator.comparing(C7nNexusComponentDTO::getGroup).thenComparing(C7nNexusComponentDTO::getName).thenComparing(C7nNexusComponentDTO::getVersion).reversed()).collect(Collectors.toList());

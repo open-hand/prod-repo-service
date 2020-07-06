@@ -58,4 +58,6 @@ public class NexusServerComponent {
 	@ApiModelProperty(value = "用户名")
 	private String creatorRealName;
 
+	@ApiModelProperty(value = "asset中，最新的jar/war版本path地址")
+	private String path;
 }

@@ -184,7 +184,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 	private List<NexusServerComponentInfo> mavenComponentGroup(List<NexusServerComponent> componentList) {
 		Map<String, NexusServerComponentInfo> componentInfoMap = new HashMap<>(16);
 		for (NexusServerComponent component : componentList) {
-			String path = component.getGroup() + "/" + component.getName() + "/" + component.getUseVersion();
+			//String path = component.getGroup() + "/" + component.getName() + "/" + component.getUseVersion();
+			String path = component.getPath();
 			String key = component.getRepository() + path;
 			if (componentInfoMap.get(key) == null) {
 				NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
@@ -321,6 +322,8 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
 					extensionList.add(extension);
 				});
 				nexusComponent.setExtension(this.handleExtension(extensionList));
+
+				nexusComponent.setPath(StringUtils.substringBeforeLast(asset.getPath(), "/"));
 			}
 			nexusComponent.setComponentIds(Collections.singletonList(nexusComponent.getId()));
 			// assets 前端不需要，数据量太大
