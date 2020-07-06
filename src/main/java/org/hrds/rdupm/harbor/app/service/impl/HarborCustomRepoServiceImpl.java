@@ -15,6 +15,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborRobotService;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.*;
@@ -622,6 +623,60 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             });
         }
         return new HarborAllRepoDTO(projectId, harborDefaultRepoConfig, harborCustomRepoConfigList);
+    }
+
+    @Override
+    public List<HarborImageVo> getImagesByRepoId(Long repoId, String imageName) {
+        List<HarborCustomRepo> harborCustomRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+                .andWhere(Sqls.custom()
+                        .andEqualTo(HarborCustomRepo.FIELD_ID, repoId)
+                        .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
+                .build());
+        if (CollectionUtils.isEmpty(harborCustomRepoList)) {
+            throw new CommonException("error.harbor.custom.repo.not.exist");
+        }
+        HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
+        getHarborProjectId(harborCustomRepo);
+
+        List<HarborImageVo> harborImageVoList = getImageList(harborCustomRepo.getHarborProjectId(), imageName, harborCustomRepo.getRepoName());
+        return harborImageVoList;
+    }
+
+    private void getHarborProjectId(HarborCustomRepo harborCustomRepo) {
+        String password  = DESEncryptUtil.decode(harborCustomRepo.getPassword());
+        HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), password);
+        harborHttpClient.setHarborCustomConfiguration(harborCustomConfiguration);
+
+        Map<String, Object> paramMap = new HashMap<>(1);
+        paramMap.put("name", harborCustomRepo.getRepoName());
+        ResponseEntity<String> listProjectResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_PROJECT, paramMap, null);
+        if (listProjectResponse.getBody() == null) {
+            throw new CommonException("error.harbor.custom.repo.no.match.project", harborCustomRepo.getRepoName());
+        }
+
+        List<HarborProjectDTO> harborProjectDTOList = new Gson().fromJson(listProjectResponse.getBody(), new TypeToken<List<HarborProjectDTO>>() {
+        }.getType());
+        if (CollectionUtils.isEmpty(harborProjectDTOList)) {
+            throw new CommonException("error.harbor.custom.repo.no.match.project", harborCustomRepo.getRepoName());
+        }
+        List<HarborProjectDTO> matchProjectDTO = harborProjectDTOList.stream().filter(a -> a.getName().equals(harborCustomRepo.getRepoName())).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(matchProjectDTO)) {
+            throw new CommonException("error.harbor.custom.repo.no.match.project", harborCustomRepo.getRepoName());
+        }
+        harborCustomRepo.setHarborProjectId(matchProjectDTO.get(0).getHarborId());
+    }
+
+    private List<HarborImageVo> getImageList(Integer harborProjectId, String imageName, String repoName) {
+        Map<String,Object> paramMap = new HashMap<>(4);
+        paramMap.put("project_id",harborProjectId);
+        paramMap.put("q",imageName);
+        ResponseEntity<String> responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null);
+        List<HarborImageVo> harborImageVoList = new ArrayList<>();
+        if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
+            harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageVo>>(){}.getType());
+        }
+        harborImageVoList.forEach(dto->dto.setImageName(dto.getRepoName().substring(repoName.length()+1)));
+        return harborImageVoList;
     }
 
     private List<AppServiceDTO> batchQueryAppServiceByIds(Long projectId, Set<Long> ids, Boolean doPage, Boolean withVersion, String params) {

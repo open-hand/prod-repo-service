@@ -56,8 +56,41 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 	private HarborInfoConfiguration harborInfoConfiguration;
 
     @Override
-    public Page<HarborImageVo> getImagesByRepoId(Long projectId, Long repoId, Long appServiceId, String imageName, PageRequest pageRequest) {
-        return null;
+    public List<HarborImageVo> getImagesByRepoId(Long repoId, String repoType, String imageName) {
+        if (!StringUtils.equalsAnyIgnoreCase(repoType, HarborConstants.HarborRepoType.CUSTOM_REPO, HarborConstants.HarborRepoType.DEFAULT_REPO)) {
+            throw new CommonException("error.harbor.config.repoType");
+        }
+        if (HarborConstants.HarborRepoType.CUSTOM_REPO.equalsIgnoreCase(repoType)) {
+            return harborCustomRepoService.getImagesByRepoId(repoId, imageName);
+        } else {
+            return getDefaultRepoImagesByRepoId(repoId, imageName);
+        }
+    }
+
+    private List<HarborImageVo> getDefaultRepoImagesByRepoId(Long repoId, String imageName) {
+        Gson gson = new Gson();
+        HarborRepository harborRepository = harborRepositoryRepository.selectByPrimaryKey(repoId);
+        if(harborRepository == null){
+            throw new CommonException("error.harbor.project.not.exist");
+        }
+        Long harborId = harborRepository.getHarborId();
+
+        //获得镜像数
+        ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
+        HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+        Integer totalSize = harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
+        String repoName = harborProjectDTO == null ? null : harborProjectDTO.getName();
+
+        Map<String,Object> paramMap = new HashMap<>(4);
+        paramMap.put("project_id",harborId);
+        paramMap.put("q",imageName);
+        ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null,true);
+        List<HarborImageVo> harborImageVoList = new ArrayList<>();
+        if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
+            harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new com.google.gson.reflect.TypeToken<List<HarborImageVo>>(){}.getType());
+        }
+        harborImageVoList.forEach(dto->dto.setImageName(dto.getRepoName().substring(repoName.length()+1)));
+        return harborImageVoList;
     }
 
 	@Override

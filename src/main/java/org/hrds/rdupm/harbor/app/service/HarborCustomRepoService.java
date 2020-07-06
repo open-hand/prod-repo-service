@@ -5,6 +5,7 @@ import java.util.Set;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAllRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
@@ -204,4 +205,14 @@ public interface HarborCustomRepoService {
      * @return HarborAllRepoDTO
      */
     HarborAllRepoDTO getAllHarborRepoConfigByProject(Long projectId);
+
+    /**
+     * 查询Harbor仓库镜像信息
+     *
+     * @param repoId
+     * @param imageName
+     * @return
+     */
+    List<HarborImageVo> getImagesByRepoId(Long repoId, String imageName);
+
 }

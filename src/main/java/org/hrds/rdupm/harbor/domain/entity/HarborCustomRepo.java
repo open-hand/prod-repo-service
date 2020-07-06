@@ -143,6 +143,9 @@ public class HarborCustomRepo extends AuditDomain {
     @Transient
     @ApiModelProperty(value = "创建人名称")
     private String creatorRealName;
+    @Transient
+    @ApiModelProperty(value = "Harbor项目ID")
+    private Integer harborProjectId;
     //
     // getter/setter
     // ------------------------------------------------------------------------------

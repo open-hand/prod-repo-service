@@ -92,6 +92,15 @@ public class HarborChoerodonRepoController extends BaseController {
         return Results.success(harborCustomRepoService.getAllHarborRepoConfigByProject(projectId));
     }
 
+    @ApiOperation(value = "查询Harbor仓库镜像列表")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/listHarborImage")
+    public ResponseEntity<?> queryHarborImages(@ApiParam(value = "仓库ID",required = true) @RequestParam Long repoId,
+                                               @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
+                                               @ApiParam(value = "镜像名称") @RequestParam(required = false) String imageName){
+        return Results.success(harborC7nRepoService.getImagesByRepoId(repoId, repoType, imageName));
+    }
+
     //added 2020.07.06
 	@ApiOperation(value = "根据项目ID获取镜像仓库列表")
 	@Permission(level = ResourceLevel.ORGANIZATION)

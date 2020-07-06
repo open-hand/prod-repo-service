@@ -18,14 +18,12 @@ public interface HarborC7nRepoService {
     /**
      * 根据仓库ID获取镜像列表
      *
-     * @param projectId
      * @param repoId
-     * @param appServiceId
+     * @param repoType
      * @param imageName
-     * @param pageRequest
      * @return
      */
-    Page<HarborImageVo> getImagesByRepoId(Long projectId, Long repoId, Long appServiceId, String imageName, PageRequest pageRequest);
+    List<HarborImageVo> getImagesByRepoId(Long repoId, String repoType, String imageName);
 
 	/***
 	 * 根据仓库类型+仓库ID+镜像名称获取获取镜像版本
