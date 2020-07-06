@@ -1,7 +1,10 @@
 package org.hrds.rdupm.harbor.app.service;
 
+import java.util.List;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import org.hrds.rdupm.harbor.api.vo.HarborC7nImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 
@@ -41,4 +44,13 @@ public interface HarborImageTagService {
 	 * @param harborImageReTag
 	 */
 	void copyTag(HarborImageReTag harborImageReTag);
+
+	/***
+	 * 根据仓库名称和镜像名称获取获取镜像版本
+	 * @param repoName
+	 * @param imageName
+	 * @param tagName
+	 * @return
+	 */
+	List<HarborC7nImageTagVo> listImageTag(String repoName, String imageName, String tagName);
 }
