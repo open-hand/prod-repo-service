@@ -3,8 +3,6 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
 import io.choerodon.core.domain.Page;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -12,13 +10,11 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborC7nImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
-import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
@@ -142,21 +138,5 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		bodyMap.put("tag",harborImageReTag.getDestImageTagName());
 		bodyMap.put("src_image",srcImage);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.COPY_IMAGE_TAG,null,bodyMap,true,destRepoName);
-	}
-
-	@Override
-	public List<HarborC7nImageTagVo> listImageTag(String repoName, String imageName, String tagName) {
-		if(StringUtils.isEmpty(repoName) || StringUtils.isEmpty(imageName)){
-			return new ArrayList<>();
-		}
-		String name = repoName + BaseConstants.Symbol.SLASH + imageName;
-		Map<String,Object> paramMap = new HashMap<>(1);
-		paramMap.put("detail","true");
-		ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,paramMap,null,true,name);
-		List<HarborC7nImageTagVo> harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborC7nImageTagVo>>(){}.getType());
-		if(StringUtils.isNotEmpty(tagName)){
-			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().contains(tagName)).collect(Collectors.toList());
-		}
-		return harborImageTagVoList;
 	}
 }

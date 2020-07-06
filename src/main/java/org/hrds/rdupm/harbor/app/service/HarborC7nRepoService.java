@@ -1,8 +1,11 @@
 package org.hrds.rdupm.harbor.app.service;
 
+import java.util.List;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
+import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
+import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 
 /**
@@ -24,4 +27,20 @@ public interface HarborC7nRepoService {
      */
     Page<HarborImageVo> getImagesByRepoId(Long projectId, Long repoId, Long appServiceId, String imageName, PageRequest pageRequest);
 
+	/***
+	 * 根据仓库类型+仓库ID+镜像名称获取获取镜像版本
+	 * @param repoType
+	 * @param repoId
+	 * @param imageName
+	 * @param tagName
+	 * @return
+	 */
+	HarborC7nRepoImageTagVo listImageTag(String repoType, Long repoId, String imageName, String tagName);
+
+	/***
+	 * 根据项目ID获取仓库列表
+	 * @param projectId
+	 * @return
+	 */
+	List<HarborC7nRepoVo> listImageRepo(Long projectId);
 }

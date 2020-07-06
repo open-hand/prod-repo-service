@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.annotations.SerializedName;
@@ -16,10 +18,21 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class HarborC7nImageTagVo {
+public class HarborC7nRepoVo {
 
-	@ApiModelProperty("TAG名称")
-	@SerializedName("name")
-	private String tagName;
+	@ApiModelProperty("仓库ID")
+	private Long repoId;
 
+	@ApiModelProperty("仓库名称")
+	private String repoName;
+
+	@ApiModelProperty("仓库类型")
+	private String repoType;
+
+	public HarborC7nRepoVo(){}
+	public HarborC7nRepoVo(Long repoId, String repoName, String repoType) {
+		this.repoId = repoId;
+		this.repoName = repoName;
+		this.repoType = repoType;
+	}
 }

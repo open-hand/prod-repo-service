@@ -6,10 +6,10 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.hrds.rdupm.harbor.api.vo.HarborC7nImageTagVo;
-import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
+import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
+import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
+import org.hrds.rdupm.harbor.app.service.HarborC7nRepoService;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
-import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAllRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
@@ -30,7 +30,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @Autowired
     private HarborCustomRepoService harborCustomRepoService;
     @Autowired
-	private HarborImageTagService harborImageTagService;
+	private HarborC7nRepoService harborC7nRepoService;
 
     @ApiOperation(value = "应用服务-查询项目下所有自定义仓库")
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -92,13 +92,22 @@ public class HarborChoerodonRepoController extends BaseController {
         return Results.success(harborCustomRepoService.getAllHarborRepoConfigByProject(projectId));
     }
 
-	@ApiOperation(value = "根据仓库名称和镜像名称获取获取镜像版本")
-	@Permission(level = ResourceLevel.ORGANIZATION,permissionPublic = true)
+    //added 2020.07.06
+	@ApiOperation(value = "根据项目ID获取镜像仓库列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/listImageRepo")
+	public ResponseEntity<List<HarborC7nRepoVo>> listImageRepo(@ApiParam(value = "猪齿鱼项目ID", required = true) @RequestParam("projectId") Long projectId){
+		return Results.success(harborC7nRepoService.listImageRepo(projectId));
+	}
+
+	@ApiOperation(value = "根据仓库类型+仓库ID+镜像名称获取获取镜像版本")
+	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/listImageTag")
-	public ResponseEntity<List<HarborC7nImageTagVo>> listImageTag(@ApiParam(value = "仓库名称", required = true) @RequestParam String repoName,
-																  @ApiParam(value = "镜像名称", required = true) @RequestParam String imageName,
-																  @ApiParam(value = "镜像版本号,模糊查询") @RequestParam(required = false) String tagName){
-		return Results.success(harborImageTagService.listImageTag(repoName,imageName,tagName));
+	public ResponseEntity<HarborC7nRepoImageTagVo> listImageTag(@ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
+																@ApiParam(value = "仓库ID",required = true)   @RequestParam Long repoId,
+																@ApiParam(value = "镜像名称", required = true) @RequestParam String imageName,
+																@ApiParam(value = "镜像版本号,模糊查询") @RequestParam(required = false) String tagName){
+		return Results.success(harborC7nRepoService.listImageTag(repoType,repoId,imageName,tagName));
 	}
 
 }
