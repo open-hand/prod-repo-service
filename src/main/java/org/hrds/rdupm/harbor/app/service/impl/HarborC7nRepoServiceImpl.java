@@ -149,6 +149,11 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		if(StringUtils.isNotEmpty(tagName)){
 			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().contains(tagName)).collect(Collectors.toList());
 		}
+		if(CollectionUtils.isEmpty(harborImageTagVoList)){
+			return null;
+		}
+
+		//处理镜像版本
 		harborImageTagVoList = harborImageTagVoList.stream().sorted(Comparator.comparing(HarborC7nRepoImageTagVo.HarborC7nImageTagVo::getPushTime).reversed()).collect(Collectors.toList());
 		harborImageTagVoList.forEach(dto->{
 			String pullCmd = String.format("docker pull %s/%s:%s",registryUrl, paramName,dto.getTagName());
