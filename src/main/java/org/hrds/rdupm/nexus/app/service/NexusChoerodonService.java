@@ -44,7 +44,24 @@ public interface NexusChoerodonService {
      */
     List<C7nNexusComponentDTO> listMavenComponents(Long organizationId, Long projectId, Long repositoryId, String repoType, String groupId, String artifactId, String versionRegular);
 
+    /**
+     * 查询groupId
+     * @param organizationId 组织Id
+     * @param projectId 项目Id
+     * @param repositoryId 仓库Id
+     * @param groupId groupId
+     * @return List<String>
+     */
+    List<String> listMavenGroup(Long organizationId, Long projectId, Long repositoryId, String groupId);
 
-
+    /**
+     * 查询artifactId
+     * @param organizationId 组织Id
+     * @param projectId 项目Id
+     * @param repositoryId 仓库Id
+     * @param artifactId artifactId
+     * @return List<String>
+     */
+    List<String> listMavenArtifactId(Long organizationId, Long projectId, Long repositoryId, String artifactId);
 
 }

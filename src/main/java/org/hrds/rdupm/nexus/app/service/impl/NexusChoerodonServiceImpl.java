@@ -158,4 +158,60 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
         nexusClient.removeNexusServerInfo();
         return result;
     }
+
+    @Override
+    public List<String> listMavenGroup(Long organizationId, Long projectId, Long repositoryId, String groupId) {
+        NexusRepository nexusRepository = this.validExist(organizationId, projectId, repositoryId);
+        if (nexusRepository == null) {
+            return new ArrayList<>();
+        }
+
+        // 组件查询
+        NexusComponentQuery componentQuery = new NexusComponentQuery();
+        componentQuery.setRepositoryName(nexusRepository.getNeRepositoryName());
+        componentQuery.setGroup(groupId);
+        List<NexusServerComponent> componentList = nexusClient.getComponentsApi().searchComponentScript(componentQuery);
+        List<String> result = componentList.stream().map(NexusServerComponent::getGroup).distinct().collect(Collectors.toList());
+
+        nexusClient.removeNexusServerInfo();
+        return result;
+    }
+
+    @Override
+    public List<String> listMavenArtifactId(Long organizationId, Long projectId, Long repositoryId, String artifactId) {
+        NexusRepository nexusRepository = this.validExist(organizationId, projectId, repositoryId);
+        if (nexusRepository == null) {
+            return new ArrayList<>();
+        }
+
+        // 组件查询
+        NexusComponentQuery componentQuery = new NexusComponentQuery();
+        componentQuery.setName(artifactId);
+        componentQuery.setRepositoryName(nexusRepository.getNeRepositoryName());
+        List<NexusServerComponent> componentList = nexusClient.getComponentsApi().searchComponentScript(componentQuery);
+        List<String> result = componentList.stream().map(NexusServerComponent::getName).distinct().collect(Collectors.toList());
+
+        nexusClient.removeNexusServerInfo();
+
+        return result;
+    }
+
+    private NexusRepository validExist(Long organizationId, Long projectId, Long repositoryId) {
+        // 数据库表查询
+        Sqls sqls = Sqls.custom().andEqualTo(NexusRepository.FIELD_PROJECT_ID, projectId)
+                .andEqualTo(NexusRepository.FIELD_ORGANIZATION_ID, organizationId)
+                .andEqualTo(NexusRepository.FIELD_REPOSITORY_ID, repositoryId);
+        NexusRepository nexusRepository = nexusRepositoryRepository.selectByCondition(Condition.builder(NexusRepository.class).where(sqls).build()).stream().findFirst().orElse(null);
+        if (nexusRepository == null) {
+            return null;
+        }
+
+        nexusServerConfigService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+        // 仓库查询
+        NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+        if (nexusServerRepository == null || !nexusServerRepository.getFormat().equals(NexusApiConstants.NexusRepoFormat.MAVEN_FORMAT)) {
+            return null;
+        }
+        return nexusRepository;
+    }
 }
