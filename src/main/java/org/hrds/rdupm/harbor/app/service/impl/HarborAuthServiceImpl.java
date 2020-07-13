@@ -344,12 +344,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		if(userMap.get(loginName) == null){
 			User user = new User(loginName,email,newPassword,realName);
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER,null,user,true);
-		}else {
-			//更新密码，保持服务器上密码和数据库中密码一致
-			User user = userMap.get(loginName);
-			Map<String,Object> bodyMap = new HashMap<>(1);
-			bodyMap.put("new_password",password);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD,null,bodyMap,true,user.getUserId());
 		}
 	}
 }
