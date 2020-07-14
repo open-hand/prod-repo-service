@@ -43,7 +43,7 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 		String code = harborRepository == null ? null : harborRepository.getCode();
 
 		//String vimHostCmd = String.format("vim /etc/hosts \n%s %s",harborInfoConfiguration.getIp(),harborInfoConfiguration.getDomain());
-		String configRegistryCmd = String.format("{\n  \"insecure-registries\": [\"%s\"]\n }",harborInfoConfiguration.getBaseUrl());
+		String configRegistryCmd = String.format("{\n  \"insecure-registries\": [\"%s\"]\n }",harborBaseUrl);
 		String loginCmd = String.format("#\"个人信息-->个人设置-->制品库设置\"中可查看默认密码 \ndocker login %s -u %s -p 密码",harborBaseUrl,loginName);
 		String dockerFile = HarborVelocityUtils.getJsonString(null,HarborVelocityUtils.DOCKER_FILE_NAME);
 		String buildCmd = String.format("docker build -t %s/%s/镜像名称:镜像版本名称 .",harborBaseUrl,code);
