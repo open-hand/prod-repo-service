@@ -15,6 +15,7 @@ import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class ProdUserController extends BaseController {
     @ApiOperation(value = "个人层--查询制品库用户信息")
 	@Permission(level = ResourceLevel.ORGANIZATION,permissionLogin = true)
     @GetMapping("/{userId}")
-    public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
+    public ResponseEntity<ProdUser> detail(@Encrypt @PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
     	if(!userId.equals(DetailsHelper.getUserDetails().getUserId())){
     		throw new CommonException("error.user.not.current.user");
 		}

@@ -24,7 +24,6 @@ import org.hzero.export.vo.ExportParam;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -92,8 +91,7 @@ public class HarborAuthController extends BaseController {
     @ApiOperation(value = "项目层--权限明细")
 	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
-    //public ResponseEntity<HarborAuth> detail(@Encrypt(HarborAuth.ENCRYPT_KEY) @PathVariable Long authId) {
-    public ResponseEntity<HarborAuth> detail(@PathVariable Long authId) {
+    public ResponseEntity<HarborAuth> detail(@Encrypt(HarborAuth.ENCRYPT_KEY) @PathVariable Long authId) {
         HarborAuth harborAuth = harborAuthRepository.selectByCondition(Condition.builder(HarborAuth.class).where(Sqls.custom()
 				.andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
 				.andEqualTo(HarborAuth.FIELD_AUTH_ID,authId)

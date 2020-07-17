@@ -66,7 +66,7 @@ public class HarborAuth extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-	//@Encrypt(HarborAuth.ENCRYPT_KEY)
+	@Encrypt(HarborAuth.ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue

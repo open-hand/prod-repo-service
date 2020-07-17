@@ -50,6 +50,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * harbor
 	 */
 	@ApiModelProperty("harbor, 主键")
+	@Encrypt
 	private Long id;
 	@ApiModelProperty(value = "名称")
 	private String name;
@@ -57,6 +58,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	private String publicFlag;
 
 	@ApiModelProperty(value = "harbor项目ID")
+	@Encrypt
 	private Long harborId;
 
 	@ApiModelProperty(value = "镜像数")
@@ -66,7 +68,6 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * harbor-customize
 	 */
 	@ApiModelProperty("customRepo, 主键")
-	//@Encrypt(HarborCustomRepo.ENCRYPT_KEY)
 	private Long repoId;
 	@ApiModelProperty(value = "名称")
 	private String repoName;
