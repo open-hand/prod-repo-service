@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -35,6 +37,7 @@ public class NexusServerComponentUpload {
 
 	@ApiModelProperty(value = "仓库Id",required = true)
 	@NotBlank
+	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	private Long repositoryId;
 	@ApiModelProperty(value = "仓库名称",required = true)
 	private String repositoryName;

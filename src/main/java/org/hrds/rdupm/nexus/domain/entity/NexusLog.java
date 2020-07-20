@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.Date;
 
@@ -32,6 +33,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class NexusLog extends AuditDomain {
+    public static final String ENCRYPT_KEY = "rdupm_nexus_log";
 
     public static final String FIELD_LOG_ID = "logId";
     public static final String FIELD_OPERATOR_ID = "operatorId";
@@ -50,7 +52,7 @@ public class NexusLog extends AuditDomain {
     // 数据库字段
     // ------------------------------------------------------------------------------
 
-
+    @Encrypt(NexusLog.ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue

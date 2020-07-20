@@ -617,7 +617,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoNameAll(Long projectId, String repoType) {
+	public List<NexusRepositoryListDTO> listRepoNameAll(Long projectId, String repoType) {
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, projectId);
 
 		// 所有nexus服务仓库数据
@@ -628,10 +628,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 所有项目仓库数据
 		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(null, repoType, serverConfig.getConfigId());
 
-		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		List<NexusRepositoryListDTO> resultAll = new ArrayList<>();
 		nexusServerRepositoryList.forEach(serverRepository -> {
 			if (!repositoryNameList.contains(serverRepository.getName())) {
-				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				NexusRepositoryListDTO nexusRepositoryDTO = new NexusRepositoryListDTO();
 				nexusRepositoryDTO.setName(serverRepository.getName());
 				resultAll.add(nexusRepositoryDTO);
 			}
@@ -643,7 +643,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType) {
+	public List<NexusRepositoryListDTO> listRepoName(NexusRepository query, String repoType) {
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, query.getProjectId());
 
@@ -662,10 +662,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			return new ArrayList<>();
 		}
 
-		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		List<NexusRepositoryListDTO> resultAll = new ArrayList<>();
 		repositoryNameList.forEach(repositoryName -> {
 			if (serverRepositoryNameList.contains(repositoryName)) {
-				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				NexusRepositoryListDTO nexusRepositoryDTO = new NexusRepositoryListDTO();
 				nexusRepositoryDTO.setName(repositoryName);
 				resultAll.add(nexusRepositoryDTO);
 			}

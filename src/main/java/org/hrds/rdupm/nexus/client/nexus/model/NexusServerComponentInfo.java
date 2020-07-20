@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.models.auth.In;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class NexusServerComponentInfo {
 	public static String FIELD_CREATION_DATE = "creationDate";
 	public static String FIELD_LAST_DOWNLOAD_DATE = "lastDownloadDate";
 
+	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	@ApiModelProperty(value = "仓库主键Id")
 	private Long repositoryId;
 

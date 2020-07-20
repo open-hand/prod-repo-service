@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,6 +61,7 @@ public class NexusComponentQuery {
 	@ApiModelProperty(value = "仓库名称", required = true)
 	private String repositoryName;
 	@ApiModelProperty(value = "仓库Id", required = true)
+	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	private Long repositoryId;
 	@ApiModelProperty(value = "groupId")
 	private String group;

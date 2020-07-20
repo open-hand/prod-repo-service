@@ -70,17 +70,17 @@ public interface NexusRepositoryService {
 	 * 获取仓库名列表
 	 * @param projectId 项目Id
 	 * @param repoType 制品库类型
-	 * @return List<NexusRepositoryDTO>
+	 * @return List<NexusRepositoryListDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, String repoType);
+	List<NexusRepositoryListDTO> listRepoNameAll(Long projectId, String repoType);
 
 	/**
 	 * 获取仓库名列表 - 当前项目
 	 * @param query 查询
 	 * @param repoType 制品库类型
-	 * @return List<NexusRepositoryDTO>
+	 * @return List<NexusRepositoryListDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType);
+	List<NexusRepositoryListDTO> listRepoName(NexusRepository query, String repoType);
 
 	/**
 	 * 获取仓库名列表 - 当前项目

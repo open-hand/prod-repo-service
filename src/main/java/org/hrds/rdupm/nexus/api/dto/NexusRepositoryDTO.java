@@ -4,9 +4,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.mybatis.domian.SecurityToken;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import javax.persistence.Transient;
 import java.util.Comparator;
@@ -21,6 +23,7 @@ import java.util.Objects;
 @ApiModel("仓库信息")
 @Getter
 @Setter
+@ToString
 public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusRepositoryDTO> {
 	private String _token;
 
@@ -64,6 +67,7 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	}
 
 	private Long configId;
+	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	private Long repositoryId;
 	@ApiModelProperty(value = "仓库名称")
 	private String neRepositoryName;

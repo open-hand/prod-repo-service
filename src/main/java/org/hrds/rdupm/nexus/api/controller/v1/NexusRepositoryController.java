@@ -11,6 +11,7 @@ import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/{repositoryId}")
     public ResponseEntity<NexusRepositoryDTO> getMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                            @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                           @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId) {
+                                                           @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId) {
         return Results.success(nexusRepositoryService.getRepo(organizationId, projectId, repositoryId));
     }
 
@@ -49,7 +50,7 @@ public class NexusRepositoryController extends BaseController {
     @GetMapping("/{organizationId}/project/{projectId}/npm/repo/{repositoryId}")
     public ResponseEntity<NexusRepositoryDTO> getNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                            @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                           @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId) {
+                                                           @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId) {
         return Results.success(nexusRepositoryService.getRepo(organizationId, projectId, repositoryId));
     }
 
@@ -86,7 +87,7 @@ public class NexusRepositoryController extends BaseController {
     @PutMapping("/{organizationId}/project/{projectId}/maven/repo/{repositoryId}")
     public ResponseEntity<NexusRepositoryCreateDTO> updateMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                     @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                                    @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId,
+                                                                    @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                                     @RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
         validObject(nexusRepoCreateDTO);
         nexusRepoCreateDTO.setOrganizationId(organizationId);
@@ -101,7 +102,7 @@ public class NexusRepositoryController extends BaseController {
     @PutMapping("/{organizationId}/project/{projectId}/npm/repo/{repositoryId}")
     public ResponseEntity<NexusRepositoryCreateDTO> updateNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                     @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                                    @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId,
+                                                                    @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                                     @RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
         validObject(nexusRepoCreateDTO);
         nexusRepoCreateDTO.setOrganizationId(organizationId);
@@ -116,7 +117,7 @@ public class NexusRepositoryController extends BaseController {
     @DeleteMapping("/{organizationId}/project/{projectId}/maven/repo/{repositoryId}")
     public ResponseEntity<?> deleteMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                              @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                             @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId) {
+                                             @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId) {
         nexusRepositoryService.deleteRepo(organizationId, projectId, repositoryId);
         return Results.success();
     }
@@ -126,7 +127,7 @@ public class NexusRepositoryController extends BaseController {
     @DeleteMapping("/{organizationId}/project/{projectId}/npm/repo/{repositoryId}")
     public ResponseEntity<?> deleteNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                              @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                             @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") Long repositoryId) {
+                                             @ApiParam(value = "仓库主键Id", required = true) @PathVariable(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId) {
         nexusRepositoryService.deleteRepo(organizationId, projectId, repositoryId);
         return Results.success();
     }
@@ -134,7 +135,7 @@ public class NexusRepositoryController extends BaseController {
     @ApiOperation(value = "maven仓库组创建，获取仓库列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/group")
-    public ResponseEntity<List<NexusRepositoryDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+    public ResponseEntity<List<NexusRepositoryListDTO>> groupRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                               @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         NexusRepository query = new NexusRepository();
         query.setProjectId(projectId);
@@ -144,7 +145,7 @@ public class NexusRepositoryController extends BaseController {
     @ApiOperation(value = "npm仓库组创建，获取仓库列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/npm/repo/group")
-    public ResponseEntity<List<NexusRepositoryDTO>> groupNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+    public ResponseEntity<List<NexusRepositoryListDTO>> groupNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                               @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         NexusRepository query = new NexusRepository();
         query.setProjectId(projectId);
@@ -154,7 +155,7 @@ public class NexusRepositoryController extends BaseController {
     @ApiOperation(value = "maven仓库 关联， 获取仓库列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/maven/repo/related")
-    public ResponseEntity<List<NexusRepositoryDTO>> listRelatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+    public ResponseEntity<List<NexusRepositoryListDTO>> listRelatedMavenRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                          @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         return Results.success(nexusRepositoryService.listRepoNameAll(projectId, NexusConstants.RepoType.MAVEN));
     }
@@ -162,7 +163,7 @@ public class NexusRepositoryController extends BaseController {
     @ApiOperation(value = "npm仓库 关联， 获取仓库列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{organizationId}/project/{projectId}/npm/repo/related")
-    public ResponseEntity<List<NexusRepositoryDTO>> listRelatedNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+    public ResponseEntity<List<NexusRepositoryListDTO>> listRelatedNpmRepo(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                          @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId) {
         return Results.success(nexusRepositoryService.listRepoNameAll(projectId, NexusConstants.RepoType.NPM));
     }
@@ -193,7 +194,7 @@ public class NexusRepositoryController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/maven/repo/guide/{repositoryName}")
     public ResponseEntity<NexusGuideDTO> mavenRepoGuide(@ApiParam(value = "仓库名称", required = true) @PathVariable(name = "repositoryName") String repositoryName,
-                                                        @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
+                                                        @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                         @ApiParam(value = "showPushFlag 是否返回发布的配置信息") @RequestParam(name = "showPushFlag", defaultValue = "false") Boolean showPushFlag) {
         return Results.success(nexusRepositoryService.mavenRepoGuide(repositoryId, repositoryName, showPushFlag));
     }
@@ -203,7 +204,7 @@ public class NexusRepositoryController extends BaseController {
     @PostMapping("/{organizationId}/project/{projectId}/enable")
     public ResponseEntity<?> nexusRepoEnableAndDisAble(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                                 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
+                                                                 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                                  @ApiParam(value = "失效/启用：N:失效 Y:启用", required = true) @RequestParam(name = "enableFlag") String enableFlag) {
         AssertUtils.notNull(repositoryId, "repositoryId not null");
         AssertUtils.notNull(enableFlag, "enableFlag not null");

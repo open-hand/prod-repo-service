@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ import java.util.List;
 @Getter
 @Setter
 public class NexusRepository extends AuditDomain {
+    public static final String ENCRYPT_KEY = "rdupm_nexus_repository";
 
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
     public static final String FIELD_CONFIG_ID = "configId";
@@ -48,7 +50,7 @@ public class NexusRepository extends AuditDomain {
     // 数据库字段
     // ------------------------------------------------------------------------------
 
-
+    @Encrypt(NexusRepository.ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
