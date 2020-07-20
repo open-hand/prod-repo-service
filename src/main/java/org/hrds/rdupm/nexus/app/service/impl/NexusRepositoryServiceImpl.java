@@ -397,7 +397,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public Page<NexusRepositoryDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
+	public Page<NexusRepositoryOrgDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
 		// 查询某个组织项目数据
 		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.listOrgRepo(queryDTO.getOrganizationId(), queryDTO.getRepoType());
 
@@ -432,7 +432,15 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 
-		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+		// 主键加密后，此处返回不加密
+		List<NexusRepositoryOrgDTO> result = new ArrayList<>();
+		resultAll.forEach(nexusRepositoryDTO -> {
+			NexusRepositoryOrgDTO nexusRepositoryOrgDTO = new NexusRepositoryOrgDTO();
+			BeanUtils.copyProperties(nexusRepositoryDTO, nexusRepositoryOrgDTO);
+			result.add(nexusRepositoryOrgDTO);
+		});
+
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), result);
 	}
 
 	@Override
@@ -676,8 +684,16 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepository> listOrgRepoName(NexusRepository query, String repoType) {
-		return nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), repoType);
+	public List<NexusRepositoryOrgDTO> listOrgRepoName(NexusRepository query, String repoType) {
+		List<NexusRepositoryOrgDTO> resultAll = new ArrayList<>();
+		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), repoType);
+		for(NexusRepository repository : nexusRepositoryList) {
+			NexusRepositoryOrgDTO nexusRepositoryDTO = new NexusRepositoryOrgDTO();
+			BeanUtils.copyProperties(repository, nexusRepositoryDTO);
+			repository.setName(repository.getNeRepositoryName());
+			resultAll.add(nexusRepositoryDTO);
+		}
+		return resultAll;
 	}
 
 	@Override

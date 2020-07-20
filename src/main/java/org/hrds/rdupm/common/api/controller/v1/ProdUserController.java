@@ -73,7 +73,7 @@ public class ProdUserController extends BaseController {
 	@ApiOperation(value = "项目层--获取当前用户，对应仓库分配的权限")
 	@Permission(level = ResourceLevel.ORGANIZATION,permissionLogin = true)
 	@PostMapping("/getRoleList")
-	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@RequestBody List<NexusRepository> nexusRepositories,
+	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@RequestBody(required = false) List<NexusRepository> nexusRepositories,
 																			@ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
 		Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
