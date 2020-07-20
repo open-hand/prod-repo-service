@@ -10,10 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,6 +171,7 @@ public class NexusRepositoryCreateDTO {
 		return nexusMavenGroup;
 	}
 
+	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	private Long repositoryId;
 	/**
 	 * hosted，proxy，group

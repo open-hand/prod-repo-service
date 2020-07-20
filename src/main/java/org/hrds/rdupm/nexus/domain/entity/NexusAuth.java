@@ -89,6 +89,7 @@ public class NexusAuth extends AuditDomain {
     private Long organizationId;
     @ApiModelProperty(value = "rdupm_nexus_repository 表主键",required = true)
     @NotNull
+    @Encrypt(NexusRepository.ENCRYPT_KEY)
     private Long repositoryId;
     @ApiModelProperty(value = "猪齿鱼用户ID",required = true)
     @NotNull
