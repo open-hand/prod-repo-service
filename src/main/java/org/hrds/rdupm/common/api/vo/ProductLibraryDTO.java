@@ -10,6 +10,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.BeanUtils;
@@ -83,6 +84,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * maven
 	 */
 	@ApiModelProperty("maven, 主键")
+	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	private Long repositoryId;
 	@ApiModelProperty(value = "仓库名称")
 	private String repositoryName;
