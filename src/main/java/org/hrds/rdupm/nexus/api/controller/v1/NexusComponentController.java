@@ -19,7 +19,6 @@ import org.hzero.core.base.BaseController;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Results;
 import org.hzero.starter.keyencrypt.core.Encrypt;
-import org.hzero.starter.keyencrypt.mvc.EncryptDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +42,17 @@ public class NexusComponentController extends BaseController {
 	@GetMapping("/{organizationId}/project/{projectId}")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																		 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-																		 @EncryptDTO NexusComponentQuery componentQuery,
+																		 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																		 @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																		 @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																		 @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
 																		 @ApiIgnore PageRequest pageRequest) {
+		NexusComponentQuery componentQuery = new NexusComponentQuery();
+		componentQuery.setRepositoryId(repositoryId);
+		componentQuery.setGroup(group);
+		componentQuery.setName(name);
+		componentQuery.setVersion(version);
+
 		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
 		componentQuery.setRepoType(NexusConstants.RepoType.MAVEN);
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
@@ -55,8 +63,17 @@ public class NexusComponentController extends BaseController {
 	@GetMapping("/{organizationId}/project/{projectId}/npm")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																			@ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-																			@EncryptDTO NexusComponentQuery componentQuery,
+																			@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																			@ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																			@ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																			@ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
 																			@ApiIgnore PageRequest pageRequest) {
+		NexusComponentQuery componentQuery = new NexusComponentQuery();
+		componentQuery.setRepositoryId(repositoryId);
+		componentQuery.setGroup(group);
+		componentQuery.setName(name);
+		componentQuery.setVersion(version);
+
 		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
 		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponents(organizationId, projectId, true, componentQuery, pageRequest));
@@ -67,8 +84,19 @@ public class NexusComponentController extends BaseController {
 	@GetMapping("/{organizationId}/project/{projectId}/npm/version")
 	public ResponseEntity<Page<NexusServerComponent>> listNpmComponentsVersion(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 																			   @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-																			   @EncryptDTO NexusComponentQuery componentQuery,
+																			   @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																			   @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName,
+																			   @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																			   @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																			   @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
 																			   @ApiIgnore PageRequest pageRequest) {
+		NexusComponentQuery componentQuery = new NexusComponentQuery();
+		componentQuery.setRepositoryId(repositoryId);
+		componentQuery.setGroup(group);
+		componentQuery.setName(name);
+		componentQuery.setVersion(version);
+		componentQuery.setRepositoryName(repositoryName);
+
 		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponentsVersion(organizationId, projectId, true, componentQuery, pageRequest));
 	}
@@ -101,9 +129,11 @@ public class NexusComponentController extends BaseController {
 	@PostMapping("/{organizationId}/project/{projectId}/upload")
 	public ResponseEntity<?> componentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-											  @EncryptDTO NexusServerComponentUpload componentUpload,
+											  @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+											  NexusServerComponentUpload componentUpload,
 											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
 											  @ApiParam(value = "pom文件") @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
+		componentUpload.setRepositoryId(repositoryId);
 		// validObject(componentUpload);
 		if (assetJar == null && assetPom == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
@@ -144,7 +174,9 @@ public class NexusComponentController extends BaseController {
 	@ApiOperation(value = "配置指引信息，查询")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/guide")
-	public ResponseEntity<NexusComponentGuideDTO> componentGuide(@EncryptDTO NexusServerComponentInfo componentInfo) {
+	public ResponseEntity<NexusComponentGuideDTO> componentGuide(@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																 NexusServerComponentInfo componentInfo) {
+		componentInfo.setRepositoryId(repositoryId);
 		return Results.success(nexusComponentService.componentGuide(componentInfo));
 	}
 
