@@ -130,10 +130,19 @@ public class NexusComponentController extends BaseController {
 	public ResponseEntity<?> componentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 											  @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
-											  NexusServerComponentUpload componentUpload,
+											  @ApiParam(value = "仓库名称") @RequestParam(name = "repositoryName", required = false) String repositoryName,
+											  @ApiParam(value = "groupId") @RequestParam(name = "groupId", required = false) String groupId,
+											  @ApiParam(value = "artifactId") @RequestParam(name = "artifactId", required = false) String artifactId,
+											  @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
 											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
 											  @ApiParam(value = "pom文件") @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
+		NexusServerComponentUpload componentUpload = new NexusServerComponentUpload();
+		componentUpload.setRepositoryName(repositoryName);
 		componentUpload.setRepositoryId(repositoryId);
+		componentUpload.setGroupId(groupId);
+		componentUpload.setArtifactId(artifactId);
+		componentUpload.setVersion(version);
+
 		// validObject(componentUpload);
 		if (assetJar == null && assetPom == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
@@ -175,8 +184,16 @@ public class NexusComponentController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/guide")
 	public ResponseEntity<NexusComponentGuideDTO> componentGuide(@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
-																 NexusServerComponentInfo componentInfo) {
+																 @ApiParam(value = "仓库名称") @RequestParam(name = "repository", required = false) String repository,
+																 @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																 @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																 @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version) {
+		NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
 		componentInfo.setRepositoryId(repositoryId);
+		componentInfo.setRepository(repository);
+		componentInfo.setGroup(group);
+		componentInfo.setName(name);
+		componentInfo.setVersion(version);
 		return Results.success(nexusComponentService.componentGuide(componentInfo));
 	}
 
