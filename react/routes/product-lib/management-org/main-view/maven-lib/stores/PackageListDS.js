@@ -27,7 +27,7 @@ export default ((organizationId, formatMessage, intlPrefix, repoListDs) => ({
   queryFields: [
     {
       name: 'repositoryId',
-      type: 'number',
+      type: 'string',
       label: formatMessage({ id: 'libName' }),
       textField: 'name',
       valueField: 'repositoryId',
