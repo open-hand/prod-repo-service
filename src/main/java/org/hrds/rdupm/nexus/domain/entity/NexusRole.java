@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库_nexus仓库角色信息表
@@ -26,6 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NexusRole extends AuditDomain {
+    public static final String ENCRYPT_KEY = "rdupm_nexus_role";
 
     public static final String FIELD_ROLE_ID = "roleId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
@@ -41,7 +43,7 @@ public class NexusRole extends AuditDomain {
     // 数据库字段
     // ------------------------------------------------------------------------------
 
-
+    @Encrypt(NexusRole.ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue

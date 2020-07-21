@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-项目与nexus服务关系表
@@ -29,6 +30,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class NexusProjectService extends AuditDomain {
+    public static final String ENCRYPT_KEY = "rdupm_nexus_project_service";
 
     public static final String FIELD_PROJECT_SERVICE_ID = "projectServiceId";
     public static final String FIELD_CONFIG_ID = "configId";
@@ -45,10 +47,12 @@ public class NexusProjectService extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
+    @Encrypt(NexusProjectService.ENCRYPT_KEY)
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
     private Long projectServiceId;
+    @Encrypt(NexusServerConfig.ENCRYPT_KEY)
     @ApiModelProperty(value = "rdupm_nexus_server_config 表主键",required = true)
     @NotNull
     private Long configId;

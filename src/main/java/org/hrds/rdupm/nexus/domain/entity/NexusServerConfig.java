@@ -163,6 +163,7 @@ public class NexusServerConfig extends AuditDomain {
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
+    @Encrypt(NexusProjectService.ENCRYPT_KEY)
     @Transient
     private Long projectServiceId;
     @Transient
