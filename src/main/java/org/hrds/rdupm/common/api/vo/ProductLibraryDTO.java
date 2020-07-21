@@ -87,7 +87,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	@Encrypt(NexusRepository.ENCRYPT_KEY)
 	private Long repositoryId;
 	@ApiModelProperty("maven/npm, 主键")
-	private Long sourceRepositoryId;
+	private String sourceRepositoryId;
 	@ApiModelProperty(value = "仓库名称")
 	private String repositoryName;
 	@ApiModelProperty(value = "仓库类型")
@@ -115,7 +115,7 @@ public class ProductLibraryDTO extends AuditDomain {
 		this.uniqueId = UUIDUtils.generateUUID();
 		this.productType = repoType;
 		this.repositoryName = nexusRepositoryDTO.getName();
-		this.sourceRepositoryId = nexusRepositoryDTO.getRepositoryId();
+		this.sourceRepositoryId = nexusRepositoryDTO.getRepositoryId() == null ? null : String.valueOf(nexusRepositoryDTO.getRepositoryId());
 		BeanUtils.copyProperties(nexusRepositoryDTO, this);
 	}
 
