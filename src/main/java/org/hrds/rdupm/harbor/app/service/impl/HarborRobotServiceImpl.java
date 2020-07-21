@@ -175,7 +175,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         }
 
         //校验Harbor机器人账户
-        if (harborRobotList.size()< 2) {
+        if (StringUtils.isEmpty(action) && harborRobotList.size()< 2) {
 			return generateRobotWhenNo(projectId);
         }
 		for (HarborRobot robot:harborRobotList) {

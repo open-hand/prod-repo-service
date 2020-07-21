@@ -119,4 +119,13 @@ public class HarborChoerodonRepoController extends BaseController {
 		return Results.success(harborC7nRepoService.listImageTag(repoType,repoId,imageName,tagName));
 	}
 
+	//added 2020.07.21
+	@ApiOperation(value = "根据项目ID+应用服务ID获取镜像版本列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/listImageTagByAppServiceId")
+	public ResponseEntity<HarborC7nRepoImageTagVo> listImageTagByAppServiceId(@ApiParam(value = "猪齿鱼项目ID", required = true) @RequestParam Long projectId,
+															   		@ApiParam(value = "应用服务ID", required = true) @RequestParam Long appServiceId){
+		return Results.success(harborC7nRepoService.listImageTagByAppServiceId(projectId, appServiceId));
+	}
+
 }

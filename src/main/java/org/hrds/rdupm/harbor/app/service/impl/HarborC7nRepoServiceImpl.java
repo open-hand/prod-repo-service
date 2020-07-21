@@ -21,6 +21,7 @@ import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
@@ -54,6 +55,8 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 	private HarborRobotService harborRobotService;
     @Autowired
 	private HarborInfoConfiguration harborInfoConfiguration;
+    @Autowired
+	private C7nBaseService c7nBaseService;
 
     @Override
     public List<HarborImageVo> getImagesByRepoId(Long repoId, String repoType, String imageName) {
@@ -183,6 +186,22 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 			}
 		}
 		return list;
+	}
+
+	@Override
+	public HarborC7nRepoImageTagVo listImageTagByAppServiceId(Long projectId, Long appServiceId) {
+		HarborRepoDTO harborRepoDTO = harborCustomRepoService.getHarborRepoConfig(projectId,appServiceId);
+		if(harborRepoDTO == null || harborRepoDTO.getHarborRepoConfig() == null){
+			return null;
+		}
+		Long repoId = harborRepoDTO.getHarborRepoConfig().getRepoId();
+		String repoType = harborRepoDTO.getRepoType();
+		AppServiceDTO appServiceDTO = c7nBaseService.queryAppServiceById(projectId,appServiceId);
+		String imageName = appServiceDTO == null ? null : appServiceDTO.getName();
+		if(StringUtils.isEmpty(imageName)){
+			return null;
+		}
+		return listImageTag(repoType,repoId,imageName,null);
 	}
 
 

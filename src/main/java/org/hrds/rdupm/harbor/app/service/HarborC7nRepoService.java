@@ -41,4 +41,12 @@ public interface HarborC7nRepoService {
 	 * @return
 	 */
 	List<HarborC7nRepoVo> listImageRepo(Long projectId);
+
+	/***
+	 * 根据项目ID+应用服务ID获取镜像版本列表
+	 * @param projectId
+	 * @param appServiceId
+	 * @return
+	 */
+	HarborC7nRepoImageTagVo listImageTagByAppServiceId(Long projectId, Long appServiceId);
 }
