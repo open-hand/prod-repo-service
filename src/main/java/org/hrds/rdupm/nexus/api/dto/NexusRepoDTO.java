@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 仓库校信息-CI流水线
@@ -16,6 +18,7 @@ public class NexusRepoDTO {
     @JsonIgnore
     private Long configId;
     @ApiModelProperty(value = "主键Id")
+    @Encrypt(NexusRepository.ENCRYPT_KEY)
     private Long repositoryId;
     @ApiModelProperty(value = "仓库名称")
     private String name;

@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * choerodon nexus服务DTO
@@ -17,6 +19,7 @@ import lombok.ToString;
 @ToString
 public class C7nNexusServerDTO {
 
+    @Encrypt(NexusServerConfig.ENCRYPT_KEY)
     @ApiModelProperty(value = "主键")
     private Long configId;
     @ApiModelProperty(value = "服务名称")

@@ -11,8 +11,11 @@ import org.hrds.rdupm.nexus.api.dto.NexusRepoDTO;
 import org.hrds.rdupm.nexus.app.service.NexusChoerodonService;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +48,7 @@ public class NexusChoerodonController {
     @GetMapping("/choerodon/{organizationId}/project/{projectId}/repo/maven/list")
     public ResponseEntity<List<C7nNexusRepoDTO>> getRepoByConfig(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                                 @ApiParam(value = "服务配Id", required = true) @RequestParam(name = "configId") Long configId) {
+                                                                 @ApiParam(value = "服务配Id", required = true) @RequestParam(name = "configId") @Encrypt(NexusServerConfig.ENCRYPT_KEY) Long configId) {
 
         return Results.success(nexusChoerodonService.getRepoByConfig(organizationId, projectId, configId, NexusConstants.RepoType.MAVEN));
     }
@@ -55,7 +58,7 @@ public class NexusChoerodonController {
     @GetMapping("/choerodon/{organizationId}/project/{projectId}/repo/maven/groupId")
     public ResponseEntity<List<String>> listMavenGroup(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                        @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                       @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
+                                                       @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                        @ApiParam(value = "groupId", required = false) @RequestParam(name = "groupId", required = false) String groupId) {
         return Results.success(nexusChoerodonService.listMavenGroup(organizationId, projectId, repositoryId, groupId));
     }
@@ -65,7 +68,7 @@ public class NexusChoerodonController {
     @GetMapping("/choerodon/{organizationId}/project/{projectId}/repo/maven/artifactId")
     public ResponseEntity<List<String>> listMavenArtifactId(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                             @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                            @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
+                                                            @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                             @ApiParam(value = "artifactId", required = false) @RequestParam(name = "artifactId", required = false) String artifactId) {
         return Results.success(nexusChoerodonService.listMavenArtifactId(organizationId, projectId, repositoryId, artifactId));
     }
@@ -75,7 +78,7 @@ public class NexusChoerodonController {
     @GetMapping("/choerodon/{organizationId}/project/{projectId}/repo/maven/components")
     public ResponseEntity<List<C7nNexusComponentDTO>> listMavenComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
                                                                           @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
-                                                                          @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") Long repositoryId,
+                                                                          @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
                                                                           @ApiParam(value = "groupId", required = false) @RequestParam(name = "groupId", required = false) String groupId,
                                                                           @ApiParam(value = "artifactId", required = false) @RequestParam(name = "artifactId", required = false) String artifactId,
                                                                           @ApiParam(value = "versionRegular", required = false) @RequestParam(name = "versionRegular", required = false) String versionRegular) {
