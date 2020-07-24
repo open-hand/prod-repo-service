@@ -68,6 +68,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * harbor-customize
 	 */
 	@ApiModelProperty("customRepo, 主键")
+	@Encrypt
 	private Long repoId;
 	@ApiModelProperty(value = "名称")
 	private String repoName;
