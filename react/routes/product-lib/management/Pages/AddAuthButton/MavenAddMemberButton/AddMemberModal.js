@@ -24,7 +24,7 @@ const AddMemberModal = ({ repositoryId, formatMessage, modal, publishAuthDs }) =
     fields: [
       {
         name: 'userId',
-        type: 'number',
+        type: 'string',
         required: true,
         label: formatMessage({ id: `${intlPrefix}.model.userId`, defaultMessage: '成员' }),
         // lookupUrl: `/rdupm/v1/harbor-auths/list-project-member/${projectId}`,
