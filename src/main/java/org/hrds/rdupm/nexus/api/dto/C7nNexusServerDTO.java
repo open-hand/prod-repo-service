@@ -19,7 +19,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @ToString
 public class C7nNexusServerDTO {
 
-    @Encrypt(NexusServerConfig.ENCRYPT_KEY)
+    @Encrypt
     @ApiModelProperty(value = "主键")
     private Long configId;
     @ApiModelProperty(value = "服务名称")

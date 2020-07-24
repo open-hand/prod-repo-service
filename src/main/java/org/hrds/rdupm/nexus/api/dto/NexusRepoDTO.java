@@ -18,7 +18,7 @@ public class NexusRepoDTO {
     @JsonIgnore
     private Long configId;
     @ApiModelProperty(value = "主键Id")
-    @Encrypt(NexusRepository.ENCRYPT_KEY)
+    @Encrypt
     private Long repositoryId;
     @ApiModelProperty(value = "仓库名称")
     private String name;

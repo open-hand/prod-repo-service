@@ -21,10 +21,10 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 @ToString
 public class C7nNexusRepoDTO {
     @ApiModelProperty(value = "服务配置Id")
-    @Encrypt(NexusServerConfig.ENCRYPT_KEY)
+    @Encrypt
     private Long configId;
     @ApiModelProperty(value = "主键Id")
-    @Encrypt(NexusRepository.ENCRYPT_KEY)
+    @Encrypt
     private Long repositoryId;
     @ApiModelProperty(value = "仓库名称")
     private String neRepositoryName;
