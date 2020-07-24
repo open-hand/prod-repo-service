@@ -77,6 +77,7 @@ public class HarborAuth extends AuditDomain {
 
     @ApiModelProperty(value = "猪齿鱼用户ID,必输")
     @NotNull
+	@Encrypt
     private Long userId;
 
     @ExcelColumn(title = "登录名",order = 3)
