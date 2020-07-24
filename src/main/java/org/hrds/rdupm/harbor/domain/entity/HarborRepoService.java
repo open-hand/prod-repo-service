@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-harbor仓库服务关联表
@@ -55,9 +56,11 @@ public class HarborRepoService extends AuditDomain {
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
+	@Encrypt
     private Long id;
     @ApiModelProperty(value = "自定义镜像仓库ID",required = true)
     @NotNull
+	@Encrypt
     private Long customRepoId;
    @ApiModelProperty(value = "应用服务ID")    
     private Long appServiceId;

@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 返回给猪齿鱼
@@ -21,6 +22,7 @@ import lombok.Setter;
 public class HarborC7nRepoVo {
 
 	@ApiModelProperty("仓库ID")
+	@Encrypt
 	private Long repoId;
 
 	@ApiModelProperty("仓库名称")

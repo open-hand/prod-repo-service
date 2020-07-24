@@ -22,7 +22,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class HarborImageVo {
 	public static final String ENCRYPT_KEY = "HarborImageVo";
 
-	@Encrypt(HarborImageVo.ENCRYPT_KEY)
+	@Encrypt
 	@ApiModelProperty("镜像ID")
 	@SerializedName("id")
 	private Long imageId;
@@ -36,6 +36,7 @@ public class HarborImageVo {
 
 	@ApiModelProperty("镜像仓库ID")
 	@SerializedName("project_id")
+	@Encrypt
 	private Long harborId;
 
 	@ApiModelProperty("镜像描述")

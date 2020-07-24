@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * description
@@ -20,6 +21,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborRepoConfigDTO {
     @ApiModelProperty(value = "仓库ID")
+	@Encrypt
     private Long repoId;
     @ApiModelProperty(value = "仓库地址")
     private String repoUrl;

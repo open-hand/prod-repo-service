@@ -23,7 +23,7 @@ import org.hzero.starter.keyencrypt.core.Encrypt;
 public class HarborCustomRepoDTO implements SecurityToken {
 
     @ApiModelProperty("customRepo, 主键")
-    //@Encrypt(HarborCustomRepo.ENCRYPT_KEY)
+    @Encrypt
     private Long repoId;
     @ApiModelProperty(value = "名称")
     private String repoName;

@@ -15,6 +15,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +54,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @PostMapping("/project/{projectId}/{appServiceId}/save_relation")
     public ResponseEntity saveRelationByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                 @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId,
-                                                @ApiParam(value = "自定义仓库ID", required = true) @RequestParam Long customRepoId) {
+                                                @ApiParam(value = "自定义仓库ID", required = true) @Encrypt @RequestParam Long customRepoId) {
         harborCustomRepoService.saveRelationByService(projectId, appServiceId, customRepoId);
         return Results.success();
     }
@@ -63,7 +64,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @DeleteMapping("/project/{projectId}/{appServiceId}/delete_relation")
     public ResponseEntity deleteRelationByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                   @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId,
-                                                  @ApiParam(value = "自定义仓库ID", required = true) @RequestParam Long customRepoId) {
+                                                  @ApiParam(value = "自定义仓库ID", required = true) @Encrypt @RequestParam Long customRepoId) {
         harborCustomRepoService.deleteRelationByService(projectId, appServiceId, customRepoId);
         return Results.success();
     }
@@ -80,7 +81,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/project/{projectId}/harbor_config_by_id")
     public ResponseEntity<HarborRepoDTO> queryHarborRepoConfigById(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                                   @ApiParam(value = "仓库ID",required = false) @RequestParam(required = false) Long repoId,
+                                                                   @ApiParam(value = "仓库ID",required = false) @Encrypt @RequestParam(required = false) Long repoId,
                                                                    @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType){
         return Results.success(harborCustomRepoService.getHarborRepoConfigByRepoId(projectId, repoId, repoType));
     }
@@ -95,7 +96,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @ApiOperation(value = "查询Harbor仓库镜像列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/listHarborImage")
-    public ResponseEntity<?> queryHarborImages(@ApiParam(value = "仓库ID",required = true) @RequestParam Long repoId,
+    public ResponseEntity<?> queryHarborImages(@ApiParam(value = "仓库ID",required = true) @Encrypt @RequestParam Long repoId,
                                                @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
                                                @ApiParam(value = "镜像名称") @RequestParam(required = false) String imageName){
         return Results.success(harborC7nRepoService.getImagesByRepoId(repoId, repoType, imageName));
@@ -113,7 +114,7 @@ public class HarborChoerodonRepoController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/listImageTag")
 	public ResponseEntity<HarborC7nRepoImageTagVo> listImageTag(@ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
-																@ApiParam(value = "仓库ID",required = true)   @RequestParam Long repoId,
+																@ApiParam(value = "仓库ID",required = true)   @Encrypt @RequestParam Long repoId,
 																@ApiParam(value = "镜像名称", required = true) @RequestParam String imageName,
 																@ApiParam(value = "镜像版本号,模糊查询") @RequestParam(required = false) String tagName){
 		return Results.success(harborC7nRepoService.listImageTag(repoType,repoId,imageName,tagName));

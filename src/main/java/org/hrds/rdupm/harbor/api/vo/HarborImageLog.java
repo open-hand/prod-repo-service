@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * description
@@ -23,6 +24,7 @@ public class HarborImageLog {
 	private String loginName;
 
 	@SerializedName("project_id")
+	@Encrypt
 	private Long harborId;
 
 	@SerializedName("repo_name")
