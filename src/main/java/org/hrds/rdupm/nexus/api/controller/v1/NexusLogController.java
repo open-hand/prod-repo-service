@@ -58,7 +58,7 @@ public class NexusLogController extends BaseController {
     @GetMapping("/org/project")
     public ResponseEntity<Page<NexusLog>> listLogByProject(@ApiParam("猪齿鱼组织ID") @PathVariable(value = "organizationId") Long organizationId,
                                                            @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
-                                                           @ApiParam(value = "仓库Id", required = true) @Encrypt(NexusRepository.ENCRYPT_KEY) @RequestParam Long repositoryId,
+                                                           @ApiParam(value = "仓库Id", required = true) @Encrypt @RequestParam Long repositoryId,
                                                            @ApiParam("猪齿鱼项目ID") @RequestParam(required = false) Long projectId,
                                                            @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
                                                            @ApiParam("操作人用户名") @RequestParam(required = false) String realName,

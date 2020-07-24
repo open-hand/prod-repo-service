@@ -36,7 +36,7 @@ public class NexusComponentOrgController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																		 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																		 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
 																		 @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
 																		 @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
 																		 @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
@@ -56,7 +56,7 @@ public class NexusComponentOrgController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}/npm")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																			@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																			@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
 																			@ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
 																			@ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
 																			@ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
@@ -76,7 +76,7 @@ public class NexusComponentOrgController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}/npm/version")
 	public ResponseEntity<Page<NexusServerComponent>> listNpmComponentsVersion(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																			   @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt(NexusRepository.ENCRYPT_KEY) Long repositoryId,
+																			   @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
 																			   @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName,
 																			   @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
 																			   @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,

@@ -78,7 +78,7 @@ public class NexusAuth extends AuditDomain {
     // 数据库字段
     // ------------------------------------------------------------------------------
 
-    @Encrypt(NexusAuth.ENCRYPT_KEY)
+    @Encrypt
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
@@ -89,7 +89,7 @@ public class NexusAuth extends AuditDomain {
     private Long organizationId;
     @ApiModelProperty(value = "rdupm_nexus_repository 表主键",required = true)
     @NotNull
-    @Encrypt(NexusRepository.ENCRYPT_KEY)
+    @Encrypt
     private Long repositoryId;
     @ApiModelProperty(value = "猪齿鱼用户ID",required = true)
     @NotNull

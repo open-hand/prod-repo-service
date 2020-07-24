@@ -171,7 +171,7 @@ public class NexusRepositoryCreateDTO {
 		return nexusMavenGroup;
 	}
 
-	@Encrypt(NexusRepository.ENCRYPT_KEY)
+	@Encrypt
 	private Long repositoryId;
 	/**
 	 * hosted，proxy，group

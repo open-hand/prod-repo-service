@@ -84,7 +84,7 @@ public class ProductLibraryDTO extends AuditDomain {
 	 * maven
 	 */
 	@ApiModelProperty("maven/npm, 主键")
-	@Encrypt(NexusRepository.ENCRYPT_KEY)
+	@Encrypt
 	private Long repositoryId;
 	@ApiModelProperty("maven/npm, 主键")
 	private String sourceRepositoryId;

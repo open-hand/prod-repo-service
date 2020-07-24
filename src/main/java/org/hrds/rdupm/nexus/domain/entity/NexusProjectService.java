@@ -47,12 +47,12 @@ public class NexusProjectService extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-    @Encrypt(NexusProjectService.ENCRYPT_KEY)
+    @Encrypt
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
     private Long projectServiceId;
-    @Encrypt(NexusServerConfig.ENCRYPT_KEY)
+    @Encrypt
     @ApiModelProperty(value = "rdupm_nexus_server_config 表主键",required = true)
     @NotNull
     private Long configId;

@@ -67,7 +67,7 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	}
 
 	private Long configId;
-	@Encrypt(NexusRepository.ENCRYPT_KEY)
+	@Encrypt
 	private Long repositoryId;
 	@ApiModelProperty(value = "仓库名称")
 	private String neRepositoryName;
