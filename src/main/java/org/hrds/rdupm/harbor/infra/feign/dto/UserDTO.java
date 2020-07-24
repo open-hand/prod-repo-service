@@ -6,6 +6,7 @@ import java.util.List;
 import io.choerodon.core.oauth.CustomUserDetails;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * description
@@ -15,6 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserDTO {
+	@Encrypt
 	private Long id;
 
 	private String loginName;
