@@ -56,6 +56,7 @@ public class NexusRepository extends AuditDomain {
     @GeneratedValue
     private Long repositoryId;
     @ApiModelProperty(value = "nexus服务配置ID: rdupm_nexus_server_config主键",required = true)
+    @Encrypt
     private Long configId;
     @ApiModelProperty(value = "nexus仓库名称",required = true)
     @NotBlank

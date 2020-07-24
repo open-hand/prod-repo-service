@@ -55,6 +55,7 @@ public class NexusUser extends AuditDomain {
     private Long userId;
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
+	@Encrypt
     private Long repositoryId;
 	@ApiModelProperty(value = "仓库默认发布用户Id")
 	private String neUserId;

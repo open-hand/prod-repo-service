@@ -50,6 +50,7 @@ public class NexusRole extends AuditDomain {
     private Long roleId;
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
+    @Encrypt
     private Long repositoryId;
 	@ApiModelProperty(value = "仓库默认发布角色Id",required = true)
     private String neRoleId;

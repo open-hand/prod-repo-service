@@ -209,6 +209,7 @@ public class NexusRepositoryCreateDTO {
 	private String remotePassword;
 
 	@ApiModelProperty(value = "仓库分配-仓库管理员用户ID")
+	@Encrypt
 	private Long distributeRepoAdminId;
 
 	@ApiModelProperty(value = "制品库格式类型： maven2、npm", hidden = true)

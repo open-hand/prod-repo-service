@@ -93,6 +93,7 @@ public class NexusAuth extends AuditDomain {
     private Long repositoryId;
     @ApiModelProperty(value = "猪齿鱼用户ID",required = true)
     @NotNull
+    @Encrypt
     private Long userId;
     @ExcelColumn(title = "登录名", order = 3)
     @ApiModelProperty(value = "登录名")
