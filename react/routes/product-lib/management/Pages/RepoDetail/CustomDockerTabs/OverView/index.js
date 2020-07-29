@@ -13,7 +13,7 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const OverView = ({ setDetailData, repositoryId, formatMessage, activeTabKey }, ref) => {
+const OverView = ({ repositoryId, formatMessage, activeTabKey }, ref) => {
   const [loading, setLoading] = useState(false);
   const [detail, setDetail] = useState({});
 
@@ -23,7 +23,6 @@ const OverView = ({ setDetailData, repositoryId, formatMessage, activeTabKey }, 
       setLoading(true);
       const res = await axios.get(`/rdupm/v1/${organizationId}/harbor-custom-repos/detail/project/${repoId}`);
       setDetail(res);
-      setDetailData(res);
     } finally {
       setLoading(false);
     }

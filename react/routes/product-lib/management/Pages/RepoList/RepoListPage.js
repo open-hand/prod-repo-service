@@ -148,7 +148,7 @@ const RepoList = ({ setActiveRepository }) => {
     ]);
     
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
-    const enableAnonymousFlag = { enableFlagItem };
+    const { enableAnonymousFlag } = enableFlagItem;
 
     Modal.open({
       key,
@@ -173,7 +173,7 @@ const RepoList = ({ setActiveRepository }) => {
     
     
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
-    const enableAnonymousFlag = { enableFlagItem };
+    const { enableAnonymousFlag } = enableFlagItem;
 
     Modal.open({
       key,
@@ -297,7 +297,7 @@ const RepoList = ({ setActiveRepository }) => {
             creatorLoginName,
             versionPolicy,
             type,
-            repositoryId,
+            sourceRepositoryId,
             projectId,
             repoName,
           } = data;
@@ -431,16 +431,16 @@ const RepoList = ({ setActiveRepository }) => {
                       };
 
 
-                      if (hasAuth(productType, repositoryId || projectId) && data.enableFlag === 'Y') {
+                      if (hasAuth(productType, sourceRepositoryId || projectId) && data.enableFlag === 'Y') {
                         actionData.unshift(editMenu);
                       }
 
-                      if (hasAuth(productType, repositoryId || projectId)) {
+                      if (hasAuth(productType, sourceRepositoryId || projectId)) {
                         actionData.unshift(disableAndAbleMenu);
                       }
                     }
                     if (['DOCKER', 'DOCKER_CUSTOM'].includes(productType)) {
-                      if (hasAuth(productType, repositoryId || projectId)) {
+                      if (hasAuth(productType, sourceRepositoryId || projectId)) {
                         actionData.unshift(
                           editMenu,
                           deleteMenu,

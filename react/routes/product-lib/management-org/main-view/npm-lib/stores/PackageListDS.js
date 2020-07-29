@@ -42,7 +42,7 @@ export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
   queryFields: [
     {
       name: 'repositoryId',
-      type: 'number',
+      type: 'string',
       label: formatMessage({ id: `${intlPrefix}.model.repoName` }),
       required: true,
       textField: 'name',

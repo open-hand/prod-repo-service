@@ -1,4 +1,4 @@
-export default ((organizationId, projectId) => ({
+export default (() => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -7,9 +7,6 @@ export default ((organizationId, projectId) => ({
       name: 'repositoryName',
       type: 'string',
       label: '仓库',
-      lookupUrl: `/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/component`,
-      textField: 'name',
-      valueField: 'name',
       required: true,
     },
     { name: 'version', type: 'string', label: 'version', required: true, pattern: new RegExp(/^[.A-Za-z0-9_-]+$/) },

@@ -24,7 +24,7 @@ const AddMemberModal = ({ repositoryId, formatMessage, modal, publishAuthDs }) =
     fields: [
       {
         name: 'userId',
-        type: 'number',
+        type: 'string',
         required: true,
         label: formatMessage({ id: `${intlPrefix}.model.userId`, defaultMessage: '成员' }),
         // lookupUrl: `/rdupm/v1/harbor-auths/list-project-member/${projectId}`,
@@ -73,7 +73,7 @@ const AddMemberModal = ({ repositoryId, formatMessage, modal, publishAuthDs }) =
       {ds.data.map((record) =>
         (
           <Form key={record.id} columns={4} record={record}>
-            <Select name="userId" dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}>
+            <Select name="userId" dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }} searchable>
               {memberDataSource.map(o => (
                 <Select.Option key={o.id} value={o.id}>{o.realName}</Select.Option>
               ))}
