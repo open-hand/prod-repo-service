@@ -36,7 +36,7 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
       },
       {
         name: 'distributeRepoAdminId',
-        type: 'number',
+        type: 'string',
         label: formatMessage({ id: `${intlPrefix}.model.distributeRepoAdminId`, defaultMessage: '仓库管理员' }),
         // cascadeMap: { projectId: 'projectId' },
         valueField: 'id',
