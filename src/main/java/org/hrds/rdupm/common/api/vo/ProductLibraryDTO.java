@@ -10,6 +10,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.core.util.UUIDUtils;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.BeanUtils;
@@ -84,8 +85,11 @@ public class ProductLibraryDTO extends AuditDomain {
 	/**
 	 * maven
 	 */
-	@ApiModelProperty("maven, 主键")
+	@ApiModelProperty("maven/npm, 主键")
+	@Encrypt
 	private Long repositoryId;
+	@ApiModelProperty("maven/npm, 主键")
+	private String sourceRepositoryId;
 	@ApiModelProperty(value = "仓库名称")
 	private String repositoryName;
 	@ApiModelProperty(value = "仓库类型")
@@ -113,6 +117,7 @@ public class ProductLibraryDTO extends AuditDomain {
 		this.uniqueId = UUIDUtils.generateUUID();
 		this.productType = repoType;
 		this.repositoryName = nexusRepositoryDTO.getName();
+		this.sourceRepositoryId = nexusRepositoryDTO.getRepositoryId() == null ? null : String.valueOf(nexusRepositoryDTO.getRepositoryId());
 		BeanUtils.copyProperties(nexusRepositoryDTO, this);
 	}
 

@@ -6,14 +6,17 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusComponentQuery;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentInfo;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +36,18 @@ public class NexusComponentOrgController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																			 NexusComponentQuery componentQuery,
-																			 @ApiIgnore PageRequest pageRequest) {
-		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
+																		 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
+																		 @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																		 @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																		 @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
+																		 @ApiIgnore PageRequest pageRequest) {
+		AssertUtils.notNull(repositoryId, "repositoryId is not null");
+		NexusComponentQuery componentQuery = new NexusComponentQuery();
+		componentQuery.setRepositoryId(repositoryId);
+		componentQuery.setGroup(group);
+		componentQuery.setName(name);
+		componentQuery.setVersion(version);
+
 		componentQuery.setRepoType(NexusConstants.RepoType.MAVEN);
 		return Results.success(nexusComponentService.listComponents(organizationId, null, false,componentQuery, pageRequest));
 	}
@@ -44,9 +56,18 @@ public class NexusComponentOrgController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}/npm")
 	public ResponseEntity<Page<NexusServerComponentInfo>> listNpmComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																			NexusComponentQuery componentQuery,
+																			@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
+																			@ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																			@ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																			@ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
 																			@ApiIgnore PageRequest pageRequest) {
-		AssertUtils.notNull(componentQuery.getRepositoryId(), "repositoryId is not null");
+		AssertUtils.notNull(repositoryId, "repositoryId is not null");
+		NexusComponentQuery componentQuery = new NexusComponentQuery();
+		componentQuery.setRepositoryId(repositoryId);
+		componentQuery.setGroup(group);
+		componentQuery.setName(name);
+		componentQuery.setVersion(version);
+
 		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponents(organizationId, null, false, componentQuery, pageRequest));
 	}
@@ -55,10 +76,37 @@ public class NexusComponentOrgController extends BaseController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping("/{organizationId}/npm/version")
 	public ResponseEntity<Page<NexusServerComponent>> listNpmComponentsVersion(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
-																			   NexusComponentQuery componentQuery,
+																			   @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
+																			   @ApiParam(value = "仓库名称", required = true) @RequestParam(name = "repositoryName") String repositoryName,
+																			   @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																			   @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																			   @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
 																			   @ApiIgnore PageRequest pageRequest) {
+		NexusComponentQuery componentQuery = new NexusComponentQuery();
+		componentQuery.setRepositoryId(repositoryId);
+		componentQuery.setGroup(group);
+		componentQuery.setName(name);
+		componentQuery.setVersion(version);
+		componentQuery.setRepositoryName(repositoryName);
+
 		componentQuery.setRepoType(NexusConstants.RepoType.NPM);
 		return Results.success(nexusComponentService.listComponentsVersion(organizationId, null, true, componentQuery, pageRequest));
 	}
 
+	@ApiOperation(value = "组织层-配置指引信息，查询")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping("/guide")
+	public ResponseEntity<NexusComponentGuideDTO> componentGuide(@ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) Long repositoryId,
+																 @ApiParam(value = "仓库名称") @RequestParam(name = "repository", required = false) String repository,
+																 @ApiParam(value = "groupId") @RequestParam(name = "group", required = false) String group,
+																 @ApiParam(value = "artifactId") @RequestParam(name = "name", required = false) String name,
+																 @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version) {
+		NexusServerComponentInfo componentInfo = new NexusServerComponentInfo();
+		componentInfo.setRepositoryId(repositoryId);
+		componentInfo.setRepository(repository);
+		componentInfo.setGroup(group);
+		componentInfo.setName(name);
+		componentInfo.setVersion(version);
+		return Results.success(nexusComponentService.componentGuide(componentInfo));
+	}
 }

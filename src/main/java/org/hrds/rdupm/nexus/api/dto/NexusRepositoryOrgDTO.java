@@ -1,20 +1,22 @@
 package org.hrds.rdupm.nexus.api.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import javax.persistence.Transient;
+
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.mybatis.domian.SecurityToken;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 
-import javax.persistence.Transient;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 仓库信息
@@ -24,47 +26,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusRepositoryDTO> {
+public class NexusRepositoryOrgDTO implements SecurityToken, Comparator<NexusRepositoryOrgDTO> {
 	private String _token;
-
-	/**
-	 * 类转换
-	 * @param nexusRepository 数据库仓库数据
-	 * @param nexusServerRepository nexus服务仓库数据
-	 */
-	public void convert(NexusRepository nexusRepository, NexusServerRepository nexusServerRepository) {
-		if (nexusRepository != null) {
-			this.configId = nexusRepository.getConfigId();
-			this.repositoryId = nexusRepository.getRepositoryId();
-			this.neRepositoryName = nexusRepository.getNeRepositoryName();
-			this.allowAnonymous = nexusRepository.getAllowAnonymous();
-			this._token = nexusRepository.get_token();
-			this.projectId = nexusRepository.getProjectId();
-			this.organizationId = nexusRepository.getOrganizationId();
-			this.projectName = nexusRepository.getProjectName();
-
-			this.createdBy = nexusRepository.getCreatedBy();
-			this.creationDate = nexusRepository.getCreationDate();
-			this.creatorImageUrl = nexusRepository.getCreatorImageUrl();
-			this.creatorLoginName = nexusRepository.getCreatorLoginName();
-			this.creatorRealName = nexusRepository.getCreatorRealName();
-			this.enableFlag = nexusRepository.getEnableFlag();
-			this.enableAnonymousFlag = nexusRepository.getEnableAnonymousFlag();
-		}
-		if (nexusServerRepository != null) {
-			this.name = nexusServerRepository.getName();
-			this.type = nexusServerRepository.getType();
-			this.versionPolicy = nexusServerRepository.getVersionPolicy();
-			this.writePolicy = nexusServerRepository.getWritePolicy();
-			this.online = nexusServerRepository.getOnline();
-			this.url = nexusServerRepository.getUrl() + "/";
-
-			this.blobStoreName = nexusServerRepository.getBlobStoreName();
-			this.repoMemberList = nexusServerRepository.getRepoMemberList();
-			this.remoteUrl = nexusServerRepository.getRemoteUrl();
-			this.remoteUsername = nexusServerRepository.getRemoteUsername();
-		}
-	}
 
 	private Long configId;
 	@Encrypt
@@ -123,11 +86,11 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 
 	@Override
 	public Class<? extends SecurityToken> associateEntityClass() {
-		return NexusRepositoryDTO.class;
+		return NexusRepositoryOrgDTO.class;
 	}
 
 	@Override
-	public int compare(NexusRepositoryDTO o1, NexusRepositoryDTO o2) {
+	public int compare(NexusRepositoryOrgDTO o1, NexusRepositoryOrgDTO o2) {
 		if (Objects.nonNull(o1.getProjectId()) && Objects.nonNull(o2.getProjectId())) {
 			return o2.getRepositoryId().compareTo(o1.getRepositoryId());
 		} else if (Objects.nonNull(o1.getProjectId())) {

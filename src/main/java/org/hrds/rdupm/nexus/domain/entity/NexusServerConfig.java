@@ -130,7 +130,7 @@ public class NexusServerConfig extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-    //@Encrypt(ENCRYPT_KEY)
+    @Encrypt
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
@@ -163,6 +163,7 @@ public class NexusServerConfig extends AuditDomain {
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
+    @Encrypt
     @Transient
     private Long projectServiceId;
     @Transient

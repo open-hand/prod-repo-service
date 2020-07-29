@@ -54,9 +54,9 @@ public interface NexusRepositoryService {
 	 * 组织层 - 查询maven仓库列表
 	 * @param pageRequest 分页参数
 	 * @param queryDTO 查询参数
-	 * @return Page<NexusRepositoryDTO>
+	 * @return Page<NexusRepositoryOrgDTO>
 	 */
-	Page<NexusRepositoryDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
+	Page<NexusRepositoryOrgDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO);
 
 	/**
 	 * 项目层 - 查询maven/npm仓库列表, 不分页
@@ -70,25 +70,25 @@ public interface NexusRepositoryService {
 	 * 获取仓库名列表
 	 * @param projectId 项目Id
 	 * @param repoType 制品库类型
-	 * @return List<NexusRepositoryDTO>
+	 * @return List<NexusRepositoryListDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoNameAll(Long projectId, String repoType);
+	List<NexusRepositoryListDTO> listRepoNameAll(Long projectId, String repoType);
 
 	/**
 	 * 获取仓库名列表 - 当前项目
 	 * @param query 查询
 	 * @param repoType 制品库类型
-	 * @return List<NexusRepositoryDTO>
+	 * @return List<NexusRepositoryListDTO>
 	 */
-	List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType);
+	List<NexusRepositoryListDTO> listRepoName(NexusRepository query, String repoType);
 
 	/**
 	 * 获取仓库名列表 - 当前项目
 	 * @param query 查询
 	 * @param repoType 制品库类型
-	 * @return List<NexusRepositoryDTO>
+	 * @return List<NexusRepositoryOrgDTO>
 	 */
-	List<NexusRepository> listOrgRepoName(NexusRepository query, String repoType);
+	List<NexusRepositoryOrgDTO> listOrgRepoName(NexusRepository query, String repoType);
 
 	/**
 	 * 包上传 - 仓库列表
