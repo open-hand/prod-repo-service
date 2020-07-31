@@ -11,7 +11,7 @@
 
     <groupId>org.hrds.rdupm</groupId>
     <artifactId>rdupm</artifactId>
-    <version>0.23.0-alpha.1</version>
+    <version>0.23.0.RELEASE</version>
     <name>rdupm</name>
 
     <properties>
