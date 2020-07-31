@@ -1,6 +1,7 @@
 import React, { createContext } from 'react';
 import { Page, axios, stores } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
+import { Spin } from 'choerodon-ui';
 import { useStore } from '../index';
 import RepoList from './RepoList';
 import { MavenTabContainer, DockerTabContainer, NpmTabContainer, CustomDockerTabContainer } from './RepoDetail';
@@ -41,6 +42,7 @@ const Pages = () => {
 
   return (
     <CurrentRoleContext.Provider value={currentRole}>
+      <Spin spinning={loading} style={{ marginLeft: '50%', marginTop: '50vh', position: 'absolute' }} />
       <Page>
         {!loading && !activeRepository && <RepoList setActiveRepository={setActiveRepository} init={init} />}
         {!loading && activeRepository &&
