@@ -63,7 +63,8 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         if ( null != allExistsRobotResponseEntity && StringUtils.isNotBlank(allExistsRobotResponseEntity.getBody())) {
             allExistsRobotVOList = new Gson().fromJson(allExistsRobotResponseEntity.getBody(),new TypeToken<List<HarborRobotVO>>(){}.getType());
             allExistsRobotVOList.forEach(harborRobotVO -> {
-                if (harborRobotVO.getName().equals(harborRobot.getName())) {
+                String robotName = HarborConstants.HarborRobot.ROBOT_NAME_PREFIX + harborRobot.getName();
+                if (harborRobotVO.getName().equals(robotName)) {
                     ResponseEntity<String> deleteRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ROBOT,null,null,true, harborRobot.getHarborProjectId(), harborRobotVO.getId());
                     if (!deleteRobotResponseEntity.getStatusCode().is2xxSuccessful()) {
                         throw new CommonException("error.harbor.robot.delete.expired");
