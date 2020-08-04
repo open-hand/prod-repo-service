@@ -56,6 +56,23 @@ public class HarborRobotServiceImpl implements HarborRobotService {
     @Override
     public HarborRobot createRobot(HarborRobot harborRobot) {
         checkRobotParam(harborRobot);
+
+        //先删除harbor里的同名robot用户
+        ResponseEntity<String> allExistsRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_ALL_ROBOTS,null,null,true,harborRobot.getHarborProjectId());
+        List<HarborRobotVO> allExistsRobotVOList = new ArrayList<>();
+        if ( null != allExistsRobotResponseEntity && StringUtils.isNotBlank(allExistsRobotResponseEntity.getBody())) {
+            allExistsRobotVOList = new Gson().fromJson(allExistsRobotResponseEntity.getBody(),new TypeToken<List<HarborRobotVO>>(){}.getType());
+            allExistsRobotVOList.forEach(harborRobotVO -> {
+                String robotName = HarborConstants.HarborRobot.ROBOT_NAME_PREFIX + harborRobot.getName();
+                if (harborRobotVO.getName().equals(robotName)) {
+                    ResponseEntity<String> deleteRobotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ROBOT,null,null,true, harborRobot.getHarborProjectId(), harborRobotVO.getId());
+                    if (!deleteRobotResponseEntity.getStatusCode().is2xxSuccessful()) {
+                        throw new CommonException("error.harbor.robot.delete.expired");
+                    }
+                }
+            });
+        }
+
         String robotResource = String.format(HarborConstants.HarborRobot.ROBOT_RESOURCE,harborRobot.getHarborProjectId());
         List<HarborRobotAccessVO> accessVOList = new ArrayList<>(1);
         accessVOList.add(new HarborRobotAccessVO(harborRobot.getAction(), robotResource));
