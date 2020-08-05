@@ -26,7 +26,7 @@ public class NexusDefaultInitTask {
 
     @JobTask(maxRetryCount = 3, code = "nexusDefaultServiceInit", description = "Nexus默认服务初始化")
     @TimedTask(name = "nexusDefaultServiceInit", description = "Nexus默认服务初始化",
-            oneExecution = true, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
+            oneExecution = false, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
             params = {})
     public void nexusDefaultInit(Map<String, Object> map) {
         logger.info("Nexus默认服务初始化，定时任务开始执行");

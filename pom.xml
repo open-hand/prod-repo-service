@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.choerodon</groupId>
         <artifactId>choerodon-framework-parent</artifactId>
-        <version>0.17.1.RELEASE</version>
+        <version>0.17.2.RELEASE</version>
     </parent>
 
     <groupId>org.hrds.rdupm</groupId>
@@ -142,7 +142,6 @@
         <dependency>
             <groupId>io.choerodon</groupId>
             <artifactId>choerodon-starter-asgard</artifactId>
-            <version>0.17.2.RELEASE</version>
         </dependency>
 
         <dependency>
