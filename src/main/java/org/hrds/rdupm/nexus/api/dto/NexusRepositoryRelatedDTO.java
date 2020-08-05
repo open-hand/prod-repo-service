@@ -42,10 +42,6 @@ public class NexusRepositoryRelatedDTO {
 						   NexusRepositoryService nexusRepositoryService, NexusRepositoryRepository nexusRepositoryRepository){
 
 		// 用户校验
-		if (!NexusServerConfig.ADMIN_USER.equals(this.userName)) {
-			throw new CommonException(NexusMessageConstants.NEXUS_INPUT_ADMIN_USER);
-		}
-
 		NexusServer nexusServer = new NexusServer(serverConfig.getServerUrl(), this.userName, this.password);
 		nexusClient.setNexusServerInfo(nexusServer);
 		NexusServerUser nexusExistUser = null;
@@ -59,6 +55,11 @@ public class NexusRepositoryRelatedDTO {
 				throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
 			}
 			throw e;
+		}
+		// 用户权限校验，需要有admin管理员权限
+		Boolean adminFlag = nexusClient.getNexusUserApi().validAdmin(this.userName);
+		if (!adminFlag) {
+			throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
 		}
 
 		// 仓库
