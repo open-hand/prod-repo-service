@@ -30,6 +30,7 @@ public class NexusDefaultInitTask {
             params = {})
     public void nexusDefaultInit(Map<String, Object> map) {
         logger.info("Nexus默认服务初始化，定时任务开始执行");
+        nexusInitService.initDefaultNexusServer();
         nexusInitService.initScript();
         nexusInitService.initAnonymous(new ArrayList<>());
         logger.info("Nexus默认服务初始化，定时任务执行完毕");

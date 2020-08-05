@@ -2,6 +2,8 @@ package org.hrds.rdupm.nexus.app.service.impl;
 
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.hrds.rdupm.init.config.NexusDefaultInitConfiguration;
+import org.hrds.rdupm.init.service.NexusDefaultInitTask;
 import org.hrds.rdupm.nexus.app.service.NexusInitService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -13,8 +15,12 @@ import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hrds.rdupm.util.DESEncryptUtil;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +35,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class NexusInitServiceImpl implements NexusInitService {
+	private static final Logger logger = LoggerFactory.getLogger(NexusInitServiceImpl.class);
+	private final static String SERVER_NAME = "默认服务";
 	@Autowired
 	private NexusClient nexusClient;
 	@Autowired
@@ -37,6 +45,48 @@ public class NexusInitServiceImpl implements NexusInitService {
 	private NexusServerConfigRepository nexusServerConfigRepository;
 	@Autowired
 	private NexusRepositoryRepository nexusRepositoryRepository;
+	@Autowired
+	private NexusDefaultInitConfiguration initConfiguration;
+
+	@Override
+	public void initDefaultNexusServer() {
+		logger.info("Nexus默认服务初始化，数据插入、更新");
+		NexusServerConfig queryConfig = new NexusServerConfig();
+		queryConfig.setDefaultFlag(1);
+		NexusServerConfig defaultConfig = nexusServerConfigRepository.selectOne(queryConfig);
+		if (defaultConfig == null) {
+			// 数据库无数据
+			NexusServerConfig nexusServerConfig = new NexusServerConfig();
+			nexusServerConfig.setServerName(SERVER_NAME);
+			nexusServerConfig.setServerUrl(initConfiguration.getServerUrl());
+			nexusServerConfig.setUserName(initConfiguration.getUsername());
+			nexusServerConfig.setPassword(DESEncryptUtil.encode(initConfiguration.getPassword()));
+			nexusServerConfig.setEnableAnonymousFlag(initConfiguration.getEnableAnonymousFlag());
+			if (initConfiguration.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
+				nexusServerConfig.setAnonymous(initConfiguration.getAnonymousUser());
+				nexusServerConfig.setAnonymousRole(initConfiguration.getAnonymousRole());
+			}
+			nexusServerConfig.setDefaultFlag(BaseConstants.Flag.YES);
+			nexusServerConfigRepository.insertSelective(nexusServerConfig);
+		} else {
+			// 数据库有数据
+			defaultConfig.setServerUrl(initConfiguration.getServerUrl());
+			defaultConfig.setUserName(initConfiguration.getUsername());
+			defaultConfig.setPassword(DESEncryptUtil.encode(initConfiguration.getPassword()));
+			defaultConfig.setEnableAnonymousFlag(initConfiguration.getEnableAnonymousFlag());
+			if (initConfiguration.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
+				defaultConfig.setAnonymous(initConfiguration.getAnonymousUser());
+				defaultConfig.setAnonymousRole(initConfiguration.getAnonymousRole());
+			} else {
+				defaultConfig.setAnonymous(null);
+				defaultConfig.setAnonymousRole(null);
+			}
+			nexusServerConfigRepository.updateOptional(defaultConfig, NexusServerConfig.FIELD_SERVER_URL,
+					NexusServerConfig.FIELD_USER_NAME, NexusServerConfig.FIELD_PASSWORD,
+					NexusServerConfig.FIELD_ENABLE_ANONYMOUS_FLAG, NexusServerConfig.FIELD_ANONYMOUS,
+					NexusServerConfig.FIELD_ANONYMOUS_ROLE);
+		}
+	}
 
 	@Override
 	public void initScript() {
