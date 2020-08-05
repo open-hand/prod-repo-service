@@ -213,6 +213,9 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		NexusServerConfig defaultQuery = new NexusServerConfig();
 		defaultQuery.setDefaultFlag(BaseConstants.Flag.YES);
 		NexusServerConfig defaultConfig = nexusServerConfigRepository.selectOne(defaultQuery);
+		if (defaultConfig == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SERVER_INFO_NOT_CONFIG);
+		}
 		defaultConfig.setProjectId(projectId);
 
 		// 项目下，自定义的nexus服务信息

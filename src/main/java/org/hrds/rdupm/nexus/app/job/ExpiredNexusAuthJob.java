@@ -26,7 +26,7 @@ public class ExpiredNexusAuthJob {
     @JobTask(maxRetryCount = 3, code = "expiredNexusAuth", description = "Nexus移除过期权限")
     @TimedTask(name = "expiredNexusAuth", description = "Nexus移除过期权限",
             triggerType = TriggerTypeEnum.CRON_TRIGGER,
-            cronExpression = "0 0 0/1 * * ?",
+            cronExpression = "0 0 0 * * ?",
             params = {})
     public void expiredNexusAuth(Map<String, Object> map) {
         logger.info("Nexus移除过期权限，定时任务开始执行");
