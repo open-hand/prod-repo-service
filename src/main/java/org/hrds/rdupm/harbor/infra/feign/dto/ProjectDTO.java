@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.infra.feign.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiParam;
 
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiParam;
  *
  * @author chenxiuhong 2020/03/19 8:58 下午
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectDTO {
 
 	@ApiModelProperty(value = "项目ID")
