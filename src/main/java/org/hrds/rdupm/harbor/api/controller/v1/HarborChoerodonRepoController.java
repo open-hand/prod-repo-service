@@ -129,4 +129,13 @@ public class HarborChoerodonRepoController extends BaseController {
 		return Results.success(harborC7nRepoService.listImageTagByAppServiceId(projectId, appServiceId));
 	}
 
+	@ApiOperation(value = "项目层/组织层--删除镜像TAG")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@DeleteMapping(value = "/image-tag/delete")
+	public ResponseEntity delete(@ApiParam(value = "仓库名称") @RequestParam String repoName,
+								 @ApiParam(value = "版本号") @RequestParam String tagName) {
+		harborC7nRepoService.deleteImageTag(repoName,tagName);
+		return Results.success();
+	}
+
 }

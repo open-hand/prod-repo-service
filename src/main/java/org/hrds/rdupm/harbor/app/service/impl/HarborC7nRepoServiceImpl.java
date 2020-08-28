@@ -204,5 +204,10 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		return listImageTag(repoType,repoId,imageName,null);
 	}
 
+	@Override
+	public void deleteImageTag(String repoName, String tagName) {
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG,null,null,true,repoName,tagName);
+	}
+
 
 }
