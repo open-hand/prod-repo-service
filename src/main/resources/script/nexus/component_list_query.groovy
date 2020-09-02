@@ -23,20 +23,7 @@ def format = 'yyyy-MM-dd HH:mm:ss'
 Repository repo = repository.repositoryManager.get(param.repositoryName)
 if (repo != null) {
   List<Repository> repoList = new ArrayList<>()
-  repoList.add(repo)
-
-  // group类型， 处理
-  def type = repo.type.getValue()
-  if ('group' == type) {
-    Configuration configuration = repo.getConfiguration()
-    List<String> memberStrList = configuration.attributes['group']['memberNames'] as List<String>
-    memberStrList.collect {
-      Repository memberRepo = repository.repositoryManager.get(it)
-      if (memberRepo != null) {
-        repoList.add(memberRepo)
-      }
-    }
-  }
+  addRepo(repo, repoList)
 
   def tx = repo.facet(StorageFacet).txSupplier().get()
   try {
@@ -115,6 +102,23 @@ static String spliceLike(String param) {
   return '%' + param + '%'
 }
 
+static void addRepo(Repository repo, List<Repository> repoList) {
+  if (repo != null) {
+    repoList.add(repo)
+    // group类型， 处理
+    def type = repo.type.getValue()
+    if ('group' == type) {
+      Configuration configuration = repo.getConfiguration()
+      List<String> memberStrList = configuration.attributes['group']['memberNames'] as List<String>
+      if (memberStrList != null) {
+        memberStrList.collect {
+          Repository memberRepo = repository.repositoryManager.get(it)
+          addRepo(memberRepo, repoList)
+        }
+      }
+    }
+  }
+}
 
 // 返回结果类
 class Result {
