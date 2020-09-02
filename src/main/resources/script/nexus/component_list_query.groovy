@@ -3,6 +3,7 @@ package script.nexus
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.config.Configuration
+import org.sonatype.nexus.repository.manager.RepositoryManager
 import org.sonatype.nexus.repository.storage.Asset
 import org.sonatype.nexus.repository.storage.Component
 import org.sonatype.nexus.repository.storage.Query
@@ -23,7 +24,7 @@ def format = 'yyyy-MM-dd HH:mm:ss'
 Repository repo = repository.repositoryManager.get(param.repositoryName)
 if (repo != null) {
   List<Repository> repoList = new ArrayList<>()
-  addRepo(repo, repoList)
+  addRepo(repo, repoList, repository.repositoryManager)
 
   def tx = repo.facet(StorageFacet).txSupplier().get()
   try {
@@ -102,7 +103,7 @@ static String spliceLike(String param) {
   return '%' + param + '%'
 }
 
-static void addRepo(Repository repo, List<Repository> repoList) {
+static void addRepo(Repository repo, List<Repository> repoList, RepositoryManager manager) {
   if (repo != null) {
     repoList.add(repo)
     // group类型， 处理
@@ -112,8 +113,8 @@ static void addRepo(Repository repo, List<Repository> repoList) {
       List<String> memberStrList = configuration.attributes['group']['memberNames'] as List<String>
       if (memberStrList != null) {
         memberStrList.collect {
-          Repository memberRepo = repository.repositoryManager.get(it)
-          addRepo(memberRepo, repoList)
+          Repository memberRepo = manager.get(it)
+          addRepo(memberRepo, repoList, manager)
         }
       }
     }
