@@ -6,12 +6,12 @@
     <parent>
         <groupId>io.choerodon</groupId>
         <artifactId>choerodon-framework-parent</artifactId>
-        <version>0.17.1.RELEASE</version>
+        <version>0.17.2.RELEASE</version>
     </parent>
 
     <groupId>org.hrds.rdupm</groupId>
     <artifactId>hrds-prod-repo</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>0.23.2-SNAPSHOT</version>
     <name>rdupm</name>
 
     <properties>
@@ -143,39 +143,6 @@
             <groupId>io.choerodon</groupId>
             <artifactId>choerodon-starter-asgard</artifactId>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>io.choerodon</groupId>-->
-            <!--<artifactId>choerodon-starter-actuator</artifactId>-->
-            <!--<version>${choerodon.starters.version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>io.choerodon</groupId>-->
-            <!--<artifactId>choerodon-starter-core</artifactId>-->
-            <!--<version>${choerodon.starters.version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>io.github.openfeign.form</groupId>-->
-            <!--<artifactId>feign-form</artifactId>-->
-            <!--<version>3.0.3</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>io.github.openfeign.form</groupId>-->
-            <!--<artifactId>feign-form-spring</artifactId>-->
-            <!--<version>3.0.3</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>io.choerodon</groupId>-->
-            <!--<artifactId>choerodon-starter-swagger</artifactId>-->
-            <!--<version>${choerodon.starters.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>io.choerodon</groupId>-->
-            <!--<artifactId>choerodon-starter-feign-replay</artifactId>-->
-            <!--<version>${choerodon.starters.version}</version>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>

@@ -66,10 +66,15 @@ public class NexusServerConfig extends AuditDomain {
 
 
     public void validParam (NexusClient nexusClient) {
-        if (!ADMIN_USER.equals(this.userName)) {
-            throw new CommonException(NexusMessageConstants.NEXUS_INPUT_ADMIN_USER);
-        }
+        // 用户/密码校验
         this.validaUserPassword(nexusClient);
+        // 用户权限校验，必须是管理员
+        Boolean adminFlag = nexusClient.getNexusUserApi().validAdmin(this.userName);
+        if (!adminFlag) {
+            throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
+        }
+
+
         if (this.enableAnonymousFlag.equals(BaseConstants.Flag.YES)) {
             // 启用匿名访问控制
             if (StringUtils.isBlank(this.anonymous)) {
