@@ -1,13 +1,13 @@
 简体中文 | [English](./README.en_US.md)
  
-# hrds-prod-repo
+# prod-repo-service
 
-`hrds-prod-repo` hrds-prod-repo是Choerodon平台管理制品库的基础. 当前版本为: `0.23.0-alpha.1`
+`prod-repo-service` prod-repo-service是Choerodon平台管理制品库的基础. 当前版本为: `0.23.0-alpha.1`
 
-hrds-prod-repo通过整合nexus、harbor，提供管理maven包、npm包、docker镜像等功能。
+prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、docker镜像等功能。
 
 ## 特性
-`hrds-prod-repo` 含有以下功能:   
+`prod-repo-service` 含有以下功能:   
  
 - `自定义nexus服务` ：maven、npm制品库的创建可以使用默认的nexus服务，也可添加自己的nexus服务
 - `创建制品库` ：创建/更新maven、npm、docker制品仓库
@@ -17,8 +17,8 @@ hrds-prod-repo通过整合nexus、harbor，提供管理maven包、npm包、docke
 - `操作日志`：记录了权限分配/镜像操作的操作日志
 
 ## 前置要求
-- [JAVA](https://www.java.com/en/)：`hrds-prod-repo`基于Java8进行开发
-- [GitLab](https://about.gitlab.com/)：`hrds-prod-repo`使用`GitLab`进行代码的托管。同时，通过基于`GitLab Runner`实现持续集成以完成代码编译，单元测试执行，代码质量分析，docker镜像生成，helm chart打包，服务版本发布等自动化过程
+- [JAVA](https://www.java.com/en/)：`prod-repo-service`基于Java8进行开发
+- [GitLab](https://about.gitlab.com/)：`prod-repo-service`使用`GitLab`进行代码的托管。同时，通过基于`GitLab Runner`实现持续集成以完成代码编译，单元测试执行，代码质量分析，docker镜像生成，helm chart打包，服务版本发布等自动化过程
 - [Harbor](https://vmware.github.io/harbor/cn/)：企业级Docker registry 服务，用于存放服务版本所对应的docker镜像
 - [Kubernetes](https://kubernetes.io/)：容器编排管理工具，用于部署服务版本所对应的helm chart包
 - [ChartMuseum](https://chartmuseum.com/)：Helm Chart仓库，用于存放服务版本所对应的helm chart包
@@ -93,7 +93,7 @@ hrds-prod-repo通过整合nexus、harbor，提供管理maven包、npm包、docke
   ```yaml
     spring:
       application:
-        name: hrds-prod-repo
+        name: prod-repo-service
       datasource:
         url: ${SPRING_DATASOURCE_URL:jdbc:mysql://db.hzero.org:3306/hrds_prod_repo?useUnicode=true&characterEncoding=utf-8&useSSL=false}
         username:  ${SPRING_DATASOURCE_USERNAME:root}
@@ -258,10 +258,10 @@ hrds-prod-repo通过整合nexus、harbor，提供管理maven包、npm包、docke
    FLUSH PRIVILEGES;
    ```
 
-2. 拉取`hrds-prod-repo`代码到本地：
+2. 拉取`prod-repo-service`代码到本地：
 
    ```sh
-   git clone https://github.com/choerodon/hrds-prod-repo.git
+   git clone https://github.com/choerodon/prod-repo-service.git
    ```
 
 3. 在项目根目录执行命令： `sh init-database.sh`

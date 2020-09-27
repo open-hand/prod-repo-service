@@ -1,5 +1,5 @@
 # 更新日志
-这个文件记录hrds-prod-repo所有版本的重大变动。
+这个文件记录prod-repo-service所有版本的重大变动。
 
 ## [0.23.1-RELEASE] 2020-08-04
 
