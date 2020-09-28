@@ -18,7 +18,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SpringBootApplication
 public class RdupmApplication {
 
-
     public static void main(String[] args) {
         SpringApplication.run(RdupmApplication.class, args);
     }
