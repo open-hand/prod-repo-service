@@ -2,7 +2,7 @@
  
 # prod-repo-service
 
-`prod-repo-service` prod-repo-service是Choerodon平台管理制品库的基础. 当前版本为: `0.23.0-alpha.1`
+`prod-repo-service` prod-repo-service是Choerodon平台管理制品库的基础. 当前版本为: `0.23.0`
 
 prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、docker镜像等功能。
 
@@ -30,12 +30,13 @@ prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、do
 
 ## 服务依赖
 
-* `hzero-register`: 注册中心，在线上环境代替本地的`eureka-server`
-* `hzero-platform`：用户服务，与用户有关的操作依赖与此服务
-* `hzero-gateway`: 网关服务
-* `hzero-oauth`: 授权服务
-* `hzero-asgard` : 事务一致性服务
-* `hzero-file` : 文件服务
+* `choerodon-register`: 注册中心，在线上环境代替本地的`eureka-server`
+* `choerodon-platform`：平台服务
+* `choerodon-iam`: 用户服务，与用户有关的操作依赖与此服务
+* `choerodon-gateway`: 网关服务
+* `choerodon-oauth`: 授权服务
+* `choerodon-asgard` : 事务一致性服务
+* `choerodon-file` : 文件服务
 
 ## 服务配置
 
@@ -182,14 +183,24 @@ prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、do
       mapperLocations: classpath*:/mapper/*.xml
       configuration:
         mapUnderscoreToCamelCase: true
+        key-generator: snowflake
+        snowflake:
+          start-timestamp: 1577808000000
+          meta-provider: redis
+          meta-provider-redis-db: 1
+          meta-provider-redis-refresh-interval: 540000
+          meta-provider-redis-expire: 600000
+          data-center-id: 1
+          worker-id: 1
+
     
     
     logging:
       level:
-        org.apache.ibatis: debug
-        io.choerodon: debug
-        org.hzero: debug
-        org.hrds.rdupm: debug
+        org.apache.ibatis: ${LOGGING_LEVEL:debug}
+        io.choerodon: ${LOGGING_LEVEL:debug}
+        org.hzero: ${LOGGING_LEVEL:debug}
+        org.hrds.rdupm: ${LOGGING_LEVEL:debug}
     
     hzero:
       scheduler:
@@ -212,6 +223,7 @@ prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、do
           retry-interval: 3
           skip-services: config**, **register-server, **gateway**, zipkin**, hystrix**, oauth**
       saga:
+        service: choerodon-asgard
         consumer:
           enabled: true # 启动消费端
           thread-num: 2 # saga消息消费线程池大小
@@ -235,9 +247,22 @@ prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、do
         customRepoUrl: ${HARBOR_INIT_CUSTOM_REPO_URL:jdbc:mysql://db.hzero.org:3306/devops_service?useUnicode=true&characterEncoding=utf-8&useSSL=false}
         customRepoUsername: ${HARBOR_INIT_CUSTOM_REPO_USERNAME:xxx}
         customRepoPassword: ${HARBOR_INIT_CUSTOM_REPO_PASSWORD:xxx}
-    
+    nexus:
+      default:
+        #系统默认nexus服务地址
+        serverUrl: ${NEXUS_DEFAULT_BASE_URL:https://localhost}
+        #系统默认nexus服务，超级管理员用户
+        username: ${NEXUS_DEFAULT_USER_NAME:admin}
+        #系统默认nexus服务，超级管理员用户密码
+        password: ${NEXUS_DEFAULT_PASSWORD:admin}
+        #系统默认nexus服务，是否启用仓库级的匿名访问控制。 1:启用  0:不启用。
+        enableAnonymousFlag: ${NEXUS_DEFAULT_ENABLE_ANONYMOUS_FLAG:0}
+        #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户
+        anonymousUser: ${NEXUS_DEFAULT_ANONYMOUS_USER:test}
+        #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户对应的角色
+        anonymousRole: ${NEXUS_DEFAULT_ANONYMOUS_ROLE:test}
     DesEncrypt:
-      # DES 加解密密钥
+      # 制品库密码， 加解密密钥
       desKey: ${DES_ENCRYPT_DES_KEY:xxx}
       # 长度：8位
       desIV: ${DES_ENCRYPT_DES_IV:xxxxxxxx}
