@@ -210,7 +210,25 @@ prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、do
         single-server:
           address: ${SPRING_REDIS_HOST:localhost}
           port: ${SPRING_REDIS_PORT:6379}
-    
+      service:
+        platform:
+          name: cherodon-platform
+        oauth:
+          name: choerodon-oauth
+        iam:
+          name: choerodon-iam
+        file:
+          name: choerodon-file
+        message:
+          name: choerodon-message
+        admin:
+          name: choerodon-admin
+        swagger:
+          name: choerodon-swagger
+        gateway:
+          name: choerodon-gateway
+        monitor:
+          name: choerodon-monitor
     choerodon:
       category:
         enabled: true # 是否开启项目/组织类型控制
