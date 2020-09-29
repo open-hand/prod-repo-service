@@ -34,4 +34,10 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_repository.groovy') {
         addUniqueConstraint(columnNames:"code",tableName:"rdupm_harbor_repository",constraintName: "code")
         addUniqueConstraint(columnNames:"project_id",tableName:"rdupm_harbor_repository",constraintName: "project_id")
     }
+
+    changeSet(id: '2020-09-29-rdupm_harbor_repository-update', author: 'weisen.yang@hand-china.com') {
+        sql("alter table rdupm_harbor_repository modify created_by bigint(20)")
+        sql("alter table rdupm_harbor_repository modify last_updated_by bigint(20)")
+        sql("alter table rdupm_harbor_repository modify last_update_login bigint(20)")
+    }
 }

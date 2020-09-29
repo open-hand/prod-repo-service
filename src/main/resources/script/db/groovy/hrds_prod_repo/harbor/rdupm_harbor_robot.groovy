@@ -36,4 +36,10 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_robot.groovy') {
 
         addUniqueConstraint(columnNames:"harbor_robot_id",tableName:"rdupm_harbor_robot",constraintName: "harbor_robot_id")
     }
+
+    changeSet(id: '2020-09-29-rdupm_harbor_robot-update', author: 'weisen.yang@hand-china.com') {
+        sql("alter table rdupm_harbor_robot modify created_by bigint(20)")
+        sql("alter table rdupm_harbor_robot modify last_updated_by bigint(20)")
+        sql("alter table rdupm_harbor_robot modify last_update_login bigint(20)")
+    }
 }
