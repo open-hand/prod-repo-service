@@ -117,7 +117,7 @@ hzero:
       port: ${SPRING_REDIS_PORT:6379}
   service:
     platform:
-      name: cherodon-platform
+      name: choerodon-platform
     oauth:
       name: choerodon-oauth
     iam:
