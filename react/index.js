@@ -12,7 +12,7 @@ const productManagementOrg = asyncRouter(() => import('./routes/product-lib/mana
 const productManagementSite = asyncRouter(() => import('./routes/product-lib/management-site'));
 
 
-function RDUCMIndex({ match, AppState: { currentLanguage: language } }) {
+function RDUPMIndex({ match, AppState: { currentLanguage: language } }) {
   const IntlProviderAsync = asyncLocaleProvider(language, () => import(`./locale/${language}`));
   return (
     <IntlProviderAsync>
@@ -29,4 +29,4 @@ function RDUCMIndex({ match, AppState: { currentLanguage: language } }) {
   );
 }
 
-export default inject('AppState')(RDUCMIndex);
+export default inject('AppState')(RDUPMIndex);
