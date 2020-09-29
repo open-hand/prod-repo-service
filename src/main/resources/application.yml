@@ -93,7 +93,7 @@ mybatis:
     snowflake:
       start-timestamp: 1577808000000
       meta-provider: redis
-      meta-provider-redis-db: 1
+      meta-provider-redis-db: ${SPRING_REDIS_DATABASE:1}
       meta-provider-redis-refresh-interval: 540000
       meta-provider-redis-expire: 600000
       data-center-id: 1
