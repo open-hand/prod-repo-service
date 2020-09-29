@@ -321,7 +321,7 @@ prod-repo-service通过整合nexus、harbor，提供管理maven包、npm包、do
 
 ## 反馈途径
 
-如果您发现任何缺陷或bug，请及时 [issue](https://github.com/choerodon/devops-service/issues/new)告知我们 。
+如果您发现任何缺陷或bug，请及时 [issue](https://github.com/choerodon/prod-repo-service/issues/new)告知我们 。
 
 ## 如何参与
 
