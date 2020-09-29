@@ -30,8 +30,8 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_prod_user.groovy') {
         addUniqueConstraint(columnNames:"user_id",tableName:"rdupm_prod_user",constraintName: "user_id")
     }
     changeSet(id: '2020-09-29-rdupm_prod_user-update', author: 'weisen.yang@hand-china.com') {
-        sql("alter table rdupm_prod_user modify created_by bigint(20)")
-        sql("alter table rdupm_prod_user modify last_updated_by bigint(20)")
-        sql("alter table rdupm_prod_user modify last_update_login bigint(20)")
+        modifyDataType(tableName: 'rdupm_prod_user', columnName: 'created_by', newDataType: 'bigint(20)')
+        modifyDataType(tableName: 'rdupm_prod_user', columnName: 'last_updated_by', newDataType: 'bigint(20)')
+        modifyDataType(tableName: 'rdupm_prod_user', columnName: 'last_update_login', newDataType: 'bigint(20)')
     }
 }

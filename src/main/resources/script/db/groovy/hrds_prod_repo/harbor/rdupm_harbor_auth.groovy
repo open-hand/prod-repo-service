@@ -36,8 +36,7 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_auth.groovy') {
 
     changeSet(id: '2020-09-29-rdupm_harbor_auth-update', author: 'weisen.yang@hand-china.com') {
         modifyDataType(tableName: 'rdupm_harbor_auth', columnName: 'created_by', newDataType: 'bigint(20)')
-        sql("alter table rdupm_harbor_auth modify created_by bigint(20)")
-        sql("alter table rdupm_harbor_auth modify last_updated_by bigint(20)")
-        sql("alter table rdupm_harbor_auth modify last_update_login bigint(20)")
+        modifyDataType(tableName: 'rdupm_harbor_auth', columnName: 'last_updated_by', newDataType: 'bigint(20)')
+        modifyDataType(tableName: 'rdupm_harbor_auth', columnName: 'last_update_login', newDataType: 'bigint(20)')
     }
 }
