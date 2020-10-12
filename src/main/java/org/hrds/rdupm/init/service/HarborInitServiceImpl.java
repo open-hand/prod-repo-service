@@ -373,6 +373,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 
 	private JdbcTemplate getDefaultJdbcTemplate(){
 		MysqlDataSource mysqlDataSource = new MysqlDataSource();
+		LOGGER.info(harborInitConfiguration.toString());
 		mysqlDataSource.setURL(harborInitConfiguration.getDefaultRepoUrl());
 		mysqlDataSource.setUser(harborInitConfiguration.getDefaultRepoUsername());
 		mysqlDataSource.setPassword(harborInitConfiguration.getDefaultRepoPassword());

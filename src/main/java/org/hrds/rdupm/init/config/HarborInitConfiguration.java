@@ -28,4 +28,15 @@ public class HarborInitConfiguration {
 
 	private String customRepoPassword;
 
+	@Override
+	public String toString() {
+		return "HarborInitConfiguration{" +
+				"defaultRepoUrl='" + defaultRepoUrl + '\'' +
+				", defaultRepoUsername='" + defaultRepoUsername + '\'' +
+				", defaultRepoPassword='" + defaultRepoPassword + '\'' +
+				", customRepoUrl='" + customRepoUrl + '\'' +
+				", customRepoUsername='" + customRepoUsername + '\'' +
+				", customRepoPassword='" + customRepoPassword + '\'' +
+				'}';
+	}
 }
