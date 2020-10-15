@@ -186,7 +186,7 @@ public interface NexusMessageConstants {
 	 */
 	String NEXUS_INPUT_ADMIN_USER = "error.nexus.input.admin.user";
 	/**
-	 * 输入的管理用户，权限不足
+	 * 输入的管理用户，权限不足: 请输入管理员用户或包含管理员角色的用户
 	 */
 	String NEXUS_USER_NOT_PERMISSIONS = "error.nexus.user.not.permissions";
 	/**

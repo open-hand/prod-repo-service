@@ -421,4 +421,10 @@ public interface HarborConstants {
 
 		String ROBOT_NAME_PREFIX = "robot$";
 	}
+
+	interface HarborRepoType{
+		String DEFAULT_REPO = "DEFAULT_REPO";
+
+		String CUSTOM_REPO = "CUSTOM_REPO";
+	}
 }

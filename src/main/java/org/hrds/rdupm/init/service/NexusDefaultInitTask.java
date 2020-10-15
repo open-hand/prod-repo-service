@@ -24,12 +24,13 @@ public class NexusDefaultInitTask {
     @Autowired
     private NexusInitService nexusInitService;
 
-    @JobTask(maxRetryCount = 3, code = "nexusDefaultServiceInit", description = "Nexus默认服务初始化")
-    @TimedTask(name = "nexusDefaultServiceInit", description = "Nexus默认服务初始化",
-            oneExecution = true, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
+    @JobTask(maxRetryCount = 3, code = "nexusDefaultServiceInit-use", description = "Nexus默认服务初始化")
+    @TimedTask(name = "nexusDefaultServiceInit-use", description = "Nexus默认服务初始化",
+            oneExecution = false, repeatCount = 0, repeatInterval = 100, repeatIntervalUnit = QuartzDefinition.SimpleRepeatIntervalUnit.HOURS,
             params = {})
     public void nexusDefaultInit(Map<String, Object> map) {
         logger.info("Nexus默认服务初始化，定时任务开始执行");
+        nexusInitService.initDefaultNexusServer();
         nexusInitService.initScript();
         nexusInitService.initAnonymous(new ArrayList<>());
         logger.info("Nexus默认服务初始化，定时任务执行完毕");

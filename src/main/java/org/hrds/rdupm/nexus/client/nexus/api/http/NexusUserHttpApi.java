@@ -130,6 +130,16 @@ public class NexusUserHttpApi implements NexusUserApi{
 		return result;
 	}
 
+	@Override
+	public Boolean validAdmin(String userName) {
+		NexusServerUser existNexusServerUser = this.getUsers(userName);
+		if (existNexusServerUser == null) {
+			throw new CommonException("用户不存在");
+		}
+		// 查看用户是否包含， nx-admin角色
+		return existNexusServerUser.getRoles().contains(NexusServerUser.ADMIN_ROLE);
+	}
+
 	/**
 	 * 发布规则校验
 	 * @param userPrivileges 该用户拥有的所有权限

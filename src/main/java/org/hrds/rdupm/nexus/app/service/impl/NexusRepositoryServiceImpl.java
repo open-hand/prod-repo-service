@@ -397,7 +397,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public Page<NexusRepositoryDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
+	public Page<NexusRepositoryOrgDTO> listOrgRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
 		// 查询某个组织项目数据
 		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.listOrgRepo(queryDTO.getOrganizationId(), queryDTO.getRepoType());
 
@@ -432,7 +432,15 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// remove配置信息
 		nexusClient.removeNexusServerInfo();
 
-		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), resultAll);
+		// 主键加密后，此处返回不加密
+		List<NexusRepositoryOrgDTO> result = new ArrayList<>();
+		resultAll.forEach(nexusRepositoryDTO -> {
+			NexusRepositoryOrgDTO nexusRepositoryOrgDTO = new NexusRepositoryOrgDTO();
+			BeanUtils.copyProperties(nexusRepositoryDTO, nexusRepositoryOrgDTO);
+			result.add(nexusRepositoryOrgDTO);
+		});
+
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), result);
 	}
 
 	@Override
@@ -617,7 +625,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoNameAll(Long projectId, String repoType) {
+	public List<NexusRepositoryListDTO> listRepoNameAll(Long projectId, String repoType) {
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, projectId);
 
 		// 所有nexus服务仓库数据
@@ -628,10 +636,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 所有项目仓库数据
 		List<String> repositoryNameList = nexusRepositoryRepository.getRepositoryByProject(null, repoType, serverConfig.getConfigId());
 
-		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		List<NexusRepositoryListDTO> resultAll = new ArrayList<>();
 		nexusServerRepositoryList.forEach(serverRepository -> {
 			if (!repositoryNameList.contains(serverRepository.getName())) {
-				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				NexusRepositoryListDTO nexusRepositoryDTO = new NexusRepositoryListDTO();
 				nexusRepositoryDTO.setName(serverRepository.getName());
 				resultAll.add(nexusRepositoryDTO);
 			}
@@ -643,7 +651,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepositoryDTO> listRepoName(NexusRepository query, String repoType) {
+	public List<NexusRepositoryListDTO> listRepoName(NexusRepository query, String repoType) {
 		// 设置并返回当前nexus服务信息
 		NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, query.getProjectId());
 
@@ -662,10 +670,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			return new ArrayList<>();
 		}
 
-		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
+		List<NexusRepositoryListDTO> resultAll = new ArrayList<>();
 		repositoryNameList.forEach(repositoryName -> {
 			if (serverRepositoryNameList.contains(repositoryName)) {
-				NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+				NexusRepositoryListDTO nexusRepositoryDTO = new NexusRepositoryListDTO();
 				nexusRepositoryDTO.setName(repositoryName);
 				resultAll.add(nexusRepositoryDTO);
 			}
@@ -676,8 +684,16 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 	}
 
 	@Override
-	public List<NexusRepository> listOrgRepoName(NexusRepository query, String repoType) {
-		return nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), repoType);
+	public List<NexusRepositoryOrgDTO> listOrgRepoName(NexusRepository query, String repoType) {
+		List<NexusRepositoryOrgDTO> resultAll = new ArrayList<>();
+		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.listOrgRepo(query.getOrganizationId(), repoType);
+		for(NexusRepository repository : nexusRepositoryList) {
+			NexusRepositoryOrgDTO nexusRepositoryDTO = new NexusRepositoryOrgDTO();
+			BeanUtils.copyProperties(repository, nexusRepositoryDTO);
+			repository.setName(repository.getNeRepositoryName());
+			resultAll.add(nexusRepositoryDTO);
+		}
+		return resultAll;
 	}
 
 	@Override

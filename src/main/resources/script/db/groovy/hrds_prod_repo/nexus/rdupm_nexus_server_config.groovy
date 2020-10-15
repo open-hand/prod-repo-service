@@ -34,12 +34,4 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_server_config.groovy')
         }
 
     }
-
-    changeSet(id: '2020-06-23-init', author: 'weisen.yang@hand-china.com') {
-
-        preConditions(onFail: 'MARK_RAN'){
-            sqlCheck(expectedResult: 0,sql:"select count(*) from rdupm_nexus_server_config where default_flag = 1")
-        }
-        sql("INSERT INTO `hrds_prod_repo`.`rdupm_nexus_server_config`(`config_id`, `server_name`, `server_url`, `user_name`, `password`, `anonymous`, `anonymous_role`, `default_flag`, `enable_anonymous_flag`, `tenant_id`, `object_version_number`, `creation_date`, `created_by`, `last_updated_by`, `last_update_date`) VALUES (1, 'Choerodon默认服务', 'http://nexus.saas.hand-china.com', 'admin', 'nexusPassword', 'hrds-anonymous', 'hrds-anonymous', 1, 1, 0, 12, '2020-06-23 00:00:00', -1, -1, '2020-06-23 10:00:00')")
-    }
 }

@@ -5,12 +5,14 @@ import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +46,7 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping(value = "/{projectId}/list-project")
     public ResponseEntity<Page<NexusAuth>> listByProject(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
-                                                         @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
+                                                         @ApiParam(value = "仓库Id", required = true) @Encrypt @RequestParam Long repositoryId,
                                                          @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                          @ApiParam("用户名") @RequestParam(required = false) String realName,
                                                          @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
@@ -62,7 +64,7 @@ public class NexusAuthController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/{projectId}/export/project")
     public ResponseEntity<Page<NexusAuth>> projectExport(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable Long projectId,
-                                                         @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
+                                                         @ApiParam(value = "仓库Id", required = true) @Encrypt @RequestParam Long repositoryId,
                                                          @ApiParam("登录名") @RequestParam(required = false) String loginName,
                                                          @ApiParam("用户名") @RequestParam(required = false) String realName,
                                                          @ApiParam("权限角色Code") @RequestParam(required = false) String roleCode,
@@ -128,7 +130,7 @@ public class NexusAuthController extends BaseController {
     @ApiOperation(value = "项目层--权限明细")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
-    public ResponseEntity<NexusAuth> detail(@PathVariable Long authId) {
+    public ResponseEntity<NexusAuth> detail(@PathVariable @Encrypt Long authId) {
         // TODO
         NexusAuth nexusAuth = nexusAuthRepository.selectByPrimaryKey(authId);
         return Results.success(nexusAuth);

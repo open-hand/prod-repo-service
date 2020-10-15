@@ -2,10 +2,13 @@ package org.hrds.rdupm.harbor.domain.entity;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * @author flyleft
  * @since 2018/4/9
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DevopsProjectDTO {
 
     private Long projectId;

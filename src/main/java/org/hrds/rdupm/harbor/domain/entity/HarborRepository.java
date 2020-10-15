@@ -59,6 +59,7 @@ public class HarborRepository extends AuditDomain {
     @ApiModelProperty("主键")
     @Id
     @GeneratedValue
+	@Encrypt
     private Long id;
     @ApiModelProperty(value = "猪齿鱼项目ID",required = true)
     @NotNull
@@ -74,6 +75,7 @@ public class HarborRepository extends AuditDomain {
 
     @ApiModelProperty(value = "harbor项目ID",required = true)
     @NotNull
+	@Encrypt
     private Long harborId;
     @ApiModelProperty(value = "组织ID",required = true)
     @NotNull

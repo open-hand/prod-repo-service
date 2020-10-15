@@ -1,5 +1,5 @@
 {
-  "name": "hrds-prod-repo",
+  "name": "@choerodon/prod-repo",
   "routeName": "rdupm",
   "version": "0.23.0",
   "description": "",

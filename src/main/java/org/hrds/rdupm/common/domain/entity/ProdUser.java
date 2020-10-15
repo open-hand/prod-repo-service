@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-制品用户表
@@ -60,6 +61,7 @@ public class ProdUser extends AuditDomain {
 
     @ApiModelProperty(value = "猪齿鱼用户ID",required = true)
     @NotNull
+	@Encrypt
     private Long userId;
 
     @ApiModelProperty(value = "登录名",required = true)

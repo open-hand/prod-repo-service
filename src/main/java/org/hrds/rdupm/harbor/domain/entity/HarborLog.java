@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 制品库-harbor日志表
@@ -59,6 +60,7 @@ public class HarborLog extends AuditDomain {
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
+	@Encrypt
     private Long logId;
     @ApiModelProperty(value = "操作者ID",required = true)
     @NotNull

@@ -4,10 +4,12 @@ import java.util.Date;
 
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.app.service.NexusLogService;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
 import org.hrds.rdupm.nexus.domain.repository.NexusLogRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +58,7 @@ public class NexusLogController extends BaseController {
     @GetMapping("/org/project")
     public ResponseEntity<Page<NexusLog>> listLogByProject(@ApiParam("猪齿鱼组织ID") @PathVariable(value = "organizationId") Long organizationId,
                                                            @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
-                                                           @ApiParam(value = "仓库Id", required = true) @RequestParam Long repositoryId,
+                                                           @ApiParam(value = "仓库Id", required = true) @Encrypt @RequestParam Long repositoryId,
                                                            @ApiParam("猪齿鱼项目ID") @RequestParam(required = false) Long projectId,
                                                            @ApiParam("仓库名称") @RequestParam(required = false) String neRepositoryName,
                                                            @ApiParam("操作人用户名") @RequestParam(required = false) String realName,

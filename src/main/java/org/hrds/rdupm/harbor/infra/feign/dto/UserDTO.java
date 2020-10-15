@@ -3,9 +3,11 @@ package org.hrds.rdupm.harbor.infra.feign.dto;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.choerodon.core.oauth.CustomUserDetails;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * description
@@ -14,7 +16,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
+	@Encrypt
 	private Long id;
 
 	private String loginName;

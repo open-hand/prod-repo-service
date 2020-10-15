@@ -7,6 +7,12 @@ import java.util.List;
  * @author weisen.yang@hand-china.com 2020/4/7
  */
 public interface NexusInitService {
+
+	/**
+	 * 初始化默认nexus服务数据-通过环境变量配置值
+	 */
+	void initDefaultNexusServer();
+
 	/**
 	 * 脚本初始化与更新
 	 */

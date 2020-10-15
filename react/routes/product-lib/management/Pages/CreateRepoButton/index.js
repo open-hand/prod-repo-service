@@ -81,9 +81,8 @@ export const useOpenModal = ({
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
     const res = await axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`);
     const enableFlagItem = res.find(o => o.enableFlag === 1);
-    const enableAnonymousFlag = { enableFlagItem };
-    
-    
+    const { enableAnonymousFlag } = enableFlagItem;
+
     modal.current = Modal.open({
       key,
       title: formatMessage({ id: `${intlPrefix}.view.createProdlib`, defaultMessage: '创建制品库' }),

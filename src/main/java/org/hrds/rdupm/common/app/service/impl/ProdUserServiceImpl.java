@@ -101,6 +101,8 @@ public class ProdUserServiceImpl implements ProdUserService {
 		existUser.setPassword(encryptPassword);
 		existUser.setPwdUpdateFlag(1);
 		prodUserRepository.updateByPrimaryKeySelective(existUser);
+		existUser.setCreationDate(null);
+		existUser.setLastUpdateDate(null);
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
 						.withSagaCode(HarborConstants.HarborSagaCode.UPDATE_PWD)

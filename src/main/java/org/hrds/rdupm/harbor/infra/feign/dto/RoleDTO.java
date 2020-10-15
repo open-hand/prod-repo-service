@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.infra.feign.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoleDTO {
 	private Long id;
 

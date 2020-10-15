@@ -4,8 +4,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
+import io.choerodon.core.domain.Page;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.feign.BaseFeignClient;
+import org.hrds.rdupm.harbor.infra.feign.DevopsServiceFeignClient;
+import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
@@ -23,6 +26,8 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 
 	@Resource
 	private BaseFeignClient baseFeignClient;
+	@Resource
+	private DevopsServiceFeignClient devopsServiceFeignClient;
 
 	@Override
 	public Map<String, UserDTO> listUsersByLoginNames(Set<String> userNameSet) {
@@ -128,6 +133,22 @@ public class C7nBaseServiceImpl implements C7nBaseService {
 		} else {
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	public AppServiceDTO queryAppServiceById(Long projectId, Long appServiceId){
+		Set<Long> ids = new HashSet<>();
+		ids.add(appServiceId);
+		ResponseEntity<Page<AppServiceDTO>> responseEntity = devopsServiceFeignClient.listAppServiceByIds(projectId, ids, false, true, "");
+		if (responseEntity == null || CollectionUtils.isEmpty(responseEntity.getBody())) {
+			return null;
+		} else {
+			List<AppServiceDTO> list = responseEntity.getBody().getContent();
+			if(!CollectionUtils.isEmpty(list)){
+				return list.get(0);
+			}
+		}
+		return null;
 	}
 
 }

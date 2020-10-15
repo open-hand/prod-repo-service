@@ -5,16 +5,19 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 制品库-制品用户表 管理 API
@@ -47,7 +51,7 @@ public class ProdUserController extends BaseController {
     @ApiOperation(value = "个人层--查询制品库用户信息")
 	@Permission(level = ResourceLevel.ORGANIZATION,permissionLogin = true)
     @GetMapping("/{userId}")
-    public ResponseEntity<ProdUser> detail(@PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
+    public ResponseEntity<ProdUser> detail(@Encrypt @PathVariable @ApiParam("猪齿鱼用户ID") Long userId) {
     	if(!userId.equals(DetailsHelper.getUserDetails().getUserId())){
     		throw new CommonException("error.user.not.current.user");
 		}
@@ -69,7 +73,7 @@ public class ProdUserController extends BaseController {
 	@ApiOperation(value = "项目层--获取当前用户，对应仓库分配的权限")
 	@Permission(level = ResourceLevel.ORGANIZATION,permissionLogin = true)
 	@PostMapping("/getRoleList")
-	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@ApiParam(value = "仓库Id", required = true) @RequestParam(required = false) List<Long> ids,
+	public ResponseEntity<Map<String, Map<Long, List<String>>>> getRoleList(@RequestBody(required = false) List<NexusRepository> nexusRepositories,
 																			@ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
 		Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
@@ -80,7 +84,11 @@ public class ProdUserController extends BaseController {
 		resultMap.put(ProductLibraryDTO.TYPE_DOCKER, dockerMap);
 
 		// MAVEN、NPM
-		Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(ids);
+		List<Long> repositoryIds = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(nexusRepositories)) {
+			repositoryIds = nexusRepositories.stream().map(NexusRepository::getRepositoryId).collect(Collectors.toList());
+		}
+		Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(repositoryIds);
 		nexusMap.forEach(resultMap::put);
 		return Results.success(resultMap);
 	}

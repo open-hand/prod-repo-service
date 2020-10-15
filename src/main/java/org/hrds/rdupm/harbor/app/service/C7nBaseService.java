@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserWithGitlabIdDTO;
@@ -37,4 +38,6 @@ public interface C7nBaseService {
 
 
 	List<UserDTO> listProjectOwnerUsers(Long projectId);
+
+	AppServiceDTO queryAppServiceById(Long projectId, Long appServiceId);
 }

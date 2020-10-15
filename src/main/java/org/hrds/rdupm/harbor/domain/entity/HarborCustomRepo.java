@@ -89,7 +89,7 @@ public class HarborCustomRepo extends AuditDomain {
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
-    //@Encrypt(HarborCustomRepo.ENCRYPT_KEY)
+    @Encrypt
     private Long id;
 
     @ApiModelProperty(value = "猪齿鱼项目ID")
@@ -143,6 +143,9 @@ public class HarborCustomRepo extends AuditDomain {
     @Transient
     @ApiModelProperty(value = "创建人名称")
     private String creatorRealName;
+    @Transient
+    @ApiModelProperty(value = "Harbor项目ID")
+    private Integer harborProjectId;
     //
     // getter/setter
     // ------------------------------------------------------------------------------

@@ -27,5 +27,4 @@ public class HarborInitConfiguration {
 	private String customRepoUsername;
 
 	private String customRepoPassword;
-
 }

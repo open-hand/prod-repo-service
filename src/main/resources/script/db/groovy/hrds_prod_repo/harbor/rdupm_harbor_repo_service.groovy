@@ -36,4 +36,9 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_repo_service.groovy')
         }
 
     }
+    changeSet(id: '2020-09-29-rdupm_harbor_repo_service-update', author: 'weisen.yang@hand-china.com') {
+        modifyDataType(tableName: 'rdupm_harbor_repo_service', columnName: 'created_by', newDataType: 'bigint(20)')
+        modifyDataType(tableName: 'rdupm_harbor_repo_service', columnName: 'last_updated_by', newDataType: 'bigint(20)')
+        modifyDataType(tableName: 'rdupm_harbor_repo_service', columnName: 'last_update_login', newDataType: 'bigint(20)')
+    }
 }

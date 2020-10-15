@@ -18,6 +18,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hzero.core.util.AssertUtils;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
 @Getter
 @Setter
 public class NexusUser extends AuditDomain {
+	public static final String ENCRYPT_KEY = "rdupm_nexus_user";
 
     public static final String FIELD_USER_ID = "userId";
     public static final String FIELD_REPOSITORY_ID = "repositoryId";
@@ -46,13 +48,14 @@ public class NexusUser extends AuditDomain {
     // 数据库字段
     // ------------------------------------------------------------------------------
 
-
+	@Encrypt
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
     private Long userId;
     @ApiModelProperty(value = "rdupm_nexus_repository表主键",required = true)
     @NotNull
+	@Encrypt
     private Long repositoryId;
 	@ApiModelProperty(value = "仓库默认发布用户Id")
 	private String neUserId;

@@ -66,7 +66,7 @@ public class HarborAuth extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-	//@Encrypt(HarborAuth.ENCRYPT_KEY)
+	@Encrypt
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
@@ -77,6 +77,7 @@ public class HarborAuth extends AuditDomain {
 
     @ApiModelProperty(value = "猪齿鱼用户ID,必输")
     @NotNull
+	@Encrypt
     private Long userId;
 
     @ExcelColumn(title = "登录名",order = 3)
@@ -105,6 +106,7 @@ public class HarborAuth extends AuditDomain {
     private Date endDate;
 
 	@ApiModelProperty(value = "harbor权限ID")
+	@Encrypt
 	private Long harborAuthId;
 
 	@ApiModelProperty(value = "组织ID")

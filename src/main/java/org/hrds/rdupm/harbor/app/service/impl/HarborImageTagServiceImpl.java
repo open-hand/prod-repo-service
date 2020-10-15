@@ -1,12 +1,7 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 import io.choerodon.core.domain.Page;
 import com.google.common.reflect.TypeToken;
@@ -20,7 +15,6 @@ import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
-import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: hrds-prod-repo
+    name: prod-repo-service
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://db.hzero.org:3306/hrds_prod_repo?useUnicode=true&characterEncoding=utf-8&useSSL=false}
     username:  ${SPRING_DATASOURCE_USERNAME:root}
@@ -89,6 +89,15 @@ mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration:
     mapUnderscoreToCamelCase: true
+    key-generator: snowflake
+    snowflake:
+      start-timestamp: 1577808000000
+      meta-provider: redis
+      meta-provider-redis-db: ${SPRING_REDIS_DATABASE:1}
+      meta-provider-redis-refresh-interval: 540000
+      meta-provider-redis-expire: 600000
+      data-center-id: 1
+      worker-id: 1
 
 
 logging:
@@ -106,6 +115,25 @@ hzero:
     single-server:
       address: ${SPRING_REDIS_HOST:localhost}
       port: ${SPRING_REDIS_PORT:6379}
+  service:
+    platform:
+      name: choerodon-platform
+    oauth:
+      name: choerodon-oauth
+    iam:
+      name: choerodon-iam
+    file:
+      name: choerodon-file
+    message:
+      name: choerodon-message
+    admin:
+      name: choerodon-admin
+    swagger:
+      name: choerodon-swagger
+    gateway:
+      name: choerodon-gateway
+    monitor:
+      name: choerodon-monitor
 
 choerodon:
   category:
@@ -119,6 +147,7 @@ choerodon:
       retry-interval: 3
       skip-services: config**, **register-server, **gateway**, zipkin**, hystrix**, oauth**
   saga:
+    service: choerodon-asgard
     consumer:
       enabled: true # 启动消费端
       thread-num: 2 # saga消息消费线程池大小
@@ -143,8 +172,23 @@ harbor:
     customRepoUsername: ${HARBOR_INIT_CUSTOM_REPO_USERNAME:root}
     customRepoPassword: ${HARBOR_INIT_CUSTOM_REPO_PASSWORD:handhand}
 
+nexus:
+  default:
+    #系统默认nexus服务地址
+    serverUrl: ${NEXUS_DEFAULT_BASE_URL:https://localhost}
+    #系统默认nexus服务，超级管理员用户
+    username: ${NEXUS_DEFAULT_USER_NAME:admin}
+    #系统默认nexus服务，超级管理员用户密码
+    password: ${NEXUS_DEFAULT_PASSWORD:admin}
+    #系统默认nexus服务，是否启用仓库级的匿名访问控制。 1:启用  0:不启用。
+    enableAnonymousFlag: ${NEXUS_DEFAULT_ENABLE_ANONYMOUS_FLAG:0}
+    #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户
+    anonymousUser: ${NEXUS_DEFAULT_ANONYMOUS_USER:test}
+    #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户对应的角色
+    anonymousRole: ${NEXUS_DEFAULT_ANONYMOUS_ROLE:test}
+
 DesEncrypt:
-  # DES 加解密密钥
+  # 制品库密码， 加解密密钥
   desKey: ${DES_ENCRYPT_DES_KEY:W1CLYB54T44PAL8NCGV4999OVSDCAEIPY76W32INQNXTH86ZEF1R1HTTWBLMQ5LQ5D9FLTUDNBLUQM9YF94NJTIJNOVIUFS13FRXUZD6D52JIPMUNI0AE9QN1Q2G1HHN}
   # 长度：8位
   desIV: ${DES_ENCRYPT_DES_IV:7HHT5EVO}

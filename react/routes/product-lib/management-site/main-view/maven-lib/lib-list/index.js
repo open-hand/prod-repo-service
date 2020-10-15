@@ -64,7 +64,15 @@ const MirrorLib = () => {
           </Form>
         </div>
         <div style={{ width: '0.46rem', flexShrink: 0, margin: '18px 0 0 65px' }}>
-          <Button funcType="raised" type="reset" style={{ color: '#3F51B5' }}>
+          <Button
+            funcType="raised"
+            type="reset"
+            style={{ color: '#3F51B5' }}
+            onClick={() => {
+                libListDs.queryDataSet.current.reset();
+                libListDs.query();
+            }}
+          >
             {formatMessage({ id: 'reset' })}
           </Button>
         </div>

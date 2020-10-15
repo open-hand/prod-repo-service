@@ -6,7 +6,7 @@
 */
 import React, { useEffect } from 'react';
 import { Form, TextField, Password, Spin, SelectBox, Select } from 'choerodon-ui/pro';
-// import { message } from 'choerodon-ui';
+import { Tooltip, Icon } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
 // import useRepoList from './useRepoList';
@@ -69,9 +69,9 @@ const DockerCustomEditForm = ({ validateStore, dockerCustomCreateDs, modal, repo
   useEffect(() => {
     modal.handleCancel(() => {
       validateStore.setIsValidate(undefined);
-    });  
+    });
   }, [modal, validateStore]);
-  
+
   return (
     <Spin spinning={loading}>
       <Form dataSet={dockerCustomCreateDs} columns={1}>
@@ -86,7 +86,20 @@ const DockerCustomEditForm = ({ validateStore, dockerCustomCreateDs, modal, repo
           className="prod-lib-edit-custom-docker-selectbox"
           disabled={isExistShareProject && originProjectShare !== 'true'}
         >
-          <Option value="true">{formatMessage({ id: 'yes' })}</Option>
+          <Option value="true">
+            {formatMessage({ id: 'yes' })}
+            <Tooltip title="关联默认仓库的应用服务将会自动关联到此共享仓库">
+              <Icon
+                type="help"
+                style={{
+                  marginLeft: '2px',
+                  fontSize: '16px',
+                  marginBottom: '3px',
+                  color: 'rgba(0, 0, 0, 0.6)',
+                }}
+              />
+            </Tooltip>
+          </Option>
           <Option value="false">{formatMessage({ id: 'no' })}</Option>
         </SelectBox>
       </Form>
