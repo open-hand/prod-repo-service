@@ -68,7 +68,7 @@ public class ProdUserServiceImpl implements ProdUserService {
 			String password = HarborUtil.getPassword();
 			prodUser.setPassword(password);
 		}
-		List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID,prodUser.getUserId());
+		List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,prodUser.getLoginName());
 		if(CollectionUtils.isEmpty(prodUserList)){
 			prodUserRepository.insertSelective(prodUser);
 			return prodUser;
