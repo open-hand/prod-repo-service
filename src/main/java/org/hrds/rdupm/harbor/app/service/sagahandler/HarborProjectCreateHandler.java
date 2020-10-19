@@ -177,6 +177,9 @@ public class HarborProjectCreateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
+		if(harborProjectVo.getStorageNum() == -1 && harborProjectVo.getCountLimit() == -1){
+			return;
+		}
 		harborQuotaService.saveQuota(harborProjectVo,harborProjectVo.getHarborId());
 	}
 

@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
  */
 public interface HarborConstants {
 
+	String ADMIN = "admin";
+
 	String Y = "Y";
 
 	String N = "N";

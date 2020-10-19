@@ -258,9 +258,28 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
 				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
+			}else {
+				dto.setHarborAuthId(saveAndGetHarborAuthId(harborId,dto));
 			}
 			repository.insertSelective(dto);
 		});
+	}
+
+	private Long saveAndGetHarborAuthId(Integer harborId,HarborAuth dto){
+		Map<String,Object> bodyMap = new HashMap<>(2);
+		Map<String,Object> memberMap = new HashMap<>(1);
+		memberMap.put("username",dto.getLoginName());
+		bodyMap.put("role_id",dto.getHarborRoleId());
+		bodyMap.put("member_user",memberMap);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,harborId);
+
+		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
+		List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+		Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
+		if(harborAuthVoMap.get(dto.getLoginName()) != null){
+			return harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId();
+		}
+		return -1L;
 	}
 
 	/***
