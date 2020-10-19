@@ -221,7 +221,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		repository.deleteByPrimaryKey(harborAuth);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,false,harborId,harborAuth.getHarborAuthId());
+		if(harborAuth.getHarborAuthId() != -1){
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,false,harborId,harborAuth.getHarborAuthId());
+		}
 	}
 
 	private void processHarborAuthId(HarborAuth harborAuth){
@@ -338,6 +340,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		Long userId = userDTO.getId();
 		String email = userDTO.getEmail();
 		String realName = userDTO.getRealName();
+		//如果使用admin账号创建，则使用当前项目的harbor管理员账号
+		if(HarborConstants.ADMIN.equals(loginName)){
+			loginName = harborInfoConfiguration.getUsername();
+		}
 
 		//数据库插入制品库用户
 		String password = HarborUtil.getPassword();
