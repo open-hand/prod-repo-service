@@ -95,8 +95,8 @@ public class HarborHttpClient {
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
 		String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ADMIN : DetailsHelper.getUserDetails().getUsername();
 
-		//使用admin账号认证或者当前用户名=admin时，使用当前项目配置的账号连接
-		if(adminAccountFlag || HarborConstants.ADMIN.equals(userName)){
+		//使用admin账号认证或者当前用户名=admin或者匿名用户创建时，使用当前项目配置的账号连接
+		if(adminAccountFlag || HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
 			ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,userName).stream().findFirst().orElse(null);

@@ -12,6 +12,8 @@ public interface HarborConstants {
 
 	String ADMIN = "admin";
 
+	String ANONYMOUS = "ANONYMOUS";
+
 	String Y = "Y";
 
 	String N = "N";
