@@ -93,7 +93,7 @@ public class HarborHttpClient {
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
-		String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ADMIN : DetailsHelper.getUserDetails().getUsername();
+		String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
 
 		//使用admin账号认证或者当前用户名=admin或者匿名用户创建时，使用当前项目配置的账号连接
 		if(adminAccountFlag || HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
