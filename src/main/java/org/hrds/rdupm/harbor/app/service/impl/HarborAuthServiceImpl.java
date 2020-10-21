@@ -289,6 +289,11 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	 */
 	@Override
 	public void checkProjectAdmin(Long projectId){
+        String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
+        if(HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
+            return;
+        }
+
 		Long userId = DetailsHelper.getUserDetails().getUserId();
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setProjectId(projectId);
