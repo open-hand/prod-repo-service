@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import io.choerodon.core.domain.Page;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
@@ -357,6 +358,15 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
 		if (nexusRepository == null) {
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+		}
+
+		// hosted类型仓库，查询是否还有组件包
+		NexusComponentCountParam countParam = new NexusComponentCountParam();
+		countParam.setRepositoryName(nexusRepository.getNeRepositoryName());
+		String param = JSONObject.toJSONString(countParam);
+		NexusScriptResult nexusScriptResult = nexusClient.getNexusScriptApi().runScript(NexusApiConstants.ScriptName.COMPONENT_COUNT_QUERY_DELETE, param);
+		if (nexusScriptResult != null && nexusScriptResult.getResult() != null && Long.parseLong(nexusScriptResult.getResult()) > 0) {
+			throw new CommonException("error.nexus.count.is.null.not.delete");
 		}
 		// 角色
 		NexusRole roleQuery = new NexusRole();

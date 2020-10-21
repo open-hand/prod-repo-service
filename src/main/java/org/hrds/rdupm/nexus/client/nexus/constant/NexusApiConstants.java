@@ -90,7 +90,8 @@ public interface NexusApiConstants {
 				ScriptName.CREATE_NPM_HOSTED,
 				ScriptName.CREATE_NPM_PROXY,
 				ScriptName.COMPONENT_LIST_QUERY,
-				ScriptName.COMPONENT_DELETE);
+				ScriptName.COMPONENT_DELETE,
+				ScriptName.COMPONENT_COUNT_QUERY_DELETE);
 		/**
 		 * 创建maven仓库组   脚本：groovy包下create_maven_group.groovy
 		 */
@@ -123,6 +124,11 @@ public interface NexusApiConstants {
 		 * component删除  脚本：groovy包下 delete_component.groovy
 		 */
 		String COMPONENT_DELETE = ScriptName.SCRIPT_PREFIX + "delete_component";
+
+		/**
+		 * 删除仓库，查询仓库下是否有组件  脚本：groovy包下 component_count_query_delete.groovy
+		 */
+		String COMPONENT_COUNT_QUERY_DELETE = ScriptName.SCRIPT_PREFIX + "component_count_query_delete";
 	}
 
 	interface ErrorMessage {
