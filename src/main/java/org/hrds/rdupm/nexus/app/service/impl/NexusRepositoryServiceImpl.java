@@ -360,11 +360,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 			throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
 		}
 
+
+		 configService.setNexusInfoByRepositoryId(nexusClient, repositoryId);
 		// hosted类型仓库，查询是否还有组件包
 		NexusComponentCountParam countParam = new NexusComponentCountParam();
 		countParam.setRepositoryName(nexusRepository.getNeRepositoryName());
 		String param = JSONObject.toJSONString(countParam);
 		NexusScriptResult nexusScriptResult = nexusClient.getNexusScriptApi().runScript(NexusApiConstants.ScriptName.COMPONENT_COUNT_QUERY_DELETE, param);
+		nexusClient.removeNexusServerInfo();
 		if (nexusScriptResult != null && nexusScriptResult.getResult() != null && Long.parseLong(nexusScriptResult.getResult()) > 0) {
 			throw new CommonException("error.nexus.count.is.null.not.delete");
 		}
