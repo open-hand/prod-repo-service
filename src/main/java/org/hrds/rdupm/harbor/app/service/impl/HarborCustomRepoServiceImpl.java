@@ -806,8 +806,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             }else if(HarborRepoDTO.CUSTOM_REPO.equals(repoType)){
                 //所有应用服务关联自定义仓库，删除项目与自定义服务的关联关系、设置当前自定义仓库projectShare=true，其他自定义仓库projectShare=false
                 harborRepoServiceRepository.deleteRelationByProjectId(projectId);
-                harborRepoServiceRepository.updateProjectShareByProjectId(projectId,true,repoId);
                 harborRepoServiceRepository.updateProjectShareByProjectId(projectId,false,null);
+                harborRepoServiceRepository.updateProjectShareByProjectId(projectId,true,repoId);
             }
         }else {
             if(HarborRepoDTO.DEFAULT_REPO.equals(repoType)){

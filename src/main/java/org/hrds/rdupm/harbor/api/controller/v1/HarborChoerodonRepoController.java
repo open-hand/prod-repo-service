@@ -156,7 +156,7 @@ public class HarborChoerodonRepoController extends BaseController {
     public ResponseEntity batchSaveRelationByServiceIds(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
                                                         @ApiParam(value = "仓库ID", required = true) @Encrypt @RequestParam Long repoId,
                                                         @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
-                                                        @ApiParam(value = "应用服务ID列表", required = true) @RequestBody List<Long> appServiceIds) {
+                                                        @ApiParam(value = "应用服务ID列表", required = false) @RequestBody(required = false) List<Long> appServiceIds) {
         harborCustomRepoService.batchSaveRelationByServiceIds(projectId,repoId,repoType,appServiceIds);
         return Results.success();
     }
