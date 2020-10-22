@@ -123,12 +123,73 @@ const RepoList = ({ setActiveRepository }) => {
     });
   };
 
+  const handleDeleteMaven = (record) => {
+    const deleteKey = Modal.key();
+    Modal.open({
+      key: deleteKey,
+      title: formatMessage({ id: 'confirm.delete' }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      okText: formatMessage({ id: 'delete' }),
+      okProps: { color: 'red' },
+      cancelProps: { color: 'dark' },
+      onOk: async () => {
+        const { currentMenuType: { organizationId, projectId } } = stores.AppState;
+        try {
+          await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${record.repositoryId}`);
+          message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
+          repoListDs.query();
+        } catch (error) {
+          // message.error(error);
+        }
+      },
+      footer: ((okBtn, cancelBtn) => (
+        <React.Fragment>
+          {cancelBtn}{okBtn}
+        </React.Fragment>
+      )),
+      movable: false,
+    });
+  };
+  const handleDeleteNpm = (record) => {
+    const deleteKey = Modal.key();
+    Modal.open({
+      key: deleteKey,
+      title: formatMessage({ id: 'confirm.delete' }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      okText: formatMessage({ id: 'delete' }),
+      okProps: { color: 'red' },
+      cancelProps: { color: 'dark' },
+      onOk: async () => {
+        const { currentMenuType: { organizationId, projectId } } = stores.AppState;
+        try {
+          await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${record.repositoryId}`);
+          message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
+          repoListDs.query();
+        } catch (error) {
+          // message.error(error);
+        }
+      },
+      footer: ((okBtn, cancelBtn) => (
+        <React.Fragment>
+          {cancelBtn}{okBtn}
+        </React.Fragment>
+      )),
+      movable: false,
+    });
+  };
+
   const handleDelete = (record) => {
     if (record.productType === 'DOCKER') {
       handleDeleteDocker();
     }
     if (record.productType === 'DOCKER_CUSTOM') {
       handleDeleteCustomDocker(record);
+    }
+    if (record.productType === 'MAVEN') {
+      handleDeleteMaven(record);
+    }
+    if (record.productType === 'NPM') {
+      handleDeleteNpm(record);
     }
   };
 
@@ -139,14 +200,14 @@ const RepoList = ({ setActiveRepository }) => {
 
   const handleEditMaven = async (data) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-  
+
     const key = Modal.key();
 
     const [res, nuxesList] = await Promise.all([
       axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${data.repositoryId}`),
       axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`),
     ]);
-    
+
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
     const { enableAnonymousFlag } = enableFlagItem;
 
@@ -163,15 +224,15 @@ const RepoList = ({ setActiveRepository }) => {
 
   const handleEditNpm = async (data) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-    
+
     const key = Modal.key();
 
     const [res, nuxesList] = await Promise.all([
       axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${data.repositoryId}`),
       axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`),
     ]);
-    
-    
+
+
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
     const { enableAnonymousFlag } = enableFlagItem;
 
@@ -224,7 +285,7 @@ const RepoList = ({ setActiveRepository }) => {
         const res = await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/check/custom-repo`, dockerCustomCreateDs.current.toData());
         validateStore.setIsValidate(res);
       } catch (e) {
-        validateStore.setIsValidate(false);  
+        validateStore.setIsValidate(false);
       }
     }
   };
@@ -436,7 +497,7 @@ const RepoList = ({ setActiveRepository }) => {
                       }
 
                       if (hasAuth(productType, sourceRepositoryId || projectId)) {
-                        actionData.unshift(disableAndAbleMenu);
+                        actionData.unshift(disableAndAbleMenu, deleteMenu);
                       }
                     }
                     if (['DOCKER', 'DOCKER_CUSTOM'].includes(productType)) {
