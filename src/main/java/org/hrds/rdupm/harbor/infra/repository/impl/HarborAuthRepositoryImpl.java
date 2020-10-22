@@ -27,6 +27,7 @@ public class HarborAuthRepositoryImpl extends BaseRepositoryImpl<HarborAuth> imp
         if(HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
             String roleCode = HarborConstants.HarborRoleEnum.getValueById(1L);
             roleCodeList.add(roleCode);
+            return roleCodeList;
         }
 
         HarborAuth harborAuth = new HarborAuth();
@@ -40,6 +41,6 @@ public class HarborAuthRepositoryImpl extends BaseRepositoryImpl<HarborAuth> imp
 			});
 			return roleCodeList;
 		}
-		return null;
+		return roleCodeList;
 	}
 }
