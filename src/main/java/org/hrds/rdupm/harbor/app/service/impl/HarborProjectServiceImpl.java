@@ -101,10 +101,11 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 		//校验项目是否已经存在、校验数据正确性
 		checkParam(harborProjectVo);
-		checkProject(harborProjectVo,projectId);
-
-		HarborRepository harborRepository = new HarborRepository(projectDTO.getId(),code,projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
-		harborRepositoryRepository.insertSelective(harborRepository);
+        HarborRepository harborRepository = checkProject(harborProjectVo,projectId);
+        if(harborRepository == null){
+            harborRepository = new HarborRepository(projectDTO.getId(),code,projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
+            harborRepositoryRepository.insertSelective(harborRepository);
+        }
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
 									.withSagaCode(HarborConstants.HarborSagaCode.CREATE_PROJECT)
@@ -118,6 +119,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 	@Override
 	public HarborProjectVo detail(Long harborId) {
+	    if(harborId == -1){
+            throw new CommonException("error.harbor.project.not.exist");
+        }
 		Gson gson = new Gson();
 		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
@@ -178,6 +182,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		List<HarborRepository> list = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
 				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
 				.andEqualTo(HarborRepository.FIELD_PROJECT_ID,projectId)
+                .andNotEqualTo(HarborRepository.FIELD_HARBOR_ID,-1L)
 		).build());
 		processHarborRepositoryList(list);
 		return list;
@@ -195,6 +200,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(!StringUtils.isEmpty(harborRepository.getName())){
 			sql.andLike(HarborRepository.FIELD_NAME,harborRepository.getName());
 		}
+        sql.andNotEqualTo(HarborRepository.FIELD_HARBOR_ID,-1L);
 		Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
 		Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
 		processHarborRepositoryList(page.getContent());
@@ -341,8 +347,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 	}
 
-	private void checkProject(HarborProjectVo harborProjectVo,Long projectId){
-		if(harborRepositoryRepository.getHarborRepositoryById(projectId) != null){
+	private HarborRepository checkProject(HarborProjectVo harborProjectVo,Long projectId){
+	    HarborRepository harborRepository = harborRepositoryRepository.getHarborRepositoryById(projectId);
+		if(harborRepository != null && harborRepository.getHarborId() != -1L){
 			throw new CommonException("error.harbor.project.exist");
 		}
 
@@ -352,5 +359,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(checkProjectResponse != null && checkProjectResponse.getStatusCode().value() == 200){
 			throw new CommonException("error.harbor.project.exist");
 		}
+
+		return harborRepository;
 	}
 }
