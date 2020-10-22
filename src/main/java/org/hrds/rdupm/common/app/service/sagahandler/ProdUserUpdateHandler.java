@@ -68,6 +68,9 @@ public class ProdUserUpdateHandler {
 		List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
 		Map<String,User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(1) : userList.stream().collect(Collectors.toMap(User::getUsername, dto->dto));
 		User harborUser = userMap.get(prodUser.getLoginName());
+		if(harborUser == null){
+		    return message;
+        }
 
 		//更新Harbor中用户密码
 		String password = DESEncryptUtil.decode(prodUser.getPassword());
