@@ -219,4 +219,9 @@ public interface NexusMessageConstants {
 	 * nexus服务版本需要3.21.0及其以上
 	 */
 	String NEXUS_SERVER_VERSION_ERROR = "error.nexus.server.version";
+
+	/**
+	 * 请检查输入服务地址是否正确
+	 */
+	String NEXUS_URL_IS_ERROR_SERVER_VERSION_ERROR = "error.url.is.error.server.version";
 }
