@@ -174,5 +174,10 @@ public interface NexusApiConstants {
 		 * 包上传错误： 该仓库，不允许去更新已有包
 		 */
 		String REPO_NOT_UPDATE_ASSET = "error.nexus.client.not.update.asset";
+
+		/**
+		 * 调用nexus服务接口失败，放回状态码：{0}
+		 */
+		String NEXUS_API_IS_ERROR = "error.nexus.api.is.error";
 	}
 }
