@@ -1,5 +1,7 @@
 package org.hrds.rdupm.nexus.app.service;
 
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+
 import java.util.List;
 
 /**
@@ -15,8 +17,9 @@ public interface NexusInitService {
 
 	/**
 	 * 脚本初始化与更新
+	 * @return 初始失败的nexus服务
 	 */
-	void initScript();
+	List<NexusServerConfig> initScript();
 
 	/**
 	 * 匿名用户-拉取权限初始化：默认给予所有仓库拉取权限(参数未传时)
