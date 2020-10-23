@@ -89,18 +89,25 @@ public class NexusInitServiceImpl implements NexusInitService {
 	}
 
 	@Override
-	public void initScript() {
+	public List<NexusServerConfig> initScript() {
+		List<NexusServerConfig> errorList = new ArrayList<>();
 		try {
 			List<NexusServerConfig> serverConfigList = nexusServerConfigRepository.selectAll();
 			serverConfigList.forEach(nexusServerConfig -> {
-				// 设置并返回当前nexus服务信息
-				configService.setNexusInfoByConfigId(nexusClient, nexusServerConfig.getConfigId());
-				nexusClient.initData();
+				try {
+					// 设置并返回当前nexus服务信息
+					configService.setNexusInfoByConfigId(nexusClient, nexusServerConfig.getConfigId());
+					nexusClient.initData();
+				} catch (Exception e) {
+					logger.error("脚本初始化失败", e);
+					errorList.add(nexusServerConfig);
+				}
 			});
 		} finally {
 			// remove配置信息
 			nexusClient.removeNexusServerInfo();
 		}
+		return errorList;
 	}
 
 	@Override

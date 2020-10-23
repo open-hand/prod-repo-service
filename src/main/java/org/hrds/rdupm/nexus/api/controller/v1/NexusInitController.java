@@ -3,7 +3,9 @@ package org.hrds.rdupm.nexus.api.controller.v1;
 import io.choerodon.swagger.annotation.Permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.swagger.annotations.ApiOperation;
+import org.hrds.rdupm.nexus.api.dto.NexusInitErrorDTO;
 import org.hrds.rdupm.nexus.app.service.NexusInitService;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,9 +31,17 @@ public class NexusInitController extends BaseController {
     @ApiOperation(value = "脚本初始化与更新")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/script")
-    public ResponseEntity<?> initScript() {
-        nexusInitService.initScript();
-        return Results.success();
+    public ResponseEntity<List<NexusInitErrorDTO>> initScript() {
+        List<NexusServerConfig> nexusServerConfigList = nexusInitService.initScript();
+        List<NexusInitErrorDTO> errorDTOS = new ArrayList<>();
+        nexusServerConfigList.forEach(nexusServerConfig -> {
+            NexusInitErrorDTO initErrorDTO = new NexusInitErrorDTO();
+            initErrorDTO.setConfigId(nexusServerConfig.getConfigId());
+            initErrorDTO.setServerName(nexusServerConfig.getServerName());
+            initErrorDTO.setServerUrl(nexusServerConfig.getServerUrl());
+            errorDTOS.add(initErrorDTO);
+        });
+        return Results.success(errorDTOS);
     }
 
     @ApiOperation(value = "匿名用户-拉取权限初始化：默认给予所有仓库拉取权限")
