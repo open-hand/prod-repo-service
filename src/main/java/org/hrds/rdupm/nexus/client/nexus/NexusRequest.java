@@ -5,6 +5,8 @@ import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.exception.NexusResponseException;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hzero.core.util.AssertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
@@ -20,6 +22,9 @@ import java.util.*;
  */
 @Component
 public class NexusRequest {
+	private static final Logger logger = LoggerFactory.getLogger(NexusRequest.class);
+
+	private static final String RETURN_STATUS_START = "2";
 	@Autowired
 	@Qualifier("hrdsNexusRestTemplate")
 	private RestTemplate restTemplate;
@@ -66,7 +71,10 @@ public class NexusRequest {
 		} else if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
 			throw new NexusResponseException(responseEntity.getStatusCode(), responseEntity.getBody());
 		} else if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
-			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.RESOURCE_NOT_EXIST);
+			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_API_IS_ERROR, responseEntity.getStatusCode().toString());
+		} else if (!responseEntity.getStatusCode().toString().startsWith(RETURN_STATUS_START)) {
+			logger.error("调用接口失败，接口状态:{}，接口返回：{}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
+			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_API_IS_ERROR, responseEntity.getStatusCode().toString());
 		}
 	}
 
@@ -100,7 +108,7 @@ public class NexusRequest {
 	 */
 	public ResponseEntity<String> exchange(String urlFix, HttpMethod method, Map<String, Object> paramMap, Object body){
 		NexusServer nexusServer = this.getNexusServer();
-		 String url = nexusServer.getBaseUrl() + urlFix;
+		String url = nexusServer.getBaseUrl() + urlFix;
 
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE);
