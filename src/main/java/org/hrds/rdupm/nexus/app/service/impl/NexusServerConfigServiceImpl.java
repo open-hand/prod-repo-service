@@ -203,6 +203,10 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 			});
 			nexusApiService.updateRole(nexusServerConfig.getAnonymousRole(), addPrivileges, deletePrivileges);
 		}
+
+		// 初始化数据
+		nexusClient.initData();
+
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;
 	}
