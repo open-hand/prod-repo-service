@@ -164,7 +164,7 @@ public class NexusServerConfig extends AuditDomain {
     @NotNull
     private Integer enableAnonymousFlag;
 
-	//
+    //
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
@@ -189,6 +189,6 @@ public class NexusServerConfig extends AuditDomain {
 
     @Override
     public AuditDomain set_innerMap(Map<String, Object> _innerMap) {
-		return super.set_innerMap(_innerMap);
-	}
+        return super.set_innerMap(_innerMap);
+    }
 }
