@@ -108,7 +108,7 @@ public class NexusRequest {
 	 */
 	public ResponseEntity<String> exchange(String urlFix, HttpMethod method, Map<String, Object> paramMap, Object body){
 		NexusServer nexusServer = this.getNexusServer();
-		 String url = nexusServer.getBaseUrl() + urlFix;
+		String url = nexusServer.getBaseUrl() + urlFix;
 
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE);
