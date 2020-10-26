@@ -1,11 +1,13 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
 import org.hrds.rdupm.harbor.app.service.HarborC7nRepoService;
@@ -137,5 +139,26 @@ public class HarborChoerodonRepoController extends BaseController {
 		harborC7nRepoService.deleteImageTag(repoName,tagName);
 		return Results.success();
 	}
+
+	//added 2020.10.22
+
+    /***
+     * 若应用服务ID数组为空，则所有应用服务都做关联
+     * @param projectId 项目ID
+     * @param repoId    仓库ID
+     * @param repoType  仓库类型 DEFAULT_REPO、CUSTOM_REPO
+     * @param appServiceIds 应用服务ID数组
+     * @return
+     */
+    @ApiOperation(value = "应用服务-批量保存关联关系")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @PostMapping("/project/{projectId}/batch_save_relation")
+    public ResponseEntity batchSaveRelationByServiceIds(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
+                                                        @ApiParam(value = "仓库ID", required = true) @Encrypt @RequestParam Long repoId,
+                                                        @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
+                                                        @ApiParam(value = "应用服务ID列表", required = false) @RequestBody(required = false) List<Long> appServiceIds) {
+        harborCustomRepoService.batchSaveRelationByServiceIds(projectId,repoId,repoType,appServiceIds);
+        return Results.success();
+    }
 
 }

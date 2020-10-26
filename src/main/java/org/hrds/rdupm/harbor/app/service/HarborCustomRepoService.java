@@ -215,4 +215,13 @@ public interface HarborCustomRepoService {
      */
     List<HarborImageVo> getImagesByRepoId(Long repoId, String imageName);
 
+    /***
+     * 批量保存应用服务和仓库的关联关系
+     * 若应用服务ID数组为空，则所有应用服务都做关联
+     * @param projectId
+     * @param repoId
+     * @param repoType
+     * @param appServiceIds
+     */
+    void batchSaveRelationByServiceIds(Long projectId, Long repoId, String repoType, List<Long> appServiceIds);
 }

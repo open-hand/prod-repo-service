@@ -281,7 +281,7 @@ public class HarborHttpClient {
                 }
 			case CHANGE_PASSWORD:
 				switch (statusCode){
-					case 400: throw new CommonException("the new password can not be same with the old one.");
+					case 400: return;//throw new CommonException("the new password can not be same with the old one.");
 					default: throw new CommonException(e.getMessage());
 				}
 			default: throw new CommonException(e.getMessage());
