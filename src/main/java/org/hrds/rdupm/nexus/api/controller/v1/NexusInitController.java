@@ -48,7 +48,7 @@ public class NexusInitController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/anonymous")
     public ResponseEntity<?> initAnonymous(@RequestBody List<String> repositoryNames) {
-        nexusInitService.initAnonymous(repositoryNames);
+        nexusInitService.initAnonymous();
         return Results.success();
     }
 }
