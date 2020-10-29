@@ -67,10 +67,13 @@ public class NexusRequest {
 		} else if (responseEntity.getStatusCode() == HttpStatus.FORBIDDEN) {
 			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_ROLE_PRI_NOT_ASSIGNED);
 		} else if (responseEntity.getStatusCode() == HttpStatus.INTERNAL_SERVER_ERROR) {
+			logger.error("调用接口失败，接口状态:{}，接口返回：{}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
 			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_SERVER_ERROR);
 		} else if (responseEntity.getStatusCode() == HttpStatus.BAD_REQUEST) {
+			logger.error("调用接口失败，接口状态:{}，接口返回：{}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
 			throw new NexusResponseException(responseEntity.getStatusCode(), responseEntity.getBody());
 		} else if (responseEntity.getStatusCode() == HttpStatus.NOT_FOUND) {
+			logger.error("调用接口失败，接口状态:{}，接口返回：{}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
 			throw new NexusResponseException(responseEntity.getStatusCode(), NexusApiConstants.ErrorMessage.NEXUS_API_IS_ERROR, responseEntity.getStatusCode().toString());
 		} else if (!responseEntity.getStatusCode().toString().startsWith(RETURN_STATUS_START)) {
 			logger.error("调用接口失败，接口状态:{}，接口返回：{}", responseEntity.getStatusCodeValue(), responseEntity.getBody());
