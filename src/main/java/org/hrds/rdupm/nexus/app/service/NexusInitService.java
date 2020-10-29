@@ -23,7 +23,6 @@ public interface NexusInitService {
 
 	/**
 	 * 匿名用户-拉取权限初始化：默认给予所有仓库拉取权限(参数未传时)
-	 * @param repositoryNames 仓库名称
 	 */
-	void initAnonymous(List<String> repositoryNames);
+	void initAnonymous();
 }
