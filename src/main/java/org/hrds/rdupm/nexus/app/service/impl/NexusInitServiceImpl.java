@@ -111,39 +111,45 @@ public class NexusInitServiceImpl implements NexusInitService {
 	}
 
 	@Override
-	public void initAnonymous(List<String> repositoryNames) {
-		NexusServerConfig queryConfig = new NexusServerConfig();
-		queryConfig.setDefaultFlag(1);
-		NexusServerConfig defaultConfig = nexusServerConfigRepository.selectOne(queryConfig);
-		configService.setNexusInfoByConfigId(nexusClient, defaultConfig.getConfigId());
+	public void initAnonymous() {
+		try {
+			NexusServerConfig queryConfig = new NexusServerConfig();
+			queryConfig.setDefaultFlag(1);
+			NexusServerConfig defaultConfig = nexusServerConfigRepository.selectOne(queryConfig);
+			configService.setNexusInfoByConfigId(nexusClient, defaultConfig.getConfigId());
 
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(null);
-		Map<String, String> map = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, NexusServerRepository::getFormat));
+			List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(null);
+			Map<String, String> map = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, NexusServerRepository::getFormat));
 
-		if (CollectionUtils.isEmpty(repositoryNames)) {
-			repositoryNames = nexusServerRepositoryList.stream().map(NexusServerRepository::getName).collect(Collectors.toList());
+			if (!BaseConstants.Flag.YES.equals(defaultConfig.getEnableAnonymousFlag())) {
+				return;
+			}
+
+			NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(defaultConfig.getAnonymousRole());
+			if (anonymousRole == null) {
+				throw new CommonException("default anonymous role not found: " + defaultConfig.getAnonymousRole());
+			}
+
+			Condition condition = Condition.builder(NexusRepository.class)
+					.where(Sqls.custom()
+							.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 1)
+							.andEqualTo(NexusRepository.FIELD_CONFIG_ID, defaultConfig.getConfigId()))
+					.build();
+			List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
+			List<String> repositoryNames = repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList());
+			if (CollectionUtils.isNotEmpty(repositoryNames)) {
+				repositoryNames.forEach(repositoryName -> {
+					String format = map.get(repositoryName);
+					if (format != null) {
+						anonymousRole.setPullPri(repositoryName, 1, format);
+					}
+				});
+				nexusClient.getNexusRoleApi().updateRole(anonymousRole);
+			}
+		} catch (Exception e) {
+			logger.error("匿名初始化失败", e);
+		} finally {
+			nexusClient.removeNexusServerInfo();
 		}
-
-		NexusServerRole anonymousRole = nexusClient.getNexusRoleApi().getRoleById(defaultConfig.getAnonymousRole());
-		if (anonymousRole == null) {
-			throw new CommonException("default anonymous role not found: " + defaultConfig.getAnonymousRole());
-		}
-
-		Condition condition = Condition.builder(NexusRepository.class)
-				.where(Sqls.custom()
-						.andEqualTo(NexusRepository.FIELD_ALLOW_ANONYMOUS, 0)
-						.andEqualTo(NexusRepository.FIELD_CONFIG_ID, defaultConfig.getConfigId()))
-				.build();
-		List<NexusRepository> repositoryList = nexusRepositoryRepository.selectByCondition(condition);
-		repositoryNames.removeAll(repositoryList.stream().map(NexusRepository::getNeRepositoryName).collect(Collectors.toList()));
-		if (CollectionUtils.isNotEmpty(repositoryNames)) {
-			repositoryNames.forEach(repositoryName -> {
-				String format = map.get(repositoryName);
-				anonymousRole.setPullPri(repositoryName, 1, format);
-			});
-			nexusClient.getNexusRoleApi().updateRole(anonymousRole);
-		}
-
-		nexusClient.removeNexusServerInfo();
 	}
 }
