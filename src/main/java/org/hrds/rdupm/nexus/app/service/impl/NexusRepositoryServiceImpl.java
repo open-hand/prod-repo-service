@@ -538,11 +538,6 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 		// 设置并返回项目当前nexus服务信息
 		NexusServerConfig nexusServerConfig = configService.setNexusInfo(nexusClient, queryDTO.getProjectId());
 
-		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(queryDTO.getRepoType()));
-		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
-			return new ArrayList<>();
-		}
-		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, a -> a, (k1, k2) -> k1));
 		// 查询某个项目项目数据
 		Condition.Builder builder = Condition.builder(NexusRepository.class)
 				.where(Sqls.custom()
@@ -556,14 +551,26 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
 		Condition condition = builder.build();
 		List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.selectByCondition(condition);
+		if (CollectionUtils.isEmpty(nexusRepositoryList)) {
+			nexusClient.removeNexusServerInfo();
+			return new ArrayList<>();
+		}
 		nexusRepositoryList.forEach(nexusRepository -> nexusRepository.setEnableAnonymousFlag(nexusServerConfig.getEnableAnonymousFlag()));
+
+
+		List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(queryDTO.getRepoType()));
+		if (CollectionUtils.isEmpty(nexusServerRepositoryList)) {
+			return new ArrayList<>();
+		}
+		Map<String, NexusServerRepository> nexusServerRepositoryMap = nexusServerRepositoryList.stream().collect(Collectors.toMap(NexusServerRepository::getName, a -> a, (k1, k2) -> k1));
+
 
 		List<NexusRepositoryDTO> resultAll = new ArrayList<>();
 
 		this.mavenRepoConvert(resultAll, nexusRepositoryList, nexusServerRepositoryMap);
 		resultAll = this.setInfoAndQuery(resultAll, queryDTO);
 		// remove配置信息
-		nexusClient.removeNexusServerInfo();
+
 		return resultAll;
 	}
 
