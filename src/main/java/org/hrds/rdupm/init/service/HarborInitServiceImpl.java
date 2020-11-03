@@ -114,7 +114,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 			defaultRepoInitToDb(1,fdProjectDtoList);
 		}else {
 			int part = totalProjectCount/pageSize;
-			for(int i=1; i<=part;i++){
+			for(int i=1; i<=part+1;i++){
 				defaultRepoInitToDb(i,fdProjectDtoList);
 			}
 		}
