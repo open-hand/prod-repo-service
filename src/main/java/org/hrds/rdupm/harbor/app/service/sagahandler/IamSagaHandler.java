@@ -76,7 +76,6 @@ public class IamSagaHandler {
 	 * 2.删除原来仓管权限，同时删除数据库中权限
 	 */
 	@SagaTask(code = DOCKER_DELETE_AUTH, description = " 制品库删除权限同步事件", sagaCode = IAM_DELETE_MEMBER_ROLE, maxRetryCount = 3, seq = 1)
-	@Transactional
 	public String delete(String payload) {
 		List<IamGroupMemberVO> iamGroupMemberVOList = new Gson().fromJson(payload, new TypeToken<List<IamGroupMemberVO>>() {}.getType());
 		iamGroupMemberVOList.forEach(dto->{

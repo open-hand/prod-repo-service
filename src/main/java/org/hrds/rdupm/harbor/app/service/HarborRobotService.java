@@ -21,14 +21,6 @@ public interface HarborRobotService {
     HarborRobot createRobot(HarborRobot harborRobot);
 
     /**
-     * 根据仓库生成机器人账户
-     *
-     * @param message sage创建仓库序列化消息
-     * @return HarborRobot
-     */
-    String generateRobot(String message);
-
-    /**
      * 根据项目ID查找机器人账户
      *
      * @param projectId 猪齿鱼项目ID
