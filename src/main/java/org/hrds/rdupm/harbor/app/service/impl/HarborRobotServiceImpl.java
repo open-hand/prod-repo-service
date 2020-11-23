@@ -110,50 +110,6 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         return harborRobot;
     }
 
-    @Override
-    @SagaTask(code = HarborConstants.HarborSagaCode.ROBOT_SAGA_TASK_CODE, description = "创建harbor机器人账户",
-            sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT, seq = 4, maxRetryCount = 3, outputSchemaClass = String.class)
-    public String generateRobot(String message){
-        HarborProjectVo projectVo = new Gson().fromJson(message, HarborProjectVo.class);
-
-        List<HarborRepository> repositoryList = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class)
-                .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_PROJECT_ID, projectVo.getProjectDTO().getId()))
-                .andWhere(Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID, projectVo.getProjectDTO().getOrganizationId()))
-                .build());
-        if (CollectionUtils.isEmpty(repositoryList)) {
-            throw new CommonException("error.harbor.robot.repository.select");
-        }
-        HarborRepository repository = repositoryList.get(0);
-
-        List<HarborRobot> dbRobotList = harborRobotRepository.selectByCondition(Condition.builder(HarborRobot.class)
-                .andWhere(Sqls.custom()
-                        .andEqualTo(HarborRobot.FIELD_PROJECT_ID, projectVo.getProjectDTO().getId())
-                        .andEqualTo(HarborRobot.FIELD_ORGANIZATION_ID, projectVo.getProjectDTO().getOrganizationId()))
-                .build());
-        if (CollectionUtils.isNotEmpty(dbRobotList)) {
-            harborRobotRepository.batchDeleteByPrimaryKey(dbRobotList);
-        }
-        List<HarborRobot> harborRobotList = new ArrayList<>(2);
-
-        HarborRobot harborRobot = new HarborRobot();
-        harborRobot.setProjectId(repository.getProjectId());
-        harborRobot.setHarborProjectId(repository.getHarborId());
-        harborRobot.setOrganizationId(repository.getOrganizationId());
-        //创建pull账户
-        harborRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PULL);
-        harborRobot.setAction(HarborConstants.HarborRobot.ACTION_PULL);
-        harborRobot.setDescription(repository.getCode() + BaseConstants.Symbol.SPACE  + HarborConstants.HarborRobot.ACTION_PULL + BaseConstants.Symbol.SPACE + HarborConstants.HarborRobot.ROBOT);
-        harborRobotList.add(this.createRobot(harborRobot));
-
-        //创建push账户
-        HarborUtil.resetDomain(harborRobot);
-        harborRobot.setName(repository.getCode() + BaseConstants.Symbol.MIDDLE_LINE + HarborConstants.HarborRobot.ACTION_PUSH);
-        harborRobot.setAction(HarborConstants.HarborRobot.ACTION_PUSH);
-        harborRobot.setDescription(repository.getCode() + BaseConstants.Symbol.SPACE  + HarborConstants.HarborRobot.ACTION_PUSH + BaseConstants.Symbol.SPACE + HarborConstants.HarborRobot.ROBOT);
-        harborRobotList.add(this.createRobot(harborRobot));
-        return new Gson().toJson(harborRobotList);
-    }
-
     private void checkRobotParam(HarborRobot harborRobot) {
         if (!StringUtils.equalsAny(harborRobot.getAction(), HarborConstants.HarborRobot.ACTION_PULL, HarborConstants.HarborRobot.ACTION_PUSH)) {
             throw new CommonException("error.harbor.robot.action.wrong");

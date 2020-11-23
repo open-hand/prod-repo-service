@@ -71,7 +71,6 @@ public class DevopsSagaHandler {
 	 * 监听IAM服务，创建项目，然后创建默认仓库
 	 */
 	@SagaTask(code = IAM_CREATE_PROJECT_DEFAULT_REPO, description = "docker-创建默认仓库", sagaCode = IAM_CREATE_PROJECT, maxRetryCount = 4, seq = 1)
-	@Transactional
 	public String createDefaultRepo(String payload) {
 		DevopsProjectDTO devopsProjectDTO = null;
 		try {
