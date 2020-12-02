@@ -165,12 +165,8 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
         if (nexusRepository == null) {
             return new ArrayList<>();
         }
-
         // 组件查询
-        NexusComponentQuery componentQuery = new NexusComponentQuery();
-        componentQuery.setRepositoryName(nexusRepository.getNeRepositoryName());
-        componentQuery.setGroup(groupId);
-        List<NexusServerComponent> componentList = nexusClient.getComponentsApi().searchComponentScript(componentQuery);
+        List<NexusServerComponent> componentList = this.listComponentList(nexusRepository.getNeRepositoryName(), groupId, null);
         List<String> result = componentList.stream().map(NexusServerComponent::getGroup).distinct().collect(Collectors.toList());
 
         nexusClient.removeNexusServerInfo();
@@ -183,17 +179,43 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
         if (nexusRepository == null) {
             return new ArrayList<>();
         }
-
         // 组件查询
-        NexusComponentQuery componentQuery = new NexusComponentQuery();
-        componentQuery.setName(artifactId);
-        componentQuery.setRepositoryName(nexusRepository.getNeRepositoryName());
-        List<NexusServerComponent> componentList = nexusClient.getComponentsApi().searchComponentScript(componentQuery);
+        List<NexusServerComponent> componentList = this.listComponentList(nexusRepository.getNeRepositoryName(), null, artifactId);
         List<String> result = componentList.stream().map(NexusServerComponent::getName).distinct().collect(Collectors.toList());
 
         nexusClient.removeNexusServerInfo();
 
         return result;
+    }
+
+    @Override
+    public List<String> listMavenGroupArtifactId(Long organizationId, Long projectId, Long repositoryId, String groupId) {
+        NexusRepository nexusRepository = this.validExist(organizationId, projectId, repositoryId);
+        if (nexusRepository == null) {
+            return new ArrayList<>();
+        }
+        // 组件查询
+        List<NexusServerComponent> componentList = this.listComponentList(nexusRepository.getNeRepositoryName(), groupId, null);
+
+        // 精确匹配过滤数据
+        List<String> result = componentList.stream().filter(nexusServerComponent -> nexusServerComponent.getGroup().equals(groupId))
+                .map(NexusServerComponent::getName).distinct().collect(Collectors.toList());
+
+        nexusClient.removeNexusServerInfo();
+
+        return result;
+    }
+
+    private List<NexusServerComponent> listComponentList(String neRepositoryName, String groupId, String artifactId) {
+        NexusComponentQuery componentQuery = new NexusComponentQuery();
+        componentQuery.setRepositoryName(neRepositoryName);
+        if (groupId != null) {
+            componentQuery.setGroup(groupId);
+        }
+        if (artifactId != null) {
+            componentQuery.setName(artifactId);
+        }
+        return nexusClient.getComponentsApi().searchComponentScript(componentQuery);
     }
 
     private NexusRepository validExist(Long organizationId, Long projectId, Long repositoryId) {

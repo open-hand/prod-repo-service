@@ -64,4 +64,13 @@ public interface NexusChoerodonService {
      */
     List<String> listMavenArtifactId(Long organizationId, Long projectId, Long repositoryId, String artifactId);
 
+    /**
+     * 查询artifactId
+     * @param organizationId 组织Id
+     * @param projectId 项目Id
+     * @param repositoryId 仓库Id
+     * @param groupId groupId
+     * @return List<String>
+     */
+    List<String> listMavenGroupArtifactId(Long organizationId, Long projectId, Long repositoryId, String groupId);
 }
