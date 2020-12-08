@@ -42,6 +42,11 @@ public class BaseServiceFeignClientFallBackFactory implements FallbackFactory<Ba
 			public List<ProjectVO> listProjectsByOrgId(@PathVariable(name = "organization_id") Long organizationId) {
 				return new ArrayList<>();
 			}
+
+			@Override
+			public Boolean checkIsProjectOwner(Long id, Long projectId) {
+				return Boolean.FALSE;
+			}
 		};
 	}
 }
