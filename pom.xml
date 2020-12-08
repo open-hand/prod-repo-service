@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>org.hrds.rdupm</groupId>
-    <artifactId>hrds-prod-repo</artifactId>
+    <artifactId>prod-repo-service</artifactId>
     <version>0.24.0-alpha.6</version>
-    <name>rdupm</name>
+    <name>prod-repo-service</name>
 
     <properties>
         <nx-version>3.9.0-01</nx-version>
