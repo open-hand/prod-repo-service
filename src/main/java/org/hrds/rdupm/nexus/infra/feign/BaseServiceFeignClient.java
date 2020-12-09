@@ -52,7 +52,21 @@ public interface BaseServiceFeignClient {
     @GetMapping(value = "/v1/organizations/{organization_id}/projects/all")
     List<ProjectVO> listProjectsByOrgId(@PathVariable(name = "organization_id") Long organizationId);
 
+    /**
+     * 判断用户是不是项目所有者
+     *
+     * @param id
+     * @param projectId
+     * @return
+     */
     @GetMapping(value = "/v1/users/{id}/projects/{project_id}/check_is_owner")
     Boolean checkIsProjectOwner(@PathVariable("id") Long id, @PathVariable("project_id") Long projectId);
 
+    /**
+     * 根据登陆名字查询用户
+     * @param loginName
+     * @return
+     */
+    @GetMapping(value = "/v1/users")
+    UserDTO query(@RequestParam(name = "login_name") String loginName);
 }
