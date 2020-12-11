@@ -193,7 +193,7 @@ nexus:
     #nexus的地址
     base: ${NEXUS_PROXY_BASE:https://localhost}
     # 过滤器拦截的servlet 地址
-    servletUri: ${nexus.proxy.uriPrefix}/*
+    servletUri: ${NEXUS_PROXY_SERVLETURI:/v1/nexus/proxy/*}
 
 DesEncrypt:
   # 制品库密码， 加解密密钥
