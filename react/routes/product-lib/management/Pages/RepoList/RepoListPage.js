@@ -1,3 +1,4 @@
+/*eslint-disable*/
 /**
 * 制品库项目层项目列表
 * @author JZH <zhihao.jiang@hand-china.com>
@@ -28,7 +29,7 @@ const RepoList = ({ setActiveRepository }) => {
 
   const [VERSION_POLICY, setVersionPolicy] = useState([]);
   const [REPOSITORY_TYPE, setRepositoryType] = useState([]);
-  const currentRole = React.useContext(CurrentRoleContext);
+  const currentRole = React.useContext(CurrentRoleContext).currentRole;
 
   useEffect(() => {
     async function init() {
