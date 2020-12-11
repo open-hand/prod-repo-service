@@ -1,7 +1,7 @@
 server:
   port: 7144
 management:
-  server: 
+  server:
     port: 7145
   endpoints:
     web:
@@ -39,6 +39,6 @@ eureka:
   client:
     serviceUrl:
       # 注册中心地址
-      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8000/}
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8000/eureka}
     registryFetchIntervalSeconds: 10
     disable-delta: true
