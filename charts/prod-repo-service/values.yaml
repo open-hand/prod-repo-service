@@ -103,6 +103,9 @@ env:
     NEXUS_DEFAULT_ANONYMOUS_USER: test
     #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户对应的角色
     NEXUS_DEFAULT_ANONYMOUS_ROLE: test
+    NEXUS_PROXY_BASE: https://localhost
+    NEXUS_PROXY_URIPREFIX: /v1/nexus/proxy
+    NEXUS_PROXY_SERVLETURI: /v1/nexus/proxy/*
 
 ## Liveness 和 Readiness 探针相关配置
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
@@ -161,7 +164,7 @@ service:
   # externalIPs:
   #   - externalIp1
   annotations: {}
-    # prometheus.io/scrape: 'true'
+  # prometheus.io/scrape: 'true'
   # prometheus.io/path: '/actuator/prometheus'
   # prometheus.io/port: '8070'
 
