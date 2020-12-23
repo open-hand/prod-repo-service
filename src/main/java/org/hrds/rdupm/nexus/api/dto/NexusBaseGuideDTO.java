@@ -83,9 +83,9 @@ public class NexusBaseGuideDTO {
 
 
     public String getProxyUrl(String url, NexusProxyConfigProperties nexusProxyConfigProperties) {
-        // http://xxx/repository/zmf-test-mixed
+        // http://xxx/repository/zmf-test-mixed  =>http://api/route/v1/nexus/proxy/repository/zmf-test-mixed
         String baseUrl = url.split(nexusProxyConfigProperties.getBase())[1];
-        return nexusProxyConfigProperties.getServicesGatewayUrl() + nexusProxyConfigProperties.getUriPrefix() + baseUrl;
+        return nexusProxyConfigProperties.getServicesGatewayUrl() + nexusProxyConfigProperties + nexusProxyConfigProperties.getUriPrefix() + baseUrl;
     }
 
     @ApiModelProperty(value = "拉取配置：server配置是否显示")
