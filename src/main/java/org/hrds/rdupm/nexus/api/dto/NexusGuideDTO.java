@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
@@ -41,11 +42,12 @@ public class NexusGuideDTO extends NexusBaseGuideDTO{
 	public void handlePushGuideValue(NexusServerRepository nexusServerRepository,
 									 NexusRepository nexusRepository,
 									 NexusUser nexusUser,
-									 Boolean showPushFlag){
+									 Boolean showPushFlag,
+									 NexusProxyConfigProperties nexusProxyConfigProperties){
 		Map<String, Object> map = new HashMap<>(16);
 		map.put("versionPolicy", nexusServerRepository.getVersionPolicy());
 		map.put("repositoryName", nexusServerRepository.getName());
-		map.put("url", nexusServerRepository.getUrl());
+		map.put("url", getProxyUrl(nexusServerRepository.getUrl(),nexusProxyConfigProperties));
 		map.put("type", nexusServerRepository.getType());
 
 		// 发布信息
