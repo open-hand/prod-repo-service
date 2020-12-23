@@ -194,6 +194,8 @@ nexus:
     base: ${NEXUS_PROXY_BASE:https://localhost}
     # 过滤器拦截的servlet 地址
     servletUri: ${NEXUS_PROXY_SERVLETURI:/v1/nexus/proxy/*}
+      #api地址
+    servicesGatewayUrl: http://172.23.16.92:30094
 
 DesEncrypt:
   # 制品库密码， 加解密密钥
