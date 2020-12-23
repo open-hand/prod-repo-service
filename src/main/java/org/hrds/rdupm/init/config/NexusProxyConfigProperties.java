@@ -23,6 +23,16 @@ public class NexusProxyConfigProperties {
 
     private String servicesGatewayUrl;
 
+    private String serviceRoute;
+
+    public String getServiceRoute() {
+        return serviceRoute;
+    }
+
+    public void setServiceRoute(String serviceRoute) {
+        this.serviceRoute = serviceRoute;
+    }
+
     public String getServicesGatewayUrl() {
         return servicesGatewayUrl;
     }
