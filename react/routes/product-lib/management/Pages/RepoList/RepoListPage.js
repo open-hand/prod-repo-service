@@ -331,11 +331,11 @@ const RepoList = ({ setActiveRepository }) => {
 
   const hasAuth = (productType, repositoryId) => {
     if (productType === 'DOCKER') {
-      return currentRole.DOCKER[repositoryId].includes('projectAdmin');
+      return currentRole.DOCKER[repositoryId]?.includes('projectAdmin');
     } else if (productType === 'MAVEN') {
-      return currentRole.MAVEN[repositoryId].includes('projectAdmin');
+      return currentRole.MAVEN[repositoryId]?.includes('projectAdmin');
     } else if (productType === 'NPM') {
-      return currentRole.NPM[repositoryId].includes('projectAdmin');
+      return currentRole.NPM[repositoryId]?.includes('projectAdmin');
     } else {
       return true;
     }
