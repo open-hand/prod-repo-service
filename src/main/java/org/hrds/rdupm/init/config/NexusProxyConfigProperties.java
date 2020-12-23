@@ -21,6 +21,16 @@ public class NexusProxyConfigProperties {
 
     private String servletUri;
 
+    private String servicesGatewayUrl;
+
+    public String getServicesGatewayUrl() {
+        return servicesGatewayUrl;
+    }
+
+    public void setServicesGatewayUrl(String servicesGatewayUrl) {
+        this.servicesGatewayUrl = servicesGatewayUrl;
+    }
+
     public String getUriPrefix() {
         return uriPrefix;
     }
