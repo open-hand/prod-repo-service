@@ -366,7 +366,7 @@ const RepoList = ({ setActiveRepository }) => {
           return (
             <li key={uniqueId} className="product-lib-repolist-card">
               <div style={{ display: 'flex', width: '100%', alignItems: 'center', height: '100%' }}>
-                {['DOCKER', 'DOCKER_CUSTOM'].includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
+                {['DOCKER', 'DOCKER_CUSTOM']?.includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
                 {productType === 'MAVEN' && <div className="product-lib-repolist-card-maven-img" />}
                 {productType === 'NPM' && <div className="product-lib-repolist-card-npm-img" />}
                 <div className="product-lib-repolist-card-record-content">

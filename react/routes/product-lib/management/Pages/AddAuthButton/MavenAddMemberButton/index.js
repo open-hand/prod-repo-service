@@ -29,7 +29,7 @@ const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRep
   const getDom = () => {
     if (['MAVEN', 'NPM'].includes(activeRepository.productType)) {
       const useAuthPermission = useAuthPermisson();
-      if (useAuthPermission[activeRepository.productType][activeRepository.repositoryId].includes('projectAdmin')){
+      if (useAuthPermission[activeRepository.productType][activeRepository.repositoryId]?.includes('projectAdmin')){
         return <Permission
           service={[
             'choerodon.code.project.infra.product-lib.ps.project-owner-maven',
@@ -45,7 +45,6 @@ const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRep
         </Permission>
       }
     } else {
-      debugger;
       return userAuth.includes('projectAdmin') &&
       <Permission
         service={[
