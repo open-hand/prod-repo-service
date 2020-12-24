@@ -129,7 +129,7 @@ const AuthList = ({ dockerAuthDs, formatMessage, activeTabKey }) => {
   return (
     <Table dataSet={dockerAuthDs} className="no-border-top-table" >
       <Column name="loginName" />
-      {userAuth.includes('projectAdmin') && <Column renderer={renderAction} width={70} />}
+      {userAuth?.includes('projectAdmin') && <Column renderer={renderAction} width={70} />}
       <Column name="realName" renderer={({ text, record }) => rendererIcon(record.toData().userImageUrl, text)} />
       <Column name="memberRole" />
       <Column name="harborRoleValue" />
