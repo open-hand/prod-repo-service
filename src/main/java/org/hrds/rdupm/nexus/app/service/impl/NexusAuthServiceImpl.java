@@ -167,7 +167,8 @@ public class NexusAuthServiceImpl implements NexusAuthService, AopProxy<NexusAut
             if(userDto != null){
                 auth.setRealName(userDto.getRealName());
                 auth.setUserImageUrl(userDto.getImageUrl());
-
+                auth.setLdap(userDto.getLdap());
+                auth.setEmail(userDto.getEmail());
                 List<RoleDTO> roleDTOList = userDto.getRoles();
                 if(CollectionUtils.isNotEmpty(roleDTOList)){
                     StringBuilder memberRole = new StringBuilder();
