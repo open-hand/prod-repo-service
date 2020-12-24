@@ -75,7 +75,7 @@ public class NexusFilter implements Filter {
         String servletUri = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
         LOGGER.info("The uri of the request servlet :{}", servletUri);
 
-        //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZzEzMzMwOQ==
+        //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZz==
         if ((StringUtils.endsWithIgnoreCase(servletUri, ".jar") || StringUtils.endsWithIgnoreCase(servletUri, ".tgz"))
                 && !StringUtils.isEmpty(httpServletRequest.getHeader("authorization"))
                 && org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "get")) {
