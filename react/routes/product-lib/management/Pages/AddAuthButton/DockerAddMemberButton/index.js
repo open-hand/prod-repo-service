@@ -26,7 +26,7 @@ const AddMemberButton = ({ formatMessage, dockerAuthDs }) => {
 
   return (
     <React.Fragment>
-      {userAuth.includes('projectAdmin') &&
+      {userAuth?.includes('projectAdmin') &&
         <Permission service={['choerodon.code.project.infra.product-lib.ps.project-owner-harbor']}>
           <Button
             icon="playlist_add"

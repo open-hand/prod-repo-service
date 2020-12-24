@@ -34,7 +34,7 @@ const Pages = () => {
     setLoading(true);
     const { projectId } = stores.AppState.currentMenuType;
     const res = await repoListDs.query();
-    const ids = res.filter(o => ['MAVEN', 'NPM'].includes(o.productType)).map(o => ({ repositoryId: o.repositoryId || o.projectId }));
+    const ids = res.filter(o => ['MAVEN', 'NPM']?.includes(o.productType)).map(o => ({ repositoryId: o.repositoryId || o.projectId }));
     const userAuth = await axios.post(`/rdupm/v1/prod-users/getRoleList?projectId=${projectId}`, ids);
     const authPermission = await axios.post(`/rdupm/v1/prod-users/role/getRoleList?projectId=${projectId}`, ids);
     setCurrentRole(userAuth);

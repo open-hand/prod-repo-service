@@ -162,7 +162,6 @@ const PublishAuth = ({
   const rendererName = ({ record, text }) => {
     const isLdap = record.get("ldap");
     const email = record.get("email");
-    debugger
     return isLdap ? text : email;
   };
 
