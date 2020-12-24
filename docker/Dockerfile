@@ -1,4 +1,4 @@
-FROM registry.cn-shanghai.aliyuncs.com/c7n/javabase:0.10.0
+FROM registry.cn-shanghai.aliyuncs.com/c7n/javabase:0.9.0
 RUN mkdir /choerodon && chown -R www-data:www-data /choerodon
 COPY --chown=www-data:www-data app.jar /choerodon/prod-repo-service.jar
 WORKDIR /choerodon
