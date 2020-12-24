@@ -15,6 +15,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -62,7 +63,7 @@ public class NexusAuth extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-    public void setNeRoleIdByRoleCode(NexusRole nexusRole){
+    public void setNeRoleIdByRoleCode(NexusRole nexusRole) {
         if (this.roleCode.equals(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode())
                 || this.roleCode.equals(NexusConstants.NexusRoleEnum.DEVELOPER.getRoleCode())) {
             this.neRoleId = nexusRole.getNeRoleId();
@@ -83,15 +84,15 @@ public class NexusAuth extends AuditDomain {
     @Id
     @GeneratedValue
     private Long authId;
-    @ApiModelProperty(value = "猪齿鱼项目ID",required = true)
+    @ApiModelProperty(value = "猪齿鱼项目ID", required = true)
     private Long projectId;
-    @ApiModelProperty(value = "组织ID",required = true)
+    @ApiModelProperty(value = "组织ID", required = true)
     private Long organizationId;
-    @ApiModelProperty(value = "rdupm_nexus_repository 表主键",required = true)
+    @ApiModelProperty(value = "rdupm_nexus_repository 表主键", required = true)
     @NotNull
     @Encrypt
     private Long repositoryId;
-    @ApiModelProperty(value = "猪齿鱼用户ID",required = true)
+    @ApiModelProperty(value = "猪齿鱼用户ID", required = true)
     @NotNull
     @Encrypt
     private Long userId;
@@ -114,13 +115,13 @@ public class NexusAuth extends AuditDomain {
     private Date endDate;
     @ApiModelProperty("锁定")
     private String locked;
-	//
+    //
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
     @ExcelColumn(title = "仓库名称", order = 1)
-	@Transient
-	private String neRepositoryName;
+    @Transient
+    private String neRepositoryName;
 
     @ExcelColumn(title = "成员角色", order = 5)
     @Transient
@@ -138,6 +139,11 @@ public class NexusAuth extends AuditDomain {
      */
     @Transient
     private Long configId;
+    @Transient
+    private Boolean ldap;
+
+    @Transient
+    private String email;
 
 
     //
