@@ -21,6 +21,7 @@ public class RouteExtraDataManager implements ExtraDataManager {
         choerodonRouteData.setName(environment.getProperty("hzero.service.current.name", "prod-repo-service"));
         choerodonRouteData.setPath(environment.getProperty("hzero.service.current.path", "/rdupm/**"));
         choerodonRouteData.setServiceId(environment.getProperty("hzero.service.current.service-name", "prod-repo-service"));
+        choerodonRouteData.setPackages("org.hrds");
         extraData.put(ExtraData.ZUUL_ROUTE_DATA, choerodonRouteData);
         return extraData;
     }
