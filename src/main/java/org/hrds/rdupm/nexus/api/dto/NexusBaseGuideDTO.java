@@ -41,10 +41,7 @@ public class NexusBaseGuideDTO {
                                      NexusServerConfig serverConfig,
                                      NexusProxyConfigProperties nexusProxyConfigProperties) {
         // 拉取配置，仓库信息
-        Map<String, Object> map = getStringObjectMap(nexusServerRepository);
-        if (!Objects.isNull(nexusProxyConfigProperties)) {
-            map.put("url", getProxyUrl(nexusServerRepository.getUrl(), nexusProxyConfigProperties));
-        }
+        Map<String, Object> map = getStringObjectMap(nexusServerRepository, serverConfig, nexusProxyConfigProperties);
         handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser, serverConfig, map);
     }
 
@@ -72,20 +69,20 @@ public class NexusBaseGuideDTO {
 
     }
 
-    private Map<String, Object> getStringObjectMap(NexusServerRepository nexusServerRepository) {
+    private Map<String, Object> getStringObjectMap(NexusServerRepository nexusServerRepository, NexusServerConfig nexusServerConfig, NexusProxyConfigProperties nexusProxyConfigProperties) {
         Map<String, Object> map = new HashMap<>(16);
         map.put("versionPolicy", nexusServerRepository.getVersionPolicy());
         map.put("repositoryName", nexusServerRepository.getName());
-        map.put("url", nexusServerRepository.getUrl());
+        map.put("url", getProxyUrl(nexusServerRepository.getUrl(), nexusServerConfig, nexusProxyConfigProperties));
         map.put("type", nexusServerRepository.getType());
         return map;
     }
 
 
-    public String getProxyUrl(String url, NexusProxyConfigProperties nexusProxyConfigProperties) {
+    public String getProxyUrl(String url, NexusServerConfig nexusServerConfig, NexusProxyConfigProperties nexusProxyConfigProperties) {
         // http://xxx/repository/zmf-test-mixed  =>http://api/route/v1/nexus/proxy/repository/zmf-test-mixed
-        String baseUrl = url.split(nexusProxyConfigProperties.getBase())[1];
-        return nexusProxyConfigProperties.getServicesGatewayUrl() + nexusProxyConfigProperties.getServiceRoute() + nexusProxyConfigProperties.getUriPrefix() + baseUrl;
+        String baseUrl = url.split(nexusServerConfig.getServerUrl())[1];
+        return nexusProxyConfigProperties.getServicesGatewayUrl() + nexusProxyConfigProperties.getServiceRoute() + nexusProxyConfigProperties.getUriPrefix() + "/" + nexusServerConfig.getConfigId() + baseUrl;
     }
 
     @ApiModelProperty(value = "拉取配置：server配置是否显示")
