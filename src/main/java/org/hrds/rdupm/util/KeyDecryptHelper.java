@@ -216,6 +216,19 @@ public final class KeyDecryptHelper {
     }
 
     /**
+     *
+     * @return
+     */
+    public static String encryptValueWithToken(Object object){
+        if (EncryptContext.isAllowedEncrypt()) {
+            ensureEncryptService();
+            return ENCRYPTION_SERVICE.encrypt(String.valueOf(object), EMPTY, TokenUtils.getToken());
+        } else {
+            return String.valueOf(object);
+        }
+    }
+
+    /**
      * 解密字符串
      *
      * @param object 对象
