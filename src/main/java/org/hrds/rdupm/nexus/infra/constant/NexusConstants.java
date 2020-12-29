@@ -20,6 +20,7 @@ public interface NexusConstants {
         String AUTH_UPDATE = "update";
         String AUTH_DELETE = "revoke";
         String AUTH_PULL = "pull";
+        String AUTH_PUSH = "push";
     }
 
     enum NexusRoleEnum {
