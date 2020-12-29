@@ -16,6 +16,7 @@ import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hrds.rdupm.nexus.infra.constant.NexusProxyConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
@@ -119,7 +120,8 @@ public class NexusFilter implements Filter {
 
         // 动态设置代理服务器地址
         httpServletRequest.setAttribute(ATTR_TARGET_URI, nexusServerConfig.getServerUrl());
-        httpServletRequest.setAttribute(ATTR_TARGET_HOST, nexusServerConfig.getServerUrl());
+        httpServletRequest.setAttribute(ATTR_TARGET_URI, nexusServerConfig.getServerUrl());
+        httpServletRequest.setAttribute(NexusProxyConstants.CONFIG_SERVER_ID, configId);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
