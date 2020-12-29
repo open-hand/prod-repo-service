@@ -8,17 +8,20 @@ import java.util.Objects;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.metadata.MethodType;
+
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
+import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
 import org.hrds.rdupm.util.NexusUtils;
 import org.hzero.core.base.BaseConstants;
+import org.mitre.dsmiley.httpproxy.ProxyServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,11 @@ public class NexusFilter implements Filter {
     private final String LOG_PULL_TEMPLATE = "%s(%s)下载了%s包【%s】";
     private final String LOG_PUSH_TEMPLATE = "%s(%s)上传了%s包【%s】";
 
+    protected static final String ATTR_TARGET_URI =
+            ProxyServlet.class.getSimpleName() + ".targetUri";
+    protected static final String ATTR_TARGET_HOST =
+            ProxyServlet.class.getSimpleName() + ".targetHost";
+
     private static final Base64.Decoder decoder = Base64.getDecoder();
 
     @Autowired
@@ -51,6 +59,8 @@ public class NexusFilter implements Filter {
 
     @Autowired
     private NexusRepositoryMapper nexusRepositoryMapper;
+    @Autowired
+    private NexusServerConfigRepository nexusServerConfigRepository;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -76,10 +86,12 @@ public class NexusFilter implements Filter {
         String servletUri = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
         LOGGER.info("The uri of the request servlet :{}", servletUri);
 
+        //todo 获取nexus config id
+        Long configId = 1L;
+        NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
         //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZz==
         if ((StringUtils.endsWithIgnoreCase(servletUri, ".jar") || StringUtils.endsWithIgnoreCase(servletUri, ".tgz"))
-                && !StringUtils.isEmpty(httpServletRequest.getHeader("authorization"))
-                && org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "get")) {
+                && !StringUtils.isEmpty(httpServletRequest.getHeader("authorization"))) {
             //仓库名字在整个nexus中唯一存在
             NexusRepository repository = null;
             String repositoryName = getRepositoryName(servletUri);
@@ -87,6 +99,7 @@ public class NexusFilter implements Filter {
             if (!StringUtils.isEmpty(repositoryName)) {
                 NexusRepository nexusRepository = new NexusRepository();
                 nexusRepository.setNeRepositoryName(repositoryName);
+                nexusRepository.setConfigId(configId);
                 repository = nexusRepositoryMapper.selectOne(nexusRepository);
             }
             if (!Objects.isNull(repository)) {
@@ -103,6 +116,10 @@ public class NexusFilter implements Filter {
                 nexusLogMapper.insert(nexusLog);
             }
         }
+
+        // 动态设置代理服务器地址
+        httpServletRequest.setAttribute(ATTR_TARGET_URI, nexusServerConfig.getServerUrl());
+        httpServletRequest.setAttribute(ATTR_TARGET_HOST, nexusServerConfig.getServerUrl());
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
