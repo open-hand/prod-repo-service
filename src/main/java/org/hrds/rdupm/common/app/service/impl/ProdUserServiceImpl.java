@@ -136,10 +136,10 @@ public class ProdUserServiceImpl implements ProdUserService {
     }
 
     @Override
-    public Map<String, Map<Long, List<String>>> getUserRoleList(List<NexusRepository> nexusRepositories, Long projectId) {
-        Map<String, Map<Long, List<String>>> resultMap = new HashMap<>(6);
+    public Map<String, Map<Object, List<String>>> getUserRoleList(List<NexusRepository> nexusRepositories, Long projectId) {
+        Map<String, Map<Object, List<String>>> resultMap = new HashMap<>(6);
         // DOCKER
-        Map<Long, List<String>> dockerMap = new HashMap<>();
+        Map<Object, List<String>> dockerMap = new HashMap<>();
         List<String> dockerCode = harborAuthRepository.getHarborRoleList(projectId);
         dockerMap.put(projectId, dockerCode != null ? dockerCode : new ArrayList<>());
         resultMap.put(ProductLibraryDTO.TYPE_DOCKER, dockerMap);
@@ -149,16 +149,16 @@ public class ProdUserServiceImpl implements ProdUserService {
         if (CollectionUtils.isNotEmpty(nexusRepositories)) {
             repositoryIds = nexusRepositories.stream().map(NexusRepository::getRepositoryId).collect(Collectors.toList());
         }
-        Map<String, Map<Long, List<String>>> nexusMap = nexusAuthRepository.getRoleList(repositoryIds);
+        Map<String, Map<Object, List<String>>> nexusMap = nexusAuthRepository.getUserRoleList(repositoryIds);
         nexusMap.forEach(resultMap::put);
         //查询该用户是否为项目所有者
         if (baseServiceFeignClient.checkIsProjectOwner(DetailsHelper.getUserDetails().getUserId(), projectId)) {
-            Map<Long, List<String>> longListMap = nexusMap.get(ProductLibraryDTO.TYPE_MAVEN);
+            Map<Object, List<String>> longListMap = nexusMap.get(ProductLibraryDTO.TYPE_MAVEN);
             for (List<String> value : longListMap.values()) {
                 value.clear();
                 value.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
             }
-            Map<Long, List<String>> listMap = nexusMap.get(ProductLibraryDTO.TYPE_NPM);
+            Map<Object, List<String>> listMap = nexusMap.get(ProductLibraryDTO.TYPE_NPM);
             for (List<String> value : listMap.values()) {
                 value.clear();
                 value.add(NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode());
