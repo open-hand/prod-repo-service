@@ -67,7 +67,7 @@ public class NexusAuthRepositoryImpl extends BaseRepositoryImpl<NexusAuth> imple
                     List<String>  codeList = nexusAuthMapper.getRoleList(DetailsHelper.getUserDetails().getUserId(), repositoryId);
                     //判断是否需要加密
                     if (DetailsHelper.getUserDetails().getApiEncryptFlag() == BaseConstants.Digital.ONE) {
-                        valueMap.put(KeyDecryptHelper.encryptValueWithoutToken(repositoryId), codeList);
+                        valueMap.put(KeyDecryptHelper.encryptValueWithToken(repositoryId), codeList);
                     } else {
                         valueMap.put(repositoryId, codeList);
                     }
