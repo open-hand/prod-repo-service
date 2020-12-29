@@ -136,7 +136,7 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
   const renderAction = ({ record }) => {
     const data = record.toData();
     let actionData = [];
-    if (userAuth.includes('projectAdmin')) {
+    if (userAuth?.includes('projectAdmin')) {
       actionData = [
         {
           service: [],

@@ -126,7 +126,7 @@ const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKe
                       </div>
                     </div>
                     <div>
-                      {(userAuth.includes('projectAdmin') || userAuth.includes('developer')) && enableFlag === 'Y' &&
+                      {(userAuth?.includes('projectAdmin') || userAuth?.includes('developer')) && enableFlag === 'Y' &&
                         <Action
                           data={[
                             {
