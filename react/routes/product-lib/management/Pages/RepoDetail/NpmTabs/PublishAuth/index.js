@@ -134,7 +134,7 @@ const PublishAuth = ({ repositoryId, publishAuthDs, formatMessage, activeTabKey,
       <Column name="loginName" />
       {
         function () {
-          if (useAuthPermission.NPM[activeRepository.repositoryId].includes('projectAdmin')){
+          if (useAuthPermission.NPM[activeRepository.repositoryId]?.includes('projectAdmin')){
             return <Column renderer={renderAction} width={70} />
           }
           return ''
