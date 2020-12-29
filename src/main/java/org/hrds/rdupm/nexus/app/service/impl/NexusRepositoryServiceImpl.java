@@ -795,7 +795,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         // 设置拉取配置信息
         nexusGuideDTO.handlePullGuideValue(nexusServerRepository, nexusRepository, nexusUser, serverConfig, nexusProxyConfigProperties);
         // 设置发布配置信息
-        nexusGuideDTO.handlePushGuideValue(nexusServerRepository, nexusRepository, nexusUser, showPushFlag, nexusProxyConfigProperties);
+        nexusGuideDTO.handlePushGuideValue(nexusServerRepository, serverConfig, nexusUser, showPushFlag, nexusProxyConfigProperties);
         // remove配置信息
         nexusClient.removeNexusServerInfo();
         return nexusGuideDTO;
