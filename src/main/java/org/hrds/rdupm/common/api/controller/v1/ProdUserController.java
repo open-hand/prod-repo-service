@@ -99,7 +99,7 @@ public class ProdUserController extends BaseController {
     @ApiOperation(value = "项目层--获取当前用户，对应仓库分配的权限(项目所有者都返回projectAdmin)")
     @Permission(level = ResourceLevel.ORGANIZATION, permissionLogin = true)
     @PostMapping("/role/getRoleList")
-    public ResponseEntity<Map<String, Map<Long, List<String>>>> getUserRoleList(@RequestBody(required = false) List<NexusRepository> nexusRepositories,
+    public ResponseEntity<Map<String, Map<Object, List<String>>>> getUserRoleList(@RequestBody(required = false) List<NexusRepository> nexusRepositories,
                                                                                 @ApiParam(value = "项目Id", required = true) @RequestParam Long projectId) {
 
         return Results.success(prodUserService.getUserRoleList(nexusRepositories,projectId));
