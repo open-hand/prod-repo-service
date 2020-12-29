@@ -35,7 +35,8 @@ public class NexusFilter implements Filter {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    private final String LOG_TEMPLATE = "%s(%s)下载了%s包【%s】";
+    private final String LOG_PULL_TEMPLATE = "%s(%s)下载了%s包【%s】";
+    private final String LOG_PUSH_TEMPLATE = "%s(%s)上传了%s包【%s】";
 
     private static final Base64.Decoder decoder = Base64.getDecoder();
 
@@ -57,7 +58,7 @@ public class NexusFilter implements Filter {
     }
 
     /**
-     * 对下载jar包的请求进行过滤拦截操作
+     * 对上传、下载jar包的请求进行过滤拦截操作
      *
      * @param servletRequest
      * @param servletResponse
@@ -92,17 +93,23 @@ public class NexusFilter implements Filter {
                 String packageName = getPackageName(servletUri);
                 UserDTO userDTO = getUserDTO(httpServletRequest);
                 //3.记录用户在哪个仓库下下载了哪个jar包的记录
-                NexusLog nexusLog = generateLog(repository, userDTO, packageName, servletUri);
+                NexusLog nexusLog = new NexusLog();
+                if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "get")) {
+                    nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PULL);
+                } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")){
+                    nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PUSH);
+                }
+
                 nexusLogMapper.insert(nexusLog);
             }
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private NexusLog generateLog(NexusRepository repository, UserDTO userDTO, String packageName, String servletUri) {
+    private NexusLog generateLog(NexusRepository repository, UserDTO userDTO, String packageName, String servletUri, String operateType) {
         NexusLog nexusLog = new NexusLog();
         nexusLog.setOperatorId(userDTO.getId());
-        nexusLog.setOperateType(NexusConstants.LogOperateType.AUTH_PULL);
+        nexusLog.setOperateType(operateType);
         nexusLog.setProjectId(repository.getProjectId());
         nexusLog.setOrganizationId(repository.getOrganizationId());
         nexusLog.setRepositoryId(repository.getRepositoryId());
@@ -113,7 +120,13 @@ public class NexusFilter implements Filter {
         if (StringUtils.endsWithIgnoreCase(servletUri, ".tgz")) {
             repo = NexusConstants.RepoType.NPM;
         }
-        nexusLog.setContent(String.format(LOG_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, packageName));
+        String content = "";
+        if (NexusConstants.LogOperateType.AUTH_PULL.equals(operateType)) {
+            content = String.format(LOG_PULL_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, packageName);
+        } else if (NexusConstants.LogOperateType.AUTH_PUSH.equals(operateType)){
+            content = String.format(LOG_PUSH_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, packageName);
+        }
+        nexusLog.setContent(content);
         nexusLog.setOperateTime(new Date());
         return nexusLog;
     }
