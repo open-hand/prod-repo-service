@@ -84,11 +84,12 @@ public class NexusFilter implements Filter {
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
 
         //1.获得请求的地址 /v1/nexus/proxy/repository/lilly-release/wx/test/1.0/test-1.0.jar 去除前缀 /repository/lilly-release/wx/test/1.0/test-1.0.jar
-        String servletUri = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
-        LOGGER.info("The uri of the request servlet :{}", servletUri);
+        String uriWithConfig = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
 
-        //todo 获取nexus config id
-        Long configId = 1L;
+        String configIdStr = uriWithConfig.split(BaseConstants.Symbol.SLASH)[0];
+        String servletUri = uriWithConfig.replace(BaseConstants.Symbol.SLASH + configIdStr, "");
+        LOGGER.info("The uri of the request servlet :{}", servletUri);
+        Long configId = Long.parseLong(configIdStr);
         NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
         //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZz==
         if ((StringUtils.endsWithIgnoreCase(servletUri, ".jar") || StringUtils.endsWithIgnoreCase(servletUri, ".tgz"))
