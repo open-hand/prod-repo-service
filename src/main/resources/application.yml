@@ -51,7 +51,7 @@ server:
     direct-buffers: true
     # HTTP POST请求最大的大小
     # 默认0，无限制，可设置10M
-    max-http-post-size: 10485760
+    max-http-post-size: 314572800
     allow-unescaped-characters-in-url: true
 
 feign:
