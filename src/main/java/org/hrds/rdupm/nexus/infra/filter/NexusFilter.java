@@ -86,7 +86,7 @@ public class NexusFilter implements Filter {
         //1.获得请求的地址 /v1/nexus/proxy/repository/lilly-release/wx/test/1.0/test-1.0.jar 去除前缀 /repository/lilly-release/wx/test/1.0/test-1.0.jar
         String uriWithConfig = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
 
-        String configIdStr = uriWithConfig.split(BaseConstants.Symbol.SLASH)[0];
+        String configIdStr = uriWithConfig.split(BaseConstants.Symbol.SLASH)[1];
         String servletUri = uriWithConfig.replace(BaseConstants.Symbol.SLASH + configIdStr, "");
         LOGGER.info("The uri of the request servlet :{}", servletUri);
         Long configId = Long.parseLong(configIdStr);
