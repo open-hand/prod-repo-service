@@ -9,6 +9,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import io.choerodon.core.exception.CommonException;
 
@@ -86,7 +86,7 @@ public class NexusFilter implements Filter {
         //1.获得请求的地址 /v1/nexus/proxy/repository/lilly-release/wx/test/1.0/test-1.0.jar 去除前缀 /repository/lilly-release/wx/test/1.0/test-1.0.jar
         String uriWithConfig = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
 
-        String configIdStr = uriWithConfig.split(BaseConstants.Symbol.SLASH)[1];
+        String configIdStr = StringUtils.substringBefore(StringUtils.substringAfter(uriWithConfig, BaseConstants.Symbol.SLASH), BaseConstants.Symbol.SLASH);
         String servletUri = uriWithConfig.replace(BaseConstants.Symbol.SLASH + configIdStr, "");
         LOGGER.info("The uri of the request servlet :{}", servletUri);
         Long configId = Long.parseLong(configIdStr);
