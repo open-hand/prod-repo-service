@@ -5,6 +5,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpRequest;
+import org.hrds.rdupm.nexus.infra.constant.NexusProxyConstants;
+import org.hzero.core.base.BaseConstants;
 import org.mitre.dsmiley.httpproxy.ProxyServlet;
 
 /**
@@ -25,6 +27,11 @@ public class NexusProxyServlet extends ProxyServlet {
     @Override
     protected String rewritePathInfoFromRequest(HttpServletRequest servletRequest) {
         String pathInfo = super.rewritePathInfoFromRequest(servletRequest);
+        Long configId = (Long) servletRequest.getAttribute(NexusProxyConstants.CONFIG_SERVER_ID);
+        if (configId != null) {
+            String suffix = BaseConstants.Symbol.SLASH + configId;
+            return pathInfo.replace(suffix, "");
+        }
         return pathInfo;
     }
 }
