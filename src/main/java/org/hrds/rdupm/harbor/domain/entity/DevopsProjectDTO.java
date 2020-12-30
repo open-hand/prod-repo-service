@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.domain.entity;
 
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,6 +26,18 @@ public class DevopsProjectDTO {
     private Long applicationId;
 
     private Set<String> roleLabels;
+    /**
+     * 项目类型的集合
+     */
+    private List<ProjectMapCategoryVO> projectMapCategoryVOList;
+
+    public List<ProjectMapCategoryVO> getProjectMapCategoryVOList() {
+        return projectMapCategoryVOList;
+    }
+
+    public void setProjectMapCategoryVOList(List<ProjectMapCategoryVO> projectMapCategoryVOList) {
+        this.projectMapCategoryVOList = projectMapCategoryVOList;
+    }
 
     public Long getProjectId() {
         return projectId;

@@ -25,9 +25,7 @@ import org.hrds.rdupm.harbor.api.vo.IamGroupMemberVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
-import org.hrds.rdupm.harbor.domain.entity.DevopsProjectDTO;
-import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
-import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
@@ -54,6 +52,16 @@ public class DevopsSagaHandler {
 	public static final String IAM_CREATE_PROJECT = "iam-create-project";
 
 	public static final String IAM_CREATE_PROJECT_DEFAULT_REPO = "iam-create-project.createDefaultRepo";
+
+	//项目添加项目类型
+	public static final String ADD_PROJECT_CATEGORY = "iam-add-project-category";
+	/**
+	 * devops项目类型同步处理
+	 */
+	public static final String DEVOPS_PROJECT_CATEGORY_SYNC = "devops-project-category-sync";
+	private static final String devops = "DEVOPS";
+
+
 
 	@Autowired
 	private C7nBaseService c7nBaseService;
@@ -109,6 +117,34 @@ public class DevopsSagaHandler {
 		createHarborProject(harborProjectVo);
 		return payload;
 	}
+
+	/**
+	 * 增加项目devops的项目类型以后，需要改项目创建仓库
+	 * @param payload
+	 * @return
+	 */
+	@SagaTask(code = DEVOPS_PROJECT_CATEGORY_SYNC,
+			description = "docker-创建默认仓库",
+			sagaCode = ADD_PROJECT_CATEGORY,
+			maxRetryCount = 3,
+			seq = 1)
+	public String addDevopsProjectCategory(String payload) {
+		DevopsProjectDTO devopsProjectDTO = null;
+		try {
+			devopsProjectDTO = new ObjectMapper().readValue(payload, DevopsProjectDTO.class);
+		} catch (IOException e) {
+			throw new CommonException(e);
+		}
+
+		List<ProjectCategoryDTO> projectCategoryDTOS = devopsProjectDTO.getProjectMapCategoryVOList().stream().map(ProjectMapCategoryVO::getProjectCategoryDTO).collect(Collectors.toList());
+		//不包含devops项目类型不做同步
+		if (!projectCategoryDTOS.stream().map(ProjectCategoryDTO::getCode).collect(Collectors.toList()).contains(devops)) {
+			return payload;
+		}
+		createDefaultRepo(payload);
+		return payload;
+	}
+
 
 	public void createHarborProject(HarborProjectVo harborProjectVo){
 		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();

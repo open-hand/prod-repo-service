@@ -1,3 +1,4 @@
+/*eslint-disable*/
 /**
 * 制品库项目层项目列表
 * @author JZH <zhihao.jiang@hand-china.com>
@@ -28,7 +29,7 @@ const RepoList = ({ setActiveRepository }) => {
 
   const [VERSION_POLICY, setVersionPolicy] = useState([]);
   const [REPOSITORY_TYPE, setRepositoryType] = useState([]);
-  const currentRole = React.useContext(CurrentRoleContext);
+  const currentRole = React.useContext(CurrentRoleContext).currentRole;
 
   useEffect(() => {
     async function init() {
@@ -331,11 +332,11 @@ const RepoList = ({ setActiveRepository }) => {
 
   const hasAuth = (productType, repositoryId) => {
     if (productType === 'DOCKER') {
-      return currentRole.DOCKER[repositoryId].includes('projectAdmin');
+      return currentRole.DOCKER[repositoryId]?.includes('projectAdmin');
     } else if (productType === 'MAVEN') {
-      return currentRole.MAVEN[repositoryId].includes('projectAdmin');
+      return currentRole.MAVEN[repositoryId]?.includes('projectAdmin');
     } else if (productType === 'NPM') {
-      return currentRole.NPM[repositoryId].includes('projectAdmin');
+      return currentRole.NPM[repositoryId]?.includes('projectAdmin');
     } else {
       return true;
     }
@@ -365,7 +366,7 @@ const RepoList = ({ setActiveRepository }) => {
           return (
             <li key={uniqueId} className="product-lib-repolist-card">
               <div style={{ display: 'flex', width: '100%', alignItems: 'center', height: '100%' }}>
-                {['DOCKER', 'DOCKER_CUSTOM'].includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
+                {['DOCKER', 'DOCKER_CUSTOM']?.includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
                 {productType === 'MAVEN' && <div className="product-lib-repolist-card-maven-img" />}
                 {productType === 'NPM' && <div className="product-lib-repolist-card-npm-img" />}
                 <div className="product-lib-repolist-card-record-content">

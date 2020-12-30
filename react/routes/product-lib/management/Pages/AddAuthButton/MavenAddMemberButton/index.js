@@ -1,13 +1,14 @@
+/*eslint-disable*/
 import React, { useCallback, useMemo } from 'react';
 import { Button } from 'choerodon-ui';
 import { Modal } from 'choerodon-ui/pro';
 import { Permission } from '@choerodon/boot';
 import AddMemberModal from './AddMemberModal';
-import { useUserAuth } from '../../index';
+import { useUserAuth, useAuthPermisson } from '../../index';
 
 const intlPrefix = 'infra.prod.lib';
 
-const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs }) => {
+const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRepository }) => {
   const userAuth = useUserAuth();
 
   const addMemberModalProps = useMemo(() => ({ repositoryId, formatMessage, publishAuthDs }), [repositoryId, publishAuthDs, formatMessage]);
@@ -25,10 +26,11 @@ const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs }) => {
     });
   }, []);
 
-  return (
-    <React.Fragment>
-      {userAuth.includes('projectAdmin') &&
-        <Permission
+  const getDom = () => {
+    if (['MAVEN', 'NPM'].includes(activeRepository.productType)) {
+      const useAuthPermission = useAuthPermisson();
+      if (useAuthPermission[activeRepository.productType][activeRepository.repositoryId]?.includes('projectAdmin')){
+        return <Permission
           service={[
             'choerodon.code.project.infra.product-lib.ps.project-owner-maven',
             'choerodon.code.project.infra.product-lib.ps.project-owner-npm',
@@ -42,6 +44,27 @@ const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs }) => {
           </Button>
         </Permission>
       }
+    } else {
+      return userAuth.includes('projectAdmin') &&
+      <Permission
+        service={[
+          'choerodon.code.project.infra.product-lib.ps.project-owner-maven',
+          'choerodon.code.project.infra.product-lib.ps.project-owner-npm',
+        ]}
+      >
+        <Button
+          icon="playlist_add"
+          onClick={openModal}
+        >
+          {formatMessage({ id: `${intlPrefix}.view.addMember`, defaultMessage: '添加成员' })}
+        </Button>
+      </Permission>
+    }
+  }
+
+  return (
+    <React.Fragment>
+      {getDom()}
     </React.Fragment>
   );
 };

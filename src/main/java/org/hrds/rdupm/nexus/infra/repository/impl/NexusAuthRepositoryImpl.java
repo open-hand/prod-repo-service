@@ -10,6 +10,8 @@ import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAuthMapper;
+import org.hrds.rdupm.util.KeyDecryptHelper;
+import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
@@ -47,6 +49,29 @@ public class NexusAuthRepositoryImpl extends BaseRepositoryImpl<NexusAuth> imple
                     valueMap.put(repositoryId, codeList);
                 }
 
+            });
+        }
+        return resultMap;
+    }
+
+    @Override
+    public Map<String, Map<Object, List<String>>> getUserRoleList(List<Long> repositoryIds) {
+        Map<String, Map<Object, List<String>>> resultMap = new HashMap<>(2);
+        resultMap.put(ProductLibraryDTO.TYPE_MAVEN, new HashMap<Object, List<String>>());
+        resultMap.put(ProductLibraryDTO.TYPE_NPM, new HashMap<Object, List<String>>());
+        if (CollectionUtils.isNotEmpty(repositoryIds)) {
+            repositoryIds.forEach(repositoryId -> {
+                NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+                if (nexusRepository != null) {
+                    Map<Object, List<String>> valueMap = resultMap.computeIfAbsent(nexusRepository.getRepoType(), k -> new HashMap<>(16));
+                    List<String>  codeList = nexusAuthMapper.getRoleList(DetailsHelper.getUserDetails().getUserId(), repositoryId);
+                    //判断是否需要加密
+                    if (DetailsHelper.getUserDetails().getApiEncryptFlag() == BaseConstants.Digital.ONE) {
+                        valueMap.put(KeyDecryptHelper.encryptValueWithToken(repositoryId), codeList);
+                    } else {
+                        valueMap.put(repositoryId, codeList);
+                    }
+                }
             });
         }
         return resultMap;

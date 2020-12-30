@@ -106,6 +106,8 @@ env:
     NEXUS_PROXY_BASE: https://localhost
     NEXUS_PROXY_URIPREFIX: /v1/nexus/proxy
     NEXUS_PROXY_SERVLETURI: /v1/nexus/proxy/*
+    SERVICES_GATEWAY_URL: http://api.example.com
+    SERVICE_ROUTE: /rdupm
 
 ## Liveness 和 Readiness 探针相关配置
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
