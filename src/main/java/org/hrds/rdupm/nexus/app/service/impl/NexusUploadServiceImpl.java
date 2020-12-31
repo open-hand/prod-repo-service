@@ -30,31 +30,6 @@ public class NexusUploadServiceImpl  implements NexusUploadService {
 
     @Async
     public void uploadJar(NexusServerComponentUpload componentUpload, MultipartFile assetJar, MultipartFile assetPom) {
-        try (
-                InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
-                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
-        ) {
-            List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
-            if (assetJarStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-                assetUpload.setExtension(NexusServerAssetUpload.JAR);
-                assetUploadList.add(assetUpload);
-            }
-            if (assetPomStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-                assetUpload.setExtension(NexusServerAssetUpload.POM);
-                assetUploadList.add(assetUpload);
-            }
-            componentUpload.setAssetUploads(assetUploadList);
-            nexusClient.getComponentsApi().createMavenComponent(componentUpload);
-        } catch (IOException e) {
-            logger.error("上传jar包错误", e);
-            throw new CommonException(e.getMessage());
-        } finally {
-            // remove配置信息
-            nexusClient.removeNexusServerInfo();
-        }
+
     }
 }
