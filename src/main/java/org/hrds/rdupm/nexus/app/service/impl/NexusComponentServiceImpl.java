@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -264,6 +265,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     }
 
     @Override
+    @Async
     public void componentsUpload(Long organizationId, Long projectId,
                                  NexusServerComponentUpload componentUpload,
                                  MultipartFile assetJar, MultipartFile assetPom) {
