@@ -14,6 +14,7 @@ import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
+import org.hrds.rdupm.nexus.app.service.NexusUploadService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
@@ -70,6 +71,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     private ProdUserRepository prodUserRepository;
     @Autowired
     private NexusProxyConfigProperties nexusProxyConfigProperties;
+    @Autowired
+    private NexusUploadService nexusUploadService;
 
     @Override
     public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -265,7 +268,6 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     }
 
     @Override
-    @Async
     public void componentsUpload(Long organizationId, Long projectId,
                                  NexusServerComponentUpload componentUpload,
                                  MultipartFile assetJar, MultipartFile assetPom) {
@@ -282,35 +284,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         // 设置并返回当前nexus服务信息
         configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-
-
-        try (
-                InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
-                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
-        ) {
-            List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
-            if (assetJarStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-                assetUpload.setExtension(NexusServerAssetUpload.JAR);
-                assetUploadList.add(assetUpload);
-            }
-            if (assetPomStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-                assetUpload.setExtension(NexusServerAssetUpload.POM);
-                assetUploadList.add(assetUpload);
-            }
-            componentUpload.setAssetUploads(assetUploadList);
-            nexusClient.getComponentsApi().createMavenComponent(componentUpload);
-        } catch (IOException e) {
-            logger.error("上传jar包错误", e);
-            throw new CommonException(e.getMessage());
-        } finally {
-            // remove配置信息
-            nexusClient.removeNexusServerInfo();
-        }
-
+        nexusUploadService.uploadJar(componentUpload, assetJar, assetPom);
     }
 
 
