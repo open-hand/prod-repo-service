@@ -69,7 +69,7 @@ public class ProdUserServiceImpl implements ProdUserService {
     /***
      * 最少八个字符，至少一个大写字母，一个小写字母和一个数字
      */
-    public static Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$");
+    public static Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[\\s\\S]{8,}$");
 
     @Override
     public void saveMultiUser(List<ProdUser> prodUserList) {
@@ -79,26 +79,26 @@ public class ProdUserServiceImpl implements ProdUserService {
         prodUserList.forEach(dto -> service.saveOneUser(dto));
     }
 
-	/***
-	 * 若已经存在，则返回用户信息
-	 * @param prodUser
-	 * @return
-	 */
-	@Override
-	public ProdUser saveOneUser(ProdUser prodUser) {
-		check(prodUser);
-		if(StringUtils.isEmpty(prodUser.getPassword())){
-			String password = HarborUtil.getPassword();
-			prodUser.setPassword(password);
-		}
-		List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,prodUser.getLoginName());
-		if(CollectionUtils.isEmpty(prodUserList)){
-			prodUserRepository.insertSelective(prodUser);
-			return prodUser;
-		}else {
-			return prodUserList.get(0);
-		}
-	}
+    /***
+     * 若已经存在，则返回用户信息
+     * @param prodUser
+     * @return
+     */
+    @Override
+    public ProdUser saveOneUser(ProdUser prodUser) {
+        check(prodUser);
+        if (StringUtils.isEmpty(prodUser.getPassword())) {
+            String password = HarborUtil.getPassword();
+            prodUser.setPassword(password);
+        }
+        List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME, prodUser.getLoginName());
+        if (CollectionUtils.isEmpty(prodUserList)) {
+            prodUserRepository.insertSelective(prodUser);
+            return prodUser;
+        } else {
+            return prodUserList.get(0);
+        }
+    }
 
     @Override
     @Saga(code = HarborConstants.HarborSagaCode.UPDATE_PWD, description = "更新密码", inputSchemaClass = ProdUser.class)
