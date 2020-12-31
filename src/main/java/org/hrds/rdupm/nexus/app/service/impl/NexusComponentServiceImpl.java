@@ -284,7 +284,32 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         // 设置并返回当前nexus服务信息
         configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-        nexusUploadService.uploadJar(componentUpload, assetJar, assetPom);
+        try (
+                InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
+                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
+        ) {
+            List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
+            if (assetJarStream != null) {
+                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
+                assetUpload.setAssetName(new InputStreamResource(assetJarStream));
+                assetUpload.setExtension(NexusServerAssetUpload.JAR);
+                assetUploadList.add(assetUpload);
+            }
+            if (assetPomStream != null) {
+                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
+                assetUpload.setAssetName(new InputStreamResource(assetPomStream));
+                assetUpload.setExtension(NexusServerAssetUpload.POM);
+                assetUploadList.add(assetUpload);
+            }
+            componentUpload.setAssetUploads(assetUploadList);
+            nexusClient.getComponentsApi().createMavenComponent(componentUpload);
+        } catch (IOException e) {
+            logger.error("上传jar包错误", e);
+            throw new CommonException(e.getMessage());
+        } finally {
+            // remove配置信息
+            nexusClient.removeNexusServerInfo();
+        }
     }
 
 
