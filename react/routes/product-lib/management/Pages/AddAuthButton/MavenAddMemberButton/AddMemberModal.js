@@ -107,7 +107,7 @@ const AddMemberModal = ({ repositoryId, formatMessage, modal, publishAuthDs }) =
       </Button>
       <div className="c7n-pro-field-help">
         权限角色可拥有的权限如下<br />
-        1.仓库管理员：push包、pull包、删除包、修改仓库配置(且用户同时是项目所有者)、管理用户权限(且用户同时是项目所有者)、查看日志<br />
+        1.仓库管理员：push包、pull包、删除包、修改仓库配置(且用户同时是项目所有者)、查看日志<br />
         2.开发人员：push包、pull包、删除包<br />
         3.访客：pull包
       </div>
