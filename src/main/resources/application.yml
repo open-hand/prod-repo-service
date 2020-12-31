@@ -191,7 +191,7 @@ nexus:
     # 过滤器拦截的uri前缀
     uriPrefix: ${NEXUS_PROXY_URIPREFIX:/v1/nexus/proxy}
     #nexus的地址
-    base: ${NEXUS_PROXY_BASE:https://localhost}
+    base: ${NEXUS_DEFAULT_BASE_URL:https://localhost}
     # 过滤器拦截的servlet 地址
     servletUri: ${NEXUS_PROXY_SERVLETURI:/v1/nexus/proxy/*}
     #api地址
