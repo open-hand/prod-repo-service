@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hrds.rdupm.harbor.api.vo.ProjectCategoryVO;
 
 /**
  * @author flyleft
@@ -15,7 +16,7 @@ public class DevopsProjectDTO {
     private Long projectId;
     private String projectCode;
     private String projectName;
-    private String projectCategory;
+
     private Long organizationId;
     private String organizationCode;
     private String organizationName;
@@ -29,14 +30,14 @@ public class DevopsProjectDTO {
     /**
      * 项目类型的集合
      */
-    private List<ProjectMapCategoryVO> projectMapCategoryVOList;
+    private List<ProjectCategoryVO> projectCategoryVOS;
 
-    public List<ProjectMapCategoryVO> getProjectMapCategoryVOList() {
-        return projectMapCategoryVOList;
+    public List<ProjectCategoryVO> getProjectCategoryVOS() {
+        return projectCategoryVOS;
     }
 
-    public void setProjectMapCategoryVOList(List<ProjectMapCategoryVO> projectMapCategoryVOList) {
-        this.projectMapCategoryVOList = projectMapCategoryVOList;
+    public void setProjectCategoryVOS(List<ProjectCategoryVO> projectCategoryVOS) {
+        this.projectCategoryVOS = projectCategoryVOS;
     }
 
     public Long getProjectId() {
@@ -109,14 +110,6 @@ public class DevopsProjectDTO {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getProjectCategory() {
-        return projectCategory;
-    }
-
-    public void setProjectCategory(String projectCategory) {
-        this.projectCategory = projectCategory;
     }
 
     public Long getProgramId() {
