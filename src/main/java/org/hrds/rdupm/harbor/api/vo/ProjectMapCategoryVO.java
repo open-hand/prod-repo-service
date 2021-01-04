@@ -1,4 +1,6 @@
-package org.hrds.rdupm.harbor.domain.entity;
+package org.hrds.rdupm.harbor.api.vo;
+
+import org.hrds.rdupm.harbor.domain.entity.ProjectCategoryDTO;
 
 /**
  * Created by wangxiang on 2020/12/30
