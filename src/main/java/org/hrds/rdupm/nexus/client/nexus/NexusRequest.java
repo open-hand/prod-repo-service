@@ -192,9 +192,7 @@ public class NexusRequest {
      * @return ResponseEntity<String>
      */
     public ResponseEntity<String> exchangeFormData(String urlFix, HttpMethod method, Map<String, Object> paramMap, MultiValueMap<String, Object> body, NexusServer currentNexusServer) {
-//		NexusServer nexusServer = this.getNexusServer();
-//        NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(), nexusServerConfig.getUserName(), nexusServerConfig.getPassword());
-        String url = currentNexusServer.getBaseUrl() + urlFix;
+       String url = currentNexusServer.getBaseUrl() + urlFix;
 
         HttpHeaders headers = new HttpHeaders();
         MediaType type = MediaType.parseMediaType(MediaType.MULTIPART_FORM_DATA_VALUE);

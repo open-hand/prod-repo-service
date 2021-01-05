@@ -283,34 +283,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         // 设置并返回当前nexus服务信息
         NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-//        try (
-//                InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
-//                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
-//        ) {
-//            List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
-//            if (assetJarStream != null) {
-//                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-//                assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-//                assetUpload.setExtension(NexusServerAssetUpload.JAR);
-//                assetUploadList.add(assetUpload);
-//            }
-//            if (assetPomStream != null) {
-//                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-//                assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-//                assetUpload.setExtension(NexusServerAssetUpload.POM);
-//                assetUploadList.add(assetUpload);
-//            }
-//            componentUpload.setAssetUploads(assetUploadList);
         nexusComponentHandService.uploadJar(nexusClient, assetJar, assetPom, componentUpload, currentNexusServer);
-//            nexusUploadService.uploadJar(componentUpload,currentNexusServer);
-//            nexusClient.getComponentsApi().createMavenComponent(componentUpload, currentNexusServer);
-//        } catch (IOException e) {
-//            logger.error("上传jar包错误", e);
-//            throw new CommonException(e.getMessage());
-//        } finally {
-//            // remove配置信息
-//            nexusClient.removeNexusServerInfo();
-//        }
     }
 
 
@@ -329,24 +302,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
 
         // 设置并返回当前nexus服务信息
-        configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+        NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 
-        try (
-                InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
-        ) {
-
-            if (assetTgzStream != null) {
-                InputStreamResource streamResource = new InputStreamResource(assetTgzStream);
-                nexusClient.getComponentsApi().createNpmComponent(nexusRepository.getNeRepositoryName(), streamResource);
-            }
-        } catch (IOException e) {
-            logger.error("上传jar包错误", e);
-            throw new CommonException(e.getMessage());
-        } finally {
-            // remove配置信息
-            nexusClient.removeNexusServerInfo();
-        }
-
+        nexusComponentHandService.uploadNPM(nexusClient,nexusRepository, assetTgz, currentNexusServer);
     }
 
     private NexusRepository validateAuth(Long projectId, Long repositoryId) {
