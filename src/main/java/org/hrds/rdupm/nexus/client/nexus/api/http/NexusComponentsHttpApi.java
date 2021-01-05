@@ -156,18 +156,18 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
     }
 
     @Override
-    public void createNpmComponent(String repositoryName, InputStreamResource streamResource) {
+    public void createNpmComponent(String repositoryName, InputStreamResource streamResource, NexusServer currentNexusServer) {
         Map<String, Object> paramMap = new HashMap<>(2);
         paramMap.put(NexusServerComponentUpload.REPOSITORY_NAME, repositoryName);
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add(NexusServerComponentUpload.NPM_TGX, streamResource);
-//        componentExceptHandler(paramMap, body);
+        componentExceptHandler(paramMap, body, currentNexusServer);
     }
 
     private void componentExceptHandler(Map<String, Object> paramMap, MultiValueMap<String, Object> body, NexusServer currentNexusServer) {
         ResponseEntity<String> responseEntity = null;
         try {
-            responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body,currentNexusServer);
+            responseEntity = nexusRequest.exchangeFormData(NexusUrlConstants.Components.UPLOAD_COMPONENTS, HttpMethod.POST, paramMap, body, currentNexusServer);
         } catch (NexusResponseException e) {
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 String bodyStr = e.getMessage();

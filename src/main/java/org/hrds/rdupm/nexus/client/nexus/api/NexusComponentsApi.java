@@ -80,5 +80,5 @@ public interface NexusComponentsApi {
      * @param repositoryName 仓库名称
      * @param streamResource 上传信息
      */
-    void createNpmComponent(String repositoryName, InputStreamResource streamResource);
+    void createNpmComponent(String repositoryName, InputStreamResource streamResource,NexusServer nexusServer);
 }
