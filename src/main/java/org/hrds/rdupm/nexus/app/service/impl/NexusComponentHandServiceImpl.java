@@ -9,6 +9,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerAssetUpload;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -51,6 +52,26 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
             nexusClient.getComponentsApi().createMavenComponent(nexusServerComponentUpload, currentNexusServer);
         } catch (IOException e) {
             logger.error("上传jar包错误", e);
+            throw new CommonException(e.getMessage());
+        } finally {
+            // remove配置信息
+            nexusClient.removeNexusServerInfo();
+        }
+    }
+
+    @Override
+    @Async
+    public void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, MultipartFile assetTgz, NexusServer currentNexusServer) {
+        try (
+                InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
+        ) {
+
+            if (assetTgzStream != null) {
+                InputStreamResource streamResource = new InputStreamResource(assetTgzStream);
+                nexusClient.getComponentsApi().createNpmComponent(nexusRepository.getNeRepositoryName(), streamResource, currentNexusServer);
+            }
+        } catch (IOException e) {
+            logger.error("上传npm包错误", e);
             throw new CommonException(e.getMessage());
         } finally {
             // remove配置信息
