@@ -9,6 +9,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import io.choerodon.core.exception.CommonException;
 
@@ -84,11 +84,12 @@ public class NexusFilter implements Filter {
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
 
         //1.获得请求的地址 /v1/nexus/proxy/repository/lilly-release/wx/test/1.0/test-1.0.jar 去除前缀 /repository/lilly-release/wx/test/1.0/test-1.0.jar
-        String servletUri = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
-        LOGGER.info("The uri of the request servlet :{}", servletUri);
+        String uriWithConfig = NexusUtils.getServletUri(httpServletRequest, nexusProxyConfigProperties);
 
-        //todo 获取nexus config id
-        Long configId = 1L;
+        String configIdStr = StringUtils.substringBefore(StringUtils.substringAfter(uriWithConfig, BaseConstants.Symbol.SLASH), BaseConstants.Symbol.SLASH);
+        String servletUri = uriWithConfig.replace(BaseConstants.Symbol.SLASH + configIdStr, "");
+        LOGGER.info("The uri of the request servlet :{}", servletUri);
+        Long configId = Long.parseLong(configIdStr);
         NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
         //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZz==
         if ((StringUtils.endsWithIgnoreCase(servletUri, ".jar") || StringUtils.endsWithIgnoreCase(servletUri, ".tgz"))

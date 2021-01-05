@@ -14,6 +14,7 @@ import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
+import org.hrds.rdupm.nexus.app.service.NexusUploadService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,6 +71,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     private ProdUserRepository prodUserRepository;
     @Autowired
     private NexusProxyConfigProperties nexusProxyConfigProperties;
+    @Autowired
+    private NexusUploadService nexusUploadService;
 
     @Override
     public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -280,8 +284,6 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         // 设置并返回当前nexus服务信息
         configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-
-
         try (
                 InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
                 InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
@@ -308,7 +310,6 @@ public class NexusComponentServiceImpl implements NexusComponentService {
             // remove配置信息
             nexusClient.removeNexusServerInfo();
         }
-
     }
 
 

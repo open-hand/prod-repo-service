@@ -51,7 +51,7 @@ server:
     direct-buffers: true
     # HTTP POST请求最大的大小
     # 默认0，无限制，可设置10M
-    max-http-post-size: 10485760
+    max-http-post-size: 314572800
     allow-unescaped-characters-in-url: true
 
 feign:
@@ -191,7 +191,7 @@ nexus:
     # 过滤器拦截的uri前缀
     uriPrefix: ${NEXUS_PROXY_URIPREFIX:/v1/nexus/proxy}
     #nexus的地址
-    base: ${NEXUS_PROXY_BASE:https://localhost}
+    base: ${NEXUS_DEFAULT_BASE_URL:https://localhost}
     # 过滤器拦截的servlet 地址
     servletUri: ${NEXUS_PROXY_SERVLETURI:/v1/nexus/proxy/*}
     #api地址
