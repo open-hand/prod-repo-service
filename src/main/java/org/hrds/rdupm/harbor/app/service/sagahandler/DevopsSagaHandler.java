@@ -40,7 +40,7 @@ public class DevopsSagaHandler {
 	public static final String IAM_CREATE_PROJECT_DEFAULT_REPO = "iam-create-project.createDefaultRepo";
 
 	//项目添加项目类型
-	public static final String ADD_PROJECT_CATEGORY = "iam-add-project-category";
+	public static final String IAM_UPDATE_PROJECT = "iam-update-project";
 	/**
 	 * devops项目类型同步处理
 	 */
@@ -115,7 +115,7 @@ public class DevopsSagaHandler {
 	 */
 	@SagaTask(code = DEVOPS_PROJECT_CATEGORY_SYNC,
 			description = "docker-创建默认仓库",
-			sagaCode = ADD_PROJECT_CATEGORY,
+			sagaCode = IAM_UPDATE_PROJECT,
 			maxRetryCount = 3,
 			seq = 1)
 	public String addDevopsProjectCategory(String payload) {
