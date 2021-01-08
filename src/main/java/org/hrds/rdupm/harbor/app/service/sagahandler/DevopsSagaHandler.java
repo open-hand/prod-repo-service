@@ -13,6 +13,7 @@ import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.api.vo.ProjectCategoryVO;
@@ -138,6 +139,13 @@ public class DevopsSagaHandler {
 		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
 		Long projectId = projectDTO.getId();
 		HarborRepository harborRepository = new HarborRepository(projectId,harborProjectVo.getCode(),projectDTO.getName(),harborProjectVo.getPublicFlag(),-1L,projectDTO.getOrganizationId());
+		//code是唯一的   可以多次执行saga
+		HarborRepository repository = new HarborRepository();
+		repository.setCode(harborProjectVo.getCode());
+		List<HarborRepository> harborRepositories = harborRepositoryRepository.select(repository);
+		if (!CollectionUtils.isEmpty(harborRepositories)){
+			return;
+		}
 		harborRepositoryRepository.insertSelective(harborRepository);
 
 		transactionalProducer.apply(StartSagaBuilder.newBuilder()
