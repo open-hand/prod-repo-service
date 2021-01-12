@@ -12,9 +12,9 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
+import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
-import org.hrds.rdupm.nexus.app.service.NexusUploadService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,7 +71,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     @Autowired
     private NexusProxyConfigProperties nexusProxyConfigProperties;
     @Autowired
-    private NexusUploadService nexusUploadService;
+    private NexusComponentHandService nexusComponentHandService;
 
     @Override
     public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -274,7 +273,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
         componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 
-        configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+        NexusServerConfig defaultNexusServerConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
         NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
         if (serverRepository == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
@@ -283,33 +282,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
             throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
         }
         // 设置并返回当前nexus服务信息
-        configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-        try (
-                InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
-                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
-        ) {
-            List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
-            if (assetJarStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-                assetUpload.setExtension(NexusServerAssetUpload.JAR);
-                assetUploadList.add(assetUpload);
-            }
-            if (assetPomStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-                assetUpload.setExtension(NexusServerAssetUpload.POM);
-                assetUploadList.add(assetUpload);
-            }
-            componentUpload.setAssetUploads(assetUploadList);
-            nexusClient.getComponentsApi().createMavenComponent(componentUpload);
-        } catch (IOException e) {
-            logger.error("上传jar包错误", e);
-            throw new CommonException(e.getMessage());
-        } finally {
-            // remove配置信息
-            nexusClient.removeNexusServerInfo();
-        }
+        NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+        nexusComponentHandService.uploadJar(nexusClient, assetJar, assetPom, componentUpload, currentNexusServer);
     }
 
 
@@ -328,24 +302,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
 
         // 设置并返回当前nexus服务信息
-        configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+        NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
 
-        try (
-                InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
-        ) {
-
-            if (assetTgzStream != null) {
-                InputStreamResource streamResource = new InputStreamResource(assetTgzStream);
-                nexusClient.getComponentsApi().createNpmComponent(nexusRepository.getNeRepositoryName(), streamResource);
-            }
-        } catch (IOException e) {
-            logger.error("上传jar包错误", e);
-            throw new CommonException(e.getMessage());
-        } finally {
-            // remove配置信息
-            nexusClient.removeNexusServerInfo();
-        }
-
+        nexusComponentHandService.uploadNPM(nexusClient,nexusRepository, assetTgz, currentNexusServer);
     }
 
     private NexusRepository validateAuth(Long projectId, Long repositoryId) {

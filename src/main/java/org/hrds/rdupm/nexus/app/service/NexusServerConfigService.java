@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.app.service;
 
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public interface NexusServerConfigService {
 	 * @param repositoryId 仓库主键Id
 	 * @return NexusServerConfig
 	 */
-	NexusServerConfig setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId);
+	NexusServer setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId);
 
 
 	/**
