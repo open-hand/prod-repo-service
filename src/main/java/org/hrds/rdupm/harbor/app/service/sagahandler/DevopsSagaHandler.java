@@ -152,7 +152,8 @@ public class DevopsSagaHandler {
 						.withSagaCode(HarborConstants.HarborSagaCode.CREATE_PROJECT)
 						.withLevel(ResourceLevel.PROJECT)
 						.withRefType("dockerRepo")
-						.withSourceId(projectId),
+						.withSourceId(projectId)
+						.withRefId(String.valueOf(projectId)),
 				startSagaBuilder -> {
 					startSagaBuilder.withPayloadAndSerialize(harborProjectVo).withSourceId(projectId);
 				});
