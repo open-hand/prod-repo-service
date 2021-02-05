@@ -107,15 +107,17 @@ public class NexusFilter implements Filter {
             if (!Objects.isNull(repository)) {
                 String packageName = getPackageName(servletUri);
                 UserDTO userDTO = getUserDTO(httpServletRequest);
-                //3.记录用户在哪个仓库下下载了哪个jar包的记录
-                NexusLog nexusLog = new NexusLog();
-                if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "get")) {
-                    nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PULL);
-                } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")){
-                    nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PUSH);
+                // 直接在流水线下载jar包不需要记录日志，传的用户
+                if (!Objects.isNull(userDTO)){
+                    //3.记录用户在哪个仓库下下载了哪个jar包的记录
+                    NexusLog nexusLog = new NexusLog();
+                    if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "get")) {
+                        nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PULL);
+                    } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")){
+                        nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PUSH);
+                    }
+                    nexusLogMapper.insert(nexusLog);
                 }
-
-                nexusLogMapper.insert(nexusLog);
             }
         }
 
@@ -176,9 +178,9 @@ public class NexusFilter implements Filter {
         String userDecode = new String(decoder.decode(userEncode.trim()), "UTF-8");
         String[] user = userDecode.split(BaseConstants.Symbol.COLON);
         UserDTO userDTO = baseServiceFeignClient.query(user[0]);
-        if (Objects.isNull(userDTO)) {
-            throw new CommonException("user " + user[0] + " not exist");
-        }
+//        if (Objects.isNull(userDTO)) {
+//            throw new CommonException("user " + user[0] + " not exist");
+//        }
         return userDTO;
     }
 }
