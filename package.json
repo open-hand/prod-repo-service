@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/prod-repo",
   "routeName": "rdupm",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "description": "",
   "main": "./lib/index.js",
   "scripts": {

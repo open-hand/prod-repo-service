@@ -8,7 +8,7 @@ const useRepoList = () => {
   const fetchRepo = useCallback(async (params = {}) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
     try {
-      const res = await axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/group`, {
+      const res = await axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/group`, {
         params,
       });
       setRepoList([...res]);
