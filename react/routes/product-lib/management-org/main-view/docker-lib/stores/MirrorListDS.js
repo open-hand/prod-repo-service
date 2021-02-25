@@ -50,7 +50,6 @@ export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
       name: 'code',
       type: 'string',
       label: formatMessage({ id: `${intlPrefix}.model.mirrorLibName` }),
-      required: true,
       textField: 'name',
       valueField: 'code',
       options: repoListDs,
