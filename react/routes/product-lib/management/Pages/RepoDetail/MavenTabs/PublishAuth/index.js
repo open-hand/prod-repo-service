@@ -56,10 +56,6 @@ const PublishAuth = ({
     }
   }, [activeTabKey]);
 
-  useEffect(() => {
-    axios.post();
-  });
-
   const rendererIcon = useCallback((imageUrl, text) => {
     let iconElement;
     if (imageUrl) {
