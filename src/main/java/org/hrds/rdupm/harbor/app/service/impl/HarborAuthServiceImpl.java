@@ -221,7 +221,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		processHarborAuthId(harborAuth);
 		Long harborId = harborRepository.getHarborId();
 		repository.deleteByPrimaryKey(harborAuth);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,false,harborId,harborAuth.getHarborAuthId());
+		if(harborAuth.getHarborAuthId() != -1){
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_ONE_AUTH,null,null,false,harborId,harborAuth.getHarborAuthId());
+		}
 	}
 
 	private void processHarborAuthId(HarborAuth harborAuth){
@@ -258,9 +260,28 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 			Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
 				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
+			}else {
+				dto.setHarborAuthId(saveAndGetHarborAuthId(harborId,dto));
 			}
 			repository.insertSelective(dto);
 		});
+	}
+
+	private Long saveAndGetHarborAuthId(Integer harborId,HarborAuth dto){
+		Map<String,Object> bodyMap = new HashMap<>(2);
+		Map<String,Object> memberMap = new HashMap<>(1);
+		memberMap.put("username",dto.getLoginName());
+		bodyMap.put("role_id",dto.getHarborRoleId());
+		bodyMap.put("member_user",memberMap);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,harborId);
+
+		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH,null,null,true,harborId);
+		List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborAuthVo>>(){}.getType());
+		Map<String,HarborAuthVo> harborAuthVoMap = CollectionUtils.isEmpty(harborAuthVoList) ? new HashMap<>(1) : harborAuthVoList.stream().collect(Collectors.toMap(HarborAuthVo::getEntityName,entity->entity));
+		if(harborAuthVoMap.get(dto.getLoginName()) != null){
+			return harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId();
+		}
+		return -1L;
 	}
 
 	/***
@@ -268,6 +289,11 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 	 */
 	@Override
 	public void checkProjectAdmin(Long projectId){
+        String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
+        if(HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
+            return;
+        }
+
 		Long userId = DetailsHelper.getUserDetails().getUserId();
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setProjectId(projectId);
@@ -319,6 +345,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 		Long userId = userDTO.getId();
 		String email = userDTO.getEmail();
 		String realName = userDTO.getRealName();
+		//如果使用admin账号创建，则使用当前项目的harbor管理员账号
+		if(HarborConstants.ADMIN.equals(loginName)){
+			loginName = harborInfoConfiguration.getUsername();
+		}
 
 		//数据库插入制品库用户
 		String password = HarborUtil.getPassword();

@@ -20,4 +20,6 @@ public interface NexusAuthRepository extends BaseRepository<NexusAuth> {
      * @return map key: 仓库类型  value: [ key:仓库Id  value:对应仓库当前用户角色权限code ]
      */
     Map<String, Map<Long, List<String>>> getRoleList(List<Long> repositoryIds);
+
+    Map<String, Map<Object, List<String>>> getUserRoleList(List<Long> repositoryIds);
 }

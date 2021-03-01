@@ -22,18 +22,25 @@ public class HarborAuthRepositoryImpl extends BaseRepositoryImpl<HarborAuth> imp
 
 	@Override
 	public List<String> getHarborRoleList(Long id) {
-		HarborAuth harborAuth = new HarborAuth();
+        List<String> roleCodeList = new ArrayList<>();
+        String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
+        if(HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
+            String roleCode = HarborConstants.HarborRoleEnum.getValueById(1L);
+            roleCodeList.add(roleCode);
+            return roleCodeList;
+        }
+
+        HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setUserId(DetailsHelper.getUserDetails().getUserId());
 		harborAuth.setProjectId(id);
 		List<HarborAuth> harborAuthList = this.select(harborAuth);
 		if(CollectionUtils.isNotEmpty(harborAuthList)){
-			List<String> roleCodeList = new ArrayList<>();
 			harborAuthList.forEach(dto->{
 				String roleCode = HarborConstants.HarborRoleEnum.getValueById(dto.getHarborRoleId());
 				roleCodeList.add(roleCode);
 			});
 			return roleCodeList;
 		}
-		return null;
+		return roleCodeList;
 	}
 }

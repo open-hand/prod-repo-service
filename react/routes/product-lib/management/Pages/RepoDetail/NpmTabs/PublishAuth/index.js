@@ -1,3 +1,4 @@
+/*eslint-disable*/
 /**
 * harbor权限列表
 * @author JZH <zhihao.jiang@hand-china.com>
@@ -10,7 +11,7 @@ import { Table, Modal } from 'choerodon-ui/pro';
 import { axios, Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import { TabKeyEnum } from '../../NpmTabContainer';
-import { useUserAuth } from '../../../index';
+import { useUserAuth, useAuthPermisson } from '../../../index';
 import EditModal from './EditModal';
 
 
@@ -39,8 +40,9 @@ const iconStyle = {
 const intlPrefix = 'infra.prod.lib';
 
 const { Column } = Table;
-const PublishAuth = ({ repositoryId, publishAuthDs, formatMessage, activeTabKey, enableFlag }) => {
+const PublishAuth = ({ repositoryId, publishAuthDs, formatMessage, activeTabKey, enableFlag, activeRepository }) => {
   const userAuth = useUserAuth();
+  const useAuthPermission = useAuthPermisson();
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.PUBLIST_AUTH) {
       publishAuthDs.setQueryParameter('repositoryId', repositoryId);
@@ -130,7 +132,14 @@ const PublishAuth = ({ repositoryId, publishAuthDs, formatMessage, activeTabKey,
   return (
     <Table dataSet={publishAuthDs} className="no-border-top-table" >
       <Column name="loginName" />
-      {userAuth.includes('projectAdmin') && enableFlag === 'Y' && <Column renderer={renderAction} width={70} />}
+      {
+        function () {
+          if (useAuthPermission.NPM[activeRepository.repositoryId]?.includes('projectAdmin')){
+            return <Column renderer={renderAction} width={70} />
+          }
+          return ''
+        }()
+      }
       <Column name="realName" renderer={({ text, record }) => rendererIcon(record.toData().userImageUrl, text)} />
       <Column name="memberRole" />
       <Column name="roleCode" />

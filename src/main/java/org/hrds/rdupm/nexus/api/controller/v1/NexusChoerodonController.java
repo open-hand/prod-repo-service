@@ -73,6 +73,16 @@ public class NexusChoerodonController {
         return Results.success(nexusChoerodonService.listMavenArtifactId(organizationId, projectId, repositoryId, artifactId));
     }
 
+    @ApiOperation(value = "choerodon-获取maven仓库、groupId下的artifactId")
+    @Permission(level = ResourceLevel.ORGANIZATION)
+    @GetMapping("/choerodon/{organizationId}/project/{projectId}/repo/maven/group/artifactId")
+    public ResponseEntity<List<String>> listMavenGroupArtifactId(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+                                                                 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+                                                                 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId") @Encrypt Long repositoryId,
+                                                                 @ApiParam(value = "groupId", required = true) @RequestParam(name = "groupId") String groupId) {
+        return Results.success(nexusChoerodonService.listMavenGroupArtifactId(organizationId, projectId, repositoryId, groupId));
+    }
+
     @ApiOperation(value = "choerodon-获取maven仓库下的包列表")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/choerodon/{organizationId}/project/{projectId}/repo/maven/components")

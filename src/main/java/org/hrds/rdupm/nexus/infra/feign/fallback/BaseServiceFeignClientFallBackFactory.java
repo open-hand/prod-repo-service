@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import io.choerodon.core.exception.CommonException;
+
 /**
  * @author weisen.yang@hand-china.com 2020/3/31
  */
@@ -41,6 +43,16 @@ public class BaseServiceFeignClientFallBackFactory implements FallbackFactory<Ba
 			@Override
 			public List<ProjectVO> listProjectsByOrgId(@PathVariable(name = "organization_id") Long organizationId) {
 				return new ArrayList<>();
+			}
+
+			@Override
+			public Boolean checkIsProjectOwner(Long id, Long projectId) {
+				return Boolean.FALSE;
+			}
+
+			@Override
+			public UserDTO query(String loginName) {
+				throw new CommonException("request iam fail");
 			}
 		};
 	}

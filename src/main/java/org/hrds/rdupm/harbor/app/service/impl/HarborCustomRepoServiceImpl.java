@@ -84,8 +84,13 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         //校验用户名密码
         ResponseEntity<String> currentUserResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.CURRENT_USER, null, null);
         LOGGER.debug("current user info：{}", currentUserResponse.getBody());
-        User currentUser = new Gson().fromJson(currentUserResponse.getBody(), User.class);
-
+        //当返回是错误的响应码非json数据的时候，这里的解析就会出现错误
+        User currentUser = new User();
+        try {
+            currentUser = new Gson().fromJson(currentUserResponse.getBody(), User.class);
+        } catch (Exception e) {
+            throw new CommonException("error.parse.repo.response", e);
+        }
         //校验用户邮箱
         if (StringUtils.isNotEmpty(currentUser.getEmail()) && !currentUser.getEmail().equals(harborCustomRepo.getEmail())) {
             throw new CommonException("error.harbor.custom.repo.email.not.equal");
@@ -523,9 +528,10 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             repoService.setCustomRepoId(customRepo.getId());
             repoService.setAppServiceId(appServiceId);
             harborRepoServiceRepository.insertSelective(repoService);
-        } else {
-            throw new CommonException("error.harbor.repo.service.relation.exist");
         }
+        /*else {
+            throw new CommonException("error.harbor.repo.service.relation.exist");
+        }*/
     }
 
     @Override
@@ -586,9 +592,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             throw new CommonException("error.harbor.config.repoType");
         }
         //fix 0624
-        if(repoId == null || HarborRepoDTO.DEFAULT_REPO.equals(repoType)){
-			return getDefaultHarborConfig(projectId, repoId, null);
-		} else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
+        if (repoId == null || HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
+            return getDefaultHarborConfig(projectId, repoId, null);
+        } else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
             Set<Long> ids = new HashSet<Long>() {{
                 add(repoId);
             }};
@@ -646,7 +652,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     private void getHarborProjectId(HarborCustomRepo harborCustomRepo) {
-        String password  = DESEncryptUtil.decode(harborCustomRepo.getPassword());
+        String password = DESEncryptUtil.decode(harborCustomRepo.getPassword());
         HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), password);
         harborHttpClient.setHarborCustomConfiguration(harborCustomConfiguration);
 
@@ -673,15 +679,16 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     private List<HarborImageVo> getImageList(Integer harborProjectId, String imageName, String repoName) {
-        Map<String,Object> paramMap = new HashMap<>(4);
-        paramMap.put("project_id",harborProjectId);
-        paramMap.put("q",imageName);
-        ResponseEntity<String> responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null);
+        Map<String, Object> paramMap = new HashMap<>(4);
+        paramMap.put("project_id", harborProjectId);
+        paramMap.put("q", imageName);
+        ResponseEntity<String> responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null);
         List<HarborImageVo> harborImageVoList = new ArrayList<>();
-        if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
-            harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageVo>>(){}.getType());
+        if (responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())) {
+            harborImageVoList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageVo>>() {
+            }.getType());
         }
-        harborImageVoList.forEach(dto->dto.setImageName(dto.getRepoName().substring(repoName.length()+1)));
+        harborImageVoList.forEach(dto -> dto.setImageName(dto.getRepoName().substring(repoName.length() + 1)));
         return harborImageVoList;
     }
 
@@ -752,7 +759,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(projectId, null);
         if (CollectionUtils.isEmpty(harborRobotList)) {
             //TODO 创建机器人账户 throw new CommonException("error.harbor.robot.not.exist");
-			harborRobotList = harborRobotService.generateRobotWhenNo(projectId);
+            harborRobotList = harborRobotService.generateRobotWhenNo(projectId);
         }
         harborRepository.setPublicFlag(Boolean.parseBoolean(harborRepository.getPublicFlag()) ? HarborConstants.FALSE : HarborConstants.TRUE);
         HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborRepository.getId(), harborInfoConfiguration.getBaseUrl(), harborRepository.getCode(), harborRepository.getPublicFlag(), harborRobotList);
@@ -776,7 +783,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         HarborCustomRepo harborCustomRepo = harborCustomRepoList.get(0);
         harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
         harborCustomRepo.setPublicFlag(Boolean.parseBoolean(harborCustomRepo.getPublicFlag()) ? HarborConstants.FALSE : HarborConstants.TRUE);
-        HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId,  harborCustomRepo);
+        HarborRepoDTO harborRepoDTO = new HarborRepoDTO(appServiceId, projectId, harborCustomRepo);
         return harborRepoDTO;
     }
 
@@ -793,5 +800,30 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             repoServiceList = repoServiceList.stream().filter(harborRepoService -> !disableCustomRepoServiceIds.contains(harborRepoService.getCustomRepoId())).collect(Collectors.toList());
         }
         return repoServiceList;
+    }
+
+    @Override
+    public void batchSaveRelationByServiceIds(Long projectId, Long repoId, String repoType, List<Long> appServiceIds) {
+        if (CollectionUtils.isEmpty(appServiceIds)) {
+            if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
+                //所有应用服务关联默认仓库，删除项目下所有应用服务与自定义服务的关联关系、设置所有自定义仓库projectShare=false
+                harborRepoServiceRepository.deleteRelationByProjectId(projectId);
+                harborRepoServiceRepository.updateProjectShareByProjectId(projectId, false, null);
+            } else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
+                //所有应用服务关联自定义仓库，删除项目与自定义服务的关联关系、设置当前自定义仓库projectShare=true，其他自定义仓库projectShare=false
+                harborRepoServiceRepository.deleteRelationByProjectId(projectId);
+                harborRepoServiceRepository.updateProjectShareByProjectId(projectId, false, null);
+                harborRepoServiceRepository.updateProjectShareByProjectId(projectId, true, repoId);
+            }
+        } else {
+            if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
+                //部分应用服务关联默认仓库，删除应用服务与自定义服务的关联关系、设置所有自定义仓库projectShare=false
+                harborRepoServiceRepository.deleteOtherRelationByService(projectId, appServiceIds, null);
+            } else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
+                //部分应用服务关联自定义仓库，删除这些应用服务与其他自定义服务的关联关系，创建应用服务与自定义服务的关联关系
+                harborRepoServiceRepository.deleteOtherRelationByService(projectId, appServiceIds, repoId);
+                appServiceIds.forEach(appServiceId -> saveRelationByService(projectId, appServiceId, repoId));
+            }
+        }
     }
 }

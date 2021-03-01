@@ -26,7 +26,7 @@ export const TabKeyEnum = {
 };
 
 
-const MavenTabContainer = () => {
+const MavenTabContainer = (props) => {
   const { repositoryId, repositoryName, name, versionPolicy, type, enableFlag } = useContext(RepositoryIdContext);
   const [activeTabKey, setActiveTabKey] = useState(TabKeyEnum.OVERVIEW);
   const {
@@ -71,7 +71,7 @@ const MavenTabContainer = () => {
         {activeTabKey === TabKeyEnum.NEXUS_COMPONENT && type === 'hosted' && versionPolicy === 'RELEASE' && enableFlag === 'Y' &&
           <MavenUploadButton {...uploadPackageButtonProps} />
         }
-        {activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y' && <MavenAddMemberButton {...addMemberButtonProps} />}
+        {activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y' && <MavenAddMemberButton {...addMemberButtonProps} activeRepository={props.activeRepository} />}
         <Button
           icon="refresh"
           onClick={() => refresh()}
@@ -96,7 +96,10 @@ const MavenTabContainer = () => {
             <NexusComponent {...nexusComponentProps} />
           </TabPane>
           <TabPane tab={formatMessage({ id: `${intlPrefix}.view.userAuth`, defaultMessage: '用户权限' })} key={TabKeyEnum.PUBLIST_AUTH}>
-            <PublishAuth {...publishAuthProps} />
+            <PublishAuth
+              {...publishAuthProps}
+              activeRepository={props.activeRepository}
+            />
           </TabPane>
           {ownerPermission &&
             <TabPane tab={formatMessage({ id: `${intlPrefix}.view.optLog`, defaultMessage: '操作日志' })} key={TabKeyEnum.OPTLOG}>

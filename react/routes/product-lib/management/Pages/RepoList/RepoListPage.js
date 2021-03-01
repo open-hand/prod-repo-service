@@ -1,3 +1,4 @@
+/*eslint-disable*/
 /**
 * 制品库项目层项目列表
 * @author JZH <zhihao.jiang@hand-china.com>
@@ -28,7 +29,7 @@ const RepoList = ({ setActiveRepository }) => {
 
   const [VERSION_POLICY, setVersionPolicy] = useState([]);
   const [REPOSITORY_TYPE, setRepositoryType] = useState([]);
-  const currentRole = React.useContext(CurrentRoleContext);
+  const currentRole = React.useContext(CurrentRoleContext).currentRole;
 
   useEffect(() => {
     async function init() {
@@ -123,12 +124,73 @@ const RepoList = ({ setActiveRepository }) => {
     });
   };
 
+  const handleDeleteMaven = (record) => {
+    const deleteKey = Modal.key();
+    Modal.open({
+      key: deleteKey,
+      title: formatMessage({ id: 'confirm.delete' }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      okText: formatMessage({ id: 'delete' }),
+      okProps: { color: 'red' },
+      cancelProps: { color: 'dark' },
+      onOk: async () => {
+        const { currentMenuType: { organizationId, projectId } } = stores.AppState;
+        try {
+          await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${record.repositoryId}`);
+          message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
+          repoListDs.query();
+        } catch (error) {
+          // message.error(error);
+        }
+      },
+      footer: ((okBtn, cancelBtn) => (
+        <React.Fragment>
+          {cancelBtn}{okBtn}
+        </React.Fragment>
+      )),
+      movable: false,
+    });
+  };
+  const handleDeleteNpm = (record) => {
+    const deleteKey = Modal.key();
+    Modal.open({
+      key: deleteKey,
+      title: formatMessage({ id: 'confirm.delete' }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      okText: formatMessage({ id: 'delete' }),
+      okProps: { color: 'red' },
+      cancelProps: { color: 'dark' },
+      onOk: async () => {
+        const { currentMenuType: { organizationId, projectId } } = stores.AppState;
+        try {
+          await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${record.repositoryId}`);
+          message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
+          repoListDs.query();
+        } catch (error) {
+          // message.error(error);
+        }
+      },
+      footer: ((okBtn, cancelBtn) => (
+        <React.Fragment>
+          {cancelBtn}{okBtn}
+        </React.Fragment>
+      )),
+      movable: false,
+    });
+  };
+
   const handleDelete = (record) => {
     if (record.productType === 'DOCKER') {
       handleDeleteDocker();
     }
     if (record.productType === 'DOCKER_CUSTOM') {
       handleDeleteCustomDocker(record);
+    }
+    if (record.productType === 'MAVEN') {
+      handleDeleteMaven(record);
+    }
+    if (record.productType === 'NPM') {
+      handleDeleteNpm(record);
     }
   };
 
@@ -139,14 +201,14 @@ const RepoList = ({ setActiveRepository }) => {
 
   const handleEditMaven = async (data) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-  
+
     const key = Modal.key();
 
     const [res, nuxesList] = await Promise.all([
       axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${data.repositoryId}`),
       axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`),
     ]);
-    
+
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
     const { enableAnonymousFlag } = enableFlagItem;
 
@@ -163,15 +225,15 @@ const RepoList = ({ setActiveRepository }) => {
 
   const handleEditNpm = async (data) => {
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-    
+
     const key = Modal.key();
 
     const [res, nuxesList] = await Promise.all([
       axios.get(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${data.repositoryId}`),
       axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`),
     ]);
-    
-    
+
+
     const enableFlagItem = nuxesList.find(o => o.enableFlag === 1);
     const { enableAnonymousFlag } = enableFlagItem;
 
@@ -224,7 +286,7 @@ const RepoList = ({ setActiveRepository }) => {
         const res = await axios.post(`/rdupm/v1/${organizationId}/harbor-custom-repos/check/custom-repo`, dockerCustomCreateDs.current.toData());
         validateStore.setIsValidate(res);
       } catch (e) {
-        validateStore.setIsValidate(false);  
+        validateStore.setIsValidate(false);
       }
     }
   };
@@ -270,11 +332,11 @@ const RepoList = ({ setActiveRepository }) => {
 
   const hasAuth = (productType, repositoryId) => {
     if (productType === 'DOCKER') {
-      return currentRole.DOCKER[repositoryId].includes('projectAdmin');
+      return currentRole.DOCKER[repositoryId]?.includes('projectAdmin');
     } else if (productType === 'MAVEN') {
-      return currentRole.MAVEN[repositoryId].includes('projectAdmin');
+      return currentRole.MAVEN[repositoryId]?.includes('projectAdmin');
     } else if (productType === 'NPM') {
-      return currentRole.NPM[repositoryId].includes('projectAdmin');
+      return currentRole.NPM[repositoryId]?.includes('projectAdmin');
     } else {
       return true;
     }
@@ -304,7 +366,7 @@ const RepoList = ({ setActiveRepository }) => {
           return (
             <li key={uniqueId} className="product-lib-repolist-card">
               <div style={{ display: 'flex', width: '100%', alignItems: 'center', height: '100%' }}>
-                {['DOCKER', 'DOCKER_CUSTOM'].includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
+                {['DOCKER', 'DOCKER_CUSTOM']?.includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
                 {productType === 'MAVEN' && <div className="product-lib-repolist-card-maven-img" />}
                 {productType === 'NPM' && <div className="product-lib-repolist-card-npm-img" />}
                 <div className="product-lib-repolist-card-record-content">
@@ -436,7 +498,7 @@ const RepoList = ({ setActiveRepository }) => {
                       }
 
                       if (hasAuth(productType, sourceRepositoryId || projectId)) {
-                        actionData.unshift(disableAndAbleMenu);
+                        actionData.unshift(disableAndAbleMenu, deleteMenu);
                       }
                     }
                     if (['DOCKER', 'DOCKER_CUSTOM'].includes(productType)) {

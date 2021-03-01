@@ -136,7 +136,11 @@ public class OperateLogAspect {
 		if(userDTO == null){
 			return userId.toString();
 		}
-		return userDTO.getRealName() + "(" + userDTO.getLoginName() + ")";
+		//判断用户是否为ldap
+		if (userDTO.getLdap()){
+			return userDTO.getRealName() + "(" + userDTO.getLoginName() + ")";
+		}
+		return userDTO.getRealName() + "(" + userDTO.getEmail() + ")";
 	}
 
 	/***

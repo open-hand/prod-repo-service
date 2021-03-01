@@ -30,7 +30,7 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
         textField: 'name',
         cascadeMap: { organizationId: 'organizationId' },
         dynamicProps: {
-          lookupUrl: ({ record }) => `/iam/choerodon/v1/organizations/${record.get('organizationId') || 0}/projects/all`,
+          lookupUrl: ({ record }) => `/iam/choerodon/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all`,
         },
         required: true,
       },
@@ -42,7 +42,7 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
         valueField: 'id',
         textField: 'realName',
         dynamicProps: {
-          lookupUrl: ({ record }) => `/iam/choerodon/v1/projects/${record.get('projectId') || 0}/owner/list`,
+          lookupUrl: ({ record }) => `/iam/choerodon/v1/prod/projects/${record.get('projectId') || 0}/owner/list`,
         },
         required: true,
       },

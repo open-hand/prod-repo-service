@@ -35,7 +35,7 @@ spring:
     # 启用缓存
     chain.cache: true
 
-server: 
+server:
   undertow:
     # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接
     # 默认值为8，建议设置每个CPU核心一个线程
@@ -51,7 +51,7 @@ server:
     direct-buffers: true
     # HTTP POST请求最大的大小
     # 默认0，无限制，可设置10M
-    max-http-post-size: 10485760
+    max-http-post-size: 314572800
     allow-unescaped-characters-in-url: true
 
 feign:
@@ -186,6 +186,18 @@ nexus:
     anonymousUser: ${NEXUS_DEFAULT_ANONYMOUS_USER:test}
     #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户对应的角色
     anonymousRole: ${NEXUS_DEFAULT_ANONYMOUS_ROLE:test}
+  #代理的配置
+  proxy:
+    # 过滤器拦截的uri前缀
+    uriPrefix: ${NEXUS_PROXY_URIPREFIX:/v1/nexus/proxy}
+    #nexus的地址
+    base: ${NEXUS_DEFAULT_BASE_URL:https://localhost}
+    # 过滤器拦截的servlet 地址
+    servletUri: ${NEXUS_PROXY_SERVLETURI:/v1/nexus/proxy/*}
+    #api地址
+    servicesGatewayUrl: ${SERVICES_GATEWAY_URL:http://api.example.com}
+    # 网关路由
+    serviceRoute: ${SERVICE_ROUTE:/rdupm}
 
 DesEncrypt:
   # 制品库密码， 加解密密钥

@@ -104,7 +104,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 	}
 
 	@Override
-	public NexusServerConfig setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId) {
+	public NexusServer setCurrentNexusInfoByRepositoryId(NexusClient nexusClient, Long repositoryId) {
 		Long userId = DetailsHelper.getUserDetails().getUserId();
 		ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, userId).stream().findFirst().orElse(null);
 		if (prodUser == null) {
@@ -125,7 +125,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 				prodUser.getLoginName(),
 				password);
 		nexusClient.setNexusServerInfo(nexusServer);
-		return nexusServerConfig;
+		return nexusServer;
 	}
 
 	@Override
@@ -203,6 +203,10 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 			});
 			nexusApiService.updateRole(nexusServerConfig.getAnonymousRole(), addPrivileges, deletePrivileges);
 		}
+
+		// 初始化数据
+		nexusClient.initData();
+
 		nexusClient.removeNexusServerInfo();
 		return nexusServerConfig;
 	}

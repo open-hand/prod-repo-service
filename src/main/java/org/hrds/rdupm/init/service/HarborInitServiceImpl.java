@@ -114,7 +114,7 @@ public class HarborInitServiceImpl implements HarborInitService {
 			defaultRepoInitToDb(1,fdProjectDtoList);
 		}else {
 			int part = totalProjectCount/pageSize;
-			for(int i=1; i<=part;i++){
+			for(int i=1; i<=part+1;i++){
 				defaultRepoInitToDb(i,fdProjectDtoList);
 			}
 		}
@@ -214,15 +214,16 @@ public class HarborInitServiceImpl implements HarborInitService {
 		List<ProdUser> prodUserList = new ArrayList<>();
 		for(Long userId : creatUserIdSet){
 			UserDTO userDTO = userDtoMap.get(userId);
+			if(userDTO == null){
+			    continue;
+            }
 			if(!"admin".equals(userDTO.getLoginName())){
 				String password = HarborUtil.getPassword();
 				//校验DB中是否已存在用户
 				List<ProdUser> existUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID,userId);
 				if(CollectionUtils.isEmpty(existUserList)) {
-					if (userDTO != null) {
-						ProdUser prodUser = new ProdUser(userId, userDTO.getLoginName(), password, 0);
-						prodUserList.add(prodUser);
-					}
+                    ProdUser prodUser = new ProdUser(userId, userDTO.getLoginName(), password, 0);
+                    prodUserList.add(prodUser);
 				}
 				//校验Harbor中是否已存在用户
 				Map<String,Object> paramMap = new HashMap<>(1);

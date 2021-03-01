@@ -13,6 +13,27 @@
         <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
         <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
         <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
-        <result column="LAST_UPDATE_LOGIN" property="lastUpdateLogin" jdbcType="DECIMAL"/>
     </resultMap>
+
+    <delete id="deleteRelationByProjectId">
+        DELETE FROM rdupm_harbor_repo_service WHERE PROJECT_ID = #{projectId} AND app_service_id IS NOT NULL
+    </delete>
+
+    <update id="updateProjectShareByProjectId">
+        UPDATE rdupm_harbor_custom_repo SET project_share = #{projectShare} WHERE project_id=#{projectId}
+        <if test="repoId != null">
+            and id = #{repoId}
+        </if>
+    </update>
+
+    <delete id="deleteOtherRelationByService">
+        DELETE FROM rdupm_harbor_repo_service WHERE PROJECT_ID = #{projectId}
+        AND app_service_id IN
+        <foreach collection="appServiceIds" open="(" close=")" separator="," item="appServiceId">
+            #{appServiceId}
+        </foreach>
+        <if test="repoId != null">
+            AND custom_repo_id != #{repoId}
+        </if>
+    </delete>
 </mapper>

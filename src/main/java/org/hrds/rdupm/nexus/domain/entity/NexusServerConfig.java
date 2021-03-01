@@ -121,7 +121,7 @@ public class NexusServerConfig extends AuditDomain {
                 throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
             }
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                throw new CommonException(NexusMessageConstants.NEXUS_SERVER_VERSION_ERROR);
+                throw new CommonException(NexusMessageConstants.NEXUS_URL_IS_ERROR_SERVER_VERSION_ERROR);
             }
             throw e;
         }
@@ -164,7 +164,7 @@ public class NexusServerConfig extends AuditDomain {
     @NotNull
     private Integer enableAnonymousFlag;
 
-	//
+    //
     // 非数据库字段
     // ------------------------------------------------------------------------------
 
@@ -189,6 +189,6 @@ public class NexusServerConfig extends AuditDomain {
 
     @Override
     public AuditDomain set_innerMap(Map<String, Object> _innerMap) {
-		return super.set_innerMap(_innerMap);
-	}
+        return super.set_innerMap(_innerMap);
+    }
 }

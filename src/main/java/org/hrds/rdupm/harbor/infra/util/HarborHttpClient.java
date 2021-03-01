@@ -93,10 +93,12 @@ public class HarborHttpClient {
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
-		if(adminAccountFlag){
+		String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
+
+		//使用admin账号认证或者当前用户名=admin或者匿名用户创建时，使用当前项目配置的账号连接
+		if(adminAccountFlag || HarborConstants.ADMIN.equals(userName) || HarborConstants.ANONYMOUS.equals(userName)){
 			buildBasicAuth(harborInfo.getUsername(),harborInfo.getPassword());
 		}else {
-			String userName = DetailsHelper.getUserDetails().getUsername();
 			ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME,userName).stream().findFirst().orElse(null);
 			String passwd = prodUser == null ? null : (prodUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(prodUser.getPassword()) : prodUser.getPassword());
 			buildBasicAuth(userName,passwd);
@@ -279,7 +281,7 @@ public class HarborHttpClient {
                 }
 			case CHANGE_PASSWORD:
 				switch (statusCode){
-					case 400: throw new CommonException("the new password can not be same with the old one.");
+					case 400: return;//throw new CommonException("the new password can not be same with the old one.");
 					default: throw new CommonException(e.getMessage());
 				}
 			default: throw new CommonException(e.getMessage());
