@@ -120,7 +120,7 @@ hzero:
       #单节点模式
       address: ${SPRING_REDIS_HOST:localhost}
       port: ${SPRING_REDIS_PORT:6379}
-      password: ${SPRING_REDIS_PASSWO:}
+      password: ${SPRING_REDIS_PASSWORD:}
 
   service:
     platform:
