@@ -370,7 +370,10 @@ function useNoCacheSelectData({ lookupCode, lookupUrl }) {
 const validateUrl = (val) => {
   if (/^https?:\/\/([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(val)
     ||
-    /^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?([\/\w \.-]*)*\/?$/.test(val)) {
+    /^https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?([\/\w \.-]*)*\/?$/.test(val)
+    ||
+    /(\w+):\/\/([^/:]+)(:\d*)?/.test(val)
+    ) {
     return true;
   } else {
     return '请输入合法格式';
