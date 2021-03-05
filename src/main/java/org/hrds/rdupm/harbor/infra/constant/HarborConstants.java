@@ -45,6 +45,8 @@ public interface HarborConstants {
 	String HARBOR_UI = "harbor-ui";
 
 	String DEFAULT_DATE = "0001-01-01T00:00:00Z";
+	String API_VERSION_1 = "v1";// harbor1.x版本
+	String API_VERSION_2 = "v2";// harbor2.x版本
 
 	/**
 	* 危害等级
@@ -121,31 +123,31 @@ public interface HarborConstants {
 
 	enum HarborApiEnum{
 
-		COUNT("/api/statistics", HttpMethod.GET,"获取所有项目数量、镜像数量"),
+		COUNT("/api/statistics", HttpMethod.GET, "获取所有项目数量、镜像数量", "/api/v2.0/statistics"),
 
-		SEARCH("/api/search", HttpMethod.GET,"获取所有项目、所有镜像"),
+		SEARCH("/api/search", HttpMethod.GET,"获取所有项目、所有镜像","/api/v2.0/search"),
 
 		/**
 		* 用户API
 		* */
-		CREATE_USER("/api/users", HttpMethod.POST,"创建用户"),
+		CREATE_USER("/api/users", HttpMethod.POST,"创建用户","/api/v2.0/users"),
 
-		SELECT_USER_BY_USERNAME("/api/users/search", HttpMethod.GET,"根据用户名查询用户信息"),
+		SELECT_USER_BY_USERNAME("/api/users/search", HttpMethod.GET,"根据用户名查询用户信息","/api/v2.0/users/search"),
 
 		/**
 		* 项目API
 		* */
-		CREATE_PROJECT("/api/projects", HttpMethod.POST,"创建项目"),
+		CREATE_PROJECT("/api/projects", HttpMethod.POST,"创建项目","/api/v2.0/projects"),
 
-		DETAIL_PROJECT("/api/projects/%s", HttpMethod.GET,"查询项目详情-项目ID"),
+		DETAIL_PROJECT("/api/projects/%s", HttpMethod.GET,"查询项目详情-项目ID","/api/v2.0/projects/%s"),
 
-		DELETE_PROJECT("/api/projects/%s", HttpMethod.DELETE,"删除项目-项目ID"),
+		DELETE_PROJECT("/api/projects/%s", HttpMethod.DELETE,"删除项目-项目ID","/api/v2.0/projects/%s"),
 
-		UPDATE_PROJECT("/api/projects/%s", HttpMethod.PUT,"修改项目-项目ID"),
+		UPDATE_PROJECT("/api/projects/%s", HttpMethod.PUT,"修改项目-项目ID","/api/v2.0/projects/%s"),
 
-		CHECK_PROJECT_NAME("/api/projects", HttpMethod.HEAD,"检查项目名称是否存在"),
+		CHECK_PROJECT_NAME("/api/projects", HttpMethod.HEAD,"检查项目名称是否存在","/api/v2.0/projects"),
 
-		LIST_PROJECT("/api/projects", HttpMethod.GET,"查询项目列表"),
+		LIST_PROJECT("/api/projects", HttpMethod.GET,"查询项目列表","/api/v2.0/projects"),
 
 		/**
 		 * 元数据API
@@ -160,18 +162,18 @@ public interface HarborConstants {
 		/**
 		* 项目概览
 		* */
-		GET_PROJECT_SUMMARY("/api/projects/%s/summary", HttpMethod.GET,"获取存储容量使用情况--项目ID"),
+		GET_PROJECT_SUMMARY("/api/projects/%s/summary", HttpMethod.GET,"获取存储容量使用情况--项目ID","/api/v2.0/projects/%s/summary"),
 
 		/**
 		* 项目资源API
 		* */
-		GET_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.GET,"获取项目资源使用情况--项目ID"),
+		GET_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.GET,"获取项目资源使用情况--项目ID","/api/v2.0/quotas/%s"),
 
-		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源配额--项目ID"),
+		UPDATE_PROJECT_QUOTA("/api/quotas/%s", HttpMethod.PUT,"更新项目资源配额--项目ID","/api/v2.0/quotas/%s"),
 
-		UPDATE_GLOBAL_QUOTA("/api/configurations", HttpMethod.PUT,"全局更新项目资源配额"),
+		UPDATE_GLOBAL_QUOTA("/api/configurations", HttpMethod.PUT,"全局更新项目资源配额","/api/v2.0/configurations"),
 
-		GET_GLOBAL_QUOTA("/api/configurations", HttpMethod.GET,"获得全局资源配额"),
+		GET_GLOBAL_QUOTA("/api/configurations", HttpMethod.GET,"获得全局资源配额","/api/v2.0/configurations"),
 
 		/**
 		* 镜像API
@@ -198,51 +200,58 @@ public interface HarborConstants {
 		/**
 		* 获取项目用户
 		* */
-		LIST_AUTH("/api/projects/%s/members", HttpMethod.GET,"获取项目中权限列表--项目ID"),
+		LIST_AUTH("/api/projects/%s/members", HttpMethod.GET, "获取项目中权限列表--项目ID", "/api/v2.0/projects/%s/members"),
 
-		GET_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.GET,"获取项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+		GET_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.GET, "获取项目中某个用户的权限情况--项目ID、harbor中权限ID", "/api/v2.0/projects/%s/members/%s"),
 
-		DELETE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.DELETE,"删除项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+		DELETE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.DELETE, "删除项目中某个用户的权限情况--项目ID、harbor中权限ID", "/api/v2.0/projects/%s/members/%s"),
 
-		UPDATE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.PUT,"修改项目中某个用户的权限情况--项目ID、harbor中权限ID"),
+		UPDATE_ONE_AUTH("/api/projects/%s/members/%s", HttpMethod.PUT, "修改项目中某个用户的权限情况--项目ID、harbor中权限ID", "/api/v2.0/projects/%s/members/%s"),
 
-		CREATE_ONE_AUTH("/api/projects/%s/members", HttpMethod.POST,"分配项目中某个用户的权限情况--项目ID"),
+		CREATE_ONE_AUTH("/api/projects/%s/members", HttpMethod.POST, "分配项目中某个用户的权限情况--项目ID", "/api/v2.0/projects/%s/members"),
 
 		/**
-		* 日志API
-		* */
-		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET,"查询项目日志-项目ID"),
+		 * 日志API
+		 */
+		LIST_LOGS_PROJECT("/api/projects/%s/logs", HttpMethod.GET, "查询项目日志-项目ID", "/api/v2.0/projects/%s/logs"),
 
-		LIST_LOGS("/api/logs", HttpMethod.GET,"查询全局日志"),
+		LIST_LOGS("/api/logs", HttpMethod.GET, "查询全局日志", "/api/v2.0/logs"),
 
 		/**
 		 * 修改密码
 		 * */
-		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID"),
+		CHANGE_PASSWORD("/api/users/%s/password", HttpMethod.PUT,"修改用户密码-Harbor用户ID","/api/v2.0/users/%s/password"),
 
 		/**
 		 * 机器人账户API
-		 * */
-		CREATE_ROBOT("/api/projects/%s/robots", HttpMethod.POST, "创建机器人账户-项目ID"),
+		 */
+		CREATE_ROBOT("/api/projects/%s/robots", HttpMethod.POST, "创建机器人账户-项目ID", "/api/v2.0/projects/%s/robots"),
 
-		GET_PROJECT_ALL_ROBOTS("/api/projects/%s/robots", HttpMethod.GET, "查询项目的所有机器人账户-项目ID"),
+		GET_PROJECT_ALL_ROBOTS("/api/projects/%s/robots", HttpMethod.GET, "查询项目的所有机器人账户-项目ID", "/api/v2.0/projects/%s/robots"),
 
-		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID"),
+		GET_ONE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.GET, "查询指定ID的机器人账户-项目ID、机器人账户ID", "/api/v2.0/projects/%s/robots/%s"),
 
-		DELETE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.DELETE, "删除指定ID的机器人账户-项目ID、机器人账户ID"),
+		DELETE_ROBOT("/api/projects/%s/robots/%s", HttpMethod.DELETE, "删除指定ID的机器人账户-项目ID、机器人账户ID", "/api/v2.0/projects/%s/robots/%s"),
 
         /**
          * 自定义仓库API
          * */
-        CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息"),
+        CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息","/api/v2.0/users/current"),
 
-        GET_SYSTEM_INFO("/api/systeminfo", HttpMethod.GET, "查询当前系统信息");
+        GET_SYSTEM_INFO("/api/systeminfo", HttpMethod.GET, "查询当前系统信息","/api/v2.0/systeminfo");
+
+
+		/**
+		 *  v2.0接口
+		 */
 
 		String apiUrl;
 
 		HttpMethod httpMethod;
 
 		String apiDesc;
+
+		String apiUrlV2;
 
 		public String getApiUrl() {
 			return apiUrl;
@@ -268,12 +277,26 @@ public interface HarborConstants {
 			this.apiDesc = apiDesc;
 		}
 
+		public String getApiUrlV2() {
+			return apiUrlV2;
+		}
+
+		public void setApiUrlV2(String apiUrlV2) {
+			this.apiUrlV2 = apiUrlV2;
+		}
+
 		HarborApiEnum(String apiUrl, HttpMethod method, String apiDesc) {
 			this.apiUrl = apiUrl;
 			this.httpMethod = method;
 			this.apiDesc = apiDesc;
 		}
 
+		HarborApiEnum(String apiUrl, HttpMethod method, String apiDesc,String apiUrlV2) {
+			this.apiUrl = apiUrl;
+			this.httpMethod = method;
+			this.apiDesc = apiDesc;
+			this.apiUrlV2 = apiUrlV2;
+		}
 	}
 
 	enum HarborRoleEnum{

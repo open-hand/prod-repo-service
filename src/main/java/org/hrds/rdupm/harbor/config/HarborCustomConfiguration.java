@@ -31,6 +31,8 @@ public class HarborCustomConfiguration {
 
     private String publicFlag;
 
+    private String version;
+
     public HarborCustomConfiguration() {
     }
 
@@ -48,5 +50,13 @@ public class HarborCustomConfiguration {
         this.url = url;
         this.loginName = loginName;
         this.password = password;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

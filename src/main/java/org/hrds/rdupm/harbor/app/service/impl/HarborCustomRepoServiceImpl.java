@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -81,6 +82,10 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     public Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo) {
         HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), harborCustomRepo.getPassword());
         harborHttpClient.setHarborCustomConfiguration(harborCustomConfiguration);
+        // 查询harbor系统版本
+        String systemVersion = harborHttpClient.getSystemInfo(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, HarborConstants.API_VERSION_1);
+        harborCustomConfiguration.setVersion(systemVersion);
+
         //校验用户名密码
         ResponseEntity<String> currentUserResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.CURRENT_USER, null, null);
         LOGGER.debug("current user info：{}", currentUserResponse.getBody());

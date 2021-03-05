@@ -65,3 +65,4 @@ init-local-database-dev.sh
 /dist
 /lib
 /.history
+application-default.yml

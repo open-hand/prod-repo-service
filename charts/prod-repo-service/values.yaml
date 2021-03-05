@@ -107,6 +107,7 @@ env:
     NEXUS_PROXY_SERVLETURI: /v1/nexus/proxy/*
     SERVICES_GATEWAY_URL: http://api.example.com
     SERVICE_ROUTE: /rdupm
+    HARBOR_SKIP_SSL: false # harbor仓库是否跳过证书校验
 
 ## Liveness 和 Readiness 探针相关配置
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/

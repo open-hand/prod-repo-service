@@ -165,6 +165,7 @@ harbor:
   baseUrl: ${HARBOR_BASE_URL:https://localhost}
   username: ${HARBOR_USER_NAME:admin}
   password: ${HARBOR_PASSWORD:admin}
+  skipSSL: ${HARBOR_SKIP_SSL:false}
   init:
     defaultRepoUrl: ${HARBOR_INIT_DEFAULT_REPO_URL:jdbc:mysql://platform.hzero.org:3306/hzero_platform?useUnicode=true&characterEncoding=utf-8&useSSL=false}
     defaultRepoUsername: ${HARBOR_INIT_DEFAULT_REPO_USERNAME:root}

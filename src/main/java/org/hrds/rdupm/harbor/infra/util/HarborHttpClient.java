@@ -4,6 +4,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
@@ -136,11 +137,10 @@ public class HarborHttpClient {
 	 * @param pathParam 路径参数
 	 * @return ResponseEntity<String>
 	 */
-	public ResponseEntity<String> customExchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, Object... pathParam){
-
-		String url = harborCustomConfiguration.getUrl() + apiEnum.getApiUrl();
+	public ResponseEntity<String> customExchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, Object... pathParam) {
+		String url = harborCustomConfiguration.getVersion() == null || harborCustomConfiguration.getVersion().equals(HarborConstants.API_VERSION_1) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
-		url = this.setParam(url, paramMap,pathParam);
+		url = this.setParam(url, paramMap, pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
 
 		buildCustomBasicAuth(harborCustomConfiguration);
@@ -168,6 +168,42 @@ public class HarborHttpClient {
 			LOGGER.debug("body：{}",new Gson().toJson(body));
 		}
 		return responseEntity;
+	}
+
+
+
+	/**
+	 * 获取harbor api版本
+	 *
+	 * @param apiEnum api枚举参数
+	 * @return ResponseEntity<String>
+	 */
+	public String getSystemInfo(HarborConstants.HarborApiEnum apiEnum, String apiVersion) {
+		String url = apiVersion.equals(HarborConstants.API_VERSION_1) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
+		HttpMethod httpMethod = apiEnum.getHttpMethod();
+		buildCustomBasicAuth(harborCustomConfiguration);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.add(AUTH_HEADER, this.getCustomToken());
+		HttpEntity<Object> httpEntity = new HttpEntity<>(headers);
+
+		ResponseEntity<String> responseEntity = null;
+		try {
+			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
+		} catch (HttpClientErrorException e) {
+			e.printStackTrace();
+			int statusCode = e.getStatusCode().value();
+			if (statusCode == 404 && apiVersion.equals(HarborConstants.API_VERSION_1)) {
+				return getSystemInfo(apiEnum, HarborConstants.API_VERSION_2);
+			} else {
+				throw new CommonException(e.getMessage());
+			}
+		}
+		Map<String, Object> systemMap = JSONObject.parseObject(responseEntity.getBody(), Map.class);
+		if (systemMap == null) {
+			throw new CommonException("error.get.system.version");
+		}
+		return systemMap.get("harbor_version").toString().substring(0,2);
 	}
 
 
