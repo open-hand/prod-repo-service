@@ -36,7 +36,7 @@ public class HarborRestConfiguration {
 
     private static final int MAK_TIMEOUT = 601000;
 
-    @Value("harbor.skipSSL:false")
+    @Value("${harbor.skipSSL:false}")
     private Boolean skipSSL;
 
     @Bean(name = "hrdsHarborRestTemplate")
