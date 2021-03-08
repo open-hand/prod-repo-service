@@ -18,11 +18,13 @@ import org.hrds.rdupm.harbor.app.service.*;
 import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.*;
+import org.hrds.rdupm.harbor.domain.entity.v2.HarborArtifactDTO;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
@@ -87,7 +89,12 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
         Map<String,Object> paramMap = new HashMap<>(4);
         paramMap.put("project_id",harborId);
         paramMap.put("q",imageName);
-        ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null,true);
+		ResponseEntity<String> responseEntity;
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true);
+		} else {
+			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true, harborRepository.getCode());
+		}
         List<HarborImageVo> harborImageVoList = new ArrayList<>();
         if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
             harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new com.google.gson.reflect.TypeToken<List<HarborImageVo>>(){}.getType());
@@ -118,11 +125,13 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 			pullPassword = harborRobotList.get(0).getToken();
 		} else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
 			HarborCustomRepo harborCustomRepo = harborCustomRepoRepository.selectByPrimaryKey(repoId);
-			repoName = harborCustomRepo==null?null:harborCustomRepo.getRepoName();
-
+			if (harborCustomRepo == null) {
+				throw new CommonException("error.get.custom.repository");
+			}
+			repoName = harborCustomRepo.getRepoName();
 			pullAccount = harborCustomRepo.getLoginName();
 			pullPassword = DESEncryptUtil.decode(harborCustomRepo.getPassword());
-			HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), pullAccount, pullPassword);
+			HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), pullAccount, pullPassword, harborCustomRepo.getApiVersion());
 			harborHttpClient.setHarborCustomConfiguration(harborCustomConfiguration);
 		}
 		if(repoName == null){
@@ -135,12 +144,35 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		Map<String,Object> paramMap = new HashMap<>(1);
 		paramMap.put("detail","true");
 
-		if(HarborRepoDTO.DEFAULT_REPO.equals(repoType)){
-			registryUrlResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO,null,null,true);
-			tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,paramMap,null,true,paramName);
-		} else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
-			registryUrlResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO,null,null);
-			tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG,paramMap,null,paramName);
+		List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo> harborImageTagVoList = new ArrayList<>();
+		if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
+			registryUrlResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, null, null, true);
+			if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+				tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, paramName);
+				harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo>>() {
+				}.getType());
+			} else {
+				tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, repoName, imageName);
+				List<HarborArtifactDTO> artifactDTOList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
+				}.getType());
+				for (HarborArtifactDTO t : artifactDTOList) {
+					harborImageTagVoList.addAll(t.getTags());
+				}
+			}
+		} else {
+			registryUrlResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, null, null);
+			if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
+				tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, paramName);
+				harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo>>() {
+				}.getType());
+			} else {
+				tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, repoName, imageName);
+				List<HarborArtifactDTO> artifactDTOList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
+				}.getType());
+				for (HarborArtifactDTO t : artifactDTOList) {
+					harborImageTagVoList.addAll(t.getTags());
+				}
+			}
 		}
 
 		//获取registryUrl
@@ -148,7 +180,6 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		String registryUrl = resultMap ==null ? null : resultMap.get("registry_url").toString();
 
 		//获取镜像版本
-		List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo> harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo>>(){}.getType());
 		if(StringUtils.isNotEmpty(tagName)){
 			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().contains(tagName)).collect(Collectors.toList());
 		}
@@ -202,11 +233,6 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 			return null;
 		}
 		return listImageTag(repoType,repoId,imageName,null);
-	}
-
-	@Override
-	public void deleteImageTag(String repoName, String tagName) {
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG,null,null,true,repoName,tagName);
 	}
 
 

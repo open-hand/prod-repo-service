@@ -21,6 +21,7 @@ import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
@@ -78,7 +79,13 @@ public class HarborImageServiceImpl implements HarborImageService {
 		paramMap.put("q",imageName);
 		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage()+1);
 		paramMap.put("page_size",pageRequest.getSize());
-		ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE,paramMap,null,true);
+		ResponseEntity<String> responseEntity;
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true);
+		} else {
+			String harborProjectName = harborRepositoryRepository.getHarborRepositoryById(harborId).getCode();
+			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true, harborProjectName);
+		}
 		List<HarborImageVo> harborImageVoList = new ArrayList<>();
 		if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
 			harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageVo>>(){}.getType());
@@ -141,7 +148,12 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(StringUtils.isEmpty(repoName)){
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE,null,null,false,repoName);
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, false, repoName);
+		}else {
+			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, true, strArr[0], strArr[1]);
+		}
 	}
 
 	@Override
@@ -151,8 +163,13 @@ public class HarborImageServiceImpl implements HarborImageService {
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
 		Map<String,String> bodyMap = new HashMap<>(1);
-		bodyMap.put("description",harborImageVo.getDescription());
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC,null,bodyMap,true,repoName);
+		bodyMap.put("description", harborImageVo.getDescription());
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, repoName);
+		} else {
+			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, strArr[0], strArr[1]);
+		}
 	}
 
 	/***

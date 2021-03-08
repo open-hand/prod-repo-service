@@ -84,6 +84,10 @@ public class HarborHttpClient {
 		return harborCustomConfiguration;
 	}
 
+	public HarborInfoConfiguration getHarborInfo() {
+		return harborInfo;
+	}
+
 	/**
 	 * 请求
 	 * @param apiEnum api枚举参数

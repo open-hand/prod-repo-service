@@ -54,6 +54,7 @@ public class HarborCustomRepo extends AuditDomain {
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";
     public static final String FIELD_LAST_UPDATE_DATE = "lastUpdateDate";
     public static final String FIELD_LAST_UPDATE_LOGIN = "lastUpdateLogin";
+    public static final String FIELD_API_VERSION = "apiVersion";
 
     public static final String ENCRYPT_KEY = "rdupm_harbor_custom_repo";
 
@@ -122,6 +123,8 @@ public class HarborCustomRepo extends AuditDomain {
     private String projectShare;
     @ApiModelProperty(value = "是否启用，默认Y")
     private String enabledFlag;
+    @ApiModelProperty(value = "harbor api版本")
+    private String apiVersion;
 	//
     // 非数据库字段
     // ------------------------------------------------------------------------------

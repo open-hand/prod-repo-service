@@ -12,6 +12,7 @@ import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
 import org.hrds.rdupm.harbor.app.service.HarborC7nRepoService;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
+import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAllRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
@@ -34,6 +35,8 @@ public class HarborChoerodonRepoController extends BaseController {
     private HarborCustomRepoService harborCustomRepoService;
     @Autowired
 	private HarborC7nRepoService harborC7nRepoService;
+    @Autowired
+    private HarborImageTagService harborImageTagService;
 
     @ApiOperation(value = "应用服务-查询项目下所有自定义仓库")
     @Permission(level = ResourceLevel.ORGANIZATION)
@@ -136,7 +139,7 @@ public class HarborChoerodonRepoController extends BaseController {
 	@DeleteMapping(value = "/image-tag/delete")
 	public ResponseEntity delete(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 								 @ApiParam(value = "版本号") @RequestParam String tagName) {
-		harborC7nRepoService.deleteImageTag(repoName,tagName);
+        harborImageTagService.delete(repoName,tagName);
 		return Results.success();
 	}
 

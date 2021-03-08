@@ -78,13 +78,16 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Autowired
     private HarborInfoConfiguration harborInfoConfiguration;
 
+    private static Gson gson = new Gson();
+
     @Override
     public Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo) {
-        HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), harborCustomRepo.getPassword());
+        HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), harborCustomRepo.getPassword(), null);
         harborHttpClient.setHarborCustomConfiguration(harborCustomConfiguration);
         // 查询harbor系统版本
         String systemVersion = harborHttpClient.getSystemInfo(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, HarborConstants.API_VERSION_1);
         harborCustomConfiguration.setVersion(systemVersion);
+        harborCustomRepo.setApiVersion(systemVersion);
 
         //校验用户名密码
         ResponseEntity<String> currentUserResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.CURRENT_USER, null, null);
@@ -658,7 +661,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     private void getHarborProjectId(HarborCustomRepo harborCustomRepo) {
         String password = DESEncryptUtil.decode(harborCustomRepo.getPassword());
-        HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), password);
+        HarborCustomConfiguration harborCustomConfiguration = new HarborCustomConfiguration(harborCustomRepo.getRepoUrl(), harborCustomRepo.getLoginName(), password, harborCustomRepo.getApiVersion());
         harborHttpClient.setHarborCustomConfiguration(harborCustomConfiguration);
 
         Map<String, Object> paramMap = new HashMap<>(1);
@@ -687,7 +690,12 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         Map<String, Object> paramMap = new HashMap<>(4);
         paramMap.put("project_id", harborProjectId);
         paramMap.put("q", imageName);
-        ResponseEntity<String> responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null);
+        ResponseEntity<String> responseEntity;
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
+            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null);
+        } else {
+            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, getHarborProjectNameCustom(harborProjectId));
+        }
         List<HarborImageVo> harborImageVoList = new ArrayList<>();
         if (responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())) {
             harborImageVoList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageVo>>() {
@@ -830,5 +838,14 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                 appServiceIds.forEach(appServiceId -> saveRelationByService(projectId, appServiceId, repoId));
             }
         }
+    }
+
+    private String getHarborProjectNameCustom(Integer harborId) {
+        ResponseEntity<String> detailResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, harborId);
+        HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+        if (harborProjectDTO == null) {
+            throw new CommonException("error.get.harbor.project.detail");
+        }
+        return harborProjectDTO.getName();
     }
 }

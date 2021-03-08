@@ -50,10 +50,4 @@ public interface HarborC7nRepoService {
 	 */
 	HarborC7nRepoImageTagVo listImageTagByAppServiceId(Long projectId, Long appServiceId);
 
-	/***
-	 * 删除镜像版本
-	 * @param repoName
-	 * @param tagName
-	 */
-	void deleteImageTag(String repoName, String tagName);
 }

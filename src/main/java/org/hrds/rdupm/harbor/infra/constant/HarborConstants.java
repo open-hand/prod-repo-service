@@ -150,16 +150,6 @@ public interface HarborConstants {
 		LIST_PROJECT("/api/projects", HttpMethod.GET,"查询项目列表","/api/v2.0/projects"),
 
 		/**
-		 * 元数据API
-		 *
-		 * */
-		GET_PROJECT_METADATA("/api/projects/%s/metadatas/%s", HttpMethod.GET,"根据项目ID和元数据名称 获取元数据值"),
-
-		UPDATE_PROJECT_METADATA("/api/projects/%s/metadatas/%s", HttpMethod.PUT,"根据项目ID和元数据名称 更新元数据值"),    //有问题
-
-		DELETE_PROJECT_METADATA("/api/projects/%s/metadatas/%s", HttpMethod.DELETE,"根据项目ID和元数据名称 更新元数据值"), //有问题
-
-		/**
 		* 项目概览
 		* */
 		GET_PROJECT_SUMMARY("/api/projects/%s/summary", HttpMethod.GET,"获取存储容量使用情况--项目ID","/api/v2.0/projects/%s/summary"),
@@ -178,22 +168,20 @@ public interface HarborConstants {
 		/**
 		* 镜像API
 		* */
-		LIST_IMAGE("/api/repositories", HttpMethod.GET,"查询镜像列表"),
+		LIST_IMAGE("/api/repositories", HttpMethod.GET,"查询镜像列表","/api/v2.0/projects/%s/repositories","项目名"),
 
-		UPDATE_IMAGE_DESC("/api/repositories/%s", HttpMethod.PUT,"更新镜像描述--  仓库名/镜像名称"),
+		UPDATE_IMAGE_DESC("/api/repositories/%s", HttpMethod.PUT, "更新镜像描述--  仓库名/镜像名称", "/api/v2.0/projects/%s/repositories/%s", "项目名,repository_name"),
 
-		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE,"删除镜像-- 仓库名/镜像名称"),
+		DELETE_IMAGE("/api/repositories/%s", HttpMethod.DELETE, "删除镜像-- 仓库名/镜像名称", "/api/v2.0/projects/%s/repositories/%s", "项目名,repository_name"),
 
 		/**
 		* 镜像TAG API
 		* */
-		GET_IMAGE_BUILD_LOG("/api/repositories/%s/tags/%s/manifest", HttpMethod.GET,"获取构建日志-- 仓库名/镜像名称、版本号"),
+		GET_IMAGE_BUILD_LOG("/api/repositories/%s/tags/%s/manifest", HttpMethod.GET,"获取构建日志-- 仓库名/镜像名称、版本号","/api/v2.0/projects/%s/repositories/%s/artifacts/%s/additions/build_history","项目名/repository_name/reference（摘要）"),
 
-		DETAIL_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.GET,"获取镜像TAG明细-- 仓库名/镜像名称、版本号"),
+		DELETE_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.DELETE,"删除镜像TAG-- 仓库名/镜像名称、版本号","/api/v2.0/projects/%s/repositories/%s/artifacts/%s/tags/%s","项目名/repository_name/reference（摘要）/版本号"),
 
-		DELETE_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.DELETE,"删除镜像TAG-- 仓库名/镜像名称、版本号"),
-
-		LIST_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.GET,"获取镜像TAG列表-- 仓库名/镜像名称"),
+		LIST_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.GET,"获取镜像TAG列表-- 仓库名/镜像名称","/api/v2.0/projects/%s/repositories/%s/artifacts","项目名,repository_name"),
 
 		COPY_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.POST,"复制镜像TAG-- 仓库名/镜像名称"),
 
@@ -253,6 +241,9 @@ public interface HarborConstants {
 
 		String apiUrlV2;
 
+		String apiDescV2;
+
+
 		public String getApiUrl() {
 			return apiUrl;
 		}
@@ -296,6 +287,14 @@ public interface HarborConstants {
 			this.httpMethod = method;
 			this.apiDesc = apiDesc;
 			this.apiUrlV2 = apiUrlV2;
+		}
+
+		HarborApiEnum(String apiUrl, HttpMethod method, String apiDesc,String apiUrlV2,String apiDescV2) {
+			this.apiUrl = apiUrl;
+			this.httpMethod = method;
+			this.apiDesc = apiDesc;
+			this.apiUrlV2 = apiUrlV2;
+			this.apiDescV2 = apiDescV2;
 		}
 	}
 

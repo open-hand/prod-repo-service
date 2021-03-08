@@ -11,6 +11,7 @@ import org.hrds.rdupm.config.SwaggerTags;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hrds.rdupm.harbor.app.service.HarborC7nRepoService;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hrds.rdupm.harbor.app.service.HarborImageTagService;
 import org.hzero.core.util.Results;
