@@ -80,6 +80,10 @@ public class HarborHttpClient {
 		this.harborCustomConfiguration = harborCustomConfiguration;
 	}
 
+	public HarborCustomConfiguration getHarborCustomConfiguration() {
+		return harborCustomConfiguration;
+	}
+
 	/**
 	 * 请求
 	 * @param apiEnum api枚举参数
@@ -89,8 +93,9 @@ public class HarborHttpClient {
 	 * @param pathParam 路径参数
 	 * @return ResponseEntity<String>
 	 */
-	public ResponseEntity<String> exchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body,boolean adminAccountFlag, Object... pathParam){
-		String url = harborInfo.getBaseUrl() + apiEnum.getApiUrl();
+	public ResponseEntity<String> exchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, boolean adminAccountFlag, Object... pathParam) {
+		String url = HarborUtil.isApiVersion1(harborInfo) ? harborInfo.getBaseUrl() + apiEnum.getApiUrl() : harborInfo.getBaseUrl() + apiEnum.getApiUrlV2();
+
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap,pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
@@ -138,7 +143,7 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public ResponseEntity<String> customExchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, Object... pathParam) {
-		String url = harborCustomConfiguration.getVersion() == null || harborCustomConfiguration.getVersion().equals(HarborConstants.API_VERSION_1) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
+		String url = HarborUtil.isApiVersion1(harborCustomConfiguration) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap, pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
