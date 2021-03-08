@@ -42,4 +42,10 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_custom_repo.groovy') 
         modifyDataType(tableName: 'rdupm_harbor_custom_repo', columnName: 'last_updated_by', newDataType: 'bigint(20)')
         modifyDataType(tableName: 'rdupm_harbor_custom_repo', columnName: 'last_update_login', newDataType: 'bigint(20)')
     }
+
+    changeSet(author: 'changping.shi@hand-china.com', id: '2021-03-08-rdupm_harbor_custom_repo-add-column') {
+        addColumn(tableName: 'rdupm_harbor_custom_repo') {
+            column(name: 'api_version', type: "varchar(10)", remarks: 'harbor API版本', defaultValue: "v1", afterColumn: 'repo_url')
+        }
+    }
 }

@@ -36,7 +36,7 @@ public class HarborCustomConfiguration {
     public HarborCustomConfiguration() {
     }
 
-    public HarborCustomConfiguration(String name, String url, String loginName, String password, String email, String harborProject, String publicFlag) {
+    public HarborCustomConfiguration(String name, String url, String loginName, String password, String email, String harborProject, String publicFlag, String version) {
         this.name = name;
         this.url = url;
         this.loginName = loginName;
@@ -44,12 +44,14 @@ public class HarborCustomConfiguration {
         this.email = email;
         this.harborProject = harborProject;
         this.publicFlag = publicFlag;
+        this.version = version;
     }
 
-    public HarborCustomConfiguration(String url, String loginName, String password) {
+    public HarborCustomConfiguration(String url, String loginName, String password, String version) {
         this.url = url;
         this.loginName = loginName;
         this.password = password;
+        this.version = version;
     }
 
     public String getVersion() {
