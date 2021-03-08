@@ -11,6 +11,8 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.domain.AuditDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
+import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hzero.export.vo.ExportParam;
@@ -273,5 +275,15 @@ public class HarborUtil {
 		for(int i=0;i<=9;i++){
 			num[i]=i;
 		}
+	}
+
+	public static Boolean isApiVersion1(HarborCustomConfiguration harborCustomConfiguration) {
+		return harborCustomConfiguration.getVersion() == null ||
+				harborCustomConfiguration.getVersion().equals(HarborConstants.API_VERSION_1);
+	}
+
+	public static Boolean isApiVersion1(HarborInfoConfiguration harborInfo) {
+		return harborInfo.getApiVersion() == null ||
+				harborInfo.getApiVersion().equals(HarborConstants.API_VERSION_1);
 	}
 }

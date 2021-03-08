@@ -75,15 +75,21 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		Long harborId = harborRepository.getHarborId();
+		String projectName = harborRepository.getName();
 		Map<String,Object> param = new HashMap<>(16);
 		param.put("project_id",harborId);
-		param.put("project_id",harborId);
+		param.put("project_name",projectName);
 		param.put("repository",repoName);
 		param.put("operation","push");
 		if(StringUtils.isNotEmpty(tagName)){
 			param.put("tag",tagName);
 		}
-		ResponseEntity<String> logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT,param,null,true,harborId);
+		ResponseEntity<String> logsResponseEntity;
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
+			logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, param, null, true, harborId);
+		} else {
+			logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, param, null, true, projectName);
+		}
 		List<HarborImageLog> logListResult = new Gson().fromJson(logsResponseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
 		Map<String,List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto->dto.getRepoName()+dto.getTagName()));
 

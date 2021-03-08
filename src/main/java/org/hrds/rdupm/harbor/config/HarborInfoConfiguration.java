@@ -22,4 +22,9 @@ public class HarborInfoConfiguration {
 
 	private String password;
 
+	private String apiVersion;
+
+	public String getApiVersion() {
+		return apiVersion;
+	}
 }
