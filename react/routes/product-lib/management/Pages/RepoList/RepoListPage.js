@@ -136,7 +136,10 @@ const RepoList = ({ setActiveRepository }) => {
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
         try {
-          await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${record.repositoryId}`);
+          const res = await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo/${record.repositoryId}`);
+          if(res && res.failed){
+            message.error(res.message)
+          }
           message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
           repoListDs.query();
         } catch (error) {
@@ -165,7 +168,7 @@ const RepoList = ({ setActiveRepository }) => {
         try {
           const res = await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${record.repositoryId}`);
           if(res && res.failed){
-            return res;
+            message.error(res.message)
           }
           message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
           await repoListDs.query();
