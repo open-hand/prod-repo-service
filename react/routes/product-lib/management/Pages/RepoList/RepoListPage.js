@@ -140,7 +140,7 @@ const RepoList = ({ setActiveRepository }) => {
           message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
           repoListDs.query();
         } catch (error) {
-          // message.error(error);
+          message.error(error);
         }
       },
       footer: ((okBtn, cancelBtn) => (
@@ -163,11 +163,14 @@ const RepoList = ({ setActiveRepository }) => {
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
         try {
-          await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${record.repositoryId}`);
+          const res = await axios.delete(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/${record.repositoryId}`);
+          if(res && res.failed){
+            return res;
+          }
           message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
-          repoListDs.query();
+          await repoListDs.query();
         } catch (error) {
-          // message.error(error);
+          message.error(error);
         }
       },
       footer: ((okBtn, cancelBtn) => (
