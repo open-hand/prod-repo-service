@@ -107,6 +107,14 @@ public class HarborRepository extends AuditDomain {
    @Transient
    private String creatorRealName;
 
+    @Transient
+    @ApiModelProperty(value = "仓库包的拉取总次数")
+    private Long downloadTimes;
+
+    @Transient
+    @ApiModelProperty(value = "仓库拉取包的人数")
+    private Long personTimes;
+
 	public HarborRepository(){
 
 	}

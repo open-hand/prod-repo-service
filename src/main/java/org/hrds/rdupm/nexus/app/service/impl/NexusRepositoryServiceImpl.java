@@ -16,6 +16,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.*;
@@ -33,6 +34,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
+import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
@@ -86,6 +88,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     private C7nBaseService c7nBaseService;
     @Autowired
     private NexusProxyConfigProperties nexusProxyConfigProperties;
+    @Autowired
+    private NexusLogMapper nexusLogMapper;
 
     @Override
     public NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -560,7 +564,23 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
             nexusClient.removeNexusServerInfo();
             return new ArrayList<>();
         }
-        nexusRepositoryList.forEach(nexusRepository -> nexusRepository.setEnableAnonymousFlag(nexusServerConfig.getEnableAnonymousFlag()));
+        nexusRepositoryList.forEach(nexusRepository -> {
+            nexusRepository.setEnableAnonymousFlag(nexusServerConfig.getEnableAnonymousFlag());
+            //统计仓库总的下载人数和下载次数
+            NexusLog nexusLog = new NexusLog();
+            nexusLog.setOperateType(NexusConstants.LogOperateType.AUTH_PULL);
+            nexusLog.setRepositoryId(nexusRepository.getRepositoryId());
+            List<NexusLog> nexusLogs = nexusLogMapper.select(nexusLog);
+            Long personTimes = 0L;
+            Long downloadTimes = 0L;
+            if (!CollectionUtils.isEmpty(nexusLogs)) {
+                downloadTimes = Long.valueOf(nexusLogs.size());
+                Map<Long, List<NexusLog>> longListMap = nexusLogs.stream().collect(Collectors.groupingBy(NexusLog::getOperatorId));
+                personTimes = Long.valueOf(longListMap.keySet().size());
+            }
+            nexusRepository.setDownloadTimes(downloadTimes);
+            nexusRepository.setPersonTimes(personTimes);
+        });
 
 
         List<NexusServerRepository> nexusServerRepositoryList = nexusClient.getRepositoryApi().getRepository(this.convertRepoTypeToFormat(queryDTO.getRepoType()));

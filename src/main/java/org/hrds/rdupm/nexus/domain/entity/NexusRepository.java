@@ -108,6 +108,15 @@ public class NexusRepository extends AuditDomain {
     private Long deleteUserId;
     @Transient
     private Integer enableAnonymousFlag;
+
+    @Transient
+    @ApiModelProperty(value = "仓库包的拉取总次数")
+    private Long downloadTimes;
+
+    @Transient
+    @ApiModelProperty(value = "仓库拉取包的人数")
+    private Long personTimes;
+
     //
     // getter/setter
     // ------------------------------------------------------------------------------

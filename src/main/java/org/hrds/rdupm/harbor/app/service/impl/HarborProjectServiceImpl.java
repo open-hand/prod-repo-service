@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
+import com.google.common.reflect.TypeToken;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
@@ -37,10 +39,12 @@ import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborLogMapper;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
-import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.nexus.domain.entity.NexusLog;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.mybatis.domian.Condition;
@@ -84,7 +88,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	private HarborAuthService harborAuthService;
 
 	@Autowired
-	private HarborClientOperator harborClientOperator;
+	private HarborLogMapper harborLogMapper;
 
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
@@ -184,6 +188,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	public List<HarborRepository> listByProject(Long projectId, HarborRepository dto) {
 		List<HarborRepository> list = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
+				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
 				.andEqualTo(HarborRepository.FIELD_PROJECT_ID,projectId)
                 .andNotEqualTo(HarborRepository.FIELD_HARBOR_ID,-1L)
 		).build());
@@ -242,12 +247,32 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 		Set<Long> userIdSet = harborRepositoryList.stream().map(dto->dto.getCreatedBy()).collect(Collectors.toSet());
 		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
-		harborRepositoryList.forEach(dto -> {
+		harborRepositoryList.forEach(dto->{
 			//获得镜像数
-			dto.setRepoCount(harborClientOperator.getRepoCountByHarborId(dto.getHarborId()));
+			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,dto.getHarborId());
+			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+			dto.setRepoCount(harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount());
+
+			// 统计下载的次数与人数
+			Map<String, Object> paramMap = new HashMap<>();
+			paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
+			ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, null, null, true, dto.getHarborId());
+			List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+			}.getType());
+
+			Long personTimes = 0L;
+			Long downloadTimes = 0L;
+			if (!CollectionUtils.isEmpty(dataList)) {
+				downloadTimes = Long.valueOf(dataList.size());
+				Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
+				personTimes = Long.valueOf(stringListMap.keySet().size());
+			}
+			dto.setDownloadTimes(downloadTimes);
+			dto.setPersonTimes(personTimes);
+
 			//设置创建人登录名、真实名称、创建人头像
 			UserDTO userDTO = userDtoMap.get(dto.getCreatedBy());
-			if (userDTO != null) {
+			if(userDTO != null){
 				dto.setCreatorImageUrl(userDTO.getImageUrl());
 				dto.setCreatorLoginName(userDTO.getLoginName());
 				dto.setCreatorRealName(userDTO.getRealName());

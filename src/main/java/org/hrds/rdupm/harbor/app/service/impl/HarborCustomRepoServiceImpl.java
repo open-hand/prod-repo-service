@@ -16,6 +16,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborRobotService;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
@@ -160,6 +161,23 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         harborCustomRepos.forEach(harborCustomRepo -> {
             harborCustomRepo.setProjectCode(projectDTO.getCode());
+            // 统计下载的次数与人数
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
+            ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, null, null, true, harborCustomRepo.getHarborProjectId());
+            List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(), new com.google.common.reflect.TypeToken<List<HarborImageLog>>() {
+            }.getType());
+
+            Long personTimes = 0L;
+            Long downloadTimes = 0L;
+            if (!CollectionUtils.isEmpty(dataList)) {
+                downloadTimes = Long.valueOf(dataList.size());
+                Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
+                personTimes = Long.valueOf(stringListMap.keySet().size());
+            }
+            harborCustomRepo.setDownloadTimes(downloadTimes);
+            harborCustomRepo.setPersonTimes(personTimes);
+
             harborCustomRepoDTOList.add(new HarborCustomRepoDTO(harborCustomRepo));
         });
         return harborCustomRepoDTOList;
