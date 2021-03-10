@@ -50,6 +50,8 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 			this.creatorRealName = nexusRepository.getCreatorRealName();
 			this.enableFlag = nexusRepository.getEnableFlag();
 			this.enableAnonymousFlag = nexusRepository.getEnableAnonymousFlag();
+			this.downloadTimes = nexusRepository.getDownloadTimes();
+			this.personTimes = nexusRepository.getPersonTimes();
 		}
 		if (nexusServerRepository != null) {
 			this.name = nexusServerRepository.getName();
@@ -120,6 +122,12 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 	private String creatorRealName;
 	@ApiModelProperty(value = "项目图标")
 	private String projectImgUrl;
+
+	@ApiModelProperty(value = "仓库包的拉取总次数")
+	private Long downloadTimes;
+
+	@ApiModelProperty(value = "仓库拉取包的人数")
+	private Long personTimes;
 
 	@Override
 	public Class<? extends SecurityToken> associateEntityClass() {
