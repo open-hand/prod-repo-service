@@ -25,7 +25,7 @@ export const TabKeyEnum = {
 };
 
 
-const DockerTabContainer = () => {
+const DockerTabContainer = (props) => {
   const overviewRef = useRef();
   const { harborId, name } = useContext(RepositoryIdContext);
   const [activeTabKey, setActiveTabKey] = useState(TabKeyEnum.OVERVIEW);
@@ -107,7 +107,7 @@ const DockerTabContainer = () => {
           }
           {ownerPermission &&
             <TabPane tab={formatMessage({ id: `${intlPrefix}.view.optLog`, defaultMessage: '操作日志' })} key={TabKeyEnum.OPT_LOG}>
-              <OptLog {...optLogProps} />
+              <OptLog {...optLogProps} activeRepository={props.activeRepository} />
             </TabPane>
           }
         </Tabs>

@@ -102,7 +102,7 @@ const NpmTabContainer = (props) => {
           </TabPane>
           {ownerPermission &&
             <TabPane tab={formatMessage({ id: `${intlPrefix}.view.optLog`, defaultMessage: '操作日志' })} key={TabKeyEnum.OPTLOG}>
-              <OptLog {...optLogProps} />
+              <OptLog {...optLogProps} activeRepository={props.activeRepository} />
             </TabPane>
           }
         </Tabs>

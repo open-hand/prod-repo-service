@@ -24,7 +24,11 @@ const RepoList = ({ setActiveRepository }) => {
   const dockerCustomModal = React.useRef();
   const {
     intl: { formatMessage },
-    dockerCustomCreateDs, repoListDs, npmCreateDs, mavenCreateDs, dockerCreateBasicDs,
+    dockerCustomCreateDs, 
+    repoListDs, 
+    npmCreateDs, 
+    mavenCreateDs, 
+    dockerCreateBasicDs,
   } = useStore();
 
   const [VERSION_POLICY, setVersionPolicy] = useState([]);
@@ -363,53 +367,54 @@ const RepoList = ({ setActiveRepository }) => {
             projectId,
             repoName,
           } = data;
+          const subfixCls = 'product-lib-repolist-card-record-content';
           return (
             <li key={uniqueId} className="product-lib-repolist-card">
               <div style={{ display: 'flex', width: '100%', alignItems: 'center', height: '100%' }}>
                 {['DOCKER', 'DOCKER_CUSTOM']?.includes(productType) && <div className="product-lib-repolist-card-docker-img" />}
                 {productType === 'MAVEN' && <div className="product-lib-repolist-card-maven-img" />}
                 {productType === 'NPM' && <div className="product-lib-repolist-card-npm-img" />}
-                <div className="product-lib-repolist-card-record-content">
-                  <div className="product-lib-repolist-card-record-content-top">
-                    <span className="product-lib-repolist-card-record-content-top-reponame" onClick={() => setActiveRepository(data)}>
+                <div className={subfixCls}>
+                  <div className={`${subfixCls}-top`}>
+                    <span className={`${subfixCls}-top-reponame`} onClick={() => setActiveRepository(data)}>
                       <span className="link-cell">{name || repoName}</span>
                       {publicFlag === 'true' && <Icon type="unlock" style={{ color: 'rgba(104,135,232,1)', marginLeft: '6px', fontSize: 14 }} />}
                       {publicFlag === 'false' && <Icon type="lock" style={{ color: 'rgba(104,135,232,1)', marginLeft: '6px', fontSize: 14 }} />}
-                      {productType === 'DOCKER' && <span className="product-lib-repolist-card-record-content-top-reponame-custom-harbor">默认仓库</span>}
-                      {productType === 'DOCKER_CUSTOM' && <span className="product-lib-repolist-card-record-content-top-reponame-custom-harbor">自定义仓库</span>}
+                      {productType === 'DOCKER' && <span className={`${subfixCls}-top-reponame-custom-harbor`}>默认仓库</span>}
+                      {productType === 'DOCKER_CUSTOM' && <span className={`${subfixCls}-top-reponame-custom-harbor`}>自定义仓库</span>}
                     </span>
 
                   </div>
 
-                  <div className="product-lib-repolist-card-record-content-bottom">
-                    <div className="product-lib-repolist-card-record-content-bottom-field">
-                      <div className="product-lib-repolist-card-record-content-bottom-field-label">
+                  <div className={`${subfixCls}-bottom`}>
+                    <div className={`${subfixCls}-bottom-field`}>
+                      <div className={`${subfixCls}-bottom-field-label`}>
                         <Icon type="account_circle-o" />
                         {`${formatMessage({ id: 'createdByName', defaultMessage: '创建人' })}：`}
                       </div>
-                      <div className="product-lib-repolist-card-record-content-bottom-field-value">
+                      <div className={`${subfixCls}-bottom-field-value`}>
                         <Tooltip title={`${creatorRealName}(${creatorLoginName})`}>
                           {`${creatorRealName}(${creatorLoginName})`}
                         </Tooltip>
                       </div>
                     </div>
 
-                    <div className="product-lib-repolist-card-record-content-bottom-field">
-                      <div className="product-lib-repolist-card-record-content-bottom-field-label">
+                    <div className={`${subfixCls}-bottom-field`}>
+                      <div className={`${subfixCls}-bottom-field-label`}>
                         <Icon type="date_range-o" />
                         {`${formatMessage({ id: 'creationDate', defaultMessage: '创建时间' })}：`}
                       </div>
-                      <div className="product-lib-repolist-card-record-content-bottom-field-value">
+                      <div className={`${subfixCls}-bottom-field-value`}>
                         {creationDate}
                       </div>
                     </div>
                     {productType === 'DOCKER' &&
-                      <div className="product-lib-repolist-card-record-content-bottom-field">
-                        <div className="product-lib-repolist-card-record-content-bottom-field-label">
+                      <div className={`${subfixCls}-bottom-field`}>
+                        <div className={`${subfixCls}-bottom-field-label`}>
                           <Icon type="dns-o" />
                           {`${formatMessage({ id: 'infra.prod.lib.model.repoCount', defaultMessage: '镜像数' })}：`}
                         </div>
-                        <div className="product-lib-repolist-card-record-content-bottom-field-value">
+                        <div className={`${subfixCls}-bottom-field-value`}>
                           {repoCount}
                         </div>
                       </div>
@@ -418,23 +423,23 @@ const RepoList = ({ setActiveRepository }) => {
                     {['MAVEN', 'NPM'].includes(productType) &&
                       <React.Fragment>
                         {type &&
-                          <div className="product-lib-repolist-card-record-content-bottom-field" style={{ width: '18%' }}>
-                            <div className="product-lib-repolist-card-record-content-bottom-field-label">
+                          <div className={`${subfixCls}-bottom-field`} style={{ width: '18%' }}>
+                            <div className={`${subfixCls}-bottom-field-label`}>
                               <Icon type="category-o" />
                               {`${formatMessage({ id: 'infra.prod.lib.model.type', defaultMessage: '仓库类型' })}：`}
                             </div>
-                            <div className="product-lib-repolist-card-record-content-bottom-field-value">
+                            <div className={`${subfixCls}-bottom-field-value`}>
                               {(REPOSITORY_TYPE.find(o => o.value === type) || {}).meaning}
                             </div>
                           </div>
                         }
                         {versionPolicy &&
-                          <div className="product-lib-repolist-card-record-content-bottom-field" style={{ width: '18%' }}>
-                            <div className="product-lib-repolist-card-record-content-bottom-field-label">
+                          <div className={`${subfixCls}-bottom-field`} style={{ width: '18%' }}>
+                            <div className={`${subfixCls}-bottom-field-label`}>
                               <Icon type="list" />
                               {`${formatMessage({ id: 'infra.prod.lib.model.versionPolicy', defaultMessage: '仓库策略' })}：`}
                             </div>
-                            <div className="product-lib-repolist-card-record-content-bottom-field-value">
+                            <div className={`${subfixCls}-bottom-field-value`}>
                               {(VERSION_POLICY.find(o => o.value === versionPolicy) || {}).meaning}
                             </div>
                           </div>

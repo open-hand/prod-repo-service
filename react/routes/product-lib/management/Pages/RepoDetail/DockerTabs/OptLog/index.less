@@ -74,6 +74,38 @@
   }
 }
 
+.@{prefix}-timeline {
+  &-count {
+    display: flex;
+    align-items: center;
+    &-item {
+      width: 139px;
+      & + & {
+        margin-left: 10px;
+      }
+      > span {
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        &:first-of-type {
+          color: rgba(58, 52, 95, 0.65);
+        }
+        &:nth-of-type(2) {
+          padding: 0 8px;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          background: rgba(104, 135, 232, 0.1);
+          border-radius: 10px;
+          border: 1px solid #6887e8;
+          font-weight: 500;
+          color: #6887e8;
+        }
+      }
+    }
+  }
+}
+
 // 时间线样式
 .@{prefix}-timeLine {
   width: 100%;
