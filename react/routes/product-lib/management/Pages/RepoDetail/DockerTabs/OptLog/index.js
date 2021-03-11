@@ -9,10 +9,15 @@ import './index.less';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const OptLog = ({ formatMessage, optLogDs, activeTabKey }) => {
+const OptLog = ({ formatMessage, optLogDs, activeTabKey, activeRepository }) => {
   const [isMore, setLoadMoreBtn] = useState(false);
   const [operateTypeLookupData, setOperateTypeLookupData] = useState([]);
   const [logTabKey, setLogTabKey] = useState('AuthLog');
+
+  const {
+    downloadTimes,
+    personTimes,
+  } = activeRepository;
 
   const handleTabChange = useCallback((e) => {
     // optLogDs.queryDataSet.reset(); 不生效，只好手动清除
@@ -120,6 +125,16 @@ const OptLog = ({ formatMessage, optLogDs, activeTabKey }) => {
               ))
             }
           </Select>
+        </div>
+      </div>
+      <div className="product-lib-timeline-count">
+        <div className="product-lib-timeline-count-item">
+          <span>拉取总次数：</span>
+          <span>{`${downloadTimes || '0'}人`}</span>
+        </div>
+        <div className="product-lib-timeline-count-item">
+          <span>拉取总人数：</span>
+          <span>{`${personTimes || '0'}人`}</span>
         </div>
       </div>
       <PureTimeLine {...timeLineProps} />

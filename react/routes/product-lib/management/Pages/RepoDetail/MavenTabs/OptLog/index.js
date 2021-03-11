@@ -9,9 +9,14 @@ import './log.less';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const OptLog = ({ mavenOptLogDs, activeTabKey, repositoryId }) => {
+const OptLog = ({ mavenOptLogDs, activeTabKey, repositoryId, activeRepository }) => {
   const [isMore, setLoadMoreBtn] = useState(false);
   const [operateTypeLookupData, setOperateTypeLookupData] = useState([]);
+
+  const {
+    downloadTimes,
+    personTimes,
+  } = activeRepository;
 
   const timeLineStore = useLocalStore(() => ({
     oldOptsRecord: [],
@@ -64,16 +69,28 @@ const OptLog = ({ mavenOptLogDs, activeTabKey, repositoryId }) => {
   const timeLineProps = useMemo(() => ({ isMore, operateTypeLookupData, loadData, mavenOptLogDs }), [isMore, operateTypeLookupData, loadData, mavenOptLogDs]);
   return (
     <div className="prod-lib-npm-optlog-timeline-container">
-      <div className="prod-lib-npm-optlog-search">
-        <TextField onChange={(value) => handleSearch({ realName: value })} placeholder="用户名" />
-        <RangePicker onChange={(_, dateString) => handleSearch({ startDate: dateString[0] ? `${dateString[0]} 00:00:00` : '', endDate: dateString[1] ? `${dateString[1]} 23:59:59` : '' })} style={{ marginLeft: '0.12rem' }} />
-        <Select onChange={(value) => handleSearch({ operateType: value })} style={{ marginLeft: '0.12rem' }} placeholder="操作类型">
-          {
+      <div className="prod-lib-npm-optlog-header">
+        <div className="prod-lib-npm-optlog-header-count">
+          <div className="prod-lib-npm-optlog-header-count-item">
+            <span>拉取总次数：</span>
+            <span>{`${downloadTimes || '0'}人`}</span>
+          </div>
+          <div className="prod-lib-npm-optlog-header-count-item">
+            <span>拉取总人数：</span>
+            <span>{`${personTimes || '0'}人`}</span>
+          </div>
+        </div>
+        <div className="prod-lib-npm-optlog-search">
+          <TextField onChange={(value) => handleSearch({ realName: value })} placeholder="用户名" />
+          <RangePicker onChange={(_, dateString) => handleSearch({ startDate: dateString[0] ? `${dateString[0]} 00:00:00` : '', endDate: dateString[1] ? `${dateString[1]} 23:59:59` : '' })} style={{ marginLeft: '0.12rem' }} />
+          <Select onChange={(value) => handleSearch({ operateType: value })} style={{ marginLeft: '0.12rem' }} placeholder="操作类型">
+            {
             operateTypeLookupData.map(o => (
               <Option key={o.value} value={o.value}>{o.meaning}</Option>
             ))
           }
-        </Select>
+          </Select>
+        </div>
       </div>
       <PureTimeLine {...timeLineProps} />
     </div>

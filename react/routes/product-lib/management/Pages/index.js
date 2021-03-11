@@ -1,10 +1,11 @@
 /*eslint-disable*/
-import React, { createContext } from 'react';
+import React, { createContext, useMemo, useCallback } from 'react';
 import { Page, axios, stores } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import { Spin } from 'choerodon-ui';
 import { useStore } from '../index';
 import RepoList from './RepoList';
+import { get } from 'lodash';
 import { MavenTabContainer, DockerTabContainer, NpmTabContainer, CustomDockerTabContainer } from './RepoDetail';
 import './index.less';
 
@@ -46,6 +47,22 @@ const Pages = () => {
     init();
   }, [init]);
 
+  const tabContainer = useMemo(()=>({
+    'DOCKER_CUSTOM':<CustomDockerTabContainer activeRepository={activeRepository} />,
+    'DOCKER':<DockerTabContainer activeRepository={activeRepository} />,
+    'MAVEN':<MavenTabContainer activeRepository={activeRepository} />,
+    'NPM':<NpmTabContainer activeRepository={activeRepository} />
+  }),[activeRepository]);
+
+  const renederTabContainer = useCallback(()=>{
+    const type = get(activeRepository, 'productType');
+    const hasOwnProperty = Object.prototype.hasOwnProperty.call(tabContainer,type)
+    if(hasOwnProperty){
+      return tabContainer[type];
+    }
+    return null;
+  },[tabContainer]);
+
   return (
     <CurrentRoleContext.Provider value={{
       currentRole,
@@ -57,10 +74,7 @@ const Pages = () => {
         {!loading && !activeRepository && <RepoList setActiveRepository={setActiveRepository} init={init} />}
         {!loading && activeRepository &&
           <RepositoryIdContext.Provider value={activeRepository}>
-            {activeRepository.productType === 'DOCKER_CUSTOM' && <CustomDockerTabContainer />}
-            {activeRepository.productType === 'DOCKER' && <DockerTabContainer />}
-            {activeRepository.productType === 'MAVEN' && <MavenTabContainer activeRepository={activeRepository} />}
-            {activeRepository.productType === 'NPM' && <NpmTabContainer activeRepository={activeRepository} />}
+            {renederTabContainer()}
           </RepositoryIdContext.Provider>
         }
       </Page>

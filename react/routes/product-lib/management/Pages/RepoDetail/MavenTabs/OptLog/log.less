@@ -4,7 +4,7 @@
 .@{prefix}-timeline-container {
   padding: 12px 20px;
   overflow: scroll;
-  height: ~'calc(100% - 95px)';
+  height: ~"calc(100% - 95px)";
   .page-content {
     padding: 0;
   }
@@ -70,7 +70,7 @@
       height: 0.43rem;
       position: relative;
       &::after {
-        content: '';
+        content: "";
         display: block;
         position: absolute;
         height: 0.01rem;
@@ -200,6 +200,43 @@
       font-weight: 400;
       color: rgba(0, 0, 0, 0.65);
       line-height: 20px;
+    }
+  }
+}
+
+.@{prefix}-header {
+  display: flex;
+  align-items: baseline;
+  margin-right: auto;
+  white-space: nowrap;
+  &-count {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    &-item {
+      flex-grow: 1;
+      & + & {
+        margin-left: 10px;
+      }
+      > span {
+        font-size: 13px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        &:first-of-type {
+          color: rgba(58, 52, 95, 0.65);
+        }
+        &:nth-of-type(2) {
+          padding: 0 8px;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          background: rgba(104, 135, 232, 0.1);
+          border-radius: 10px;
+          border: 1px solid #6887e8;
+          font-weight: 500;
+          color: #6887e8;
+        }
+      }
     }
   }
 }
