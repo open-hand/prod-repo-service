@@ -181,12 +181,18 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 
 	@Override
 	public void copyTag(HarborImageReTag harborImageReTag) {
-		String srcImage = harborImageReTag.getSrcRepoName() + BaseConstants.Symbol.COLON + harborImageReTag.getDigest();
-		String destRepoName = harborImageReTag.getDestProjectCode() + BaseConstants.Symbol.SLASH + harborImageReTag.getDestImageName();
-		Map<String,Object> bodyMap = new HashMap<>(3);
-		bodyMap.put("override",true);
-		bodyMap.put("tag",harborImageReTag.getDestImageTagName());
-		bodyMap.put("src_image",srcImage);
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.COPY_IMAGE_TAG,null,bodyMap,true,destRepoName);
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+			String srcImage = harborImageReTag.getSrcRepoName() + BaseConstants.Symbol.COLON + harborImageReTag.getDigest();
+			String destRepoName = harborImageReTag.getDestProjectCode() + BaseConstants.Symbol.SLASH + harborImageReTag.getDestImageName();
+			Map<String, Object> bodyMap = new HashMap<>(3);
+			bodyMap.put("override", true);
+			bodyMap.put("tag", harborImageReTag.getDestImageTagName());
+			bodyMap.put("src_image", srcImage);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.COPY_IMAGE_TAG, null, bodyMap, true, destRepoName);
+		} else {
+			Map<String, Object> paramsMap = new HashMap<>(1);
+			paramsMap.put("from", String.format("%s@%s", harborImageReTag.getSrcRepoName(), harborImageReTag.getDigest()));
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.COPY_IMAGE_TAG, paramsMap, null, true, harborImageReTag.getDestProjectCode(), harborImageReTag.getDestImageName());
+		}
 	}
 }
