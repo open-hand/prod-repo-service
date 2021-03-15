@@ -183,7 +183,7 @@ public interface HarborConstants {
 
 		LIST_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.GET,"获取镜像TAG列表-- 仓库名/镜像名称","/api/v2.0/projects/%s/repositories/%s/artifacts","项目名,repository_name"),
 
-		COPY_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.POST,"复制镜像TAG-- 仓库名/镜像名称"),
+		COPY_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.POST,"复制镜像TAG-- 仓库名/镜像名称","/api/v2.0/projects/%s/repositories/%s/artifacts","需要复制到的项目名，目标repository_name"),
 
 		/**
 		* 获取项目用户
