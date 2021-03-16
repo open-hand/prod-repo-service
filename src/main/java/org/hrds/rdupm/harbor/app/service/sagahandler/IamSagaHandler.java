@@ -2,10 +2,7 @@ package org.hrds.rdupm.harbor.app.service.sagahandler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -15,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.hrds.rdupm.harbor.api.vo.IamGroupMemberVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
@@ -103,20 +101,40 @@ public class IamSagaHandler {
 	}
 
 	public void createNewOwner(HarborRepository harborRepository,Long userId){
+		//选举新仓库管理员得逻辑
+//		AB都是项目所有者，A是仓库管理员，B是开发人员。此时删除A的仓管权限
+//		1）若制品库权限数据中存在项目所有者，即B有权限，则选举B为仓库管理员。
+//		2）若没有制品库权限数据，即AB都没有权限，才选举任意一个项目所有者作为仓管
+//		3）若不存在项目所有者，应该找个项目成员选举为仓管。
+//		4）若没有项目成员即制品库没有任何权限，后续需要分配权限的话，可以使用管理员账号操作
 		Long projectId = harborRepository.getProjectId();
-		Map<Long,UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(projectId);
-
-		//查询权限列表中属于项目所有者的信息
-		List<HarborAuth> dbAuthList = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
-				.where(Sqls.custom()
-						.andEqualTo(HarborAuth.FIELD_PROJECT_ID,projectId)
-						.andIn(HarborAuth.FIELD_USER_ID,userDTOMap.keySet())
-						.andNotEqualTo(HarborAuth.FIELD_USER_ID,userId)
-				).build());
+		// 这里查询iam获取项目下的项目管理员可能为null,所以要做判断
+		Map<Long, UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(projectId);
+		List<HarborAuth> dbAuthList = new ArrayList<>();
+		if (!MapUtils.isEmpty(userDTOMap)) {
+			//查询权限列表中属于项目所有者的信息
+			dbAuthList = harborAuthMapper.selectByCondition(Condition.builder(HarborAuth.class)
+					.where(Sqls.custom()
+							.andEqualTo(HarborAuth.FIELD_PROJECT_ID, projectId)
+							.andIn(HarborAuth.FIELD_USER_ID, userDTOMap.keySet())
+							.andNotEqualTo(HarborAuth.FIELD_USER_ID, userId)
+					).build());
+		}
 		//无项目所有者权限，则创建
-		UserDTO userDTO = c7nBaseService.getProjectOwnerById(projectId);
-		if(CollectionUtils.isEmpty(dbAuthList)){
-			saveAuth(harborRepository,userDTO);
+		UserDTO userDTO = null;
+		userDTO = c7nBaseService.getProjectOwnerById(projectId);
+		if (Objects.isNull(userDTO)) {
+			List<UserDTO> userDTOS = c7nBaseService.listProjectUsersByIdName(projectId, null);
+			if (!CollectionUtils.isEmpty(userDTOS)) {
+				userDTO = userDTOS.get(0);
+			}
+		}
+		if (CollectionUtils.isEmpty(dbAuthList)) {
+			//项目下没有一个成员
+			if (Objects.isNull(userDTO)) {
+				return;
+			}
+			saveAuth(harborRepository, userDTO);
 		}
 		//有项目所有者权限，但没有仓库管理员，则选择其中一个所有者进行更新
 		else {
