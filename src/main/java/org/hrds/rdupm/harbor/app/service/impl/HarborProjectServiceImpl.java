@@ -240,9 +240,16 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
 		harborRepositoryList.forEach(dto->{
 			//获得镜像数
-			ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,dto.getHarborId());
-			HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-			dto.setRepoCount(harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount());
+			if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+				ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, dto.getHarborId());
+				HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+				dto.setRepoCount(harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount());
+			} else {
+				ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY, null, null, true, dto.getHarborId());
+				Map<String, Object> summaryMap = new Gson().fromJson(detailResponseEntity.getBody(), Map.class);
+				Double repoCount = summaryMap == null || summaryMap.get("repo_count") == null ? 0L : (Double) summaryMap.get("repo_count");
+				dto.setRepoCount(Integer.parseInt(new java.text.DecimalFormat("0").format(repoCount)));
+			}
 
 			//设置创建人登录名、真实名称、创建人头像
 			UserDTO userDTO = userDtoMap.get(dto.getCreatedBy());
