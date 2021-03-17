@@ -83,7 +83,6 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
         //获得镜像数
         ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT,null,null,true,harborId);
         HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-        Integer totalSize = harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
         String repoName = harborProjectDTO == null ? null : harborProjectDTO.getName();
 
         Map<String,Object> paramMap = new HashMap<>(4);

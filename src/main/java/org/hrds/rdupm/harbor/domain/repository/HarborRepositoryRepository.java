@@ -10,5 +10,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
  */
 public interface HarborRepositoryRepository extends BaseRepository<HarborRepository> {
 
-	HarborRepository getHarborRepositoryById(Long projectId);
+    HarborRepository getHarborRepositoryById(Long projectId);
+
+    HarborRepository getHarborRepositoryByHarborId(Long harborId);
 }
