@@ -33,6 +33,10 @@ public class HarborMetadataDTO {
 	@SerializedName("reuse_sys_cve_whitelist")
 	private String useSysCveFlag;
 
+	@ApiModelProperty(name = "启动系统白名单，true、false,v2版本")
+	@SerializedName("reuse_sys_cve_allowlist")
+	private String useSysCveFlagV2;
+
 	@ApiModelProperty(name = "公开访问，true、false")
 	@SerializedName("public")
 	private String publicFlag;

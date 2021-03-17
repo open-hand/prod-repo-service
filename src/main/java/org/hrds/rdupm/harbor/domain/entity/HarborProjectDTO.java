@@ -89,6 +89,11 @@ public class HarborProjectDTO {
 
 	@SerializedName("cve_whitelist")
 	private Map<String,Object> cveWhiteList;
+	/**
+	 * 等于v1版本cve_whitelist字段
+	 */
+	@SerializedName("cve_allowlist")
+	private Map<String,Object> cveAllowList;
 
 	public HarborProjectDTO() {
 
