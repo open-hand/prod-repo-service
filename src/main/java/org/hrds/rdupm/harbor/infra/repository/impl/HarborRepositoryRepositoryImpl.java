@@ -25,5 +25,13 @@ public class HarborRepositoryRepositoryImpl extends BaseRepositoryImpl<HarborRep
 		).build()).stream().findFirst().orElse(null);
 		return harborRepository;
 	}
-  
+
+	@Override
+	public HarborRepository getHarborRepositoryByHarborId(Long harborId){
+		HarborRepository harborRepository = this.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
+				.andEqualTo(HarborRepository.FIELD_HARBOR_ID,harborId)
+		).build()).stream().findFirst().orElse(null);
+		return harborRepository;
+	}
+
 }
