@@ -114,25 +114,41 @@ public class HarborProjectVo {
 
 	public HarborProjectVo(){}
 
-	public HarborProjectVo(HarborProjectDTO harborProjectDTO){
+	public HarborProjectVo(HarborProjectDTO harborProjectDTO, Boolean isApiVersionV1) {
 		HarborMetadataDTO harborMetadataDTO = harborProjectDTO.getMetadata();
 		BeanUtils.copyProperties(harborMetadataDTO,this);
 		this.harborId = harborProjectDTO.getHarborId();
 		this.code = harborProjectDTO.getName();
 		this.repoCount = harborProjectDTO.getRepoCount();
 
-		if(!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlag())){
-			this.useProjectCveFlag = HarborConstants.TRUE;
-			Map<String,Object> whiteMap = harborProjectDTO.getCveWhiteList();
-			List<Map<String,String >> itemMapList = (List<Map<String, String>>) whiteMap.get("items");
-			List<String> cveNoList = new ArrayList<>();
-			for(Map<String,String> itemMap : itemMapList){
-				cveNoList.add(itemMap.get("cve_id"));
+		if(isApiVersionV1) {
+			if (!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlag())) {
+				this.useProjectCveFlag = HarborConstants.TRUE;
+				Map<String, Object> whiteMap = harborProjectDTO.getCveWhiteList();
+				List<Map<String, String>> itemMapList = (List<Map<String, String>>) whiteMap.get("items");
+				List<String> cveNoList = new ArrayList<>();
+				for (Map<String, String> itemMap : itemMapList) {
+					cveNoList.add(itemMap.get("cve_id"));
+				}
+				this.cveNoList = cveNoList;
+				this.endDate = HarborUtil.timestampToDate(whiteMap);
+			} else {
+				this.useProjectCveFlag = HarborConstants.FALSE;
 			}
-			this.cveNoList = cveNoList;
-			this.endDate = HarborUtil.timestampToDate(whiteMap);
 		}else {
-			this.useProjectCveFlag = HarborConstants.FALSE;
+			if (!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlagV2())) {
+				this.useProjectCveFlag = HarborConstants.TRUE;
+				Map<String, Object> whiteMap = harborProjectDTO.getCveAllowList();
+				List<Map<String, String>> itemMapList = (List<Map<String, String>>) whiteMap.get("items");
+				List<String> cveNoList = new ArrayList<>();
+				for (Map<String, String> itemMap : itemMapList) {
+					cveNoList.add(itemMap.get("cve_id"));
+				}
+				this.cveNoList = cveNoList;
+				this.endDate = HarborUtil.timestampToDate(whiteMap);
+			} else {
+				this.useProjectCveFlag = HarborConstants.FALSE;
+			}
 		}
 
 	}

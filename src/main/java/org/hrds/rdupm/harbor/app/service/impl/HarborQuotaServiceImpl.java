@@ -95,8 +95,8 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 		Long usedStorage = ((Double) usedMap.get("storage")).longValue();
 
 		HarborQuotaVo harborQuotaVo = new HarborQuotaVo();
-		harborQuotaVo.setCountLimit(hardCount.intValue());
-		harborQuotaVo.setUsedCount(usedCount.intValue());
+		harborQuotaVo.setCountLimit(hardCount == null ? 0 : hardCount.intValue());
+		harborQuotaVo.setUsedCount(usedCount == null ? 0 : usedCount.intValue());
 		harborQuotaVo.setStorageLimit(hardStorage);
 		harborQuotaVo.setUsedStorage(usedStorage);
 

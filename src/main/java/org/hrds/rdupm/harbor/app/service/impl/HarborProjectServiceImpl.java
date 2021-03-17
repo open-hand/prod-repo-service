@@ -128,7 +128,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 		if(harborProjectDTO == null){
 			return null;
 		}
-		HarborProjectVo harborProjectVo = new HarborProjectVo(harborProjectDTO);
+		HarborProjectVo harborProjectVo = new HarborProjectVo(harborProjectDTO, HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo()));
 
 		//获取镜像仓库名称
 		HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_HARBOR_ID,harborId).stream().findFirst().orElse(null);
