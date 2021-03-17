@@ -57,16 +57,11 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		List<HarborImageTagVo> harborImageTagVoList = new ArrayList<>();
 		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
 			tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, repoName);
-			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo>>() {
-			}.getType());
+			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
 		} else {
 			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-			tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, repoName, strArr[0], strArr[1]);
-			List<HarborArtifactDTO> artifactDTOList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
-			}.getType());
-			for (HarborArtifactDTO t : artifactDTOList) {
-				harborImageTagVoList.addAll(ConvertUtil.convertList(t.getTags(), HarborImageTagVo.class));
-			}
+			tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, strArr[0], strArr[1]);
+			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
 		}
 
 		if(StringUtils.isNotEmpty(tagName)){
