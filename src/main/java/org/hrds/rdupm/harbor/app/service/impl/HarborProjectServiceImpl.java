@@ -188,7 +188,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 	@Override
 	public List<HarborRepository> listByProject(Long projectId, HarborRepository dto) {
 		List<HarborRepository> list = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
-				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,DetailsHelper.getUserDetails().getTenantId())
 				.andEqualTo(HarborRepository.FIELD_PROJECT_ID,projectId)
                 .andNotEqualTo(HarborRepository.FIELD_HARBOR_ID,-1L)
 		).build());
