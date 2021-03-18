@@ -20,6 +20,7 @@ import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
+import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -49,6 +50,8 @@ public class HarborImageServiceImpl implements HarborImageService {
 
 	@Autowired
 	private HarborAuthService harborAuthService;
+	@Autowired
+	private HarborClientOperator harborClientOperator;
 
 	@Override
 	public Page<HarborImageVo> getByProject(Long projectId, String imageName, PageRequest pageRequest) {
@@ -60,52 +63,25 @@ public class HarborImageServiceImpl implements HarborImageService {
 		Long harborId = harborRepository.getHarborId();
 
 		//获得镜像数
-		Integer totalSize;
+		Integer totalSize = harborClientOperator.getRepoCountByHarborId(harborId);
 		ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, harborId);
 		HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
 		String repoName = harborProjectDTO == null ? null : harborProjectDTO.getName();
-		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-			totalSize = harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
-		} else {
-			ResponseEntity<String> summaryResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY, null, null, true, harborId);
-			Map<String, Object> summaryMap = new Gson().fromJson(summaryResponseEntity.getBody(), Map.class);
-			Double repoCount = summaryMap == null || summaryMap.get("repo_count") == null ? 0L : (Double) summaryMap.get("repo_count");
-			totalSize = Integer.parseInt(new java.text.DecimalFormat("0").format(repoCount));
-		}
 		if(totalSize <= 0){
 			return PageConvertUtils.convert(pageRequest.getPage()+1, pageRequest.getSize(), new ArrayList<>());
 		}
 
 		List<HarborImageVo> harborImageVoList = getImageList(harborId,imageName,pageRequest,repoName);
-		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(),totalSize, harborImageVoList);
-		return pageInfo;
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(),totalSize, harborImageVoList);
 	}
 
-	private List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest,String projectCode){
-		Map<String,Object> paramMap = new HashMap<>(4);
-		paramMap.put("project_id",harborId);
-		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage()+1);
-		paramMap.put("page_size",pageRequest.getSize());
-		ResponseEntity<String> responseEntity;
-		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true);
-		} else {
-			String harborProjectName = harborRepositoryRepository.getHarborRepositoryByHarborId(harborId).getCode();
-			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true, harborProjectName);
-		}
-		List<HarborImageVo> harborImageVoList = new ArrayList<>();
-		if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
-			harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageVo>>(){}.getType());
-		}
+	private List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest, String projectCode) {
+		Integer page = pageRequest.getPage() == 0 ? 1 : pageRequest.getPage() + 1;
+		Integer pageSize = pageRequest.getSize();
+		List<HarborImageVo> harborImageVoList = harborClientOperator.listImages(harborId, page, pageSize, imageName);
 		harborImageVoList.forEach(dto -> {
 			dto.setImageName(dto.getRepoName().substring(projectCode.length() + 1));
-			if (dto.getArtifactCount() != null) {
-				dto.setTagsCount(dto.getArtifactCount());
-			}
 		});
-		if (StringUtils.isNotEmpty(imageName)) {
-			harborImageVoList = harborImageVoList.stream().filter(t -> t.getImageName().contains(imageName)).collect(Collectors.toList());
-		}
 		return harborImageVoList;
 	}
 
@@ -140,18 +116,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 				dto.setProjectName(projectDTO == null ? null : projectDTO.getName());
 				dto.setProjectImageUrl(projectDTO == null ? null : projectDTO.getImageUrl());
 			});
-
-			//获得镜像数
-			if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-				ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, harborRepository.getHarborId());
-				HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-				totalSize += harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
-			} else {
-				ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY, null, null, true, harborRepository.getHarborId());
-				Map<String, Object> summaryMap = new Gson().fromJson(detailResponseEntity.getBody(), Map.class);
-				Double repoCount = summaryMap == null || summaryMap.get("repo_count") == null ? 0L : (Double) summaryMap.get("repo_count");
-				totalSize += Integer.parseInt(new java.text.DecimalFormat("0").format(repoCount));
-			}
+			totalSize += harborClientOperator.getRepoCountByHarborId(harborRepository.getHarborId());
 		}
 		Page<HarborImageVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), totalSize,harborImageVoList);
 		return pageInfo;
@@ -170,28 +135,16 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(StringUtils.isEmpty(repoName)){
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
-		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, false, repoName);
-		}else {
-			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, true, strArr[0], strArr[1]);
-		}
+		harborClientOperator.deleteImage(repoName);
 	}
 
 	@Override
 	public void updateDesc(HarborImageVo harborImageVo) {
 		String repoName = harborImageVo.getRepoName();
-		if(StringUtils.isEmpty(repoName)){
+		if (StringUtils.isEmpty(repoName)) {
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
-		Map<String,String> bodyMap = new HashMap<>(1);
-		bodyMap.put("description", harborImageVo.getDescription());
-		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, repoName);
-		} else {
-			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, strArr[0], strArr[1]);
-		}
+		harborClientOperator.updateImageDesc(harborImageVo);
 	}
 
 	/***
