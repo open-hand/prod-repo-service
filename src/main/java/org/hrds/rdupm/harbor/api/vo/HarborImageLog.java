@@ -45,6 +45,8 @@ public class HarborImageLog {
 	@ApiModelProperty("日志内容")
 	private String content;
 
+	@ApiModelProperty("资源路径")
+	private String resource;
 
 	public HarborImageLog(){
 

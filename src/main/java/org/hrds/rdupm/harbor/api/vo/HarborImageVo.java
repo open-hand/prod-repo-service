@@ -54,6 +54,10 @@ public class HarborImageVo {
 	@SerializedName("tags_count")
 	private Integer tagsCount;
 
+	@ApiModelProperty("artifact数量")
+	@SerializedName("artifact_count")
+	private Integer artifactCount;
+
 	@ApiModelProperty("创建时间")
 	@SerializedName("creation_time")
 	private String creaionTime;
