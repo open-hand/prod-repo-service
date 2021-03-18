@@ -18,9 +18,10 @@ public class HarborRepositoryRepositoryImpl extends BaseRepositoryImpl<HarborRep
 
 	@Override
 	public HarborRepository getHarborRepositoryById(Long projectId){
-		Long organizationId = DetailsHelper.getUserDetails().getTenantId();
+		// todo scp 上线之前删除
+//		Long organizationId = DetailsHelper.getUserDetails().getTenantId();
 		HarborRepository harborRepository = this.selectByCondition(Condition.builder(HarborRepository.class).where(Sqls.custom()
-				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId)
+//				.andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId)
 				.andEqualTo(HarborRepository.FIELD_PROJECT_ID,projectId)
 		).build()).stream().findFirst().orElse(null);
 		return harborRepository;

@@ -45,6 +45,7 @@ public interface HarborConstants {
 	String HARBOR_UI = "harbor-ui";
 
 	String DEFAULT_DATE = "0001-01-01T00:00:00Z";
+	String DEFAULT_DATE_V2 = "0001-01-01T00:00:00.000Z";
 	String API_VERSION_1 = "v1";// harbor1.x版本
 	String API_VERSION_2 = "v2";// harbor2.x版本
 

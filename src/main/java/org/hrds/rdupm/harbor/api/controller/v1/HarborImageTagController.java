@@ -46,8 +46,9 @@ public class HarborImageTagController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/build/log")
 	public ResponseEntity<String> buildLog(@ApiParam(value = "仓库名称") @RequestParam String repoName,
-										   @ApiParam(value = "版本号") @RequestParam String tagName) {
-		return Results.success(harborImageTagService.buildLog(repoName,tagName));
+										   @ApiParam(value = "版本号") @RequestParam String tagName,
+										   @ApiParam(value = "摘要") @RequestParam String digest) {
+		return Results.success(harborImageTagService.buildLog(repoName, tagName, digest));
 	}
 
 	@ApiOperation(value = "项目层/组织层--删除镜像TAG")

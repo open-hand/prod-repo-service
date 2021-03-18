@@ -3,17 +3,10 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import io.choerodon.core.domain.Page;
-
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
@@ -28,11 +21,14 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
-import org.hrds.rdupm.util.ConvertUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * description
@@ -52,29 +48,58 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	private C7nBaseService c7nBaseService;
 
 	@Override
-	public Page<HarborImageTagVo> list(Long projectId,String repoName, String tagName, PageRequest pageRequest) {
+	public Page<HarborImageTagVo> list(Long projectId, String repoName, String tagName, PageRequest pageRequest) {
 		ResponseEntity<String> tagResponseEntity;
 		List<HarborImageTagVo> harborImageTagVoList = new ArrayList<>();
+		Page<HarborImageTagVo> pageInfo;
 		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
 			tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, repoName);
-			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
+			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
+			}.getType());
+			if (CollectionUtils.isEmpty(harborImageTagVoList)) {
+				return new Page<>();
+			}
+			if (StringUtils.isNotEmpty(tagName)) {
+				harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> dto.getTagName().equals(tagName)).collect(Collectors.toList());
+			}
+			harborImageTagVoList.forEach(dto -> {
+				dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
+				dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
+				setTagAuthor(projectId, repoName, tagName, dto);
+			});
 		} else {
 			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
 			tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, strArr[0], strArr[1]);
-			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(),new TypeToken<List<HarborImageTagVo>>(){}.getType());
+			harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
+			}.getType());
+			if (CollectionUtils.isEmpty(harborImageTagVoList)) {
+				return new Page<>();
+			}
+			if (StringUtils.isNotEmpty(tagName)) {
+				harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> {
+					boolean index = false;
+					for (HarborImageTagVo.Tag t : dto.getTags()) {
+						if (t.getName().equals(tagName)) {
+							index = true;
+							break;
+						}
+					}
+					return index;
+				}).collect(Collectors.toList());
+			}
+			harborImageTagVoList.forEach(dto -> {
+				dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
+				dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
+				dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
+				dto.setOs(dto.getExtraAttrs().getOs());
+				if (!CollectionUtils.isEmpty(dto.getTags())) {
+					dto.setTagName(dto.getTags().get(0).getName());
+				}
+				setTagAuthor(projectId, repoName, tagName, dto);
+			});
 		}
-
-		if(StringUtils.isNotEmpty(tagName)){
-			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().equals(tagName)).collect(Collectors.toList());
-		}
-
-		harborImageTagVoList.stream().forEach(dto->{
-			dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
-			dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
-			setTagAuthor(projectId,repoName,tagName,dto);
-		});
 		processImageLogList(harborImageTagVoList);
-		Page<HarborImageTagVo> pageInfo = PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageTagVoList);
+		pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageTagVoList);
 		return pageInfo;
 	}
 
@@ -103,16 +128,22 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		ResponseEntity<String> logsResponseEntity;
 		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
 			logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, param, null, true, harborId);
+			List<HarborImageLog> logListResult = new Gson().fromJson(logsResponseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
+			Map<String,List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto->dto.getRepoName()+dto.getTagName()));
+			List<HarborImageLog> logList = logListMap.get(repoName+tagVo.getTagName());
+			if(CollectionUtils.isNotEmpty(logList)){
+				tagVo.setAuthor(logList.get(0).getLoginName());
+			}
 		} else {
 			logsResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, param, null, true, harborProjectName);
+			List<HarborImageLog> logListResult = new Gson().fromJson(logsResponseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
+			Map<String,List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto->dto.getResource()));
+			List<HarborImageLog> logList = logListMap.get(repoName+":"+tagVo.getTagName());
+			if(CollectionUtils.isNotEmpty(logList)){
+				tagVo.setAuthor(logList.get(0).getLoginName());
+			}
 		}
-		List<HarborImageLog> logListResult = new Gson().fromJson(logsResponseEntity.getBody(),new TypeToken<List<HarborImageLog>>(){}.getType());
-		Map<String,List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto->dto.getRepoName()+dto.getTagName()));
 
-		List<HarborImageLog> logList = logListMap.get(repoName+tagVo.getTagName());
-		if(CollectionUtils.isNotEmpty(logList)){
-			tagVo.setAuthor(logList.get(0).getLoginName());
-		}
 	}
 
 	public void processImageLogList(List<HarborImageTagVo> harborImageTagVoList){
@@ -131,7 +162,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	}
 
 	@Override
-	public String buildLog(String repoName, String tagName) {
+	public String buildLog(String repoName, String tagName, String digest) {
 		StringBuffer sb = new StringBuffer();
 
 		Gson gson = new Gson();
@@ -146,8 +177,9 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 				sb.append(history.get("created")).append("  ").append(history.get("created_by")).append("\n");
 			}
 		} else {
-			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG, null, null, true, repoName, tagName);
-			List<HarborBuildLogDTO> buildLogDTOList = gson.fromJson(responseEntity.getBody(), List.class);
+			String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
+			responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG, null, null, true, strArr[0], strArr[1], digest);
+			List<HarborBuildLogDTO> buildLogDTOList = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborBuildLogDTO>>(){}.getType());
 			buildLogDTOList.forEach(t -> {
 				sb.append(t.getCreated()).append("  ").append(t.getCreatedBy()).append("\n");
 			});

@@ -59,8 +59,10 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 	public void saveQuota(HarborProjectVo harborProjectVo, Integer harborId){
 		Long storageLimit = HarborUtil.getStorageLimit(harborProjectVo.getStorageNum(),harborProjectVo.getStorageUnit());
 		Map<String,Object> qutoaObject = new HashMap<>(1);
-		Map<String,Object> hardObject = new HashMap<>(2);
-		hardObject.put("count",harborProjectVo.getCountLimit());
+		Map<String, Object> hardObject = new HashMap<>(2);
+		if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+			hardObject.put("count", harborProjectVo.getCountLimit());
+		}
 		hardObject.put("storage",storageLimit);
 		qutoaObject.put("hard",hardObject);
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA,null,qutoaObject,true,harborId);

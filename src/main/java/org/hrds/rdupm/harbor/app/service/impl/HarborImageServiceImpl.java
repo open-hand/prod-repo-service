@@ -98,7 +98,12 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if(responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())){
 			harborImageVoList = new Gson().fromJson(responseEntity.getBody(),new TypeToken<List<HarborImageVo>>(){}.getType());
 		}
-		harborImageVoList.forEach(dto->dto.setImageName(dto.getRepoName().substring(projectCode.length()+1)));
+		harborImageVoList.forEach(dto -> {
+			dto.setImageName(dto.getRepoName().substring(projectCode.length() + 1));
+			if (dto.getArtifactCount() != null) {
+				dto.setTagsCount(dto.getArtifactCount());
+			}
+		});
 		return harborImageVoList;
 	}
 

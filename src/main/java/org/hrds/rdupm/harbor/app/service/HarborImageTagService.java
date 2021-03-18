@@ -28,7 +28,7 @@ public interface HarborImageTagService {
 	 * @param tagName
 	 * @return
 	 */
-	String buildLog(String repoName, String tagName);
+	String buildLog(String repoName, String tagName, String digest);
 
 	/***
 	 * 删除镜像TAG
