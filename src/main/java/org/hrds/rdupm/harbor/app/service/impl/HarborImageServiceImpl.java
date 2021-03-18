@@ -84,7 +84,6 @@ public class HarborImageServiceImpl implements HarborImageService {
 	private List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest,String projectCode){
 		Map<String,Object> paramMap = new HashMap<>(4);
 		paramMap.put("project_id",harborId);
-		paramMap.put("q",imageName);
 		paramMap.put("page",pageRequest.getPage()==0?1:pageRequest.getPage()+1);
 		paramMap.put("page_size",pageRequest.getSize());
 		ResponseEntity<String> responseEntity;
@@ -104,6 +103,9 @@ public class HarborImageServiceImpl implements HarborImageService {
 				dto.setTagsCount(dto.getArtifactCount());
 			}
 		});
+		if (StringUtils.isNotEmpty(imageName)) {
+			harborImageVoList = harborImageVoList.stream().filter(t -> t.getImageName().contains(imageName)).collect(Collectors.toList());
+		}
 		return harborImageVoList;
 	}
 

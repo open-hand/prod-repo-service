@@ -36,7 +36,7 @@ public class HarborGuideController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/tag")
 	public ResponseEntity<HarborGuideVo> getTagGuide(@ApiParam(value = "仓库名称") @RequestParam String repoName,
-													 @ApiParam(value = "版本号") @RequestParam String tagName) {
-		return Results.success(harborGuideService.getTagGuide(repoName,tagName));
+													 @ApiParam(value = "摘要") @RequestParam String digest) {
+		return Results.success(harborGuideService.getTagGuide(repoName, digest));
 	}
 }
