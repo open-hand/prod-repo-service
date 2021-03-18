@@ -3,6 +3,7 @@ package org.hrds.rdupm.common.api.vo;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
@@ -106,6 +107,10 @@ public class ProductLibraryDTO extends AuditDomain {
 	private Integer allowAnonymous;
 	@ApiModelProperty(value = "仓库是否启用")
 	private String enableFlag;
+	@ApiModelProperty(value = "仓库包的拉取总次数")
+	private Long downloadTimes;
+	@ApiModelProperty(value = "仓库拉取包的人数")
+	private Long personTimes;
 
 
 	public ProductLibraryDTO() {

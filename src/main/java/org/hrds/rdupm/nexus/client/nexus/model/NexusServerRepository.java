@@ -1,6 +1,8 @@
 package org.hrds.rdupm.nexus.client.nexus.model;
 
+import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
+import javax.persistence.Transient;
 
 /**
  * 仓库信息

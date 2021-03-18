@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import javax.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import org.hzero.mybatis.domian.SecurityToken;
@@ -56,6 +57,14 @@ public class HarborCustomRepoDTO implements SecurityToken {
     @ApiModelProperty(value = "创建人名称")
     private String creatorRealName;
 
+
+    @ApiModelProperty(value = "仓库包的拉取总次数")
+    private Long downloadTimes;
+
+
+    @ApiModelProperty(value = "仓库拉取包的人数")
+    private Long personTimes;
+
     private Long createdBy;
     private Date creationDate;
     private String _token;
@@ -84,5 +93,7 @@ public class HarborCustomRepoDTO implements SecurityToken {
         this.createdBy = harborCustomRepo.getCreatedBy();
         this.creationDate = harborCustomRepo.getCreationDate();
         this._token = harborCustomRepo.get_token();
+        this.downloadTimes = harborCustomRepo.getDownloadTimes();
+        this.personTimes = harborCustomRepo.getPersonTimes();
     }
 }
