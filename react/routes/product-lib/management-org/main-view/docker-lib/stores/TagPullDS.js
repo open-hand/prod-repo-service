@@ -4,7 +4,7 @@ export default (({ tagName, repoName }) => ({
   paging: false,
   transport: {
     read: () => ({
-      url: `/rdupm/v1/harbor-guide/tag?tagName=${tagName}&repoName=${repoName}`,
+      url: `/rdupm/v1/harbor-guide/tag?digest=${tagName}&repoName=${repoName}`,
       method: 'GET',
     }),
   },

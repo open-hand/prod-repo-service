@@ -81,9 +81,9 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
   // }
 
   const fetchBuildLog = useCallback(async (data) => {
-    const { tagName } = data;
+    const { tagName, digest } = data;
     try {
-      const res = await axios.get(`/rdupm/v1/harbor-image-tag/build/log?repoName=${repoName}&tagName=${tagName}`);
+      const res = await axios.get(`/rdupm/v1/harbor-image-tag/build/log?repoName=${repoName}&tagName=${tagName}&digest=${digest}`);
       return res;
     } catch (error) {
       // message.error(error);

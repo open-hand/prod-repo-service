@@ -62,7 +62,7 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
   const fetchGuide = useCallback(async (data) => {
     const { tagName } = data;
     try {
-      const res = await axios.get(`/rdupm/v1/harbor-guide/tag?tagName=${tagName}&repoName=${repoName}`);
+      const res = await axios.get(`/rdupm/v1/harbor-guide/tag?digest=${tagName}&repoName=${repoName}`);
       guideInfo.setGuideInfo(res);
     } catch (error) {
       // message.error(error);
@@ -70,9 +70,9 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
   }, []);
 
   const fetchBuildLog = useCallback(async (data) => {
-    const { tagName } = data;
+    const { tagName, digest } = data;
     try {
-      const res = await axios.get(`/rdupm/v1/harbor-image-tag/build/log?tagName=${tagName}&repoName=${repoName}`);
+      const res = await axios.get(`/rdupm/v1/harbor-image-tag/build/log?tagName=${tagName}&repoName=${repoName}&digest=${digest}`);
       buildInfo.setBuildInfo(res);
     } catch (error) {
       // message.error(error);
