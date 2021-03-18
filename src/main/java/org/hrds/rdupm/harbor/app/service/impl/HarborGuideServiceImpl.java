@@ -55,11 +55,11 @@ public class HarborGuideServiceImpl implements HarborGuideService {
 	}
 
 	@Override
-	public HarborGuideVo getTagGuide(String repoName, String tagName) {
+	public HarborGuideVo getTagGuide(String repoName, String digest) {
 		String loginName = DetailsHelper.getUserDetails().getUsername();
 		String harborBaseUrl = getRegisterUrl();
 		String loginCmd = String.format("#\"个人信息-->个人设置-->制品库设置\"中可查看默认密码 \ndocker login %s -u %s -p 密码",harborBaseUrl,loginName);
-		String pullCmd = String.format("docker pull %s/%s:%s",harborBaseUrl,repoName,tagName);
+		String pullCmd = String.format("docker pull %s/%s:%s",harborBaseUrl,repoName,digest);
 		return new HarborGuideVo(loginCmd,null,null,null,pullCmd);
 	}
 

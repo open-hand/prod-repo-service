@@ -18,8 +18,8 @@ public interface HarborGuideService {
 	/***
 	 * 镜像TAG--拉取指引
 	 * @param repoName
-	 * @param tagName
+	 * @param digest
 	 * @return
 	 */
-	HarborGuideVo getTagGuide(String repoName, String tagName);
+	HarborGuideVo getTagGuide(String repoName, String digest);
 }

@@ -59,9 +59,6 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			if (CollectionUtils.isEmpty(harborImageTagVoList)) {
 				return new Page<>();
 			}
-			if (StringUtils.isNotEmpty(tagName)) {
-				harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> dto.getTagName().equals(tagName)).collect(Collectors.toList());
-			}
 			harborImageTagVoList.forEach(dto -> {
 				dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
 				dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
@@ -75,28 +72,23 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			if (CollectionUtils.isEmpty(harborImageTagVoList)) {
 				return new Page<>();
 			}
-			if (StringUtils.isNotEmpty(tagName)) {
-				harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> {
-					boolean index = false;
-					for (HarborImageTagVo.Tag t : dto.getTags()) {
-						if (t.getName().equals(tagName)) {
-							index = true;
-							break;
-						}
-					}
-					return index;
-				}).collect(Collectors.toList());
-			}
 			harborImageTagVoList.forEach(dto -> {
 				dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
 				dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
 				dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
 				dto.setOs(dto.getExtraAttrs().getOs());
 				if (!CollectionUtils.isEmpty(dto.getTags())) {
-					dto.setTagName(dto.getTags().get(0).getName());
+					List<String> tags = dto.getTags().stream().map(HarborImageTagVo.Tag::getName).collect(Collectors.toList());
+					dto.setTagName(String.join(",", tags));
 				}
 				setTagAuthor(projectId, repoName, tagName, dto);
 			});
+		}
+		if (StringUtils.isNotEmpty(tagName)) {
+			harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> dto.getTagName().contains(tagName)).collect(Collectors.toList());
+		}
+		if (CollectionUtils.isEmpty(harborImageTagVoList)) {
+			return new Page<>();
 		}
 		processImageLogList(harborImageTagVoList);
 		pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageTagVoList);
