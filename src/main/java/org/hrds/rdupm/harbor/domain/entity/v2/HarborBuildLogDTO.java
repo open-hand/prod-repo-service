@@ -20,4 +20,12 @@ public class HarborBuildLogDTO {
     private String created;
     @SerializedName("created_by")
     private String createdBy;
+
+    public HarborBuildLogDTO() {
+    }
+
+    public HarborBuildLogDTO(String created, String createdBy) {
+        this.created = created;
+        this.createdBy = createdBy;
+    }
 }

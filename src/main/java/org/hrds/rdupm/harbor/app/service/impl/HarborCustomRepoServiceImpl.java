@@ -31,6 +31,7 @@ import org.hrds.rdupm.harbor.domain.repository.HarborRepoServiceRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -79,6 +80,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     private HarborInfoConfiguration harborInfoConfiguration;
 
     private static Gson gson = new Gson();
+    @Autowired
+    private HarborClientOperator harborClientOperator;
 
     @Override
     public Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo) {
@@ -687,20 +690,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     private List<HarborImageVo> getImageList(Integer harborProjectId, String imageName, String repoName) {
-        Map<String, Object> paramMap = new HashMap<>(4);
-        paramMap.put("project_id", harborProjectId);
-        paramMap.put("q", imageName);
-        ResponseEntity<String> responseEntity;
-        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
-            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null);
-        } else {
-            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, getHarborProjectNameCustom(harborProjectId));
-        }
-        List<HarborImageVo> harborImageVoList = new ArrayList<>();
-        if (responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())) {
-            harborImageVoList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageVo>>() {
-            }.getType());
-        }
+        List<HarborImageVo> harborImageVoList = harborClientOperator.listImages(Long.valueOf(harborProjectId), null, null, imageName, true);
         harborImageVoList.forEach(dto -> dto.setImageName(dto.getRepoName().substring(repoName.length() + 1)));
         return harborImageVoList;
     }
@@ -838,14 +828,5 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                 appServiceIds.forEach(appServiceId -> saveRelationByService(projectId, appServiceId, repoId));
             }
         }
-    }
-
-    private String getHarborProjectNameCustom(Integer harborId) {
-        ResponseEntity<String> detailResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, harborId);
-        HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-        if (harborProjectDTO == null) {
-            throw new CommonException("error.get.harbor.project.detail");
-        }
-        return harborProjectDTO.getName();
     }
 }

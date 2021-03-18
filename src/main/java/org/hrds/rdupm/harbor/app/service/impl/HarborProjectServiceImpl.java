@@ -38,6 +38,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
+import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -81,6 +82,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 	@Autowired
 	private HarborAuthService harborAuthService;
+
+	@Autowired
+	private HarborClientOperator harborClientOperator;
 
 	@Override
 	@Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT,description = "创建Docker镜像仓库",inputSchemaClass = HarborProjectVo.class)
@@ -238,22 +242,12 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 		Set<Long> userIdSet = harborRepositoryList.stream().map(dto->dto.getCreatedBy()).collect(Collectors.toSet());
 		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
-		harborRepositoryList.forEach(dto->{
+		harborRepositoryList.forEach(dto -> {
 			//获得镜像数
-			if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-				ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, dto.getHarborId());
-				HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-				dto.setRepoCount(harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount());
-			} else {
-				ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY, null, null, true, dto.getHarborId());
-				Map<String, Object> summaryMap = new Gson().fromJson(detailResponseEntity.getBody(), Map.class);
-				Double repoCount = summaryMap == null || summaryMap.get("repo_count") == null ? 0L : (Double) summaryMap.get("repo_count");
-				dto.setRepoCount(Integer.parseInt(new java.text.DecimalFormat("0").format(repoCount)));
-			}
-
+			dto.setRepoCount(harborClientOperator.getRepoCountByHarborId(dto.getHarborId()));
 			//设置创建人登录名、真实名称、创建人头像
 			UserDTO userDTO = userDtoMap.get(dto.getCreatedBy());
-			if(userDTO != null){
+			if (userDTO != null) {
 				dto.setCreatorImageUrl(userDTO.getImageUrl());
 				dto.setCreatorLoginName(userDTO.getLoginName());
 				dto.setCreatorRealName(userDTO.getRealName());
