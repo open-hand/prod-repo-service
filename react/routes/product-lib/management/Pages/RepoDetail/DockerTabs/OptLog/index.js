@@ -130,7 +130,7 @@ const OptLog = ({ formatMessage, optLogDs, activeTabKey, activeRepository }) => 
       <div className="product-lib-timeline-count">
         <div className="product-lib-timeline-count-item">
           <span>拉取总次数：</span>
-          <span>{`${downloadTimes || '0'}人`}</span>
+          <span>{`${downloadTimes || '0'}次`}</span>
         </div>
         <div className="product-lib-timeline-count-item">
           <span>拉取总人数：</span>
