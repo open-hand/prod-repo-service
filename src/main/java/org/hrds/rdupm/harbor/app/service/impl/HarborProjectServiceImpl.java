@@ -92,8 +92,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
     @Autowired
     private HarborAuthService harborAuthService;
 
-    @Autowired
-    private HarborLogMapper harborLogMapper;
 
     @Autowired
     private HarborInfoConfiguration harborInfoConfiguration;
@@ -263,13 +261,16 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             // 统计下载的次数与人数
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
+            paramMap.put("page", 0);
+            paramMap.put("page_size", 0);
             //v1和v2所传的参数不一样
             ResponseEntity<String> responseEntity = null;
+
             if (StringUtils.equalsIgnoreCase(harborInfoConfiguration.getApiVersion(), "v2")) {
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, null, null, true, dto.getCode());
+                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, dto.getCode());
 
             } else if (StringUtils.equalsIgnoreCase(harborInfoConfiguration.getApiVersion(), "v1")) {
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, null, null, true, dto.getHarborId());
+                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, dto.getHarborId());
 
             } else {
                 throw new CommonException("not.support.harbor.version", harborInfoConfiguration.getApiVersion());
