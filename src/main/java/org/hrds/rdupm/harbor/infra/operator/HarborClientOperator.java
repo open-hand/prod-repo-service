@@ -73,9 +73,11 @@ public class HarborClientOperator {
             }.getType());
             if (logListResult != null) {
                 logListResult = logListResult.stream().map(t -> {
-                    String[] strings = t.getResource().split(":");
-                    t.setRepoName(strings[0]);
-                    t.setRepoName(strings[1]);
+                    if (t.getResource().contains(":")) {
+                        String[] strings = t.getResource().split(":");
+                        t.setRepoName(strings[0]);
+                        t.setTagName(strings[1]);
+                    }
                     return t;
                 }).collect(Collectors.toList());
             }
