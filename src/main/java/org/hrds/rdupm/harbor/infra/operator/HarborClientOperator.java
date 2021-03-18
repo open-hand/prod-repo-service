@@ -234,6 +234,11 @@ public class HarborClientOperator {
             harborImageVoList = new Gson().fromJson(responseEntity.getBody(), new com.google.gson.reflect.TypeToken<List<HarborImageVo>>() {
             }.getType());
             harborImageVoList.forEach(dto -> {
+                if (dto.getRepoName().contains(BaseConstants.Symbol.SLASH)) {
+                    dto.setImageName(dto.getRepoName().split(BaseConstants.Symbol.SLASH)[1]);
+                } else {
+                    dto.setImageName("");
+                }
                 if (dto.getArtifactCount() != null) {
                     dto.setTagsCount(dto.getArtifactCount());
                 }
