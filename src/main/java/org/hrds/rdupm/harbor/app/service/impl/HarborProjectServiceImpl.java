@@ -46,6 +46,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborLogMapper;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
+import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
@@ -94,7 +95,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
 
     @Autowired
-    private HarborInfoConfiguration harborInfoConfiguration;
+    private HarborClientOperator harborClientOperator;
 
     @Override
     @Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT, description = "创建Docker镜像仓库", inputSchemaClass = HarborProjectVo.class)
@@ -263,21 +264,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
             paramMap.put("page", 0);
             paramMap.put("page_size", 0);
-            //v1和v2所传的参数不一样
-            ResponseEntity<String> responseEntity = null;
-
-            if (StringUtils.equalsIgnoreCase(harborInfoConfiguration.getApiVersion(), "v2")) {
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, dto.getCode());
-
-            } else if (StringUtils.equalsIgnoreCase(harborInfoConfiguration.getApiVersion(), "v1")) {
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, dto.getHarborId());
-
-            } else {
-                throw new CommonException("not.support.harbor.version", harborInfoConfiguration.getApiVersion());
-            }
-
-            List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-            }.getType());
+            List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, dto);
 
             Long personTimes = 0L;
             Long downloadTimes = 0L;
