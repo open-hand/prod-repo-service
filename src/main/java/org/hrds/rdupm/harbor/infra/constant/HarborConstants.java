@@ -180,7 +180,7 @@ public interface HarborConstants {
 		* */
 		GET_IMAGE_BUILD_LOG("/api/repositories/%s/tags/%s/manifest", HttpMethod.GET,"获取构建日志-- 仓库名/镜像名称、版本号","/api/v2.0/projects/%s/repositories/%s/artifacts/%s/additions/build_history","项目名/repository_name/reference（摘要）"),
 
-		DELETE_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.DELETE,"删除镜像TAG-- 仓库名/镜像名称、版本号","/api/v2.0/projects/%s/repositories/%s/artifacts/%s/tags/%s","项目名/repository_name/reference（摘要）/版本号"),
+		DELETE_IMAGE_TAG("/api/repositories/%s/tags/%s", HttpMethod.DELETE,"删除镜像TAG-- 仓库名/镜像名称、版本号","/api/v2.0/projects/%s/repositories/%s/artifacts/%s","项目名/repository_name/reference（摘要）"),
 
 		LIST_IMAGE_TAG("/api/repositories/%s/tags", HttpMethod.GET,"获取镜像TAG列表-- 仓库名/镜像名称","/api/v2.0/projects/%s/repositories/%s/artifacts","项目名,repository_name"),
 
