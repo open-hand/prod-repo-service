@@ -255,9 +255,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
         Map<Long, UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
         harborRepositoryList.forEach(dto -> {
             //获得镜像数
-            ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, dto.getHarborId());
-            HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
-            dto.setRepoCount(harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount());
+            dto.setRepoCount(harborClientOperator.getRepoCountByHarborId(dto.getHarborId()));
 
             // 统计下载的次数与人数
             Map<String, Object> paramMap = new HashMap<>();
