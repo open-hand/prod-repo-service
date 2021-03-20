@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
@@ -28,9 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * @Author: scp
@@ -118,11 +116,18 @@ public class HarborClientOperator {
             }
             harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
             }.getType());
+            ResponseEntity<String> response = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, null, null, true);
+            Map<String, Object> systemMap = JSONObject.parseObject(response.getBody(), Map.class);
+            if (systemMap == null) {
+                throw new CommonException("error.get.system.version");
+            }
+            String dockerVersion = systemMap.get("harbor_version").toString();
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
                 dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
                 dto.setOs(dto.getExtraAttrs().getOs());
+                dto.setDockerVersion(dockerVersion);
                 if (!CollectionUtils.isEmpty(dto.getTags())) {
 //                    List<String> tags = dto.getTags().stream().map(HarborImageTagVo.Tag::getName).collect(Collectors.toList());
                     if (!CollectionUtils.isEmpty(dto.getTags())) {
@@ -164,16 +169,19 @@ public class HarborClientOperator {
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG, null, null, true, repoName, tagName);
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-            ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, repoName, strArr[0], strArr[1]);
+            ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, strArr[0], strArr[1]);
             List<HarborArtifactDTO> artifactDTOList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
             }.getType());
             if (CollectionUtils.isEmpty(artifactDTOList)) {
                 return;
             }
             artifactDTOList.forEach(t -> {
+                if (CollectionUtils.isEmpty(t.getTags())) {
+                    return;
+                }
                 t.getTags().forEach(tag -> {
                     if (tag.getTagName().equals(tagName)) {
-                        harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG, null, null, true, strArr[0], strArr[1], t.getDigest(), tagName);
+                        harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG, null, null, true, strArr[0], strArr[1], t.getDigest());
                     }
                 });
             });
