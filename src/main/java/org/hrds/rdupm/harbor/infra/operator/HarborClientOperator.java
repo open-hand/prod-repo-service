@@ -15,6 +15,7 @@ import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
 import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
 import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.entity.v2.HarborArtifactDTO;
@@ -61,6 +62,37 @@ public class HarborClientOperator {
     public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, HarborRepository harborRepository) {
         return listImageLogs(paramMap, harborRepository.getHarborId(), harborRepository.getCode());
     }
+
+    public List<HarborImageLog> listCustomImageLogs(Map<String, Object> paramMap, HarborCustomRepo harborCustomRepo) {
+        //自定harbor仓库日志
+        return listlistCustomImageLogs(paramMap, Long.valueOf(harborCustomRepo.getHarborProjectId()), harborCustomRepo.getProjectCode());
+    }
+
+    private List<HarborImageLog> listlistCustomImageLogs(Map<String, Object> paramMap, Long harborProjectId, String harborProjectCode) {
+        ResponseEntity<String> responseEntity;
+        List<HarborImageLog> logListResult;
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
+            logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+            }.getType());
+        } else {
+            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
+            logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+            }.getType());
+            if (logListResult != null) {
+                logListResult = logListResult.stream().map(t -> {
+                    if (t.getResource().contains(":")) {
+                        String[] strings = t.getResource().split(":");
+                        t.setRepoName(strings[0]);
+                        t.setTagName(strings[1]);
+                    }
+                    return t;
+                }).collect(Collectors.toList());
+            }
+        }
+        return logListResult;
+    }
+
 
     public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborId, String harborProjectCode) {
         ResponseEntity<String> responseEntity;
