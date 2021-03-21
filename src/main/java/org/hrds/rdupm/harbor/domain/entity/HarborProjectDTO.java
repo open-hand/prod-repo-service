@@ -108,6 +108,7 @@ public class HarborProjectDTO {
 		}
 		HarborMetadataDTO metadataDTO = new HarborMetadataDTO();
 		BeanUtils.copyProperties(harborProjectVo,metadataDTO);
+		metadataDTO.setUseSysCveFlagV2(metadataDTO.getUseSysCveFlag());
 		this.metadata = metadataDTO;
 	}
 }
