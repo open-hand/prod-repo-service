@@ -306,6 +306,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             map.put("project_id", harborId);
             map.put("id", 1);
             harborProjectDTO.setCveWhiteList(map);
+            harborProjectDTO.setCveAllowList(map);
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT, null, harborProjectDTO, false, harborId);
         }
     }
