@@ -59,14 +59,18 @@ public class HarborClientOperator {
     }
 
     public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, HarborRepository harborRepository) {
+        return listImageLogs(paramMap, harborRepository.getHarborId(), harborRepository.getCode());
+    }
+
+    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborId, String harborProjectCode) {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborRepository.getHarborId());
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborId);
             logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
         } else {
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborRepository.getCode());
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
             logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
