@@ -164,9 +164,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             // 统计下载的次数与人数
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
-            ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, null, null, true, harborCustomRepo.getHarborProjectId());
-            List<HarborImageLog> dataList = new Gson().fromJson(responseEntity.getBody(), new com.google.common.reflect.TypeToken<List<HarborImageLog>>() {
-            }.getType());
+            paramMap.put("page", 0);
+            paramMap.put("page_size", 0);
+            List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(paramMap, harborCustomRepo);
 
             Long personTimes = 0L;
             Long downloadTimes = 0L;
