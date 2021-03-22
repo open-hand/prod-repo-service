@@ -31,6 +31,7 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
     @Override
     @Async
     public void uploadJar(NexusClient nexusClient, MultipartFile assetJar, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步方法>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         try (
                 InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
                 InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
