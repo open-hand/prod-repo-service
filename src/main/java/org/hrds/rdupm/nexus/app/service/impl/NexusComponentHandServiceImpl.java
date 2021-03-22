@@ -50,9 +50,8 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
             }
             nexusServerComponentUpload.setAssetUploads(assetUploadList);
             nexusClient.getComponentsApi().createMavenComponent(nexusServerComponentUpload, currentNexusServer);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("上传jar包错误", e);
-            throw new CommonException(e.getMessage());
         } finally {
             // remove配置信息
             nexusClient.removeNexusServerInfo();
