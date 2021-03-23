@@ -73,7 +73,7 @@ const OptLog = ({ mavenOptLogDs, activeTabKey, repositoryId, activeRepository })
         <div className="prod-lib-npm-optlog-header-count">
           <div className="prod-lib-npm-optlog-header-count-item">
             <span>拉取总次数：</span>
-            <span>{`${downloadTimes || '0'}人`}</span>
+            <span>{`${downloadTimes || '0'}次`}</span>
           </div>
           <div className="prod-lib-npm-optlog-header-count-item">
             <span>拉取总人数：</span>
