@@ -166,6 +166,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
             paramMap.put("page", 0);
             paramMap.put("page_size", 0);
+            //自定义仓库没有存仓库id 所以这里需要查询
+            getHarborProjectId(harborCustomRepo);
             List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(paramMap, harborCustomRepo);
 
             Long personTimes = 0L;
