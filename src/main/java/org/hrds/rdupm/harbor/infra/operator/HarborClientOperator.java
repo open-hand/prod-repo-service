@@ -65,10 +65,10 @@ public class HarborClientOperator {
 
     public List<HarborImageLog> listCustomImageLogs(Map<String, Object> paramMap, HarborCustomRepo harborCustomRepo) {
         //自定harbor仓库日志
-        return listlistCustomImageLogs(paramMap, Long.valueOf(harborCustomRepo.getHarborProjectId()), harborCustomRepo.getProjectCode());
+        return listlistCustomImageLogs(paramMap, harborCustomRepo.getHarborProjectId(), harborCustomRepo.getProjectCode());
     }
 
-    private List<HarborImageLog> listlistCustomImageLogs(Map<String, Object> paramMap, Long harborProjectId, String harborProjectCode) {
+    private List<HarborImageLog> listlistCustomImageLogs(Map<String, Object> paramMap, Integer harborProjectId, String harborProjectCode) {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
