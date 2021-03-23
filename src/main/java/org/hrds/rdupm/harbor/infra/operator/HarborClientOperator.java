@@ -65,7 +65,7 @@ public class HarborClientOperator {
 
     public List<HarborImageLog> listCustomImageLogs(Map<String, Object> paramMap, HarborCustomRepo harborCustomRepo) {
         //自定harbor仓库日志
-        return listlistCustomImageLogs(paramMap, harborCustomRepo.getHarborProjectId(), harborCustomRepo.getProjectCode());
+        return listlistCustomImageLogs(paramMap, harborCustomRepo.getHarborProjectId(), harborCustomRepo.getRepoName());
     }
 
     private List<HarborImageLog> listlistCustomImageLogs(Map<String, Object> paramMap, Integer harborProjectId, String harborProjectCode) {
