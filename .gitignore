@@ -58,6 +58,7 @@ init-local-database-dev.sh
 /npm-debug.log
 /yarn-error.log
 /yarn-lock.json
+/yarn.json
 /package-lock.json
 
 # folder
