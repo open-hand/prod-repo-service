@@ -204,12 +204,12 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
         }}
       >
         <Form dataSet={dockerImageTagDs.queryDataSet} >
-          <TextField name="tagName" />
+          <TextField name="dockerVersion" />
         </Form>
       </div>
       <Table dataSet={dockerImageTagDs} queryBar="none">
         <Column 
-          name="tagName"
+          name="dockerVersion"
           renderer={({ text }) => (
             <Tooltip title={text} placement="top" >
               {text}
@@ -236,7 +236,6 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
             return rendererIcon(userImageUrl, text, loginName);
           }}
         />
-        {/* <Column name="createTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} /> */}
         <Column name="pushTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
         <Column name="pullTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
       </Table>

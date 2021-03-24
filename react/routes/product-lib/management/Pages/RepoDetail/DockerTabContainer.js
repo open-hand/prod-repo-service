@@ -51,7 +51,13 @@ const DockerTabContainer = (props) => {
   const guideButtonProps = useMemo(() => ({ formatMessage }), [formatMessage]);
 
   const overViewProps = useMemo(() => ({ harborId, formatMessage, activeTabKey }), [formatMessage, activeTabKey, harborId]);
-  const imageListProps = useMemo(() => ({ dockerImageTagDs, dockerImageListDs, harborId, formatMessage, activeTabKey }), [dockerImageTagDs, dockerImageListDs, formatMessage, activeTabKey, harborId]);
+  const imageListProps = useMemo(() => ({ 
+    dockerImageTagDs, 
+    dockerImageListDs, 
+    harborId, 
+    formatMessage, 
+    activeTabKey,
+  }), [dockerImageTagDs, dockerImageListDs, activeTabKey, harborId]);
   const authListProps = useMemo(() => ({ dockerAuthDs, formatMessage, activeTabKey }), [dockerAuthDs, formatMessage, activeTabKey]);
   const optLogProps = useMemo(() => ({ optLogDs, formatMessage, activeTabKey }), [optLogDs, formatMessage, activeTabKey]);
 

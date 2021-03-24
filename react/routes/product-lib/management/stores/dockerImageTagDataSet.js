@@ -9,7 +9,7 @@ export default ((intlPrefix, formatMessage, projectId) => ({
     }),
   },
   fields: [
-    { name: 'tagName', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.tagName`, defaultMessage: '版本号' }) },
+    { name: 'dockerVersion', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.tagName`, defaultMessage: '版本号' }) },
     { name: 'sizeDesc', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.sizeDesc`, defaultMessage: '大小' }) },
     { name: 'dockerVersion', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.dockerVersion`, defaultMessage: 'Docker版本' }) },
     { name: 'os', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.OS/ARCH`, defaultMessage: 'OS/ARCH' }) },
@@ -21,6 +21,6 @@ export default ((intlPrefix, formatMessage, projectId) => ({
     { name: 'pullTime', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.pullTime`, defaultMessage: '最近拉取时间' }) },
   ],
   queryFields: [
-    { name: 'tagName', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.tagName`, defaultMessage: '版本号' }) },
+    { name: 'dockerVersion', type: 'string', label: formatMessage({ id: `${intlPrefix}.model.tagName`, defaultMessage: '版本号' }) },
   ],
 }));
