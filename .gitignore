@@ -59,7 +59,6 @@ init-local-database-dev.sh
 /yarn-error.log
 /yarn-lock.json
 /package-lock.json
-/yarn.lock
 
 # folder
 /dist
