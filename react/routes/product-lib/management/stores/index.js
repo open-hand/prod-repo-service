@@ -16,4 +16,4 @@ export { default as npmOptLogDataSet } from './npmOptLogDataSet';
 export { default as dockerCustomCreateDataSet } from './dockerCustomCreateDataSet';
 export { default as mavenAssociateDataSet } from './mavenAssociateDataSet';
 export { default as npmAssociateDataSet } from './npmAssociateDataSet';
-
+export { default as dockerImageScanningDetailsDataSet } from './dockerImageScanningDetailsDataSet';

@@ -44,6 +44,7 @@ const DockerTabContainer = (props) => {
     intl: { formatMessage },
     dockerImageListDs,
     dockerImageTagDs,
+    dockerImageScanDetailsDs,
     dockerAuthDs,
     optLogDs,
   } = useStore();
@@ -57,6 +58,7 @@ const DockerTabContainer = (props) => {
     harborId, 
     formatMessage, 
     activeTabKey,
+    dockerImageScanDetailsDs,
   }), [dockerImageTagDs, dockerImageListDs, activeTabKey, harborId]);
   const authListProps = useMemo(() => ({ dockerAuthDs, formatMessage, activeTabKey }), [dockerAuthDs, formatMessage, activeTabKey]);
   const optLogProps = useMemo(() => ({ optLogDs, formatMessage, activeTabKey }), [optLogDs, formatMessage, activeTabKey]);

@@ -18,7 +18,7 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const ImageList = ({ dockerImageTagDs, dockerImageListDs, formatMessage, activeTabKey }) => {
+const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetailsDs, formatMessage, activeTabKey }) => {
   const userAuth = useUserAuth();
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.DOCKER_IMAGE) {
@@ -80,10 +80,9 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, formatMessage, activeT
       drawer: true,
       className: 'product-lib-edit-model',
       style: { width: '75%' },
-      children: <TagModal dockerImageTagDs={dockerImageTagDs} formatMessage={formatMessage} repoName={repoName} imageName={name} userAuth={userAuth} />,
+      children: <TagModal dockerImageScanDetailsDs={dockerImageScanDetailsDs} dockerImageTagDs={dockerImageTagDs} formatMessage={formatMessage} repoName={repoName} imageName={name} userAuth={userAuth} />,
     });
   };
-
 
   const imageList = useMemo(() => dockerImageListDs.toData(), [dockerImageListDs.data]);
 
@@ -97,14 +96,15 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, formatMessage, activeT
           }
         }}
       >
-        <Form dataSet={dockerImageListDs.queryDataSet} >
+        <Form dataSet={dockerImageListDs.queryDataSet}>
           <TextField name="imageName" />
         </Form>
       </div>
-      {dockerImageListDs.records.length > 0 ?
-        <React.Fragment>
-          <ul className="product-lib-docker-imagelist-list">
-            {
+      {dockerImageListDs.records.length > 0
+        ? (
+          <React.Fragment>
+            <ul className="product-lib-docker-imagelist-list">
+              {
               imageList.map(data => {
                 const { imageId, imageName, updateTime, tagsCount, pullCount } = data;
                 return (
@@ -167,17 +167,18 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, formatMessage, activeT
                 );
               })
             }
-          </ul>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Pagination dataSet={dockerImageListDs} />
+            </ul>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Pagination dataSet={dockerImageListDs} />
+            </div>
+          </React.Fragment>
+        )
+        : (
+          <div className="product-lib-docker-imagelist-no-content">
+            <span>暂无数据</span>
           </div>
-        </React.Fragment>
-        :
-        <div className="product-lib-docker-imagelist-no-content">
-          <span>暂无数据</span>
-        </div>
-      }
-    </Spin >
+        )}
+    </Spin>
   );
 };
 

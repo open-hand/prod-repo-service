@@ -11,8 +11,11 @@ import { Action, axios } from '@choerodon/boot';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
 import moment from 'moment';
+import { get } from 'lodash';
+import { TimePopover } from '@choerodon/components';
 import PullGuideModal from './PullGuideModal';
 import BuildLogModal from './BuildLogModal';
+import ScanReprot from './ScanReportModal';
 
 const intlPrefix = 'infra.prod.lib';
 const { Column } = Table;
@@ -39,7 +42,7 @@ const iconStyle = {
   justifyContent: 'center',
 };
 
-const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAuth }) => {
+const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, repoName, imageName, userAuth }) => {
   useEffect(() => {
     dockerImageTagDs.setQueryParameter('repoName', repoName);
     dockerImageTagDs.query();
@@ -112,7 +115,6 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
     });
   }, [fetchBuildLog, buildInfo]);
 
-
   const handleDelete = async (data) => {
     const { tagName } = data;
     const button = await Modal.confirm({
@@ -131,6 +133,20 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
         // message.error(error);
       }
     }
+  };
+
+  const handleScanReport = () => {
+    Modal.open({
+      key: Modal.key(),
+      title: '漏洞扫描详情',
+      children: <ScanReprot dockerImageScanDetailsDs={dockerImageScanDetailsDs} />,
+      drawer: true,
+      okCancel: false,
+      okText: '关闭',
+      style: {
+        width: '7.4rem',
+      },
+    });
   };
 
   const renderAction = ({ record }) => {
@@ -158,13 +174,19 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
           service: [],
           text: formatMessage({ id: `${intlPrefix}.view.pullImageByTag`, defaultMessage: '版本拉取' }),
           action: () => handleOpenGuideModal(data),
-        }, {
+        },
+        {
           service: [],
           text: formatMessage({ id: `${intlPrefix}.view.buildLog`, defaultMessage: '构建日志' }),
           action: () => handleOpenLogModal(data),
         },
       ];
     }
+    actionData.push({
+      service: [],
+      text: formatMessage({ id: `${intlPrefix}.view.scanningReport`, defaultMessage: '漏洞扫描详情' }),
+      action: () => handleScanReport(data),
+    });
     return <Action data={actionData} />;
   };
 
@@ -203,15 +225,50 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
           }
         }}
       >
-        <Form dataSet={dockerImageTagDs.queryDataSet} >
+        <Form dataSet={dockerImageTagDs.queryDataSet}>
           <TextField name="dockerVersion" />
         </Form>
       </div>
-      <Table dataSet={dockerImageTagDs} queryBar="none">
+      <Table
+        dataSet={dockerImageTagDs} 
+        queryBar="none"
+        mode="tree"
+        className="product-lib-docker-taglist-table"
+        expandedRowRenderer={({ record }) => {
+          const versions = record.get('versions');
+          return (
+            <div className="product-lib-docker-taglist-subTableContainer">
+              <span className="product-lib-docker-taglist-line" />
+              <table className="product-lib-docker-taglist-subTable">
+                <tr className="product-lib-docker-taglist-subTable-header">
+                  <th>版本号</th>
+                  <th />
+                  <th>最近推送时间</th>
+                  <th>最近拉取时间</th>
+                </tr>
+                {
+                  versions.map((item) => (
+                    <tr>
+                      <td>
+                        <div className="product-lib-docker-taglist-subTable-dot"><span /><span />
+                        </div>
+                        {get(item, 'version')}
+                      </td>
+                      <td><Action /></td>
+                      <td><TimePopover content={get(item, 'date')} /></td>
+                      <td><TimePopover content={get(item, 'pDate')} /></td>
+                    </tr>
+                  ))
+                }
+              </table>
+            </div>
+          );
+        }}
+      >
         <Column 
           name="dockerVersion"
           renderer={({ text }) => (
-            <Tooltip title={text} placement="top" >
+            <Tooltip title={text} placement="top">
               {text}
             </Tooltip>
           )}
@@ -222,12 +279,11 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
         <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
         <Column
           name="digest"
-          renderer={({ text }) =>
-            (
-              <Tooltip title={text} placement="top" overlayClassName="product-lib-docker-image-tag-digest">
-                <div className="product-lib-docker-image-tag-digest-text">{text}</div>
-              </Tooltip>
-            )}
+          renderer={({ text }) => (
+            <Tooltip title={text} placement="top" overlayClassName="product-lib-docker-image-tag-digest">
+              <div className="product-lib-docker-image-tag-digest-text">{text}</div>
+            </Tooltip>
+          )}
         />
         <Column
           name="realName"

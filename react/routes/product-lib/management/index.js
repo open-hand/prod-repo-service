@@ -22,6 +22,7 @@ import {
   dockerCustomCreateDataSet,
   mavenAssociateDataSet,
   npmAssociateDataSet,
+  dockerImageScanningDetailsDataSet,
 } from './stores';
 
 const Store = createContext();
@@ -50,6 +51,7 @@ export default injectIntl(inject('AppState')((props) => {
   const dockerCreateBasicDs = useMemo(() => new DataSet(dockerCreateBasicDataSet(intlPrefix, formatMessage)), []);
   const dockerImageListDs = useMemo(() => new DataSet(dockerImageListDataSet(intlPrefix, formatMessage)), []);
   const dockerImageTagDs = useMemo(() => new DataSet(dockerImageTagDataSet(intlPrefix, formatMessage, projectId)), [projectId]);
+  const dockerImageScanDetailsDs = useMemo(() => new DataSet(dockerImageScanningDetailsDataSet(projectId)), [projectId]);
   const dockerAuthDs = useMemo(() => new DataSet(dockerAuthDataSet(intlPrefix, formatMessage, projectId)), [projectId]);
   const optLogDs = useMemo(() => new DataSet(optLogDataSet(projectId)), [projectId]);
 
@@ -82,6 +84,7 @@ export default injectIntl(inject('AppState')((props) => {
     npmComponentDs,
     npmOptLogDs,
     dockerCustomCreateDs,
+    dockerImageScanDetailsDs,
     mavenAssociateDs,
     npmAssociateDs,
   };
