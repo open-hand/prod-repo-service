@@ -61,6 +61,10 @@ public interface HarborConstants {
 		String HIGH = "high";
 
 		String CRITICAL = "critical";
+
+		String NEGLIGIBLE = "negligible";
+
+		String UNKNOWN = "unknown";
 	}
 
 	interface HarborSagaCode{
@@ -227,8 +231,23 @@ public interface HarborConstants {
          * */
         CURRENT_USER("/api/users/current", HttpMethod.GET, "查询当前用户信息","/api/v2.0/users/current"),
 
-        GET_SYSTEM_INFO("/api/systeminfo", HttpMethod.GET, "查询当前系统信息","/api/v2.0/systeminfo");
+		GET_SYSTEM_INFO("/api/systeminfo", HttpMethod.GET, "查询当前系统信息", "/api/v2.0/systeminfo"),
 
+		/**
+		 * 镜像扫描
+		 */
+		IMAGE_SCAN("/api/repositories/%s/tags/%s/scan", HttpMethod.POST, "镜像安全扫描，repo_name镜像仓库名/tag", "/api/v2.0/projects/%s/repositories/%s/artifacts/%s/scan","项目名/repository_name仓库名/reference摘要"),
+
+		/**
+		 * 实时查询单个镜像扫描结果
+		 * 镜像扫描结果查询
+		 */
+		IMAGE_SCAN_RESULT("/api/repositories/%s/tags/%s", HttpMethod.GET, "镜像安全扫描，repo_name镜像仓库名/tag", "/api/v2.0/projects/%s/repositories/%s/artifacts/%s","项目名/repository_name仓库名/reference摘要"),
+
+		/**
+		 * 镜像扫描详情
+		 */
+		IMAGE_SCAN_DETAIL("/api/repositories/%s/tags/%s/vulnerability/details", HttpMethod.GET, "镜像安全扫描，repo_name镜像仓库名/tag", "/api/v2.0/projects/%s/repositories/%s/artifacts/%s/additions/vulnerabilities","项目名/repository_name仓库名/reference摘要");
 
 		/**
 		 *  v2.0接口

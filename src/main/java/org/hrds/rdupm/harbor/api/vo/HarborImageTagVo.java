@@ -2,6 +2,7 @@ package org.hrds.rdupm.harbor.api.vo;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.annotations.SerializedName;
@@ -9,7 +10,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * description
@@ -27,6 +27,7 @@ public class HarborImageTagVo {
 
     @ApiModelProperty("TAG名称")
     @SerializedName("name")
+    @JsonIgnore
     private String tagName;
 
     @ApiModelProperty("TAG大小：102400")
@@ -75,10 +76,18 @@ public class HarborImageTagVo {
 
     @ApiModelProperty("额外信息")
     @SerializedName("extra_attrs")
+    @JsonIgnore
     private ExtraAttr extraAttrs;
 
     @ApiModelProperty("tag列表")
     private List<Tag> tags;
+
+    @SerializedName("scan_overview")
+    @JsonIgnore
+    private JSONObject scanOverviewJson;
+
+    @ApiModelProperty("扫描结果")
+    private ScanOverview scanOverview;
 
     @Getter
     @Setter
@@ -96,6 +105,52 @@ public class HarborImageTagVo {
     public class Tag {
         @ApiModelProperty("tag名称")
         private String name;
+        @ApiModelProperty("最新push时间")
+        @SerializedName("push_time")
+        private String pushTime;
+        @ApiModelProperty("最近pull时间")
+        @SerializedName("pull_time")
+        private String pullTime;
+    }
+
+    @Getter
+    @Setter
+    public  class ScanOverview {
+        @ApiModelProperty("扫描状态")
+        @SerializedName("scan_status")
+        private String scanStatus;
+        @ApiModelProperty("严重程度")
+        private String severity;
+        @ApiModelProperty("可修复的")
+        private Long fixable;
+        @ApiModelProperty("总共的")
+        private Long total;
+
+        @ApiModelProperty("总结")
+        private Summary summary;
+    }
+
+    @Getter
+    @Setter
+    public class Summary{
+        @ApiModelProperty("危急")
+        @SerializedName("Critical")
+        private Long critical;
+        @ApiModelProperty("严重")
+        @SerializedName("High")
+        private Long high;
+        @ApiModelProperty("中等")
+        @SerializedName("Medium")
+        private Long medium;
+        @ApiModelProperty("较低")
+        @SerializedName("Low")
+        private Long low;
+        @ApiModelProperty("可忽略")
+        @SerializedName("Negligible")
+        private Long negligible;
+        @ApiModelProperty("未知")
+        @SerializedName("Unknown")
+        private Long unknown;
     }
 
 }

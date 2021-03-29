@@ -54,7 +54,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			return new Page<>();
 		}
 		harborImageTagVoList.forEach(t -> setTagAuthor(projectId, repoName, tagName, t));
-		processImageLogList(harborImageTagVoList);
+		setAuthorWithIam(harborImageTagVoList);
 		pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageTagVoList);
 		return pageInfo;
 	}
@@ -89,7 +89,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		}
 	}
 
-	public void processImageLogList(List<HarborImageTagVo> harborImageTagVoList){
+	public void setAuthorWithIam(List<HarborImageTagVo> harborImageTagVoList){
 		Set<String> userNameSet = harborImageTagVoList.stream().map(dto->dto.getAuthor()).collect(Collectors.toSet());
 		Map<String,UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
 		harborImageTagVoList.stream().forEach(dto->{

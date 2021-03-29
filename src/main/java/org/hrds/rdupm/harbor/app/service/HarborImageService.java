@@ -2,9 +2,11 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.List;
 
+import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
+import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 
 /**
  * description
@@ -44,4 +46,10 @@ public interface HarborImageService {
 	 * @param harborImageVo
 	 */
 	void updateDesc(HarborImageVo harborImageVo);
+
+	/***
+	 * 批量扫描镜像
+	 * @param imageScanVOList
+	 */
+	void scanImages(List<HarborImageScanVO> imageScanVOList);
 }

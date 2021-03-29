@@ -6,15 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
-import org.hrds.rdupm.harbor.api.vo.HarborImageReTag;
-import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
-import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hrds.rdupm.harbor.api.vo.*;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
@@ -24,12 +20,11 @@ import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.util.TypeUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import io.choerodon.core.exception.CommonException;
 
 /**
  * @Author: scp
@@ -65,10 +60,10 @@ public class HarborClientOperator {
 
     public List<HarborImageLog> listCustomImageLogs(Map<String, Object> paramMap, HarborCustomRepo harborCustomRepo) {
         //自定harbor仓库日志
-        return listlistCustomImageLogs(paramMap, harborCustomRepo.getHarborProjectId(), harborCustomRepo.getRepoName());
+        return listCustomImageLogs(paramMap, harborCustomRepo.getHarborProjectId(), harborCustomRepo.getRepoName());
     }
 
-    private List<HarborImageLog> listlistCustomImageLogs(Map<String, Object> paramMap, Integer harborProjectId, String harborProjectCode) {
+    private List<HarborImageLog> listCustomImageLogs(Map<String, Object> paramMap, Integer harborProjectId, String harborProjectCode) {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
@@ -142,8 +137,37 @@ public class HarborClientOperator {
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
+                HarborImageTagVo.ScanOverview scanOverview = dto.new ScanOverview();
+                scanOverview.setScanStatus(TypeUtil.objToString(dto.getScanOverviewJson().get("scan_status")));
+                scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(dto.getScanOverviewJson().get("severity"))));
+                Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("components");
+                scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
+                HarborImageTagVo.Summary summary = dto.new Summary();
+                if (imageMap.get("summary") != null) {
+                    List<Object> summaryMap = (List<Object>) imageMap.get("summary");
+                    summaryMap.stream().forEach(t -> {
+                        Map<String, Object> map = (Map<String, Object>) t;
+                        setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
+                    });
+                }
+                scanOverview.setSummary(summary);
+                dto.setScanOverview(scanOverview);
+
+                List<HarborImageTagVo.Tag> tags = new ArrayList<>();
+                HarborImageTagVo.Tag tag = dto.new Tag();
+                tag.setName(dto.getTagName());
+                tag.setPullTime(dto.getPullTime());
+                tag.setPushTime(dto.getPushTime());
+                tags.add(tag);
+                dto.setTags(tags);
+
+                dto.setScanOverviewJson(null);
+                dto.setExtraAttrs(null);
+                dto.setTagName(null);
             });
         } else {
+            paramMap.put("with_tag", "true");
+            paramMap.put("with_scan_overview", "true");
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
             if (isCustom) {
                 tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, strArr[0], strArr[1]);
@@ -152,28 +176,27 @@ public class HarborClientOperator {
             }
             harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
             }.getType());
-            ResponseEntity<String> response = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, null, null, true);
-            Map<String, Object> systemMap = JSONObject.parseObject(response.getBody(), Map.class);
-            if (systemMap == null) {
-                throw new CommonException("error.get.system.version");
+            if (CollectionUtils.isEmpty(harborImageTagVoList)) {
+                return new ArrayList<>();
             }
-            String dockerVersion = systemMap.get("harbor_version").toString();
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
                 dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
                 dto.setOs(dto.getExtraAttrs().getOs());
-                dto.setDockerVersion(dockerVersion);
-                if (!CollectionUtils.isEmpty(dto.getTags())) {
-//                    List<String> tags = dto.getTags().stream().map(HarborImageTagVo.Tag::getName).collect(Collectors.toList());
-                    if (!CollectionUtils.isEmpty(dto.getTags())) {
-                        dto.setTagName(dto.getTags().get(0).getName());
-                    }
-                }
+                Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
+                String jsonString = new Gson().toJson(imageMap.get("summary"));
+                Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
+                HarborImageTagVo.ScanOverview scanOverview = new Gson().fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")));
+                scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
+                jsonString = new Gson().toJson(summaryMap.get("summary"));
+                HarborImageTagVo.Summary summary = new Gson().fromJson(jsonString, HarborImageTagVo.Summary.class);
+                scanOverview.setSummary(summary);
+                dto.setScanOverview(scanOverview);
+                dto.setScanOverviewJson(null);
+                dto.setExtraAttrs(null);
             });
-            if (CollectionUtils.isEmpty(harborImageTagVoList)) {
-                return new ArrayList<>();
-            }
         }
         return harborImageTagVoList;
     }
@@ -303,6 +326,67 @@ public class HarborClientOperator {
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, strArr[0], strArr[1]);
+        }
+    }
+
+
+    public void scanImage(HarborImageScanVO imageScanVO) {
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN, null, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
+        } else {
+            String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN, null, null, true, strArr[0], strArr[1], imageScanVO.getDigest());
+        }
+    }
+
+
+    private String getSecurity(Double securityNum) {
+        int num = securityNum.intValue();
+        String security;
+        switch (num) {
+            case 1:
+                security = HarborConstants.SeverityLevel.UNKNOWN;
+                break;
+            case 2:
+                security = HarborConstants.SeverityLevel.NEGLIGIBLE;
+                break;
+            case 3:
+                security = HarborConstants.SeverityLevel.LOW;
+                break;
+            case 4:
+                security = HarborConstants.SeverityLevel.MEDIUM;
+                break;
+            case 5:
+                security = HarborConstants.SeverityLevel.HIGH;
+                break;
+            case 6:
+                security = HarborConstants.SeverityLevel.CRITICAL;
+                break;
+            default:
+                security = HarborConstants.SeverityLevel.UNKNOWN;
+        }
+        return security;
+    }
+
+    private void setSecurity(Double securityNum, Double securityValue, HarborImageTagVo.Summary summary) {
+        int num = securityNum.intValue();
+        Long value = Math.round(securityValue);
+        switch (num) {
+            case 2:
+                summary.setUnknown(value);
+                break;
+            case 3:
+                summary.setLow(value);
+                break;
+            case 4:
+                summary.setMedium(value);
+                break;
+            case 5:
+                summary.setHigh(value);
+                break;
+            case 6:
+                summary.setCritical(value);
+                break;
         }
     }
 

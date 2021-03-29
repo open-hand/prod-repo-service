@@ -1,10 +1,10 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
-import io.choerodon.core.domain.Page;
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.swagger.annotations.*;
+import java.util.List;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hzero.core.util.Results;
@@ -12,6 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.swagger.annotation.Permission;
 
 /**
  * 镜像controller
@@ -58,6 +63,15 @@ public class HarborImageController {
 	@PostMapping(value = "/update/description")
 	public ResponseEntity updateDesc(@RequestBody @ApiParam("必输字段{repoName 名称、description镜像描述}") HarborImageVo harborImageVo) {
 		harborImageService.updateDesc(harborImageVo);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "项目层--镜像扫描")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping(value = "/project/{projectId}/scan-images")
+	public ResponseEntity scanImages(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目Id") Long projectId,
+									 @RequestBody List<HarborImageScanVO> imageScanVOList) {
+		harborImageService.scanImages(imageScanVOList);
 		return Results.success();
 	}
 
