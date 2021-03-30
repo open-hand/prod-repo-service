@@ -64,12 +64,12 @@ public class HarborClientOperator {
     private List<HarborImageLog> listCustomImageLogs(Map<String, Object> paramMap, Integer harborProjectId, String harborProjectCode) {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult;
-        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
+            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectId);
             logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
         } else {
-            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
+            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectCode);
             logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
@@ -161,7 +161,6 @@ public class HarborClientOperator {
 
                 dto.setScanOverviewJson(null);
                 dto.setExtraAttrs(null);
-                dto.setTagName(null);
             });
         } else {
             paramMap.put("with_tag", "true");
