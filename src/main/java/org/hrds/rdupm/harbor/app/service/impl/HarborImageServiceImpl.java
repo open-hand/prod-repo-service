@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.HarborImageScanResultVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
@@ -153,6 +154,11 @@ public class HarborImageServiceImpl implements HarborImageService {
 	@Override
 	public void scanImages(List<HarborImageScanVO> imageScanVOList) {
 		imageScanVOList.forEach(t -> harborClientOperator.scanImage(t));
+	}
+
+	@Override
+	public List<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO) {
+		return  harborClientOperator.queryImageScanDetail(imageScanVO);
 	}
 
 	/***

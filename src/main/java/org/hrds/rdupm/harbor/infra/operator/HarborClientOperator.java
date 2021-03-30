@@ -1,11 +1,9 @@
 package org.hrds.rdupm.harbor.infra.operator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,11 +42,11 @@ public class HarborClientOperator {
         //获得镜像数
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.DETAIL_PROJECT, null, null, true, harborId);
-            HarborProjectDTO harborProjectDTO = new Gson().fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
+            HarborProjectDTO harborProjectDTO = gson.fromJson(detailResponseEntity.getBody(), HarborProjectDTO.class);
             return harborProjectDTO == null ? 0 : harborProjectDTO.getRepoCount();
         } else {
             ResponseEntity<String> detailResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_PROJECT_SUMMARY, null, null, true, harborId);
-            Map<String, Object> summaryMap = new Gson().fromJson(detailResponseEntity.getBody(), Map.class);
+            Map<String, Object> summaryMap = gson.fromJson(detailResponseEntity.getBody(), Map.class);
             Double repoCount = summaryMap == null || summaryMap.get("repo_count") == null ? 0L : (Double) summaryMap.get("repo_count");
             return Integer.parseInt(new java.text.DecimalFormat("0").format(repoCount));
         }
@@ -68,11 +66,11 @@ public class HarborClientOperator {
         List<HarborImageLog> logListResult;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
-            logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
         } else {
             responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
-            logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
                 logListResult = logListResult.stream().map(t -> {
@@ -94,11 +92,11 @@ public class HarborClientOperator {
         List<HarborImageLog> logListResult;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborId);
-            logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
         } else {
             responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
-            logListResult = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
                 logListResult = logListResult.stream().map(t -> {
@@ -129,7 +127,7 @@ public class HarborClientOperator {
             } else {
                 tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, repoName);
             }
-            harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
+            harborImageTagVoList = gson.fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
             }.getType());
             if (CollectionUtils.isEmpty(harborImageTagVoList)) {
                 return new ArrayList<>();
@@ -174,7 +172,7 @@ public class HarborClientOperator {
             } else {
                 tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, strArr[0], strArr[1]);
             }
-            harborImageTagVoList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
+            harborImageTagVoList = gson.fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
             }.getType());
             if (CollectionUtils.isEmpty(harborImageTagVoList)) {
                 return new ArrayList<>();
@@ -185,13 +183,13 @@ public class HarborClientOperator {
                 dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
                 dto.setOs(dto.getExtraAttrs().getOs());
                 Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
-                String jsonString = new Gson().toJson(imageMap.get("summary"));
+                String jsonString = gson.toJson(imageMap.get("summary"));
                 Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
-                HarborImageTagVo.ScanOverview scanOverview = new Gson().fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                HarborImageTagVo.ScanOverview scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
                 scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")));
                 scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
-                jsonString = new Gson().toJson(summaryMap.get("summary"));
-                HarborImageTagVo.Summary summary = new Gson().fromJson(jsonString, HarborImageTagVo.Summary.class);
+                jsonString = gson.toJson(summaryMap.get("summary"));
+                HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
                 scanOverview.setSummary(summary);
                 dto.setScanOverview(scanOverview);
                 dto.setScanOverviewJson(null);
@@ -229,7 +227,7 @@ public class HarborClientOperator {
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
             ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, strArr[0], strArr[1]);
-            List<HarborArtifactDTO> artifactDTOList = new Gson().fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
+            List<HarborArtifactDTO> artifactDTOList = gson.fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
             }.getType());
             if (CollectionUtils.isEmpty(artifactDTOList)) {
                 return;
@@ -298,7 +296,7 @@ public class HarborClientOperator {
         }
         List<HarborImageVo> harborImageVoList = new ArrayList<>();
         if (responseEntity != null && !StringUtils.isEmpty(responseEntity.getBody())) {
-            harborImageVoList = new Gson().fromJson(responseEntity.getBody(), new com.google.gson.reflect.TypeToken<List<HarborImageVo>>() {
+            harborImageVoList = gson.fromJson(responseEntity.getBody(), new com.google.gson.reflect.TypeToken<List<HarborImageVo>>() {
             }.getType());
             harborImageVoList.forEach(dto -> {
                 if (dto.getRepoName().contains(BaseConstants.Symbol.SLASH)) {
@@ -331,12 +329,44 @@ public class HarborClientOperator {
 
 
     public void scanImage(HarborImageScanVO imageScanVO) {
+        imageScanVO.setRepoName(imageScanVO.getRepoName().replace("%2F", BaseConstants.Symbol.SLASH));
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN, null, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
         } else {
             String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN, null, null, true, strArr[0], strArr[1], imageScanVO.getDigest());
         }
+    }
+
+    public List<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO) {
+        imageScanVO.setRepoName(imageScanVO.getRepoName().replace("%2F", BaseConstants.Symbol.SLASH));
+        ResponseEntity<String> responseEntity;
+        List<HarborImageScanResultVO> imageScanResultVOS;
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_DETAIL, null, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
+            imageScanResultVOS = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageScanResultVO>>() {
+            }.getType());
+            if (CollectionUtils.isEmpty(imageScanResultVOS)) {
+                imageScanResultVOS.forEach(t -> {
+                    t.setLinks(Collections.singletonList(t.getLink()));
+                    t.setSeverity(getSecurity(TypeUtil.objTodouble(t.getSeverityObject())));
+                    t.setFixVersion(t.getFixedVersion());
+                });
+            }
+        } else {
+            String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_DETAIL, null, null, true, strArr[0], strArr[1], imageScanVO.getDigest());
+            JSONObject jsonObject = JSONObject.parseObject(responseEntity.getBody());
+            Map<String, Object> imageMap = (Map<String, Object>) jsonObject.get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
+            String jsonString = gson.toJson(imageMap.get("vulnerabilities"));
+            imageScanResultVOS = gson.fromJson(jsonString, new TypeToken<List<HarborImageScanResultVO>>() {
+            }.getType());
+            imageScanResultVOS.forEach(t -> {
+                t.setSeverity(TypeUtil.objToString(t.getSeverityObject()));
+                t.setSeverityObject(null);
+            });
+        }
+        return imageScanResultVOS;
     }
 
 

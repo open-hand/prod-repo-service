@@ -2,6 +2,7 @@ package org.hrds.rdupm.harbor.app.service;
 
 import java.util.List;
 
+import org.hrds.rdupm.harbor.api.vo.HarborImageScanResultVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 
@@ -52,4 +53,10 @@ public interface HarborImageService {
 	 * @param imageScanVOList
 	 */
 	void scanImages(List<HarborImageScanVO> imageScanVOList);
+
+	/***
+	 * 批量获取扫描镜像结果
+	 * @param imageScanVO
+	 */
+	List<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO);
 }

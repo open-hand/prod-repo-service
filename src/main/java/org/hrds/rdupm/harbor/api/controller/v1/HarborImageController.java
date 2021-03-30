@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.harbor.api.vo.HarborImageScanResultVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
@@ -69,10 +70,35 @@ public class HarborImageController {
 	@ApiOperation(value = "项目层--镜像扫描")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/project/{projectId}/scan-images")
-	public ResponseEntity scanImages(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目Id") Long projectId,
+	public ResponseEntity scanImagesProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目Id") Long projectId,
 									 @RequestBody List<HarborImageScanVO> imageScanVOList) {
 		harborImageService.scanImages(imageScanVOList);
 		return Results.success();
+	}
+
+	@ApiOperation(value = "组织层--镜像扫描")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping(value = "/organization/{organizationId}/scan-images")
+	public ResponseEntity scanImagesTenant(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织Id") Long organizationId,
+										   @RequestBody List<HarborImageScanVO> imageScanVOList) {
+		harborImageService.scanImages(imageScanVOList);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "项目层--镜像扫描结果详情")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping(value = "/project/{projectId}/scan-images-detail")
+	public ResponseEntity<List<HarborImageScanResultVO>> queryImageScanDetailProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目Id") Long projectId,
+																					 @RequestBody HarborImageScanVO imageScanVO) {
+		return Results.success(harborImageService.queryImageScanDetail(imageScanVO));
+	}
+
+	@ApiOperation(value = "组织层--镜像扫描结果详情")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping(value = "/organization/{organizationId}/scan-images-detail")
+	public ResponseEntity<List<HarborImageScanResultVO>> queryImageScanDetailTenant(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织Id") Long organizationId,
+																					@RequestBody HarborImageScanVO imageScanVO) {
+		return Results.success(harborImageService.queryImageScanDetail(imageScanVO));
 	}
 
 }

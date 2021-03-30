@@ -2,8 +2,14 @@ package org.hrds.rdupm.harbor.api.vo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * @Author: scp
@@ -11,6 +17,10 @@ import io.swagger.annotations.ApiModelProperty;
  * @Date: Created in 2021/3/29
  * @Modified By:
  */
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class HarborImageScanResultVO {
     @ApiModelProperty("id")
     private String id;
@@ -25,57 +35,27 @@ public class HarborImageScanResultVO {
     @SerializedName("fix_version")
     private String fixVersion;
 
+    @ApiModelProperty("当前版本")
+    @SerializedName("version")
+    private String version;
+
     @ApiModelProperty("组件")
     @SerializedName("package")
     private String packageStr;
 
-    private String severity;
+    @ApiModelProperty("安全程度")
+    private transient String severity;
 
-    public String getId() {
-        return id;
-    }
+    @JsonIgnore
+    @SerializedName("severity")
+    private Object severityObject;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    @JsonIgnore
+    @ApiModelProperty("连接")
+    private String link;
 
-    public String getDescription() {
-        return description;
-    }
+    @JsonIgnore
+    @ApiModelProperty("修复版本")
+    private String fixedVersion;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<String> getLinks() {
-        return links;
-    }
-
-    public void setLinks(List<String> links) {
-        this.links = links;
-    }
-
-    public String getFixVersion() {
-        return fixVersion;
-    }
-
-    public void setFixVersion(String fixVersion) {
-        this.fixVersion = fixVersion;
-    }
-
-    public String getPackageStr() {
-        return packageStr;
-    }
-
-    public void setPackageStr(String packageStr) {
-        this.packageStr = packageStr;
-    }
-
-    public String getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
-    }
 }
