@@ -162,13 +162,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         harborCustomRepos.forEach(harborCustomRepo -> {
             harborCustomRepo.setProjectCode(projectDTO.getCode());
             // 统计下载的次数与人数
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
-            paramMap.put("page", 0);
-            paramMap.put("page_size", 0);
             //自定义仓库没有存仓库id 所以这里需要查询
             getHarborProjectId(harborCustomRepo);
-            List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(paramMap, harborCustomRepo);
+            List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
 
             Long personTimes = 0L;
             Long downloadTimes = 0L;
