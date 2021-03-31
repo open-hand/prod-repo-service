@@ -17,6 +17,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.swagger.annotation.CustomPageRequest;
 import io.choerodon.swagger.annotation.Permission;
 
 /**
@@ -88,17 +89,21 @@ public class HarborImageController {
 	@ApiOperation(value = "项目层--镜像扫描结果详情")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/project/{projectId}/scan-images-detail")
-	public ResponseEntity<List<HarborImageScanResultVO>> queryImageScanDetailProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目Id") Long projectId,
-																					 @RequestBody HarborImageScanVO imageScanVO) {
-		return Results.success(harborImageService.queryImageScanDetail(imageScanVO));
+	@CustomPageRequest
+	public ResponseEntity<Page<HarborImageScanResultVO>> queryImageScanDetailProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目Id") Long projectId,
+																					 @RequestBody HarborImageScanVO imageScanVO,
+																					 @ApiIgnore PageRequest pageRequest) {
+		return Results.success(harborImageService.queryImageScanDetail(imageScanVO, pageRequest));
 	}
 
 	@ApiOperation(value = "组织层--镜像扫描结果详情")
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@PostMapping(value = "/organization/{organizationId}/scan-images-detail")
-	public ResponseEntity<List<HarborImageScanResultVO>> queryImageScanDetailTenant(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织Id") Long organizationId,
-																					@RequestBody HarborImageScanVO imageScanVO) {
-		return Results.success(harborImageService.queryImageScanDetail(imageScanVO));
+	@CustomPageRequest
+	public ResponseEntity<Page<HarborImageScanResultVO>> queryImageScanDetailTenant(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织Id") Long organizationId,
+																					@RequestBody HarborImageScanVO imageScanVO,
+																					@ApiIgnore PageRequest pageRequest) {
+		return Results.success(harborImageService.queryImageScanDetail(imageScanVO, pageRequest));
 	}
 
 }

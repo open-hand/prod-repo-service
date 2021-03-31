@@ -157,8 +157,8 @@ public class HarborImageServiceImpl implements HarborImageService {
 	}
 
 	@Override
-	public List<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO) {
-		return  harborClientOperator.queryImageScanDetail(imageScanVO);
+	public Page<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO, PageRequest pageRequest) {
+		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborClientOperator.queryImageScanDetail(imageScanVO));
 	}
 
 	/***

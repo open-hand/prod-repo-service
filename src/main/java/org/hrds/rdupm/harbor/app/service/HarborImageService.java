@@ -58,5 +58,5 @@ public interface HarborImageService {
 	 * 批量获取扫描镜像结果
 	 * @param imageScanVO
 	 */
-	List<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO);
+	Page<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO,PageRequest pageRequest);
 }
