@@ -4,15 +4,19 @@
 * @creationDate 2020/4/29
 * @copyright 2020 ® HAND
 */
-import React, { useEffect, useCallback } from 'react';
-import { Tooltip, message } from 'choerodon-ui';
-import { Table, Modal, Form, TextField } from 'choerodon-ui/pro';
+import React, { useEffect, useCallback, useMemo } from 'react';
+import { message } from 'choerodon-ui';
+import { Table, Modal, Form, TextField, Spin, Tooltip } from 'choerodon-ui/pro';
 import { Action, axios } from '@choerodon/boot';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
 import moment from 'moment';
+import { get, map, forEach } from 'lodash';
+import { TimePopover } from '@choerodon/components';
+import { StatusTag } from '@choerodon/components';
 import PullGuideModal from './PullGuideModal';
 import BuildLogModal from './BuildLogModal';
+import ScanReprot from './ScanReportModal';
 
 const intlPrefix = 'infra.prod.lib';
 const { Column } = Table;
@@ -39,11 +43,70 @@ const iconStyle = {
   justifyContent: 'center',
 };
 
-const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAuth }) => {
+const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, repoName, imageName, userAuth, modal, projectId }) => {
   useEffect(() => {
     dockerImageTagDs.setQueryParameter('repoName', repoName);
     dockerImageTagDs.query();
   }, []);
+
+  const statusMap = useMemo(() => new Map([
+    ['UNKNOWN', { code: 'unready', name: '未知' }],
+    ['NEGLIGIBLE', { code: 'unready', name: '可忽略' }],
+    ['LOW', { code: 'running', name: '较低' }],
+    ['MEDIUM', { code: 'opened', name: '中等' }],
+    ['HIGH', { code: 'error', name: '严重' }],
+    ['CRITICAL', { code: 'disconnect', name: '危急' }],
+  ]), []);
+
+  const scanStatusMap = useMemo(() => new Map([
+    ['SUCCESS', { code: 'success', name: '已完成' }],
+    ['RUNNING', { code: 'running', name: '扫描中' }],
+    ['PENDING', { code: 'pending', name: '准备中' }],
+    ['FAILED', { code: 'failed', name: '失败' }],
+  ]), []);
+
+  const rendererTag = ({ text }) => {
+    const { code, name } = statusMap.get(text.toUpperCase()) || {};
+    return <StatusTag colorCode={code} type="border" name={name} />;
+  };
+
+  const renderSeverityTag = ({ record }) => {
+    const scanOverview = record.get('scanOverview') || {};
+    const severity = get(scanOverview, 'severity');
+    const fixable = get(scanOverview, 'fixable');
+    const total = get(scanOverview, 'total');
+    const summary = get(scanOverview, 'summary');
+    const upperCode = severity && severity.toUpperCase();
+    const statusName = upperCode === 'UNKNOWN' ? '无漏洞' : `总计${total} - 可修复${fixable}`;
+    const tooltitle = (
+      <div>
+        <p>
+          漏洞严重度：{get(statusMap.get(upperCode), 'name')}
+        </p>
+        <p>危急漏洞：{get(summary, 'critical')} </p>
+        <p>严重漏洞：{get(summary, 'high')}</p>
+        <p>中等漏洞：{get(summary, 'medium')}</p>
+        <p>
+          较低漏洞：{get(summary, 'low')}
+        </p>
+        <p>
+          可忽略漏洞：{get(summary, 'negligible')}
+        </p>
+        <p>
+          未知漏洞：{get(summary, 'unknown')}
+        </p>
+      </div>
+    );
+    return (
+      upperCode ? (
+        <Tooltip title={summary ? tooltitle : ''}>
+          <div>
+            <StatusTag type="border" colorCode={get(statusMap.get(upperCode), 'code')} name={statusName} />
+          </div>
+        </Tooltip>
+      ) : '-'
+    );
+  };
 
   const guideInfo = useLocalStore(() => ({
     info: {},
@@ -59,8 +122,7 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
     },
   }));
 
-  const fetchGuide = useCallback(async (data) => {
-    const { tagName } = data;
+  const fetchGuide = useCallback(async ({ tagName }) => {
     try {
       const res = await axios.get(`/rdupm/v1/harbor-guide/tag?digest=${tagName}&repoName=${repoName}`);
       guideInfo.setGuideInfo(res);
@@ -79,12 +141,12 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
     }
   }, []);
 
-  const handleOpenGuideModal = useCallback(async (data) => {
-    fetchGuide(data);
+  const handleOpenGuideModal = useCallback(async ({ tagName, type }) => {
+    fetchGuide({ tagName });
     const key = Modal.key();
     Modal.open({
       key,
-      title: formatMessage({ id: `${intlPrefix}.view.pullImageByTag`, defaultMessage: '版本拉取' }),
+      title: type ? '版本拉取' : '摘要拉取',
       maskClosable: true,
       destroyOnClose: true,
       okCancel: false,
@@ -112,7 +174,6 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
     });
   }, [fetchBuildLog, buildInfo]);
 
-
   const handleDelete = async (data) => {
     const { tagName } = data;
     const button = await Modal.confirm({
@@ -133,20 +194,41 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
     }
   };
 
-  const renderAction = ({ record }) => {
+  const handleScanReport = ({ digest, tagName }) => {
+    Modal.open({
+      key: Modal.key(),
+      title: '漏洞扫描详情',
+      children: <ScanReprot digest={digest} tagName={tagName} repoName={repoName} dockerImageScanDetailsDs={dockerImageScanDetailsDs} rendererTag={rendererTag} />,
+      drawer: true,
+      okCancel: false,
+      okText: '关闭',
+      style: {
+        width: '7.4rem',
+      },
+    });
+  };
+
+  const renderAction = useCallback(({ record }) => {
     const data = record.toData();
+    const {
+      digest,
+      tagName,
+      scanOverview,
+    } = data;
     let actionData = [];
     if (userAuth?.includes('projectAdmin')) {
       actionData = [
         {
           service: [],
-          text: formatMessage({ id: `${intlPrefix}.view.pullImageByTag`, defaultMessage: '版本拉取' }),
-          action: () => handleOpenGuideModal(data),
-        }, {
+          text: '摘要拉取',
+          action: () => handleOpenGuideModal({ tagName: digest }),
+        },
+        {
           service: [],
           text: formatMessage({ id: `${intlPrefix}.view.buildLog`, defaultMessage: '构建日志' }),
           action: () => handleOpenLogModal(data),
-        }, {
+        },
+        {
           service: ['choerodon.code.project.infra.product-lib.ps.project-owner-harbor'],
           text: formatMessage({ id: 'delete', defaultMessage: '删除' }),
           action: () => handleDelete(data),
@@ -156,17 +238,25 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
       actionData = [
         {
           service: [],
-          text: formatMessage({ id: `${intlPrefix}.view.pullImageByTag`, defaultMessage: '版本拉取' }),
-          action: () => handleOpenGuideModal(data),
-        }, {
+          text: '摘要拉取',
+          action: () => handleOpenGuideModal({ tagName: digest }),
+        },
+        {
           service: [],
           text: formatMessage({ id: `${intlPrefix}.view.buildLog`, defaultMessage: '构建日志' }),
           action: () => handleOpenLogModal(data),
         },
       ];
     }
+    if (get(scanOverview, 'scanStatus').toUpperCase() === 'SUCCESS') {
+      actionData.push({
+        service: [],
+        text: formatMessage({ id: `${intlPrefix}.view.scanningReport`, defaultMessage: '漏洞扫描详情' }),
+        action: () => handleScanReport({ digest, tagName }),
+      }); 
+    }
     return <Action data={actionData} />;
-  };
+  }, []);
 
   const rendererIcon = (imageUrl, text, loginName) => {
     let iconElement;
@@ -193,6 +283,131 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
     );
   };
 
+  const renderExpand = ({ record }) => {
+    const versions = record.get('tags');
+    return (
+      <div className="product-lib-docker-taglist-subTableContainer">
+        <span className="product-lib-docker-taglist-line" />
+        <table className="product-lib-docker-taglist-subTable">
+          <tr className="product-lib-docker-taglist-subTable-header">
+            <th>版本号</th>
+            <th />
+            <th>最近推送时间</th>
+            <th>最近拉取时间</th>
+            <th>推送者</th>
+          </tr>
+          {
+            versions.map((item) => (
+              <tr>
+                <td>
+                  <div className="product-lib-docker-taglist-subTable-dot"><span /><span />
+                  </div>
+                  {get(item, 'name')}
+                </td>
+                <td><Action data={
+                  [{
+                    service: [],
+                    text: '版本拉取',
+                    action: () => handleOpenGuideModal({ tagName: get(item, 'name'), type: 'version' }),
+                  }]
+                }
+                />
+                </td>
+                <td><TimePopover content={get(item, 'pushTime')} /></td>
+                <td><TimePopover content={get(item, 'pullTime')} /></td>
+                <td>
+                  {
+                    rendererIcon(get(item, 'userImageUrl'), get(item, 'realName'), get(item, 'loginName'))
+                  }
+                </td>
+              </tr>
+            ))
+          }
+        </table>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    const selectedRecords = dockerImageTagDs.currentSelected;
+    const upDateProps = {
+      okProps: {
+        disabled: !get(selectedRecords, 'length'),
+      },
+    };
+    modal.update(upDateProps);
+  }, [dockerImageTagDs.currentSelected]);
+
+  async function handleScanning() {
+    const scanData = map(dockerImageTagDs.currentSelected, (record) => ({
+      repoName,
+      tagName: record.get('tagName'),
+      digest: record.get('digest'),
+    }));
+    try {
+      const res = await axios.post(`/rdupm/v1/harbor-image/project/${projectId}/scan-images`, JSON.stringify(scanData));
+      if (res && res.failed) {
+        message.error(res.message);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  const renderScanStatusTag = useCallback(({ record }) => {
+    const text = get(record.get('scanOverview'), 'scanStatus');
+    const {
+      code,
+      name,
+    } = scanStatusMap.get(text.toUpperCase());
+    const extraNode = (
+      <Spin
+        style={{
+          height: '26px',
+          width: '26px',
+        }}
+        display
+        size="small"
+      />
+    );
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        height: '100%',
+      }}
+      >
+        <StatusTag colorCode={code} name={name} />
+        {text.toUpperCase() === 'RUNNING' ? extraNode : ''}
+      </div>
+    );
+  }, []);
+
+  function handletest() {
+    forEach(dockerImageTagDs.currentSelected, (record) => {
+      record.selectable = false;
+      record.isSelected = false;
+      record.set('scanOverview', {
+        ...record.get('scanOverview'),
+        severity: '',
+        scanStatus: 'running',
+      });
+      setTimeout(() => {
+        record.selectable = true;
+        record.set('scanOverview', {
+          ...record.get('scanOverview'),
+          severity: 'High',
+          scanStatus: 'success',
+        });
+      }, 1000);
+    });
+    return false;
+  }
+
+  modal.handleOk(handletest);
+
   return (
     <React.Fragment>
       <div
@@ -203,41 +418,50 @@ const TagModal = ({ dockerImageTagDs, formatMessage, repoName, imageName, userAu
           }
         }}
       >
-        <Form dataSet={dockerImageTagDs.queryDataSet} >
-          <TextField name="dockerVersion" />
+        <Form dataSet={dockerImageTagDs.queryDataSet}>
+          <TextField name="tagName" />
         </Form>
       </div>
-      <Table dataSet={dockerImageTagDs} queryBar="none">
-        <Column 
-          name="dockerVersion"
+      <Table
+        dataSet={dockerImageTagDs} 
+        queryBar="none"
+        mode="tree"
+        className="product-lib-docker-taglist-table"
+        expandedRowRenderer={renderExpand}
+      >
+        <Column
+          name="digest"
           renderer={({ text }) => (
-            <Tooltip title={text} placement="top" >
-              {text}
+            <Tooltip title={text} placement="top" overlayClassName="product-lib-docker-image-tag-digest">
+              <div className="product-lib-docker-image-tag-digest-text">{text}</div>
             </Tooltip>
           )}
         />
-        <Column renderer={renderAction} width={70} />
-        <Column name="sizeDesc" />
-        <Column name="dockerVersion" />
-        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
+        <Column renderer={renderAction} width={60} />
         <Column
-          name="digest"
-          renderer={({ text }) =>
-            (
-              <Tooltip title={text} placement="top" overlayClassName="product-lib-docker-image-tag-digest">
-                <div className="product-lib-docker-image-tag-digest-text">{text}</div>
-              </Tooltip>
-            )}
+          name="scanStatus"
+          renderer={renderScanStatusTag}
+          width={80}
         />
         <Column
+          name="severity"
+          renderer={renderSeverityTag}
+        />
+        <Column name="sizeDesc" />
+        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
+        {/* <Column
           name="realName"
           renderer={({ text, record }) => {
             const { userImageUrl, loginName } = record.toData();
             return rendererIcon(userImageUrl, text, loginName);
           }}
+        /> */}
+        <Column
+          width={100}
+          name="pushTime"
+          renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />}
         />
-        <Column name="pushTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
-        <Column name="pullTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
+        <Column width={100} name="pullTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
       </Table>
     </React.Fragment>
   );

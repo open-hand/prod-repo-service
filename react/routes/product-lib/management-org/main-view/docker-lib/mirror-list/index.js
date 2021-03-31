@@ -33,6 +33,7 @@ const MirrorList = () => {
     intl: { formatMessage },
     mirrorListDS,
     repoListDs,
+    scanDetailDs,
   } = useDockerStore();
   const { getTabKey } = dockerStore;
 
@@ -60,6 +61,7 @@ const MirrorList = () => {
       mirrorListDS,
       dataSet: tagListDs,
       repoListDs,
+      scanDetailDs,
     };
 
     Modal.open({
@@ -71,8 +73,7 @@ const MirrorList = () => {
       },
       className: 'product-lib-org-management-mirror-list-guide-modal',
       children: <TagList {...tagPros} />,
-      footer: (okBtn) => okBtn,
-      okText: formatMessage({ id: 'close' }),
+      okText: '扫描',
     });
   }
 

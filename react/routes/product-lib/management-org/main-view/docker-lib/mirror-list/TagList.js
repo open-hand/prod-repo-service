@@ -4,27 +4,25 @@
  * @creationDate 2020/02/21
  * @copyright 2020 ® HAND
  */
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { Action, axios } from '@choerodon/boot';
-import { Tooltip } from 'choerodon-ui';
-import { Table, Modal, Form, TextField, Icon, DataSet } from 'choerodon-ui/pro';
+import { Table, Modal, Form, TextField, Icon, Tooltip, Spin, message } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
-import { isNil } from 'lodash';
+import { isNil, get, forEach, map } from 'lodash';
 import TimePopover from '@/components/time-popover/TimePopover';
 import UserAvatar from '@/components/user-avatar';
-import TagGuide from '../modals/tag-guide/GuideModal';
-import TagPullDS from '../stores/TagPullDS';
+import { StatusTag } from '@choerodon/components';
 import BuildLog from '../modals/build-log';
+import ScanReprot from './ScanReportModal';
 import VersionCopy from '../modals/version-copy';
 
 import './index.less';
-
 
 const { Column } = Table;
 
 const modalKey = Modal.key();
 
-const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatMessage, organizationId, repoListDs }) => {
+const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlPrefix, formatMessage, organizationId, repoListDs, modal }) => {
   function refresh() {
     dataSet.query();
   }
@@ -36,49 +34,30 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
     refresh();
   }, []);
 
-  // 版本拉取
-  function openGuideModal(record) {
-    const tagPullDs = new DataSet(TagPullDS({ intlPrefix, formatMessage, tagName: record.get('tagName'), organizationId, repoName }));
-    const guidePros = {
-      formatMessage,
-      tagPullDs,
-      intlPrefix,
-      organizationId,
-    };
-    Modal.open({
-      key: modalKey,
-      drawer: true,
-      title: formatMessage({ id: `${intlPrefix}.view.pullImageByTag`, defaultMessage: '版本拉取' }),
-      style: {
-        width: '7.4rem',
-      },
-      children: <TagGuide {...guidePros} />,
-      footer: (okBtn) => okBtn,
-      okText: formatMessage({ id: 'close' }),
-    });
-  }
+  const statusMap = useMemo(() => new Map([
+    ['UNKNOWN', { code: 'unready', name: '未知' }],
+    ['NEGLIGIBLE', { code: 'unready', name: '可忽略' }],
+    ['LOW', { code: 'running', name: '较低' }],
+    ['MEDIUM', { code: 'opened', name: '中等' }],
+    ['HIGH', { code: 'error', name: '严重' }],
+    ['CRITICAL', { code: 'disconnect', name: '危急' }],
+  ]), []);
+
+  const scanStatusMap = useMemo(() => new Map([
+    ['SUCCESS', { code: 'success', name: '已完成' }],
+    ['RUNNING', { code: 'running', name: '扫描中' }],
+    ['PENDING', { code: 'pending', name: '准备中' }],
+    ['FAILED', { code: 'failed', name: '失败' }],
+  ]), []);
+
+  const rendererTag = ({ text }) => {
+    const { code, name } = statusMap.get(text.toUpperCase()) || {};
+    return <StatusTag colorCode={code} type="border" name={name} />;
+  };
 
   function renderTime({ value }) {
     return isNil(value) ? '' : <TimePopover content={value} />;
   }
-
-  // 删除
-  // function handleDelete() {
-  //   const record = dataSet.current;
-  //   const mProps = {
-  //     title: formatMessage({ id: 'confirm.delete' }),
-  //     // children: formatMessage({ id: `${intlPrefix}.permission.delete.des` }),
-  //     children: (
-  //       <p>
-  //         {`确认删除镜像 ${repoName} ${record.get('tagName')}? 如果您删除此 Tag，则这个 Tag 引用的同一个 digest 的所有其他 Tag 也将被删除`}
-  //       </p>
-  //     ),
-  //     okText: formatMessage({ id: 'delete' }),
-  //     okProps: { color: 'red' },
-  //     cancelProps: { color: 'dark' },
-  //   };
-  //   dataSet.delete(record, mProps);
-  // }
 
   const fetchBuildLog = useCallback(async (data) => {
     const { tagName, digest } = data;
@@ -110,25 +89,6 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
     });
   }, [fetchBuildLog]);
 
-  // // 构建日志
-  // function openLogModal(record) {
-  //   Modal.open({
-  //     title: formatMessage({ id: 'view.log' }),
-  //     key: Modal.key(),
-  //     style: {
-  //       width: '7.4rem',
-  //     },
-  //     children: <BuildLog repoName={repoName} tagName={record.get('tagName')} />,
-  //     drawer: true,
-  //     okText: formatMessage({ id: 'close' }),
-  //     footer: (okbtn) => (
-  //       <React.Fragment>
-  //         {okbtn}
-  //       </React.Fragment>
-  //     ),
-  //   });
-  // }
-
   function openCopyModal(record) {
     Modal.open({
       title: formatMessage({ id: `${intlPrefix}.view.versionCopy` }),
@@ -149,13 +109,33 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
     });
   }
 
+  const handleScanReport = ({ digest, tagName }) => {
+    Modal.open({
+      key: Modal.key(),
+      title: '漏洞扫描详情',
+      children: <ScanReprot 
+        digest={digest} 
+        tagName={tagName} 
+        repoName={repoName} 
+        dockerImageScanDetailsDs={scanDetailDs} 
+        rendererTag={rendererTag} 
+      />,
+      drawer: true,
+      okCancel: false,
+      okText: '关闭',
+      style: {
+        width: '7.4rem',
+      },
+    });
+  };
+
   function renderAction({ record }) {
+    const {
+      digest,
+      tagName,
+      scanOverview,
+    } = record.toData();
     const actionData = [
-      // {
-      //   service: [],
-      //   text: formatMessage({ id: 'delete' }),
-      //   action: handleDelete,
-      // },
       {
         service: [],
         text: formatMessage({ id: `${intlPrefix}.view.buildLog`, defaultMessage: '构建日志' }),
@@ -167,22 +147,19 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
         action: () => openCopyModal(record),
       },
     ];
+    if (get(scanOverview, 'scanStatus').toUpperCase() === 'SUCCESS') {
+      actionData.push({
+        service: [],
+        text: '漏洞扫描详情',
+        action: () => handleScanReport({ digest, tagName }),
+      });
+    }
     return <Action data={actionData} />;
   }
 
   function handleTableFilter(record) {
     return record.status !== 'add';
   }
-
-
-  function renderName({ text, record }) {
-    return (
-      <Tooltip title={text} mouseEnterDelay={0.5} placement="top" overlayClassName="product-lib-org-management-docker-image-tag-digest">
-        <span className="product-lib-org-management-mirror-list-guide-modal-click-table-name" onClick={() => openGuideModal(record)}>{text}</span>
-      </Tooltip>
-    );
-  }
-
 
   function renderFilterForm() {
     return (
@@ -201,16 +178,14 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
     );
   }
 
-  function renderUserName({ record }) {
+  function renderUserName(imageUrl, realName, loginName) {
     const avatar = (
       <UserAvatar
         user={{
-          // id: record.get('user').userId,
-          loginName: record.get('loginName'),
-          realName: record.get('realName'),
-          imageUrl: record.get('userImageUrl'),
+          loginName,
+          realName,
+          imageUrl,
         }}
-      // hiddenText
       />
     );
     return (
@@ -219,46 +194,194 @@ const TagList = observer(({ mirrorListDS, dataSet, repoName, intlPrefix, formatM
       </div>
     );
   }
+  
+  async function handleScanning() {
+    const scanData = map(dataSet.currentSelected, (record) => ({
+      repoName,
+      tagName: record.get('tagName'),
+      digest: record.get('digest'),
+    }));
+    try {
+      const res = await axios.post(`/rdupm/v1/harbor-image/organization/${organizationId}/scan-images`, JSON.stringify(scanData));
+      if (res && res.failed) {
+        message.error(res.message);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  useEffect(() => {
+    const selectedRecords = dataSet.currentSelected;
+    const upDateProps = {
+      okProps: {
+        disabled: !get(selectedRecords, 'length'),
+      },
+    };
+    modal.update(upDateProps);
+  }, [dataSet.currentSelected]);
+
+  const renderExpand = ({ record }) => {
+    const versions = record.get('tags');
+    return (
+      <div className="product-lib-docker-taglist-subTableContainer">
+        <span className="product-lib-docker-taglist-line" />
+        <table className="product-lib-docker-taglist-subTable">
+          <tr className="product-lib-docker-taglist-subTable-header">
+            <th>版本号</th>
+            <th>最近推送时间</th>
+            <th>最近拉取时间</th>
+            <th>推送者</th>
+          </tr>
+          {
+            versions.map((item) => (
+              <tr>
+                <td>
+                  <div className="product-lib-docker-taglist-subTable-dot"><span /><span />
+                  </div>
+                  {get(item, 'name')}
+                </td>
+                <td><TimePopover content={get(item, 'pushTime')} /></td>
+                <td><TimePopover content={get(item, 'pullTime')} /></td>
+                <td>
+                  {
+                    renderUserName(get(item, 'userImageUrl'), get(item, 'realName'), get(item, 'loginName'))
+                  }
+                </td>
+              </tr>
+            ))
+          }
+        </table>
+      </div>
+    );
+  };
+
+  const renderScanStatusTag = useCallback(({ record }) => {
+    const text = get(record.get('scanOverview'), 'scanStatus');
+    const {
+      code,
+      name,
+    } = scanStatusMap.get(text.toUpperCase());
+    const extraNode = (
+      <Spin
+        style={{
+          height: '26px',
+          width: '26px',
+        }}
+        display
+        size="small"
+      />
+    );
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        height: '100%',
+      }}
+      >
+        <StatusTag colorCode={code} name={name} />
+        {text.toUpperCase() === 'RUNNING' ? extraNode : ''}
+      </div>
+    );
+  }, []);
+
+  const renderSeverityTag = ({ record }) => {
+    const scanOverview = record.get('scanOverview') || {};
+    const severity = get(scanOverview, 'severity');
+    const fixable = get(scanOverview, 'fixable');
+    const total = get(scanOverview, 'total');
+    const summary = get(scanOverview, 'summary');
+    const upperCode = severity && severity.toUpperCase();
+    const statusName = upperCode === 'UNKNOWN' ? '无漏洞' : `总计${total} - 可修复${fixable}`;
+    const tooltitle = (
+      <div>
+        <p>
+          漏洞严重度：{get(statusMap.get(upperCode), 'name')}
+        </p>
+        <p>危急漏洞：{get(summary, 'critical')} </p>
+        <p>严重漏洞：{get(summary, 'high')}</p>
+        <p>中等漏洞：{get(summary, 'medium')}</p>
+        <p>
+          较低漏洞：{get(summary, 'low')}
+        </p>
+        <p>
+          可忽略漏洞：{get(summary, 'negligible')}
+        </p>
+        <p>
+          未知漏洞：{get(summary, 'unknown')}
+        </p>
+      </div>
+    );
+    return (
+      upperCode ? (
+        <Tooltip title={summary ? tooltitle : ''}>
+          <div>
+            <StatusTag type="border" colorCode={get(statusMap.get(upperCode), 'code')} name={statusName} />
+          </div>
+        </Tooltip>
+      ) : '-'
+    );
+  };
+
+  function handletest() {
+    forEach(dataSet.currentSelected, (record) => {
+      record.selectable = false;
+      record.isSelected = false;
+      record.set('scanOverview', {
+        ...record.get('scanOverview'),
+        severity: '',
+        scanStatus: 'running',
+      });
+      setTimeout(() => {
+        record.selectable = true;
+        record.set('scanOverview', {
+          ...record.get('scanOverview'),
+          severity: 'High',
+          scanStatus: 'success',
+        });
+      }, 1000);
+    });
+    return false;
+  }
+
+  modal.handleOk(handletest);
 
   return (
-    <React.Fragment >
+    <React.Fragment>
       {renderFilterForm()}
-      <Table dataSet={dataSet} queryBar="none" filter={handleTableFilter}>
-        <Column name="tagName" renderer={renderName} />
-        <Column renderer={renderAction} width={70} />
-        <Column name="sizeDesc" />
-        <Column name="dockerVersion" />
-        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
+      <Table
+        dataSet={dataSet}
+        queryBar="none"
+        mode="tree"
+        filter={handleTableFilter}
+        expandedRowRenderer={renderExpand}
+        className="product-lib-docker-taglist-table"
+      >
         <Column
           name="digest"
-          renderer={({ text }) =>
-            (
-              <Tooltip title={text} mouseEnterDelay={0.5} placement="top" overlayClassName="product-lib-org-management-docker-image-tag-digest">
-                <div className="product-lib-org-management-docker-image-tag-digest-text">{text}</div>
-              </Tooltip>
-            )}
+          renderer={({ text }) => (
+            <Tooltip title={text} mouseEnterDelay={0.5} placement="top" overlayClassName="product-lib-org-management-docker-image-tag-digest">
+              <div className="product-lib-org-management-docker-image-tag-digest-text">{text}</div>
+            </Tooltip>
+          )}
         />
-        <Column name="author" renderer={renderUserName} width={150} />
-        {/* <Column name="createTime" renderer={renderTime} /> */}
+        <Column renderer={renderAction} width={70} />
+        <Column
+          name="scanStatus"
+          renderer={renderScanStatusTag}
+          width={80}
+        />
+        <Column
+          name="severity"
+          renderer={renderSeverityTag}
+        />
+        <Column name="sizeDesc" />
+        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
+        {/* <Column name="author" renderer={renderUserName} width={150} /> */}
         <Column name="pushTime" renderer={renderTime} />
         <Column name="pullTime" renderer={renderTime} />
-        {/* <Column
-          name="createdByName"
-          renderer={({ record }) => (
-            <div style={{ display: 'inline-flex' }}>
-              <UserAvatar
-                user={{
-                  id: record.get('createdUser').userId,
-                  loginName: record.get('createdUser').loginName,
-                  realName: record.get('createdUser').realName,
-                  imageUrl: record.get('createdUser').imageUrl,
-                  email: record.get('createdUser').email,
-                }}
-              // hiddenText
-              />
-            </div>
-          )}
-        /> */}
       </Table>
     </React.Fragment>
   );

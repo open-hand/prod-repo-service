@@ -10,6 +10,7 @@ import LogListDS from './LogListDS';
 import RepoListDS from './RepoListDS';
 import { useProdStore } from '../../../stores';
 import useStore from './useStore';
+import ScanDetailDS from './ScanDetailDS';
 // import useConfigMapStore from './useConfigMapStore';
 // import useSecretStore from './useSecretStore';
 // import useDomainStore from './useDomainStore';
@@ -39,12 +40,11 @@ export const StoreProvider = injectIntl(observer((props) => {
 
   const repoListDs = useMemo(() => new DataSet(RepoListDS({ organizationId })), [organizationId]);
 
-
   const mirrorLibDs = useMemo(() => new DataSet(MirrorLibDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
   const mirrorListDS = useMemo(() => new DataSet(MirrorListDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
   const authListDs = useMemo(() => new DataSet(AuthListDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
   const logListDs = useMemo(() => new DataSet(LogListDS(formatMessage, organizationId, logTabKey, repoListDs)), [organizationId, logTabKey]);
-
+  const scanDetailDs = useMemo(() => new DataSet(ScanDetailDS({ organizationId })), [organizationId]);
 
   const baseInfoDs = useMemo(() => new DataSet(BaseInfoDS()), []);
 
@@ -55,7 +55,6 @@ export const StoreProvider = injectIntl(observer((props) => {
     });
     repoListDs.query();
   }, [organizationId]);
-
 
   const value = {
     ...props,
@@ -70,6 +69,7 @@ export const StoreProvider = injectIntl(observer((props) => {
     baseInfoDs,
     dockerStore,
     repoListDs,
+    scanDetailDs,
   };
   return (
     <Store.Provider value={value}>
