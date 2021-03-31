@@ -45,7 +45,10 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		List<HarborImageTagVo> harborImageTagVoList = harborClientOperator.listImageTags(repoName);
 		Page<HarborImageTagVo> pageInfo;
 		if (StringUtils.isNotEmpty(tagName)) {
-			harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> dto.getTagName().contains(tagName)).collect(Collectors.toList());
+			harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> {
+				List<String> tagNames = dto.getTags().stream().map(HarborImageTagVo.Tag::getName).collect(Collectors.toList());
+				return tagNames.contains(tagName);
+			}).collect(Collectors.toList());
 		}
 		if (CollectionUtils.isEmpty(harborImageTagVoList)) {
 			return new Page<>();
