@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanResultVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
+import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.HarborImageService;
 import org.hzero.core.util.Results;
@@ -105,5 +106,29 @@ public class HarborImageController {
 																					@ApiIgnore PageRequest pageRequest) {
 		return Results.success(harborImageService.queryImageScanDetail(imageScanVO, pageRequest));
 	}
+
+	@ApiOperation(value = "组织层--查询单个扫描结果")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping(value = "/organization/{organizationId}/scan-images-result")
+	public ResponseEntity<HarborImageTagVo> queryImageScanResultTenant(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织Id") Long organizationId,
+																	   @RequestBody HarborImageScanVO imageScanVO) {
+		return Results.success(harborImageService.queryImageScanDetail(imageScanVO));
+	}
+
+	@ApiOperation(value = "项目层--查询单个扫描结果")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@PostMapping(value = "/project/{projectId}/scan-images-result")
+	public ResponseEntity<HarborImageTagVo> queryImageScanResultProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼组织Id") Long projectId,
+																	   @RequestBody HarborImageScanVO imageScanVO) {
+		return Results.success(harborImageService.queryImageScanDetail(imageScanVO));
+	}
+
+	@ApiOperation(value = "项目层/组织层--判断是否有可用扫描器")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping(value = "/scanner-status")
+	public ResponseEntity<Boolean> scannerAvailable(@RequestParam(value = "projectId") @ApiParam(value = "项目Id") Long projectId) {
+		return Results.success(harborImageService.scannerAvailable(projectId));
+	}
+
 
 }

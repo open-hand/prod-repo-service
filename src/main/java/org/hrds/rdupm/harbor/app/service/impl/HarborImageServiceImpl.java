@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanResultVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
+import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
@@ -159,6 +160,16 @@ public class HarborImageServiceImpl implements HarborImageService {
 	@Override
 	public Page<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO, PageRequest pageRequest) {
 		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborClientOperator.queryImageScanDetail(imageScanVO));
+	}
+
+	@Override
+	public HarborImageTagVo queryImageScanDetail(HarborImageScanVO imageScanVO) {
+		return harborClientOperator.queryImageScanResult(imageScanVO);
+	}
+
+	@Override
+	public Boolean scannerAvailable(Long projectId) {
+		return harborClientOperator.scannerAvailable(projectId);
 	}
 
 	/***

@@ -406,6 +406,87 @@ public class HarborClientOperator {
     }
 
 
+    public HarborImageTagVo queryImageScanResult(HarborImageScanVO imageScanVO) {
+        imageScanVO.setRepoName(imageScanVO.getRepoName().replace("%2F", BaseConstants.Symbol.SLASH));
+        ResponseEntity<String> responseEntity;
+        HarborImageTagVo harborImageTagVo;
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_RESULT, null, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
+            harborImageTagVo = gson.fromJson(responseEntity.getBody(), HarborImageTagVo.class);
+            harborImageTagVo.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(harborImageTagVo.getSize())));
+            harborImageTagVo.setPullTime(HarborConstants.DEFAULT_DATE.equals(harborImageTagVo.getPullTime()) ? null : harborImageTagVo.getPullTime());
+            if (harborImageTagVo.getScanOverviewJson() != null) {
+                HarborImageTagVo.ScanOverview scanOverview = harborImageTagVo.new ScanOverview();
+                scanOverview.setScanStatus(TypeUtil.objToString(harborImageTagVo.getScanOverviewJson().get("scan_status")));
+                scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(harborImageTagVo.getScanOverviewJson().get("severity"))));
+                Map<String, Object> imageMap = (Map<String, Object>) harborImageTagVo.getScanOverviewJson().get("components");
+                scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
+                HarborImageTagVo.Summary summary = harborImageTagVo.new Summary();
+                if (imageMap.get("summary") != null) {
+                    List<Object> summaryMap = (List<Object>) imageMap.get("summary");
+                    summaryMap.stream().forEach(t -> {
+                        Map<String, Object> map = (Map<String, Object>) t;
+                        setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
+                    });
+                }
+                scanOverview.setSummary(summary);
+                harborImageTagVo.setScanOverview(scanOverview);
+            }
+            List<HarborImageTagVo.Tag> tags = new ArrayList<>();
+            HarborImageTagVo.Tag tag = harborImageTagVo.new Tag();
+            tag.setName(harborImageTagVo.getTagName());
+            tag.setPullTime(harborImageTagVo.getPullTime());
+            tag.setPushTime(harborImageTagVo.getPushTime());
+            tags.add(tag);
+            harborImageTagVo.setTags(tags);
+
+            harborImageTagVo.setScanOverviewJson(null);
+            harborImageTagVo.setExtraAttrs(null);
+        } else {
+            String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_RESULT, null, null, true, strArr[0], strArr[1], imageScanVO.getDigest());
+            harborImageTagVo = gson.fromJson(responseEntity.getBody(), HarborImageTagVo.class);
+            harborImageTagVo.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(harborImageTagVo.getSize())));
+            harborImageTagVo.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(harborImageTagVo.getPullTime()) ? null : harborImageTagVo.getPullTime());
+            harborImageTagVo.setArchitecture(harborImageTagVo.getExtraAttrs().getArchitecture());
+            harborImageTagVo.setOs(harborImageTagVo.getExtraAttrs().getOs());
+            if (harborImageTagVo.getScanOverviewJson() != null) {
+                Map<String, Object> imageMap = (Map<String, Object>) harborImageTagVo.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
+                String jsonString = gson.toJson(imageMap.get("summary"));
+                Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
+                HarborImageTagVo.ScanOverview scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")));
+                scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
+                jsonString = gson.toJson(summaryMap.get("summary"));
+                HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
+                scanOverview.setSummary(summary);
+                harborImageTagVo.setScanOverview(scanOverview);
+            } else {
+                harborImageTagVo.setScanOverview(null);
+            }
+            harborImageTagVo.setScanOverviewJson(null);
+            harborImageTagVo.setExtraAttrs(null);
+        }
+        return harborImageTagVo;
+    }
+
+    public Boolean scannerAvailable(Long projectId) {
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            ResponseEntity<String> response = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, null, null, true);
+            Map<String, Object> resultMap = JSONObject.parseObject(response.getBody(), Map.class);
+            return resultMap.get("with_clair") != null && (Boolean) resultMap.get("with_clair");
+        } else {
+            Long harborProjectId = harborRepositoryRepository.getHarborRepositoryById(projectId).getHarborId();
+            ResponseEntity<String> response = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_QUERY_SCANNER_STATUS, null, null, true, harborProjectId);
+            Map<String, Object> resultMap = JSONObject.parseObject(response.getBody(), Map.class);
+            if (resultMap == null || resultMap.isEmpty()) {
+                return false;
+            } else {
+                return resultMap.get("health").equals("healthy");
+            }
+        }
+    }
+
     private String getSecurity(Double securityNum) {
         int num = securityNum.intValue();
         String security;

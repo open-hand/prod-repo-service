@@ -247,7 +247,12 @@ public interface HarborConstants {
 		/**
 		 * 镜像扫描详情
 		 */
-		IMAGE_SCAN_DETAIL("/api/repositories/%s/tags/%s/vulnerability/details", HttpMethod.GET, "镜像安全扫描，repo_name镜像仓库名/tag", "/api/v2.0/projects/%s/repositories/%s/artifacts/%s/additions/vulnerabilities","项目名/repository_name仓库名/reference摘要");
+		IMAGE_SCAN_DETAIL("/api/repositories/%s/tags/%s/vulnerability/details", HttpMethod.GET, "镜像安全扫描，repo_name镜像仓库名/tag", "/api/v2.0/projects/%s/repositories/%s/artifacts/%s/additions/vulnerabilities","项目名/repository_name仓库名/reference摘要"),
+
+		/**
+		 * 获取项目下可用扫描器状态
+		 */
+		IMAGE_QUERY_SCANNER_STATUS("", HttpMethod.GET, "", "/api/v2.0/projects/%s/scanner","harbor项目Id");
 
 		/**
 		 *  v2.0接口

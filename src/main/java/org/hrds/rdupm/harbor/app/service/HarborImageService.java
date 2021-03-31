@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanResultVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageScanVO;
+import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 
 import io.choerodon.core.domain.Page;
@@ -59,4 +60,18 @@ public interface HarborImageService {
 	 * @param imageScanVO
 	 */
 	Page<HarborImageScanResultVO> queryImageScanDetail(HarborImageScanVO imageScanVO,PageRequest pageRequest);
+
+	/**
+	 * 获取单个扫描结果
+	 * @param imageScanVO
+	 * @return
+	 */
+	HarborImageTagVo queryImageScanDetail(HarborImageScanVO imageScanVO);
+
+	/**
+	 * 判断是否有可用扫描器
+	 * @param projectId
+	 * @return
+	 */
+	Boolean scannerAvailable(Long projectId);
 }
