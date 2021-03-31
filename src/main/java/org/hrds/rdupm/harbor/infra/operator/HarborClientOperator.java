@@ -73,7 +73,7 @@ public class HarborClientOperator {
                 paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
                 paramMap.put("page", page);
                 paramMap.put("page_size", pageSize);
-                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
+                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectId);
                 harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
                 page++;
@@ -127,7 +127,7 @@ public class HarborClientOperator {
         } else {
             paramMap.put("page", 0);
             paramMap.put("page_size", 0);
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null,true, harborProjectCode);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
             logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
@@ -167,7 +167,7 @@ public class HarborClientOperator {
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
-                if(dto.getScanOverviewJson()!=null) {
+                if (dto.getScanOverviewJson() != null) {
                     HarborImageTagVo.ScanOverview scanOverview = dto.new ScanOverview();
                     scanOverview.setScanStatus(TypeUtil.objToString(dto.getScanOverviewJson().get("scan_status")));
                     scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(dto.getScanOverviewJson().get("severity"))));
