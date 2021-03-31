@@ -118,9 +118,10 @@ public class HarborImageTagVo {
         private Long fixable;
         @ApiModelProperty("总共的")
         private Long total;
-
         @ApiModelProperty("总结")
         private Summary summary;
+        @ApiModelProperty("地址连接")
+        private String logUrl;
     }
 
     @Getter
