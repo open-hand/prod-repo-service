@@ -43,12 +43,6 @@ public class HarborImageTagVo {
     @SerializedName("os.version")
     private String osVersion;
 
-    @ApiModelProperty("docker版本")
-    @SerializedName("docker_version")
-    private String dockerVersion;
-
-    @ApiModelProperty("创建人")
-    private String author;
 
     @ApiModelProperty("创建时间")
     @SerializedName("created")
@@ -64,15 +58,6 @@ public class HarborImageTagVo {
 
     @ApiModelProperty("TAG大小显示：19MB")
     private String sizeDesc;
-
-    @ApiModelProperty("登录名")
-    private String loginName;
-
-    @ApiModelProperty("用户姓名")
-    private String realName;
-
-    @ApiModelProperty("用户头像地址")
-    private String userImageUrl;
 
     @ApiModelProperty("额外信息")
     @SerializedName("extra_attrs")
@@ -111,6 +96,14 @@ public class HarborImageTagVo {
         @ApiModelProperty("最近pull时间")
         @SerializedName("pull_time")
         private String pullTime;
+        @ApiModelProperty("登录名")
+        private String loginName;
+        @ApiModelProperty("用户姓名")
+        private String realName;
+        @ApiModelProperty("用户头像地址")
+        private String userImageUrl;
+        @ApiModelProperty("创建人")
+        private String author;
     }
 
     @Getter

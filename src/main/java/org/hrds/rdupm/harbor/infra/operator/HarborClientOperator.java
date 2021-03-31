@@ -73,7 +73,7 @@ public class HarborClientOperator {
                 paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
                 paramMap.put("page", page);
                 paramMap.put("page_size", pageSize);
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
+                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
                 harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
                 page++;
@@ -105,15 +105,29 @@ public class HarborClientOperator {
     }
 
 
-    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborId, String harborProjectCode) {
+    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborProjectId, String harborProjectCode) {
         ResponseEntity<String> responseEntity;
-        List<HarborImageLog> logListResult;
+        List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborId);
-            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-            }.getType());
+            int page = 1;
+            int pageSize = 10;
+            List<HarborImageLog> harborImageLogs = new ArrayList<>();
+            do {
+                paramMap.put("page", page);
+                paramMap.put("page_size", pageSize);
+                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
+                harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+                }.getType());
+                page++;
+                pageSize = +10;
+                if (!CollectionUtils.isEmpty(harborImageLogs)) {
+                    logListResult.addAll(harborImageLogs);
+                }
+            } while (!CollectionUtils.isEmpty(harborImageLogs));
         } else {
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
+            paramMap.put("page", 0);
+            paramMap.put("page_size", 0);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null,true, harborProjectCode);
             logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
@@ -153,22 +167,23 @@ public class HarborClientOperator {
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
-                HarborImageTagVo.ScanOverview scanOverview = dto.new ScanOverview();
-                scanOverview.setScanStatus(TypeUtil.objToString(dto.getScanOverviewJson().get("scan_status")));
-                scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(dto.getScanOverviewJson().get("severity"))));
-                Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("components");
-                scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
-                HarborImageTagVo.Summary summary = dto.new Summary();
-                if (imageMap.get("summary") != null) {
-                    List<Object> summaryMap = (List<Object>) imageMap.get("summary");
-                    summaryMap.stream().forEach(t -> {
-                        Map<String, Object> map = (Map<String, Object>) t;
-                        setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
-                    });
+                if(dto.getScanOverviewJson()!=null) {
+                    HarborImageTagVo.ScanOverview scanOverview = dto.new ScanOverview();
+                    scanOverview.setScanStatus(TypeUtil.objToString(dto.getScanOverviewJson().get("scan_status")));
+                    scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(dto.getScanOverviewJson().get("severity"))));
+                    Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("components");
+                    scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
+                    HarborImageTagVo.Summary summary = dto.new Summary();
+                    if (imageMap.get("summary") != null) {
+                        List<Object> summaryMap = (List<Object>) imageMap.get("summary");
+                        summaryMap.stream().forEach(t -> {
+                            Map<String, Object> map = (Map<String, Object>) t;
+                            setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
+                        });
+                    }
+                    scanOverview.setSummary(summary);
+                    dto.setScanOverview(scanOverview);
                 }
-                scanOverview.setSummary(summary);
-                dto.setScanOverview(scanOverview);
-
                 List<HarborImageTagVo.Tag> tags = new ArrayList<>();
                 HarborImageTagVo.Tag tag = dto.new Tag();
                 tag.setName(dto.getTagName());
@@ -199,16 +214,20 @@ public class HarborClientOperator {
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
                 dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
                 dto.setOs(dto.getExtraAttrs().getOs());
-                Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
-                String jsonString = gson.toJson(imageMap.get("summary"));
-                Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
-                HarborImageTagVo.ScanOverview scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
-                scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")));
-                scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
-                jsonString = gson.toJson(summaryMap.get("summary"));
-                HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
-                scanOverview.setSummary(summary);
-                dto.setScanOverview(scanOverview);
+                if (dto.getScanOverviewJson() != null) {
+                    Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
+                    String jsonString = gson.toJson(imageMap.get("summary"));
+                    Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
+                    HarborImageTagVo.ScanOverview scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                    scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")));
+                    scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
+                    jsonString = gson.toJson(summaryMap.get("summary"));
+                    HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
+                    scanOverview.setSummary(summary);
+                    dto.setScanOverview(scanOverview);
+                } else {
+                    dto.setScanOverview(null);
+                }
                 dto.setScanOverviewJson(null);
                 dto.setExtraAttrs(null);
             });

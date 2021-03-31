@@ -1,9 +1,6 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -78,29 +75,34 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		param.put("project_name", harborProjectName);
 		param.put("repository", repoName);
 		param.put("operation", "push");
+		param.put("q", "operation=create");
 		if (StringUtils.isNotEmpty(tagName)) {
 			param.put("tag", tagName);
 		}
 		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository);
 		Map<String, List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto -> dto.getRepoName() + dto.getTagName()));
-		List<HarborImageLog> logList = logListMap.get(repoName + tagVo.getTagName());
-		if (CollectionUtils.isNotEmpty(logList)) {
-			tagVo.setAuthor(logList.get(0).getLoginName());
-		}
+		tagVo.getTags().forEach(t -> {
+			List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
+			if (CollectionUtils.isNotEmpty(logList)) {
+				t.setAuthor(logList.get(0).getLoginName());
+			}
+		});
 	}
 
-	public void setAuthorWithIam(List<HarborImageTagVo> harborImageTagVoList){
-		Set<String> userNameSet = harborImageTagVoList.stream().map(dto->dto.getAuthor()).collect(Collectors.toSet());
+	public void setAuthorWithIam(List<HarborImageTagVo> harborImageTagVoList) {
+		Set<String> userNameSet = new HashSet<>();
+		harborImageTagVoList.forEach(dto -> dto.getTags().forEach(tag -> userNameSet.add(tag.getAuthor())));
 		Map<String,UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
-		harborImageTagVoList.stream().forEach(dto->{
-			String loginName = dto.getAuthor();
-			UserDTO userDTO = userDtoMap.get(loginName);
-			String realName = userDTO == null ? loginName : userDTO.getRealName();
-			String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
-
-			dto.setLoginName(loginName);
-			dto.setRealName(realName);
-			dto.setUserImageUrl(userImageUrl);
+		harborImageTagVoList.forEach(dto->{
+			dto.getTags().forEach(tag -> {
+				String loginName = tag.getAuthor();
+				UserDTO userDTO = userDtoMap.get(loginName);
+				String realName = userDTO == null ? loginName : userDTO.getRealName();
+				String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
+				tag.setLoginName(loginName);
+				tag.setRealName(realName);
+				tag.setUserImageUrl(userImageUrl);
+			});
 		});
 	}
 
