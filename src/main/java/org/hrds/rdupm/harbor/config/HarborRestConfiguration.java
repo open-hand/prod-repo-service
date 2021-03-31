@@ -32,7 +32,8 @@ import org.springframework.web.client.RestTemplate;
  * @author xiuhong.chen@hand-china.com
  */
 @Configuration
-public class HarborRestConfiguration {
+
+public class  HarborRestConfiguration {
 
     private static final int MAK_TIMEOUT = 601000;
 
@@ -40,10 +41,10 @@ public class HarborRestConfiguration {
     private Boolean skipSSL;
 
     @Bean(name = "hrdsHarborRestTemplate")
-    public RestTemplate restTemplate(HttpComponentsClientHttpRequestFactory factory) {
+    public RestTemplate hrdsHarborRestTemplate(HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory) {
         if (skipSSL) {
             try {
-                return new RestTemplate(factory);
+                return new RestTemplate(httpComponentsClientHttpRequestFactory);
             } catch (Exception e) {
                 throw new RuntimeException("Unable to initiate RestTemplate for access wechat-proxy.");
             }

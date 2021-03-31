@@ -11,7 +11,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,8 +26,7 @@ public class RestTemplateConfig {
     @Autowired
     private NexusProxyConfigProperties nexusProxyConfigProperties;
 
-    @Primary
-    @Bean
+    @Bean(name = "yhRestTemplate")
     public RestTemplate yhRestTemplate() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(601000);
