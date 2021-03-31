@@ -72,6 +72,7 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetails
   const openTagModal = (data) => {
     const { imageName: name, repoName } = data;
     const key = Modal.key();
+    const { currentMenuType: { projectId } } = stores.AppState;
     Modal.open({
       key,
       title: formatMessage({ id: 'infra.prod.lib.view.tag.title', defaultMessage: `${name}镜像Tag` }, { name }),
@@ -80,7 +81,12 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetails
       drawer: true,
       className: 'product-lib-edit-model',
       style: { width: '75%' },
-      children: <TagModal dockerImageScanDetailsDs={dockerImageScanDetailsDs} dockerImageTagDs={dockerImageTagDs} formatMessage={formatMessage} repoName={repoName} imageName={name} userAuth={userAuth} />,
+      okProps: {
+        disabled: true,
+      },
+      okText: '扫描',
+      cancelText: '关闭',
+      children: <TagModal projectId={projectId} dockerImageScanDetailsDs={dockerImageScanDetailsDs} dockerImageTagDs={dockerImageTagDs} formatMessage={formatMessage} repoName={repoName} imageName={name} userAuth={userAuth} />,
     });
   };
 

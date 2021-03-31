@@ -1,6 +1,5 @@
 export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
   autoQuery: false,
-  selection: false,
   pageSize: 10,
   transport: {
     read: () => ({
@@ -15,45 +14,26 @@ export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
   },
   fields: [
     {
-      name: 'tagName',
-      type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.osVersion` }),
-    },
-    {
       name: 'osVersion',
       type: 'string',
       label: formatMessage({ id: `${intlPrefix}.model.osVersion` }),
     },
+    { name: 'severity', type: 'string', label: '扫描状态' },
+    { name: 'scanStatus', type: 'string', label: '安全扫描结果' },
     {
       name: 'sizeDesc',
       type: 'string',
       label: formatMessage({ id: `${intlPrefix}.model.size` }),
     },
     {
-      name: 'dockerVersion',
-      type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.dockerVersion` }),
-    },
-    {
       name: 'os',
       type: 'string',
       label: formatMessage({ id: `${intlPrefix}.model.os` }),
     },
-    { name: 'architecture', type: 'string' },
     {
       name: 'digest',
       type: 'string',
       label: formatMessage({ id: `${intlPrefix}.model.digest` }),
-    },
-    {
-      name: 'author',
-      type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.realName1` }),
-    },
-    {
-      name: 'createTime',
-      type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.createTime` }),
     },
     {
       name: 'pushTime',

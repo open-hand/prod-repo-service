@@ -7,14 +7,14 @@
 import { get } from 'lodash';
 
 /* eslint-disable import/no-anonymous-default-export */
-export default (({ projectId }) => ({
+export default (({ organizationId }) => ({
   autoQuery: false,
   selection: false,
   paging: true,
   pageSize: 10,
   transport: {
     read: ({ data }) => ({
-      url: `/rdupm/v1/harbor-image/project/${projectId}/scan-images-detail`,
+      url: `/rdupm/v1/harbor-image/organization/${organizationId}/scan-images-detail`,
       method: 'post',
       data: {
         digest: get(data, 'digest'),

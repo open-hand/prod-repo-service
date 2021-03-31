@@ -24,7 +24,6 @@ export const TabKeyEnum = {
   OPT_LOG: 'optLog',
 };
 
-
 const DockerTabContainer = (props) => {
   const overviewRef = useRef();
   const { harborId, name } = useContext(RepositoryIdContext);
