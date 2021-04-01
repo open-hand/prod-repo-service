@@ -459,7 +459,7 @@ public class HarborClientOperator {
             tags.add(tag);
             harborImageTagVo.setTags(tags);
 
-//            harborImageTagVo.setScanOverviewJson(null);
+            harborImageTagVo.setScanOverviewJson(null);
             harborImageTagVo.setExtraAttrs(null);
         } else {
             String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
@@ -473,19 +473,24 @@ public class HarborClientOperator {
             harborImageTagVo.setOs(harborImageTagVo.getExtraAttrs().getOs());
             if (harborImageTagVo.getScanOverviewJson() != null) {
                 Map<String, Object> imageMap = (Map<String, Object>) harborImageTagVo.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
-                String jsonString = gson.toJson(imageMap.get("summary"));
-                Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
-                HarborImageTagVo.ScanOverview scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                HarborImageTagVo.ScanOverview scanOverview;
+                if (imageMap.get("summary") != null) {
+                    String jsonString = gson.toJson(imageMap.get("summary"));
+                    Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
+                    scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                    jsonString = gson.toJson(summaryMap.get("summary"));
+                    HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
+                    scanOverview.setSummary(summary);
+                } else {
+                    scanOverview = harborImageTagVo.new ScanOverview();
+                }
                 scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")));
                 scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
-                jsonString = gson.toJson(summaryMap.get("summary"));
-                HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
-                scanOverview.setSummary(summary);
                 harborImageTagVo.setScanOverview(scanOverview);
             } else {
                 harborImageTagVo.setScanOverview(null);
             }
-//            harborImageTagVo.setScanOverviewJson(null);
+            harborImageTagVo.setScanOverviewJson(null);
             harborImageTagVo.setExtraAttrs(null);
         }
         return harborImageTagVo;
