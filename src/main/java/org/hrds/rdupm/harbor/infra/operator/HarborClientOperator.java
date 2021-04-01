@@ -402,7 +402,7 @@ public class HarborClientOperator {
             if (CollectionUtils.isEmpty(imageScanResultVOS)) {
                 imageScanResultVOS.forEach(t -> {
                     t.setLinks(Collections.singletonList(t.getLink()));
-                    t.setSeverity(getSecurity(TypeUtil.objTodouble(t.getSeverityObject())));
+                    t.setSeverity(getSecurity(TypeUtil.objTodouble(t.getSeverityObject())).toLowerCase());
                     t.setFixVersion(t.getFixedVersion());
                 });
             }
@@ -415,9 +415,31 @@ public class HarborClientOperator {
             imageScanResultVOS = gson.fromJson(jsonString, new TypeToken<List<HarborImageScanResultVO>>() {
             }.getType());
             imageScanResultVOS.forEach(t -> {
-                t.setSeverity(TypeUtil.objToString(t.getSeverityObject()));
+                t.setSeverity(TypeUtil.objToString(t.getSeverityObject()).toLowerCase());
                 t.setSeverityObject(null);
             });
+        }
+        if (!CollectionUtils.isEmpty(imageScanResultVOS)) {
+            Map<String, List<HarborImageScanResultVO>> securityMap = imageScanResultVOS.stream().collect(Collectors.groupingBy(HarborImageScanResultVO::getSeverity));
+            imageScanResultVOS.clear();
+            if (securityMap.get(HarborConstants.SeverityLevel.CRITICAL) != null) {
+                imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.CRITICAL));
+            }
+            if (securityMap.get(HarborConstants.SeverityLevel.HIGH) != null) {
+                imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.HIGH));
+            }
+            if (securityMap.get(HarborConstants.SeverityLevel.MEDIUM) != null) {
+                imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.MEDIUM));
+            }
+            if (securityMap.get(HarborConstants.SeverityLevel.LOW) != null) {
+                imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.LOW));
+            }
+            if (securityMap.get(HarborConstants.SeverityLevel.NEGLIGIBLE) != null) {
+                imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.NEGLIGIBLE));
+            }
+            if (securityMap.get(HarborConstants.SeverityLevel.UNKNOWN) != null) {
+                imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.UNKNOWN));
+            }
         }
         return imageScanResultVOS;
     }

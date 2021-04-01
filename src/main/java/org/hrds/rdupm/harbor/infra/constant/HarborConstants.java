@@ -54,16 +54,11 @@ public interface HarborConstants {
 	* */
 	interface SeverityLevel{
 
-		String LOW = "low";
-
-		String MEDIUM = "medium";
-
-		String HIGH = "high";
-
 		String CRITICAL = "critical";
-
+		String HIGH = "high";
+		String MEDIUM = "medium";
+		String LOW = "low";
 		String NEGLIGIBLE = "negligible";
-
 		String UNKNOWN = "unknown";
 	}
 
