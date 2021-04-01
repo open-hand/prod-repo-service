@@ -427,8 +427,10 @@ public class HarborClientOperator {
         imageScanVO.setRepoName(imageScanVO.getRepoName().replace("%2F", BaseConstants.Symbol.SLASH));
         ResponseEntity<String> responseEntity;
         HarborImageTagVo harborImageTagVo;
+        Map<String, Object> paramMap = new HashMap<>(1);
+        paramMap.put("detail", "true");
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_RESULT, null, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_RESULT, paramMap, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
             harborImageTagVo = gson.fromJson(responseEntity.getBody(), HarborImageTagVo.class);
             harborImageTagVo.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(harborImageTagVo.getSize())));
             harborImageTagVo.setPullTime(HarborConstants.DEFAULT_DATE.equals(harborImageTagVo.getPullTime()) ? null : harborImageTagVo.getPullTime());
@@ -461,7 +463,9 @@ public class HarborClientOperator {
             harborImageTagVo.setExtraAttrs(null);
         } else {
             String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_RESULT, null, null, true, strArr[0], strArr[1], imageScanVO.getDigest());
+            paramMap.put("with_tag", "true");
+            paramMap.put("with_scan_overview", "true");
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_RESULT, paramMap, null, true, strArr[0], strArr[1], imageScanVO.getDigest());
             harborImageTagVo = gson.fromJson(responseEntity.getBody(), HarborImageTagVo.class);
             harborImageTagVo.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(harborImageTagVo.getSize())));
             harborImageTagVo.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(harborImageTagVo.getPullTime()) ? null : harborImageTagVo.getPullTime());
