@@ -236,7 +236,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
       const hasScanOverview = get(res, 'scanOverview');
       if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
         clearInterval(interval);
-        record.set(tempData);
+        record.set(res);
         record.selectable = true;
         return;
       } else {
