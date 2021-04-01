@@ -21,6 +21,8 @@ import ScanReprot from './ScanReportModal';
 const intlPrefix = 'infra.prod.lib';
 const { Column } = Table;
 
+const intervals = [];
+
 const imgStyle = {
   width: '18px',
   height: '18px',
@@ -44,10 +46,18 @@ const iconStyle = {
 };
 
 const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, repoName, imageName, userAuth, modal, projectId }) => {
-  useEffect(() => {
-    dockerImageTagDs.setQueryParameter('repoName', repoName);
-    dockerImageTagDs.query();
-  }, []);
+  async function init() {
+    try {
+      dockerImageTagDs.setQueryParameter('repoName', repoName);
+      const res = await dockerImageTagDs.query();
+      if (res && res.failed) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
   const statusMap = useMemo(() => new Map([
     ['UNKNOWN', { code: 'unready', name: '未知' }],
@@ -60,9 +70,17 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
 
   const scanStatusMap = useMemo(() => new Map([
     ['SUCCESS', { code: 'success', name: '已完成' }],
+    ['FINISHED', { code: 'success', name: '已完成' }],
     ['RUNNING', { code: 'running', name: '扫描中' }],
+    ['SCANNING', { code: 'running', name: '扫描中' }],
+
     ['PENDING', { code: 'pending', name: '准备中' }],
-    ['FAILED', { code: 'failed', name: '失败' }],
+    ['QUEUED', { code: 'pending', name: '准备中' }],
+    ['SCHEDULED', { code: 'pending', name: '准备中' }],
+
+    ['ERROR', { code: 'failed', name: '失败' }],
+    ['STOPPED', { code: 'unready', name: '未扫描' }],
+    ['UNKNOWN', { code: 'unready', name: '未扫描' }],
   ]), []);
 
   const rendererTag = ({ text }) => {
@@ -328,16 +346,6 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
     );
   };
 
-  useEffect(() => {
-    const selectedRecords = dockerImageTagDs.currentSelected;
-    const upDateProps = {
-      okProps: {
-        disabled: !get(selectedRecords, 'length'),
-      },
-    };
-    modal.update(upDateProps);
-  }, [dockerImageTagDs.currentSelected]);
-
   async function handleScanning() {
     const scanData = map(dockerImageTagDs.currentSelected, (record) => ({
       repoName,
@@ -357,6 +365,9 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
   }
 
   const renderScanStatusTag = useCallback(({ record }) => {
+    if (!record.get('scanOverview')) {
+      return <StatusTag colorCode="unready" name="未扫描" />;
+    }
     const text = get(record.get('scanOverview'), 'scanStatus');
     const {
       code,
@@ -385,26 +396,80 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
     );
   }, []);
 
-  function handletest() {
-    forEach(dockerImageTagDs.currentSelected, (record) => {
-      record.selectable = false;
-      record.isSelected = false;
-      record.set('scanOverview', {
-        ...record.get('scanOverview'),
-        severity: '',
-        scanStatus: 'running',
-      });
-      setTimeout(() => {
+  async function handleGetStatus(record, interval) {
+    const tempObj = {
+      digest: record.get('digest'),
+      repoName,
+      tagName: record.get('tagName'),
+    };
+    try {
+      const res = await axios.post(`/rdupm/v1/harbor-image/project/${projectId}/scan-images-result`, JSON.stringify(tempObj));
+      if (res && res.failed) {
+        message.error(res.message);
+        clearInterval(interval);
         record.selectable = true;
-        record.set('scanOverview', {
+      }
+      const tempData = record.toData();
+      const hasScanOverview = get(res, 'scanOverview');
+      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+        clearInterval(interval);
+        record.set(tempData);
+        record.selectable = true;
+        return;
+      } else {
+        tempData.scanOverview = {
           ...record.get('scanOverview'),
-          severity: 'High',
-          scanStatus: 'success',
+          scanStatus: 'RUNNING',
+        };
+      }
+      record.set(tempData);
+    } catch (error) {
+      clearInterval(interval);
+      record.selectable = true;
+      throw new Error(error);
+    }
+  }
+
+  async function handletest() {
+    try {
+      const beginScan = await handleScanning();
+      if (beginScan) {
+        forEach(dockerImageTagDs.currentSelected, (record) => {
+          record.selectable = false;
+          record.isSelected = false;
+          const time = setInterval(() => {
+            intervals.push(time);
+            handleGetStatus(record, time);
+          }, 2000);
         });
-      }, 1000);
-    });
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+
     return false;
   }
+
+  useEffect(() => {
+    init();
+    return () => {
+      if (intervals.length) {
+        forEach(intervals, (timmer) => {
+          clearInterval(timmer);
+        });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const selectedRecords = dockerImageTagDs.currentSelected;
+    const upDateProps = {
+      okProps: {
+        disabled: !get(selectedRecords, 'length'),
+      },
+    };
+    modal.update(upDateProps);
+  }, [dockerImageTagDs.currentSelected]);
 
   modal.handleOk(handletest);
 
