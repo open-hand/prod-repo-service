@@ -82,7 +82,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		if (StringUtils.isNotEmpty(tagName)) {
 			param.put("tag", tagName);
 		}
-		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository, false);
+		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository, true);
 		Map<String, List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto -> dto.getRepoName() + dto.getTagName()));
 		tagVo.getTags().forEach(t -> {
 			List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
