@@ -22,6 +22,8 @@ const { Column } = Table;
 
 const modalKey = Modal.key();
 
+const intervals = [];
+
 const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlPrefix, formatMessage, organizationId, repoListDs, modal }) => {
   function refresh() {
     dataSet.query();
@@ -29,10 +31,6 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
   function refreshMirrorList() {
     mirrorListDS.query();
   }
-
-  useEffect(() => {
-    refresh();
-  }, []);
 
   const statusMap = useMemo(() => new Map([
     ['UNKNOWN', { code: 'unready', name: '未知' }],
@@ -45,9 +43,17 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
 
   const scanStatusMap = useMemo(() => new Map([
     ['SUCCESS', { code: 'success', name: '已完成' }],
+    ['FINISHED', { code: 'success', name: '已完成' }],
     ['RUNNING', { code: 'running', name: '扫描中' }],
+    ['SCANNING', { code: 'running', name: '扫描中' }],
+
     ['PENDING', { code: 'pending', name: '准备中' }],
-    ['FAILED', { code: 'failed', name: '失败' }],
+    ['QUEUED', { code: 'pending', name: '准备中' }],
+    ['SCHEDULED', { code: 'pending', name: '准备中' }],
+
+    ['ERROR', { code: 'failed', name: '失败' }],
+    ['STOPPED', { code: 'unready', name: '未扫描' }],
+    ['UNKNOWN', { code: 'unready', name: '未扫描' }],
   ]), []);
 
   const rendererTag = ({ text }) => {
@@ -213,15 +219,59 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
     }
   }
 
-  useEffect(() => {
-    const selectedRecords = dataSet.currentSelected;
-    const upDateProps = {
-      okProps: {
-        disabled: !get(selectedRecords, 'length'),
-      },
+  async function handleGetStatus(record, interval) {
+    const tempObj = {
+      digest: record.get('digest'),
+      repoName,
+      tagName: record.get('tagName'),
     };
-    modal.update(upDateProps);
-  }, [dataSet.currentSelected]);
+    try {
+      const res = await axios.post(`/rdupm/v1/harbor-image/organization/${organizationId}/scan-images-result`, JSON.stringify(tempObj));
+      if (res && res.failed) {
+        message.error(res.message);
+        clearInterval(interval);
+        record.selectable = true;
+      }
+      const tempData = record.toData();
+      const hasScanOverview = get(res, 'scanOverview');
+      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+        clearInterval(interval);
+        record.set(tempData);
+        record.selectable = true;
+        return;
+      } else {
+        tempData.scanOverview = {
+          ...record.get('scanOverview'),
+          scanStatus: 'RUNNING',
+        };
+      }
+      record.set(tempData);
+    } catch (error) {
+      clearInterval(interval);
+      record.selectable = true;
+      throw new Error(error);
+    }
+  }
+
+  async function handletest() {
+    try {
+      const beginScan = await handleScanning();
+      if (beginScan) {
+        forEach(dataSet.currentSelected, (record) => {
+          record.selectable = false;
+          record.isSelected = false;
+          const time = setInterval(() => {
+            intervals.push(time);
+            handleGetStatus(record, time);
+          }, 2000);
+        });
+      }
+    } catch (error) {
+      throw new Error(error);
+    }
+
+    return false;
+  }
 
   const renderExpand = ({ record }) => {
     const versions = record.get('tags');
@@ -259,6 +309,9 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
   };
 
   const renderScanStatusTag = useCallback(({ record }) => {
+    if (!record.get('scanOverview')) {
+      return <StatusTag colorCode="unready" name="未扫描" />;
+    }
     const text = get(record.get('scanOverview'), 'scanStatus');
     const {
       code,
@@ -325,26 +378,39 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
     );
   };
 
-  function handletest() {
-    forEach(dataSet.currentSelected, (record) => {
-      record.selectable = false;
-      record.isSelected = false;
-      record.set('scanOverview', {
-        ...record.get('scanOverview'),
-        severity: '',
-        scanStatus: 'running',
-      });
-      setTimeout(() => {
-        record.selectable = true;
-        record.set('scanOverview', {
-          ...record.get('scanOverview'),
-          severity: 'High',
-          scanStatus: 'success',
-        });
-      }, 1000);
-    });
-    return false;
+  async function init() {
+    try {
+      dataSet.setQueryParameter('repoName', repoName);
+      const res = await dataSet.query();
+      if (res && res.failed) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
+ 
+  useEffect(() => {
+    init();
+    return () => {
+      if (intervals.length) {
+        forEach(intervals, (timmer) => {
+          clearInterval(timmer);
+        });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const selectedRecords = dataSet.currentSelected;
+    const upDateProps = {
+      okProps: {
+        disabled: !get(selectedRecords, 'length'),
+      },
+    };
+    modal.update(upDateProps);
+  }, [dataSet.currentSelected]);
 
   modal.handleOk(handletest);
 
