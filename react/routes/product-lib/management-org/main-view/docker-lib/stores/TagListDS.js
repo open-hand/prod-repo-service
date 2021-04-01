@@ -1,4 +1,5 @@
 import { axios } from '@choerodon/boot';
+import { get } from 'lodash';
 
 export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
   autoQuery: false,
@@ -24,6 +25,13 @@ export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
         if (!res) {
           dataSet.forEach((record) => {
             record.selectable = false;
+          });
+        } else {
+          dataSet.forEach((record) => {
+            const hasScanOverview = record.get('scanOverview');
+            if (hasScanOverview && ['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+              record.selectable = false;
+            }
           });
         }
       } catch (error) {

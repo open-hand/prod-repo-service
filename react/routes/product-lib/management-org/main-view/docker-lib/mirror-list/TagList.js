@@ -232,20 +232,13 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
         clearInterval(interval);
         record.selectable = true;
       }
-      const tempData = record.toData();
       const hasScanOverview = get(res, 'scanOverview');
       if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
         clearInterval(interval);
         record.set(res);
         record.selectable = true;
         return;
-      } else {
-        tempData.scanOverview = {
-          ...record.get('scanOverview'),
-          scanStatus: 'RUNNING',
-        };
       }
-      record.set(tempData);
     } catch (error) {
       clearInterval(interval);
       record.selectable = true;
@@ -260,6 +253,10 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
         forEach(dataSet.currentSelected, (record) => {
           record.selectable = false;
           record.isSelected = false;
+          record.set('scanOverview', {
+            ...record.get('scanOverview'),
+            scanStatus: 'RUNNING',
+          });
           const time = setInterval(() => {
             intervals.push(time);
             handleGetStatus(record, time);
@@ -417,6 +414,23 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
   return (
     <React.Fragment>
       {renderFilterForm()}
+      <div 
+        style={{
+          background: '#F3F6FE',
+          borderRadius: '5px',
+          width: '100%',
+          padding: '14px 16px',
+          color: '#0F1358',
+          marginBottom: '10px',
+        }}
+      >
+        <p>执行扫描操作前，请确保该仓库已安装扫描插件。</p>
+        <p style={{
+          margin: '0',
+        }}
+        >请先勾选列表中的摘要，才能点击下方的扫描按钮
+        </p>
+      </div>
       <Table
         dataSet={dataSet}
         queryBar="none"
