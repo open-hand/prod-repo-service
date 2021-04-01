@@ -135,12 +135,18 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
     });
   };
 
+  function handleFailedLink({ logUrl }) {
+    window.open(logUrl);
+  }
+
   function renderAction({ record }) {
     const {
       digest,
       tagName,
       scanOverview,
     } = record.toData();
+    const scanStatus = get(scanOverview, 'scanStatus').toUpperCase && get(scanOverview, 'scanStatus').toUpperCase();
+    const logUrl = get(scanOverview, 'logUrl');
     const actionData = [
       {
         service: [],
@@ -153,11 +159,18 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
         action: () => openCopyModal(record),
       },
     ];
-    if (get(scanOverview, 'scanStatus').toUpperCase() === 'SUCCESS') {
+    if (['FINISHED', 'SUCCESS'].includes(scanStatus)) {
       actionData.push({
         service: [],
-        text: '漏洞扫描详情',
+        text: formatMessage({ id: `${intlPrefix}.view.scanningReport`, defaultMessage: '漏洞扫描详情' }),
         action: () => handleScanReport({ digest, tagName }),
+      }); 
+    }
+    if (scanStatus === 'FAILED') {
+      actionData.push({
+        service: [],
+        text: '查看失败日志',
+        action: () => handleFailedLink({ logUrl }),
       });
     }
     return <Action data={actionData} />;
@@ -233,7 +246,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
         record.selectable = true;
       }
       const hasScanOverview = get(res, 'scanOverview');
-      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING', 'PENDING', 'QUEUED', 'SCHEDULED'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
         clearInterval(interval);
         record.set(res);
         record.selectable = true;

@@ -50,7 +50,7 @@ const MirrorList = () => {
   const listData = mirrorListDS.current && mirrorListDS.toData();
 
   function openTagModal(imageName, repoName, projectId) {
-    const tagListDs = new DataSet(TagListDS({ intlPrefix, formatMessage, repoName, projectId }));
+    const tagListDs = new DataSet(TagListDS({ intlPrefix, formatMessage, repoName, organizationId, projectId }));
     const tagPros = {
       formatMessage,
       intlPrefix,
