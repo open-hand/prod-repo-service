@@ -459,7 +459,7 @@ public class HarborClientOperator {
             tags.add(tag);
             harborImageTagVo.setTags(tags);
 
-            harborImageTagVo.setScanOverviewJson(null);
+//            harborImageTagVo.setScanOverviewJson(null);
             harborImageTagVo.setExtraAttrs(null);
         } else {
             String[] strArr = imageScanVO.getRepoName().split(BaseConstants.Symbol.SLASH);
@@ -485,7 +485,7 @@ public class HarborClientOperator {
             } else {
                 harborImageTagVo.setScanOverview(null);
             }
-            harborImageTagVo.setScanOverviewJson(null);
+//            harborImageTagVo.setScanOverviewJson(null);
             harborImageTagVo.setExtraAttrs(null);
         }
         return harborImageTagVo;
