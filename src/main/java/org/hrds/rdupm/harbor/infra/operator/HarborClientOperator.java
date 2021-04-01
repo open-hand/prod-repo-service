@@ -451,13 +451,6 @@ public class HarborClientOperator {
                 scanOverview.setSummary(summary);
                 harborImageTagVo.setScanOverview(scanOverview);
             }
-            List<HarborImageTagVo.Tag> tags = new ArrayList<>();
-            HarborImageTagVo.Tag tag = harborImageTagVo.new Tag();
-            tag.setName(harborImageTagVo.getTagName());
-            tag.setPullTime(harborImageTagVo.getPullTime());
-            tag.setPushTime(harborImageTagVo.getPushTime());
-            tags.add(tag);
-            harborImageTagVo.setTags(tags);
 
             harborImageTagVo.setScanOverviewJson(null);
             harborImageTagVo.setExtraAttrs(null);
@@ -492,6 +485,7 @@ public class HarborClientOperator {
             }
             harborImageTagVo.setScanOverviewJson(null);
             harborImageTagVo.setExtraAttrs(null);
+            harborImageTagVo.setTags(null);
         }
         return harborImageTagVo;
     }
