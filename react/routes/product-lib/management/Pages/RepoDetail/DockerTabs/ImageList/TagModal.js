@@ -226,6 +226,10 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
     });
   };
 
+  function handleFailedLink({ logUrl }) {
+    window.open(logUrl);
+  }
+
   const renderAction = useCallback(({ record }) => {
     const data = record.toData();
     const {
@@ -234,6 +238,8 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
       scanOverview,
     } = data;
     let actionData = [];
+    const scanStatus = get(scanOverview, 'scanStatus').toUpperCase && get(scanOverview, 'scanStatus').toUpperCase();
+    const logUrl = get(scanOverview, 'logUrl');
     if (userAuth?.includes('projectAdmin')) {
       actionData = [
         {
@@ -266,12 +272,19 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         },
       ];
     }
-    if (get(scanOverview, 'scanStatus').toUpperCase() === 'SUCCESS') {
+    if (['FINISHED', 'SUCCESS'].includes(scanStatus)) {
       actionData.push({
         service: [],
         text: formatMessage({ id: `${intlPrefix}.view.scanningReport`, defaultMessage: '漏洞扫描详情' }),
         action: () => handleScanReport({ digest, tagName }),
       }); 
+    }
+    if (scanStatus === 'FAILED') {
+      actionData.push({
+        service: [],
+        text: '查看失败日志',
+        action: () => handleFailedLink({ logUrl }),
+      });
     }
     return <Action data={actionData} />;
   }, []);
@@ -410,7 +423,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         record.selectable = true;
       }
       const hasScanOverview = get(res, 'scanOverview');
-      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING', 'PENDING', 'QUEUED', 'SCHEDULED'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
         clearInterval(interval);
         record.set(res);
         record.selectable = true;
