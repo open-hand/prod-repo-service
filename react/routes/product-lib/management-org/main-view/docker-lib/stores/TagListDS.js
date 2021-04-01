@@ -1,3 +1,5 @@
+import { axios } from '@choerodon/boot';
+
 export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
   autoQuery: false,
   pageSize: 10,
@@ -11,6 +13,23 @@ export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
       method: 'delete',
       data,
     }),
+  },
+  events: {
+    load: async ({ dataSet }) => {
+      try {
+        const res = await axios.get(`/rdupm/v1/harbor-image/scanner-status?projectId=${projectId}`);
+        if (res && res?.failed) {
+          return false;
+        }
+        if (!res) {
+          dataSet.forEach((record) => {
+            record.selectable = false;
+          });
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
   },
   fields: [
     {
