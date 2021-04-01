@@ -51,12 +51,23 @@ public class HarborImageTagController {
 		return Results.success(harborImageTagService.buildLog(repoName, tagName, digest));
 	}
 
-	@ApiOperation(value = "项目层/组织层--删除镜像TAG")
+	@ApiOperation(value = "项目层--删除镜像TAG")
 	@Permission(level = ResourceLevel.ORGANIZATION)
-	@DeleteMapping(value = "/delete")
-	public ResponseEntity delete(@ApiParam(value = "仓库名称") @RequestParam String repoName,
-								 @ApiParam(value = "版本号") @RequestParam String tagName) {
-		harborImageTagService.delete(repoName,tagName);
+	@DeleteMapping(value = "/project/{projectId}/delete")
+	public ResponseEntity deleteProject(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+										@ApiParam(value = "仓库名称") @RequestParam String repoName,
+										@ApiParam(value = "版本号") @RequestParam String tagName) {
+		harborImageTagService.delete(repoName, tagName, false);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "组织层--删除镜像TAG")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@DeleteMapping(value = "/organization/{organizationId}/delete")
+	public ResponseEntity deleteTenant(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId,
+									   @ApiParam(value = "仓库名称") @RequestParam String repoName,
+									   @ApiParam(value = "版本号") @RequestParam String tagName) {
+		harborImageTagService.delete(repoName, tagName, true);
 		return Results.success();
 	}
 

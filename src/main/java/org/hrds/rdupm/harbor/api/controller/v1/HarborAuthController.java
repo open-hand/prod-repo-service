@@ -67,23 +67,6 @@ public class HarborAuthController extends BaseController {
         return Results.success(list);
     }
 
-	@ApiOperation(value = "组织层--权限列表")
-	@Permission(level = ResourceLevel.ORGANIZATION)
-	@GetMapping(value = "/list-org/{organizationId}")
-	public ResponseEntity<Page<HarborAuth>> listByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
-													 @ApiParam("镜像仓库编码") @RequestParam(required = false) String code,
-													 @ApiParam("镜像仓库名称") @RequestParam(required = false) String name,
-													 @ApiParam("登录名") @RequestParam(required = false) String loginName,
-													 @ApiParam("用户名") @RequestParam(required = false) String realName,
-													 @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
-													  @ApiParam("params") @RequestParam(required = false) String params,
-													  @ApiIgnore PageRequest pageRequest) {
-		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
-		harborAuth.setParams(params);
-		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
-		return Results.success(list);
-	}
-
     @ApiOperation(value = "项目层--权限明细")
 	@Permission(level = ResourceLevel.ORGANIZATION)
     @GetMapping("/detail/{authId}")
@@ -145,6 +128,23 @@ public class HarborAuthController extends BaseController {
 		HarborUtil.setIds(exportParam);
 		HarborAuth harborAuth = new HarborAuth(projectId,loginName,realName,harborRoleName);
 		return Results.success(harborAuthService.export(pageRequest, harborAuth, exportParam, response));
+	}
+
+	@ApiOperation(value = "组织层--权限列表")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping(value = "/list-org/{organizationId}")
+	public ResponseEntity<Page<HarborAuth>> listByOrg(@ApiParam("猪齿鱼组织ID") @PathVariable Long organizationId,
+													  @ApiParam("镜像仓库编码") @RequestParam(required = false) String code,
+													  @ApiParam("镜像仓库名称") @RequestParam(required = false) String name,
+													  @ApiParam("登录名") @RequestParam(required = false) String loginName,
+													  @ApiParam("用户名") @RequestParam(required = false) String realName,
+													  @ApiParam("权限角色名称") @RequestParam(required = false) String harborRoleName,
+													  @ApiParam("params") @RequestParam(required = false) String params,
+													  @ApiIgnore PageRequest pageRequest) {
+		HarborAuth harborAuth = new HarborAuth(loginName,realName,organizationId,code,name,harborRoleName);
+		harborAuth.setParams(params);
+		Page<HarborAuth> list = harborAuthService.pageList(pageRequest, harborAuth);
+		return Results.success(list);
 	}
 
 	@ApiOperation(value = "组织层--导出权限")

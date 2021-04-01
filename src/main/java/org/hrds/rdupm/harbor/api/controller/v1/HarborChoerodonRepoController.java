@@ -139,7 +139,7 @@ public class HarborChoerodonRepoController extends BaseController {
 	@DeleteMapping(value = "/image-tag/delete")
 	public ResponseEntity delete(@ApiParam(value = "仓库名称") @RequestParam String repoName,
 								 @ApiParam(value = "版本号") @RequestParam String tagName) {
-        harborImageTagService.delete(repoName,tagName);
+        harborImageTagService.delete(repoName, tagName, true);
 		return Results.success();
 	}
 

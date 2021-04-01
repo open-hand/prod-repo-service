@@ -35,7 +35,7 @@ public interface HarborImageTagService {
 	 * @param repoName
 	 * @param tagName
 	 */
-	void delete(String repoName, String tagName);
+	void delete(String repoName, String tagName, Boolean adminAccountFlag);
 
 	/***
 	 * 复制镜像TAG

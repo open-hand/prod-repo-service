@@ -52,8 +52,8 @@ public class HarborClientOperator {
         }
     }
 
-    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, HarborRepository harborRepository) {
-        return listImageLogs(paramMap, harborRepository.getHarborId(), harborRepository.getCode());
+    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, HarborRepository harborRepository, Boolean adminAccountFlag) {
+        return listImageLogs(paramMap, harborRepository.getHarborId(), harborRepository.getCode(), adminAccountFlag);
     }
 
     public List<HarborImageLog> listCustomImageLogs(HarborCustomRepo harborCustomRepo) {
@@ -105,7 +105,7 @@ public class HarborClientOperator {
     }
 
 
-    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborProjectId, String harborProjectCode) {
+    public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborProjectId, String harborProjectCode, Boolean adminAccountFlag) {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
@@ -115,7 +115,7 @@ public class HarborClientOperator {
             do {
                 paramMap.put("page", page);
                 paramMap.put("page_size", pageSize);
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectId);
+                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectId);
                 harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
                 page++;
@@ -127,7 +127,7 @@ public class HarborClientOperator {
         } else {
             paramMap.put("page", 0);
             paramMap.put("page_size", 0);
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, true, harborProjectCode);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
             logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
             }.getType());
             if (logListResult != null) {
@@ -155,7 +155,7 @@ public class HarborClientOperator {
         List<HarborImageTagVo> harborImageTagVoList;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             if (isCustom) {
-                tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, repoName);
+                tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, repoName);
             } else {
                 tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, repoName);
             }
@@ -207,7 +207,7 @@ public class HarborClientOperator {
             paramMap.put("with_scan_overview", "true");
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
             if (isCustom) {
-                tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, strArr[0], strArr[1]);
+                tagResponseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, strArr[0], strArr[1]);
             } else {
                 tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, strArr[0], strArr[1]);
             }
@@ -252,11 +252,11 @@ public class HarborClientOperator {
         return harborImageTagVoList;
     }
 
-    public List<HarborBuildLogDTO> listBuildLogs(String repoName, String tagName, String digest) {
+    public List<HarborBuildLogDTO> listBuildLogs(String repoName, String tagName, String digest, Boolean adminAccountFlag) {
         ResponseEntity<String> responseEntity;
         List<HarborBuildLogDTO> buildLogDTOList;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG, null, null, true, repoName, tagName);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG, null, null, adminAccountFlag, repoName, tagName);
             Map<String, Object> map = gson.fromJson(responseEntity.getBody(), Map.class);
             String config = (String) map.get("config");
             Map<String, Object> configMap = gson.fromJson(config, Map.class);
@@ -267,19 +267,19 @@ public class HarborClientOperator {
             }
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG, null, null, true, strArr[0], strArr[1], digest);
+            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_IMAGE_BUILD_LOG, null, null, adminAccountFlag, strArr[0], strArr[1], digest);
             buildLogDTOList = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborBuildLogDTO>>() {
             }.getType());
         }
         return buildLogDTOList;
     }
 
-    public void deleteImageByTag(String repoName, String tagName) {
+    public void deleteImageByTag(String repoName, String tagName, Boolean adminAccountFlag) {
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG, null, null, true, repoName, tagName);
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE_TAG, null, null, adminAccountFlag, repoName, tagName);
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-            ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, true, strArr[0], strArr[1]);
+            ResponseEntity<String> tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, null, null, adminAccountFlag, strArr[0], strArr[1]);
             List<HarborArtifactDTO> artifactDTOList = gson.fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborArtifactDTO>>() {
             }.getType());
             if (CollectionUtils.isEmpty(artifactDTOList)) {
@@ -298,12 +298,12 @@ public class HarborClientOperator {
         }
     }
 
-    public void deleteImage(String repoName) {
+    public void deleteImage(String repoName, Boolean adminAccountFlag) {
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, false, repoName);
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, adminAccountFlag, repoName);
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-            harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, true, strArr[0], strArr[1]);
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.DELETE_IMAGE, null, null, adminAccountFlag, strArr[0], strArr[1]);
         }
     }
 
@@ -335,14 +335,14 @@ public class HarborClientOperator {
         ResponseEntity<String> responseEntity;
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             if (isCustom) {
-                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true);
+                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null);
             } else {
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true);
             }
         } else {
             String harborProjectName = harborRepositoryRepository.getHarborRepositoryByHarborId(harborId).getCode();
             if (isCustom) {
-                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true, harborProjectName);
+                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, harborProjectName);
             } else {
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE, paramMap, null, true, harborProjectName);
             }
@@ -368,15 +368,15 @@ public class HarborClientOperator {
         return harborImageVoList;
     }
 
-    public void updateImageDesc(HarborImageVo harborImageVo) {
+    public void updateImageDesc(HarborImageVo harborImageVo, Boolean adminAccountFlag) {
         String repoName = harborImageVo.getRepoName();
         Map<String, String> bodyMap = new HashMap<>(1);
         bodyMap.put("description", harborImageVo.getDescription());
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, repoName);
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, adminAccountFlag, repoName);
         } else {
             String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
-            harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, true, strArr[0], strArr[1]);
+            harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_IMAGE_DESC, null, bodyMap, adminAccountFlag, strArr[0], strArr[1]);
         }
     }
 

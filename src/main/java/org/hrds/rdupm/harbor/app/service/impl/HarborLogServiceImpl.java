@@ -97,7 +97,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 			throw new CommonException("error.harbor.project.not.exist");
 		}
 		Map<String, Object> paramMap = getParamMap(pageRequest, imageName, loginName, tagName, operateType, startDate, endDate);
-		List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, harborRepository);
+		List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, harborRepository, false);
 		List<HarborImageLog> harborImageLogList = dataList == null ? new ArrayList<>() : dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList());
 
 		processImageLogList(harborImageLogList);
@@ -122,7 +122,7 @@ public class HarborLogServiceImpl implements HarborLogService {
 		List<HarborImageLog> harborImageLogList = new ArrayList<>();
 		for(HarborRepository harborRepository : harborRepositoryList){
 			Map<String, Object> paramMap = getParamMap(pageRequest, imageName, loginName, tagName, operateType, startDate, endDate);
-			List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, harborRepository);
+			List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, harborRepository, true);
 			harborImageLogList.addAll(dataList == null ? new ArrayList<>() : dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList()));
 		}
 		processImageLogList(harborImageLogList);

@@ -262,7 +262,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
             paramMap.put("page", 0);
             paramMap.put("page_size", 0);
-            List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, dto);
+            List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, dto, true);
 
             Long personTimes = 0L;
             Long downloadTimes = 0L;

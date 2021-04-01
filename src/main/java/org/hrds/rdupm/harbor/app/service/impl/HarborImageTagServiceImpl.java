@@ -82,7 +82,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		if (StringUtils.isNotEmpty(tagName)) {
 			param.put("tag", tagName);
 		}
-		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository);
+		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository, false);
 		Map<String, List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto -> dto.getRepoName() + dto.getTagName()));
 		tagVo.getTags().forEach(t -> {
 			List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
@@ -112,7 +112,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	@Override
 	public String buildLog(String repoName, String tagName, String digest) {
 		StringBuffer sb = new StringBuffer();
-		List<HarborBuildLogDTO> buildLogDTOList = harborClientOperator.listBuildLogs(repoName, tagName, digest);
+		List<HarborBuildLogDTO> buildLogDTOList = harborClientOperator.listBuildLogs(repoName, tagName, digest,false);
 		buildLogDTOList.forEach(t -> {
 			sb.append(t.getCreated()).append("  ").append(t.getCreatedBy()).append("\n");
 		});
@@ -120,8 +120,8 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	}
 
 	@Override
-	public void delete(String repoName, String tagName) {
-		harborClientOperator.deleteImageByTag(repoName, tagName);
+	public void delete(String repoName, String tagName, Boolean adminAccountFlag) {
+		harborClientOperator.deleteImageByTag(repoName, tagName, adminAccountFlag);
 	}
 
 	@Override
