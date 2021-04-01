@@ -112,7 +112,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 	@Override
 	public String buildLog(String repoName, String tagName, String digest) {
 		StringBuffer sb = new StringBuffer();
-		List<HarborBuildLogDTO> buildLogDTOList = harborClientOperator.listBuildLogs(repoName, tagName, digest,false);
+		List<HarborBuildLogDTO> buildLogDTOList = harborClientOperator.listBuildLogs(repoName, tagName, digest,true);
 		buildLogDTOList.forEach(t -> {
 			sb.append(t.getCreated()).append("  ").append(t.getCreatedBy()).append("\n");
 		});
