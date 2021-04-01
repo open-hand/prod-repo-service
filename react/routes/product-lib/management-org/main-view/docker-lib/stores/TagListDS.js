@@ -1,7 +1,7 @@
 import { axios } from '@choerodon/boot';
 import { get } from 'lodash';
 
-export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
+export default (({ intlPrefix, formatMessage, repoName, projectId, organizationId }) => ({
   autoQuery: false,
   pageSize: 10,
   transport: {
@@ -10,7 +10,7 @@ export default (({ intlPrefix, formatMessage, repoName, projectId }) => ({
       method: 'GET',
     }),
     destroy: ({ data: [data] }) => ({
-      url: `/rdupm/v1/harbor-image-tag/delete?tagName=${data.tagName}&repoName=${repoName}`,
+      url: `/rdupm/v1/harbor-image-tag/organization/${organizationId}}/delete?tagName=${data.tagName}&repoName=${repoName}`,
       method: 'delete',
       data,
     }),

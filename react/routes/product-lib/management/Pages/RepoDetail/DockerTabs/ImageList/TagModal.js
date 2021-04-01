@@ -203,7 +203,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
     });
     if (button !== 'cancel') {
       try {
-        await axios.delete(`/rdupm/v1/harbor-image-tag/delete?tagName=${tagName}&repoName=${repoName}`);
+        await axios.delete(`/rdupm/v1/harbor-image-tag/project/${projectId}}/delete?tagName=${tagName}&repoName=${repoName}`);
         message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
         dockerImageTagDs.query();
       } catch (error) {
