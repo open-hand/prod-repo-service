@@ -149,7 +149,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		if (StringUtils.isEmpty(repoName)) {
 			throw new CommonException("error.harbor.image.repoName.empty");
 		}
-		harborClientOperator.updateImageDesc(harborImageVo, false);
+		harborClientOperator.updateImageDesc(harborImageVo, true);
 	}
 
 	@Override
