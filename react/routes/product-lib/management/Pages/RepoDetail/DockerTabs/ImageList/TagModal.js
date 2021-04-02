@@ -84,7 +84,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
   ]), []);
 
   const rendererTag = ({ text }) => {
-    const { code, name } = statusMap.get(text.toUpperCase()) || {};
+    const { code, name } = (text && statusMap.get(text.toUpperCase())) || {};
     return <StatusTag colorCode={code} type="border" name={name} />;
   };
 
@@ -238,7 +238,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
       scanOverview,
     } = data;
     let actionData = [];
-    const scanStatus = get(scanOverview, 'scanStatus').toUpperCase && get(scanOverview, 'scanStatus').toUpperCase();
+    const scanStatus = get(get(scanOverview, 'scanStatus'), 'toUpperCase') && get(scanOverview, 'scanStatus').toUpperCase();
     const logUrl = get(scanOverview, 'logUrl');
     if (userAuth?.includes('projectAdmin')) {
       actionData = [
@@ -385,7 +385,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
     const {
       code,
       name,
-    } = scanStatusMap.get(text.toUpperCase());
+    } = scanStatusMap.get(text && text.toUpperCase());
     const extraNode = (
       <Spin
         style={{
@@ -404,7 +404,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
       }}
       >
         <StatusTag colorCode={code} name={name} />
-        {text.toUpperCase() === 'RUNNING' ? extraNode : ''}
+        { (text && text.toUpperCase() === 'RUNNING') ? extraNode : ''}
       </div>
     );
   }, []);
@@ -423,7 +423,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         record.selectable = true;
       }
       const hasScanOverview = get(res, 'scanOverview');
-      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING', 'PENDING', 'QUEUED', 'SCHEDULED'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+      if (hasScanOverview && get(get(hasScanOverview, 'scanStatus'), 'toUpperCase') && !['RUNNING', 'SCANNING', 'PENDING', 'QUEUED', 'SCHEDULED'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
         clearInterval(interval);
         record.set(res);
         record.selectable = true;

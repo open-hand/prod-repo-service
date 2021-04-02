@@ -57,7 +57,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
   ]), []);
 
   const rendererTag = ({ text }) => {
-    const { code, name } = statusMap.get(text.toUpperCase()) || {};
+    const { code, name } = (text && statusMap.get(text.toUpperCase())) || {};
     return <StatusTag colorCode={code} type="border" name={name} />;
   };
 
@@ -145,7 +145,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
       tagName,
       scanOverview,
     } = record.toData();
-    const scanStatus = get(scanOverview, 'scanStatus').toUpperCase && get(scanOverview, 'scanStatus').toUpperCase();
+    const scanStatus = get(get(scanOverview, 'scanStatus'), 'toUpperCase') && get(scanOverview, 'scanStatus').toUpperCase();
     const logUrl = get(scanOverview, 'logUrl');
     const actionData = [
       {
@@ -246,7 +246,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
         record.selectable = true;
       }
       const hasScanOverview = get(res, 'scanOverview');
-      if (hasScanOverview && get(hasScanOverview, 'scanStatus').toUpperCase && !['RUNNING', 'SCANNING', 'PENDING', 'QUEUED', 'SCHEDULED'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
+      if (hasScanOverview && get(get(hasScanOverview, 'scanStatus'), 'toUpperCase') && !['RUNNING', 'SCANNING', 'PENDING', 'QUEUED', 'SCHEDULED'].includes(get(hasScanOverview, 'scanStatus').toUpperCase())) {
         clearInterval(interval);
         record.set(res);
         record.selectable = true;
@@ -326,7 +326,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
     const {
       code,
       name,
-    } = scanStatusMap.get(text.toUpperCase());
+    } = text ? scanStatusMap.get(text.toUpperCase()) : {};
     const extraNode = (
       <Spin
         style={{
@@ -345,7 +345,7 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
       }}
       >
         <StatusTag colorCode={code} name={name} />
-        {text.toUpperCase() === 'RUNNING' ? extraNode : ''}
+        { text && text.toUpperCase() === 'RUNNING' ? extraNode : ''}
       </div>
     );
   }, []);
