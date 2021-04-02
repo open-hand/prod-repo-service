@@ -11,7 +11,7 @@
 
     <groupId>org.hrds.rdupm</groupId>
     <artifactId>prod-repo-service</artifactId>
-    <version>0.25.0-alpha.4.RELEASE</version>
+    <version>0.25.0-alpha.5.RELEASE</version>
     <name>prod-repo-service</name>
 
     <properties>
