@@ -36,7 +36,6 @@ public class HarborImageReTag {
 	private String destImageName;
 
 	@ApiModelProperty("目标镜像版本号，必输")
-	@NotBlank
 	private String destImageTagName;
 
 }
