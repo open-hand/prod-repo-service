@@ -52,8 +52,8 @@ public class HarborHttpClient {
 	private HarborInfoConfiguration harborInfo;
 	@Autowired
 	private ProdUserRepository prodUserRepository;
-	@Autowired
-	private HarborCustomConfiguration harborCustomConfiguration;
+
+	private final ThreadLocal<HarborCustomConfiguration> harborCustomConfigurationThreadLocal = new ThreadLocal<>();
 
 	public HarborHttpClient buildBasicAuth(String userName,String password){
 		this.userName = userName;
@@ -61,8 +61,8 @@ public class HarborHttpClient {
 		return this;
 	}
 
-	public HarborHttpClient buildCustomBasicAuth(HarborCustomConfiguration harborCustomConfiguration){
-		this.harborCustomConfiguration = harborCustomConfiguration;
+	public HarborHttpClient buildCustomBasicAuth(HarborCustomConfiguration harborCustomConfiguration) {
+		this.harborCustomConfigurationThreadLocal.set(harborCustomConfiguration);
 		return this;
 	}
 
@@ -72,16 +72,16 @@ public class HarborHttpClient {
 	}
 
 	private String getCustomToken(){
-		String basicInfo = harborCustomConfiguration.getLoginName() + ":" + harborCustomConfiguration.getPassword();
+		String basicInfo = getHarborCustomConfiguration().getLoginName() + ":" + getHarborCustomConfiguration().getPassword();
 		return  AUTH_PRE + Base64.getEncoder().encodeToString(basicInfo.getBytes());
 	}
 
-	public void setHarborCustomConfiguration(HarborCustomConfiguration harborCustomConfiguration){
-		this.harborCustomConfiguration = harborCustomConfiguration;
+	public void setHarborCustomConfiguration(HarborCustomConfiguration harborCustomConfiguration) {
+		this.harborCustomConfigurationThreadLocal.set(harborCustomConfiguration);
 	}
 
 	public HarborCustomConfiguration getHarborCustomConfiguration() {
-		return harborCustomConfiguration;
+		return harborCustomConfigurationThreadLocal.get();
 	}
 
 	public HarborInfoConfiguration getHarborInfo() {
@@ -147,7 +147,8 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public ResponseEntity<String> customExchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, Object... pathParam) {
-		String url = HarborUtil.isApiVersion1(harborCustomConfiguration) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
+		HarborCustomConfiguration harborCustomConfiguration = getHarborCustomConfiguration();
+		String url = HarborUtil.isApiVersion1(harborCustomConfiguration) ? harborCustomConfiguration + apiEnum.getApiUrl() : harborCustomConfiguration + apiEnum.getApiUrlV2();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap, pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
@@ -188,6 +189,7 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public String getSystemInfo(HarborConstants.HarborApiEnum apiEnum, String apiVersion) {
+		HarborCustomConfiguration harborCustomConfiguration = harborCustomConfigurationThreadLocal.get();
 		String url = apiVersion.equals(HarborConstants.API_VERSION_1) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
 		buildCustomBasicAuth(harborCustomConfiguration);
