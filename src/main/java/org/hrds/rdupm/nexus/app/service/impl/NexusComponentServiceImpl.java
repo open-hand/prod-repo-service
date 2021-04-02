@@ -270,6 +270,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     public void componentsUpload(Long organizationId, Long projectId,
                                  NexusServerComponentUpload componentUpload,
                                  MultipartFile assetJar, MultipartFile assetPom) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步方法之前1>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
         componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 
@@ -283,6 +284,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         // 设置并返回当前nexus服务信息
         NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步方法之前2>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         nexusComponentHandService.uploadJar(nexusClient, assetJar, assetPom, componentUpload, currentNexusServer);
     }
 
