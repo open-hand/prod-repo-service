@@ -81,6 +81,9 @@ public class HarborHttpClient {
 	}
 
 	public HarborCustomConfiguration getHarborCustomConfiguration() {
+		if (harborCustomConfigurationThreadLocal.get() == null) {
+			throw new CommonException("current.thread.not get.custom.repository");
+		}
 		return harborCustomConfigurationThreadLocal.get();
 	}
 
@@ -189,7 +192,7 @@ public class HarborHttpClient {
 	 * @return ResponseEntity<String>
 	 */
 	public String getSystemInfo(HarborConstants.HarborApiEnum apiEnum, String apiVersion) {
-		HarborCustomConfiguration harborCustomConfiguration = harborCustomConfigurationThreadLocal.get();
+		HarborCustomConfiguration harborCustomConfiguration = getHarborCustomConfiguration();
 		String url = apiVersion.equals(HarborConstants.API_VERSION_1) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
 		HttpMethod httpMethod = apiEnum.getHttpMethod();
 		buildCustomBasicAuth(harborCustomConfiguration);
