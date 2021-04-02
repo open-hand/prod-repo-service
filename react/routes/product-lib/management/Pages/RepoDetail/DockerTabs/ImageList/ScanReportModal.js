@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Table, Pagination } from 'choerodon-ui/pro';
+import { Table, Tooltip } from 'choerodon-ui/pro';
 import ClickText from '@/components/click-text';
 
 const { Column } = Table;
@@ -47,14 +47,15 @@ const ScanReprot = ({
               clickAble
               onClick={() => handleLink(record.get('id'))}
               value={text}
+              showToolTip
             />
           )}
           sortable
         />
         <Column name="severity" renderer={renderStatus} width={100} sortable />
         <Column name="packageStr" sortable />
-        <Column name="version" sortable />
-        <Column name="fixVersion" sortable />
+        <Column name="version" sortable renderer={({ text }) => <Tooltip title={text}>{text}</Tooltip>} />
+        <Column name="fixVersion" sortable renderer={({ text }) => <Tooltip title={text}>{text}</Tooltip>} />
       </Table>
     </div>
   );

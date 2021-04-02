@@ -182,18 +182,39 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
 
   function renderFilterForm() {
     return (
-      <Form
-        dataSet={dataSet.queryDataSet}
-        labelLayout="float"
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+      }}
       >
-        <TextField
-          name="tagName"
-          placeholder={formatMessage({ id: `${intlPrefix}.view.enter.osVersion` })}
-          prefix={<Icon type="search" />}
-          onChange={refresh}
-          style={{ width: '4rem' }}
-        />
-      </Form>
+        <Form
+          dataSet={dataSet.queryDataSet}
+          labelLayout="float"
+          style={{
+            width: '4rem',
+          }}
+        >
+          <TextField
+            name="tagName"
+            placeholder={formatMessage({ id: `${intlPrefix}.view.enter.osVersion` })}
+            prefix={<Icon type="search" />}
+            onChange={refresh}
+          />
+        </Form>
+        <div style={{
+          background: 'rgba(41, 190, 206, 0.08)',
+          borderRadius: '8px',
+          fontSize: '12px',
+          color: '#37B1EC',
+          padding: '10px 12px',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+        >
+          <Icon type="info" />
+          <span>执行扫描操作前，请确保该仓库已安装扫描插件。请先勾选列表中的摘要，才能点击下方的扫描按钮</span>
+        </div>
+      </div>
     );
   }
 
@@ -327,16 +348,6 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
       code,
       name,
     } = text ? scanStatusMap.get(text.toUpperCase()) : {};
-    const extraNode = (
-      <Spin
-        style={{
-          height: '26px',
-          width: '26px',
-        }}
-        display
-        size="small"
-      />
-    );
     return (
       <div style={{
         display: 'flex',
@@ -345,7 +356,6 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
       }}
       >
         <StatusTag colorCode={code} name={name} />
-        { text && text.toUpperCase() === 'RUNNING' ? extraNode : ''}
       </div>
     );
   }, []);
@@ -363,17 +373,17 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
         <p>
           漏洞严重度：{get(statusMap.get(upperCode), 'name')}
         </p>
-        <p>危急漏洞：{get(summary, 'critical')} </p>
-        <p>严重漏洞：{get(summary, 'high')}</p>
-        <p>中等漏洞：{get(summary, 'medium')}</p>
+        <p>危急漏洞：{get(summary, 'critical') || '-'} </p>
+        <p>严重漏洞：{get(summary, 'high') || '-'}</p>
+        <p>中等漏洞：{get(summary, 'medium') || '-'}</p>
         <p>
-          较低漏洞：{get(summary, 'low')}
+          较低漏洞：{get(summary, 'low') || '-'}
         </p>
         <p>
-          可忽略漏洞：{get(summary, 'negligible')}
+          可忽略漏洞：{get(summary, 'negligible') || '-'}
         </p>
         <p>
-          未知漏洞：{get(summary, 'unknown')}
+          未知漏洞：{get(summary, 'unknown') || '-'}
         </p>
       </div>
     );
@@ -427,23 +437,6 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
   return (
     <React.Fragment>
       {renderFilterForm()}
-      <div 
-        style={{
-          background: '#F3F6FE',
-          borderRadius: '5px',
-          width: '100%',
-          padding: '14px 16px',
-          color: '#0F1358',
-          marginBottom: '10px',
-        }}
-      >
-        <p>执行扫描操作前，请确保该仓库已安装扫描插件。</p>
-        <p style={{
-          margin: '0',
-        }}
-        >请先勾选列表中的摘要，才能点击下方的扫描按钮
-        </p>
-      </div>
       <Table
         dataSet={dataSet}
         queryBar="none"
