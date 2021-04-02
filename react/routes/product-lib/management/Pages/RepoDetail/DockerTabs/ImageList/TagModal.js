@@ -6,7 +6,7 @@
 */
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { message } from 'choerodon-ui';
-import { Table, Modal, Form, TextField, Spin, Tooltip } from 'choerodon-ui/pro';
+import { Table, Modal, Form, TextField, Icon, Tooltip } from 'choerodon-ui/pro';
 import { Action, axios } from '@choerodon/boot';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
@@ -101,17 +101,17 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         <p>
           漏洞严重度：{get(statusMap.get(upperCode), 'name')}
         </p>
-        <p>危急漏洞：{get(summary, 'critical')} </p>
-        <p>严重漏洞：{get(summary, 'high')}</p>
-        <p>中等漏洞：{get(summary, 'medium')}</p>
+        <p>危急漏洞：{get(summary, 'critical') || '-'} </p>
+        <p>严重漏洞：{get(summary, 'high') || '-'}</p>
+        <p>中等漏洞：{get(summary, 'medium') || '-'}</p>
         <p>
-          较低漏洞：{get(summary, 'low')}
+          较低漏洞：{get(summary, 'low') || '-'}
         </p>
         <p>
-          可忽略漏洞：{get(summary, 'negligible')}
+          可忽略漏洞：{get(summary, 'negligible') || '-'}
         </p>
         <p>
-          未知漏洞：{get(summary, 'unknown')}
+          未知漏洞：{get(summary, 'unknown') || '-'}
         </p>
       </div>
     );
@@ -386,16 +386,6 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
       code,
       name,
     } = scanStatusMap.get(text && text.toUpperCase());
-    const extraNode = (
-      <Spin
-        style={{
-          height: '26px',
-          width: '26px',
-        }}
-        display
-        size="small"
-      />
-    );
     return (
       <div style={{
         display: 'flex',
@@ -404,7 +394,6 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
       }}
       >
         <StatusTag colorCode={code} name={name} />
-        { (text && text.toUpperCase() === 'RUNNING') ? extraNode : ''}
       </div>
     );
   }, []);
@@ -496,23 +485,19 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         <Form dataSet={dockerImageTagDs.queryDataSet}>
           <TextField name="tagName" />
         </Form>
-      </div>
-      <div 
-        style={{
-          background: '#F3F6FE',
-          borderRadius: '5px',
-          width: '100%',
-          padding: '14px 16px',
-          color: '#0F1358',
-          marginBottom: '10px',
+        <div style={{
+          background: 'rgba(41, 190, 206, 0.08)',
+          borderRadius: '8px',
+          fontSize: '12px',
+          color: '#37B1EC',
+          padding: '10px 12px',
+          display: 'flex',
+          alignItems: 'center',
         }}
-      >
-        <p>执行扫描操作前，请确保该仓库已安装扫描插件。</p>
-        <p style={{
-          margin: '0',
-        }}
-        >请先勾选列表中的摘要，才能点击下方的扫描按钮
-        </p>
+        >
+          <Icon type="info" />
+          <span>执行扫描操作前，请确保该仓库已安装扫描插件。请先勾选列表中的摘要，才能点击下方的扫描按钮</span>
+        </div>
       </div>
       <Table
         dataSet={dockerImageTagDs} 

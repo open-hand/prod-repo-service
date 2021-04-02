@@ -55,7 +55,6 @@ export default ((intlPrefix, formatMessage, organizationId, srcRepoName, digest,
       {
         name: 'destImageTagName',
         type: 'string',
-        required: true,
         validator: checkTagName,
         label: formatMessage({ id: `${intlPrefix}.model.destImageTagName` }),
       },
