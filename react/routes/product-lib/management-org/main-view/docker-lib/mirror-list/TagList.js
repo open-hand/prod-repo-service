@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { Action, axios } from '@choerodon/boot';
-import { Table, Modal, Form, TextField, Icon, Tooltip, Spin, message } from 'choerodon-ui/pro';
+import { Table, Modal, Form, TextField, Icon, Tooltip, message } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { isNil, get, forEach, map } from 'lodash';
 import TimePopover from '@/components/time-popover/TimePopover';
@@ -24,7 +24,7 @@ const modalKey = Modal.key();
 
 const intervals = [];
 
-const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlPrefix, formatMessage, organizationId, repoListDs, modal }) => {
+const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet, repoName, intlPrefix, formatMessage, organizationId, repoListDs, modal }) => {
   function refresh() {
     dataSet.query();
   }
@@ -184,7 +184,6 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
     return (
       <div style={{
         display: 'flex',
-        alignItems: 'center',
       }}
       >
         <Form
@@ -209,6 +208,8 @@ const TagList = observer(({ mirrorListDS, scanDetailDs, dataSet, repoName, intlP
           padding: '10px 12px',
           display: 'flex',
           alignItems: 'center',
+          height: 'fit-content',
+          margin: getCurrentTheme === 'theme4' ? '14px 0 0 15px' : '7px 0 0 15px',
         }}
         >
           <Icon type="info" />

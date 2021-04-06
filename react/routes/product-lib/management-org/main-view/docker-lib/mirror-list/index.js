@@ -34,6 +34,7 @@ const MirrorList = () => {
     mirrorListDS,
     repoListDs,
     scanDetailDs,
+    getCurrentTheme,
   } = useDockerStore();
   const { getTabKey } = dockerStore;
 
@@ -62,6 +63,7 @@ const MirrorList = () => {
       dataSet: tagListDs,
       repoListDs,
       scanDetailDs,
+      getCurrentTheme,
     };
 
     Modal.open({
@@ -89,41 +91,6 @@ const MirrorList = () => {
       okCancel: false,
     });
   }
-  // async function handleDeleteMirror(item) {
-  //   const result = await deleteImage(item)
-  //     .then((res) => {
-  //       if (res.failed) {
-  //         message.error(res.message);
-  //         return false;
-  //       } else {
-  //         Choerodon.prompt(formatMessage({ id: 'success.delete' }));
-  //         mirrorListDS.query();
-  //         return true;
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       Choerodon.handleResponseError(error);
-  //       return false;
-  //     });
-  //   return result;
-  // }
-  // const openDelete = (item) => {
-  //   Modal.open({
-  //     key: deleteKey,
-  //     title: formatMessage({ id: 'confirm.delete' }),
-  //     children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteImage` }),
-  //     okText: formatMessage({ id: 'delete' }),
-  //     okProps: { color: 'red' },
-  //     cancelProps: { color: 'dark' },
-  //     onOk: () => handleDeleteMirror(item),
-  //     footer: ((okBtn, cancelBtn) => (
-  //       <React.Fragment>
-  //         {cancelBtn}{okBtn}
-  //       </React.Fragment>
-  //     )),
-  //     movable: false,
-  //   });
-  // };
 
   const handleSearch = () => {
     mirrorListDS.query();
