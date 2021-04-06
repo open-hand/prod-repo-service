@@ -493,6 +493,9 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
           padding: '10px 12px',
           display: 'flex',
           alignItems: 'center',
+          height: 'fit-content',
+          marginLeft: '15px',
+          // margin: getCurrentTheme === 'theme4' ? '14px 0 0 15px' : '7px 0 0 15px',
         }}
         >
           <Icon type="info" />
@@ -513,6 +516,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
               <div className="product-lib-docker-image-tag-digest-text">{text}</div>
             </Tooltip>
           )}
+          width={150}
         />
         <Column renderer={renderAction} width={60} />
         <Column
@@ -526,13 +530,6 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         />
         <Column name="sizeDesc" />
         <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
-        {/* <Column
-          name="realName"
-          renderer={({ text, record }) => {
-            const { userImageUrl, loginName } = record.toData();
-            return rendererIcon(userImageUrl, text, loginName);
-          }}
-        /> */}
         <Column
           width={100}
           name="pushTime"

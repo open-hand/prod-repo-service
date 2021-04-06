@@ -51,6 +51,7 @@ const DockerTabContainer = (props) => {
   const guideButtonProps = useMemo(() => ({ formatMessage }), [formatMessage]);
 
   const overViewProps = useMemo(() => ({ harborId, formatMessage, activeTabKey }), [formatMessage, activeTabKey, harborId]);
+
   const imageListProps = useMemo(() => ({ 
     dockerImageTagDs, 
     dockerImageListDs, 
@@ -58,12 +59,13 @@ const DockerTabContainer = (props) => {
     formatMessage, 
     activeTabKey,
     dockerImageScanDetailsDs,
+    // getCurrentTheme,
   }), [dockerImageTagDs, dockerImageListDs, activeTabKey, harborId]);
+
   const authListProps = useMemo(() => ({ dockerAuthDs, formatMessage, activeTabKey }), [dockerAuthDs, formatMessage, activeTabKey]);
   const optLogProps = useMemo(() => ({ optLogDs, formatMessage, activeTabKey }), [optLogDs, formatMessage, activeTabKey]);
 
   const addMemberButtonProps = useMemo(() => ({ dockerAuthDs, formatMessage }), [dockerAuthDs, formatMessage]);
-
 
   const refresh = () => {
     if (activeTabKey === TabKeyEnum.OVERVIEW) {

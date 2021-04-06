@@ -25,7 +25,7 @@ export function useDockerStore() {
 export const StoreProvider = injectIntl(observer((props) => {
   const { children, intl: { formatMessage } } = props;
   const {
-    AppState: { currentMenuType: { organizationId } },
+    AppState: { currentMenuType: { organizationId }, getCurrentTheme },
     intlPrefix,
   } = useProdStore();
 
@@ -69,6 +69,7 @@ export const StoreProvider = injectIntl(observer((props) => {
     baseInfoDs,
     dockerStore,
     repoListDs,
+    getCurrentTheme,
     scanDetailDs,
   };
   return (
