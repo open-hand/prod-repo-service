@@ -140,6 +140,8 @@ hzero:
       name: choerodon-gateway
     monitor:
       name: choerodon-monitor
+  file:
+    rootPath: /tmp/data/fragement #分片临时文件的存储路径(绝对路径)
 
 choerodon:
   category:
