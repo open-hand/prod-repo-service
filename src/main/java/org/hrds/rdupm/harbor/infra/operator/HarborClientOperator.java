@@ -464,14 +464,16 @@ public class HarborClientOperator {
                 scanOverview.setScanStatus(TypeUtil.objToString(harborImageTagVo.getScanOverviewJson().get("scan_status")));
                 scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(harborImageTagVo.getScanOverviewJson().get("severity"))));
                 Map<String, Object> imageMap = (Map<String, Object>) harborImageTagVo.getScanOverviewJson().get("components");
-                scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
                 HarborImageTagVo.Summary summary = harborImageTagVo.new Summary();
-                if (imageMap.get("summary") != null) {
-                    List<Object> summaryMap = (List<Object>) imageMap.get("summary");
-                    summaryMap.stream().forEach(t -> {
-                        Map<String, Object> map = (Map<String, Object>) t;
-                        setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
-                    });
+                if (imageMap != null) {
+                    scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
+                    if (imageMap.get("summary") != null) {
+                        List<Object> summaryMap = (List<Object>) imageMap.get("summary");
+                        summaryMap.stream().forEach(t -> {
+                            Map<String, Object> map = (Map<String, Object>) t;
+                            setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
+                        });
+                    }
                 }
                 scanOverview.setSummary(summary);
                 harborImageTagVo.setScanOverview(scanOverview);
