@@ -212,7 +212,13 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
           margin: getCurrentTheme === 'theme4' ? '14px 0 0 15px' : '7px 0 0 15px',
         }}
         >
-          <Icon type="info" />
+          <Icon
+            type="info"
+            style={{
+              fontSize: '14px',
+              marginRight: '4px',
+            }}
+          />
           <span>执行扫描操作前，请确保该仓库已安装扫描插件。请先勾选列表中的摘要，才能点击下方的扫描按钮</span>
         </div>
       </div>
@@ -368,7 +374,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
     const total = get(scanOverview, 'total');
     const summary = get(scanOverview, 'summary');
     const upperCode = severity && severity.toUpperCase();
-    const statusName = upperCode === 'UNKNOWN' ? '无漏洞' : `总计${total} - 可修复${fixable}`;
+    const statusName = upperCode === 'UNKNOWN' ? '无漏洞' : `总计${total}${fixable ? ` - 可修复${fixable}` : ''}`;
     const tooltitle = (
       <div>
         <p>

@@ -2,6 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { Form, Select, TextField } from 'choerodon-ui/pro';
 import { Choerodon } from '@choerodon/boot';
+import { NewTips } from '@choerodon/components';
 import { useVersionCopyStore } from './stores';
 
 export default observer(() => {
@@ -39,7 +40,12 @@ export default observer(() => {
           clearButton
         />
         <TextField name="destImageName" />
-        <TextField name="destImageTagName" />
+        <TextField
+          name="destImageTagName"
+          addonAfter={
+            <NewTips helpText="若您使用的是V1.x 的Harbor，则此处为必填；若使用的是V2.x的Harbor，此处请不要填写。" />
+          }
+        />
       </Form>
     </div>
   );
