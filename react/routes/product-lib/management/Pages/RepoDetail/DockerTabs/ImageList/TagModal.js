@@ -533,14 +533,13 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
           name="severity"
           renderer={renderSeverityTag}
         />
-        <Column name="sizeDesc" />
-        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
+        <Column name="sizeDesc" width={80} />
+        <Column name="os" width={100} renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
         <Column
-          width={100}
           name="pushTime"
           renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />}
         />
-        <Column width={100} name="pullTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
+        <Column name="pullTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
       </Table>
     </React.Fragment>
   );
