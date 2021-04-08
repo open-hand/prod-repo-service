@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import io.choerodon.core.exception.CommonException;
+
 /**
  * @Author: scp
  * @Description:
@@ -312,6 +314,9 @@ public class HarborClientOperator {
 
     public void copyTag(HarborImageReTag harborImageReTag) {
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            if(StringUtils.isEmpty(harborImageReTag.getDestImageTagName())){
+                throw new CommonException("error.image.tag.name");
+            }
             String srcImage = harborImageReTag.getSrcRepoName() + BaseConstants.Symbol.COLON + harborImageReTag.getDigest();
             String destRepoName = harborImageReTag.getDestProjectCode() + BaseConstants.Symbol.SLASH + harborImageReTag.getDestImageName();
             Map<String, Object> bodyMap = new HashMap<>(3);
