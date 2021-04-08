@@ -250,7 +250,9 @@ public class HarborClientOperator {
                 dto.setExtraAttrs(null);
             });
         }
-        return harborImageTagVoList;
+        //对镜像的列表进行按照推送时间排序
+        List<HarborImageTagVo> harborImageTagVos = harborImageTagVoList.stream().sorted(Comparator.comparing(HarborImageTagVo::getPushTime).reversed()).collect(Collectors.toList());
+        return harborImageTagVos;
     }
 
     public List<HarborBuildLogDTO> listBuildLogs(String repoName, String tagName, String digest, Boolean adminAccountFlag) {
