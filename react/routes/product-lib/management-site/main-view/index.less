@@ -155,10 +155,13 @@
   }
   &-tab-button-group {
     margin: 3px 0 16px;
-    height: 0.36rem;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0px 2px 6px 0px rgba(48, 63, 159, 0.2);
-    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    background-color: rgb(245, 246, 250);
+    position: relative;
+    width: fit-content;
+    border-radius: 3px;
+    padding: 4px;
     > .c7n-radio-button-wrapper:not(:first-child)::before {
       display: none;
     }

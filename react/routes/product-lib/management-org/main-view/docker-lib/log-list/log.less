@@ -1,10 +1,10 @@
-@import '~choerodon-ui/lib/style/themes/default';
+@import "~choerodon-ui/lib/style/themes/default";
 @prefix: product-lib-org-management-log;
 
 // 查询条件样式覆盖
 .@{prefix}-page {
   overflow: scroll !important;
-  height: ~'calc(100% - 75px)' !important;
+  height: ~"calc(100% - 75px)" !important;
   .page-content {
     padding: 0;
   }
@@ -188,26 +188,39 @@
 }
 
 .@{prefix}-search-radio {
-  height: 0.36rem;
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0.02rem 0.06rem 0 rgba(48, 63, 159, 0.2);
-  border-radius: 6px;
+  display: flex;
   margin-top: 0.12rem;
+  align-items: center;
+  background-color: rgb(245, 246, 250);
+  position: relative;
+  width: fit-content;
+  border-radius: 3px;
+  padding: 4px;
+  height: fit-content;
   > .c7n-radio-button-wrapper:not(:first-child)::before {
     display: none;
   }
   > .c7n-radio-button-wrapper {
-    border: none;
-    height: 100%;
-    font-size: 0.14rem;
+    font-size: 13px;
+    font-family: PingFangSC-Regular, "PingFang SC";
     font-weight: 400;
-    color: @primary-color;
-    line-height: 0.36rem;
+    color: rgba(58, 52, 95, 0.87) !important;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 2;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
   }
   > .c7n-radio-button-wrapper-checked {
-    background: rgba(140, 158, 255, 0.16);
+    background: #fff;
     box-shadow: none;
-    background: rgba(140, 158, 255, 0.16);
-    border-radius: 0.06rem;
+    font-weight: 500;
+    color: rgb(83, 101, 234) !important;
+  }
+  > .c7n-radio-button-wrapper + .c7n-radio-button-wrapper {
+    margin-left: 10px;
+    position: relative;
   }
 }
