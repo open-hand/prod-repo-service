@@ -13,7 +13,7 @@ spring:
       # 等待连接池分配连接的最大时长（毫秒）
       connection-timeout: ${SPRING_DATASOURCE_CONNECTION_TIMEOUT:30000}
   redis:
-    host: redis.hzero.org
+    host: localhost
     port: 6379
     database: 1
     jedis:
@@ -34,12 +34,6 @@ spring:
     chain.gzipped: true
     # 启用缓存
     chain.cache: true
-  servlet:
-    multipart:
-      # 单个文件上传最大
-      maxFileSize: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE:200MB}
-      # 上传请求最大限制
-      maxRequestSize: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE:200MB}
 
 server:
   undertow:
@@ -57,7 +51,6 @@ server:
     direct-buffers: true
     # HTTP POST请求最大的大小
     # 默认0，无限制，可设置10M
-    max-http-post-size: 10485760
     allow-unescaped-characters-in-url: true
 
 feign:
@@ -190,13 +183,13 @@ harbor:
 nexus:
   default:
     #系统默认nexus服务地址
-    serverUrl: ${NEXUS_DEFAULT_BASE_URL:http://nexus.c7n.devops.hand-china.com}
+    serverUrl: ${NEXUS_DEFAULT_BASE_URL:https://localhost}
     #系统默认nexus服务，超级管理员用户
     username: ${NEXUS_DEFAULT_USER_NAME:admin}
     #系统默认nexus服务，超级管理员用户密码
-    password: ${NEXUS_DEFAULT_PASSWORD:admin123}
+    password: ${NEXUS_DEFAULT_PASSWORD:admin}
     #系统默认nexus服务，是否启用仓库级的匿名访问控制。 1:启用  0:不启用。
-    enableAnonymousFlag: ${NEXUS_DEFAULT_ENABLE_ANONYMOUS_FLAG:0}
+    enableAnonymousFlag: ${NEXUS_DEFAULT_ENABLE_ANONYMOUS_FLAG:1}
     #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户
     anonymousUser: ${NEXUS_DEFAULT_ANONYMOUS_USER:test}
     #系统默认nexus服务，启用仓库级的匿名访问控制时需要配置该值(即enableAnonymousFlag==1时)。 nexus服务开启全局匿名访问时，配置的用户对应的角色
