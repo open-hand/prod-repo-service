@@ -215,6 +215,12 @@
             <version>1.11</version>
         </dependency>
 
+        <!--断点续传-->
+        <dependency>
+            <groupId>io.choerodon</groupId>
+            <artifactId>choerodon-starter-fragment</artifactId>
+        </dependency>
+
 
     </dependencies>
 
