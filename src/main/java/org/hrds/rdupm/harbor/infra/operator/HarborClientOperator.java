@@ -221,8 +221,10 @@ public class HarborClientOperator {
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
-                dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
-                dto.setOs(dto.getExtraAttrs().getOs());
+                if (dto.getExtraAttrs() != null) {
+                    dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
+                    dto.setOs(dto.getExtraAttrs().getOs());
+                }
                 if (CollectionUtils.isNotEmpty(dto.getTags())) {
                     dto.getTags().forEach(tag -> tag.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime()));
                 }
