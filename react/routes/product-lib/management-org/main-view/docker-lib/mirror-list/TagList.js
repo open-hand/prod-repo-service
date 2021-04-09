@@ -471,8 +471,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
           renderer={renderSeverityTag}
         />
         <Column name="sizeDesc" />
-        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
-        {/* <Column name="author" renderer={renderUserName} width={150} /> */}
+        <Column name="os" renderer={({ record }) => record.get('os') && record.get('architecture') && `${record.get('os')}/${record.get('architecture')}`} />
         <Column name="pushTime" renderer={renderTime} />
         <Column name="pullTime" renderer={renderTime} />
       </Table>
