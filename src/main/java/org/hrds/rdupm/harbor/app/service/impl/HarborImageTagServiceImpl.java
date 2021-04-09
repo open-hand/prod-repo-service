@@ -101,15 +101,17 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 			harborImageTagVos.forEach(dto -> dto.getTags().forEach(tag -> userNameSet.add(tag.getAuthor())));
 			Map<String, UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
 			harborImageTagVoList.forEach(dto -> {
-				dto.getTags().forEach(tag -> {
-					String loginName = tag.getAuthor();
-					UserDTO userDTO = userDtoMap.get(loginName);
-					String realName = userDTO == null ? loginName : userDTO.getRealName();
-					String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
-					tag.setLoginName(loginName);
-					tag.setRealName(realName);
-					tag.setUserImageUrl(userImageUrl);
-				});
+				if (CollectionUtils.isNotEmpty(dto.getTags())) {
+					dto.getTags().forEach(tag -> {
+						String loginName = tag.getAuthor();
+						UserDTO userDTO = userDtoMap.get(loginName);
+						String realName = userDTO == null ? loginName : userDTO.getRealName();
+						String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
+						tag.setLoginName(loginName);
+						tag.setRealName(realName);
+						tag.setUserImageUrl(userImageUrl);
+					});
+				}
 			});
 		}
 	}
