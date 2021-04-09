@@ -534,7 +534,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
           renderer={renderSeverityTag}
         />
         <Column name="sizeDesc" width={80} />
-        <Column name="os" width={100} renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
+        <Column name="os" width={100} renderer={({ record }) => record.get('os') && record.get('architecture') && `${record.get('os')}/${record.get('architecture')}`} />
         <Column
           name="pushTime"
           renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />}
