@@ -84,12 +84,14 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		}
 		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository, true);
 		Map<String, List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto -> dto.getRepoName() + dto.getTagName()));
-		tagVo.getTags().forEach(t -> {
-			List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
-			if (CollectionUtils.isNotEmpty(logList)) {
-				t.setAuthor(logList.get(0).getLoginName());
-			}
-		});
+		if (CollectionUtils.isNotEmpty(tagVo.getTags())) {
+			tagVo.getTags().forEach(t -> {
+				List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
+				if (CollectionUtils.isNotEmpty(logList)) {
+					t.setAuthor(logList.get(0).getLoginName());
+				}
+			});
+		}
 	}
 
 	public void setAuthorWithIam(List<HarborImageTagVo> harborImageTagVoList) {
