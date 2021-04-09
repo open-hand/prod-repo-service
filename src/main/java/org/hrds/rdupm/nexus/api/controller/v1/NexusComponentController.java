@@ -134,8 +134,8 @@ public class NexusComponentController extends BaseController {
 											  @ApiParam(value = "groupId") @RequestParam(name = "groupId", required = false) String groupId,
 											  @ApiParam(value = "artifactId") @RequestParam(name = "artifactId", required = false) String artifactId,
 											  @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
-//											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
-											  @ApiParam(value = "filePath") @RequestParam(name = "filePath", required = false) String filePath,
+											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
+//											  @ApiParam(value = "filePath") @RequestParam(name = "filePath", required = false) String filePath,
 											  @ApiParam(value = "pom文件") @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
 		NexusServerComponentUpload componentUpload = new NexusServerComponentUpload();
 		componentUpload.setRepositoryName(repositoryName);
@@ -145,15 +145,15 @@ public class NexusComponentController extends BaseController {
 		componentUpload.setVersion(version);
 
 		// validObject(componentUpload);
-//		if (assetJar == null && assetPom == null) {
-//			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
-//		}
-//		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
+		if (assetJar == null && assetPom == null) {
+			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
+		}
+		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
 		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
 		if (assetPom != null) {
 			XMLValidator.validXMLDefault(assetPom);
 		}
-		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, filePath, assetPom);
+		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, assetJar, assetPom);
 		return Results.success();
 	}
 
