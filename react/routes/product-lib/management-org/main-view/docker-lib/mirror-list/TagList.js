@@ -33,7 +33,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
   }
 
   const statusMap = useMemo(() => new Map([
-    ['UNKNOWN', { code: 'unready', name: '未知' }],
+    ['UNKNOWN', { code: 'success', name: '未知' }],
     ['NEGLIGIBLE', { code: 'unready', name: '可忽略' }],
     ['LOW', { code: 'running', name: '较低' }],
     ['MEDIUM', { code: 'opened', name: '中等' }],
@@ -313,7 +313,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
 
   const renderExpand = ({ record }) => {
     const versions = record.get('tags');
-    return (
+    return versions ? (
       <div className="product-lib-docker-taglist-subTableContainer">
         <span className="product-lib-docker-taglist-line" />
         <table className="product-lib-docker-taglist-subTable">
@@ -343,7 +343,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
           }
         </table>
       </div>
-    );
+    ) : '';
   };
 
   const renderScanStatusTag = useCallback(({ record }) => {
