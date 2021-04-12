@@ -68,7 +68,7 @@ public class HarborClientOperator {
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
             int page = 1;
-            int pageSize = 10;
+            int pageSize = 20;
             List<HarborImageLog> harborImageLogs = new ArrayList<>();
             do {
                 Map<String, Object> paramMap = new HashMap<>();
@@ -83,7 +83,7 @@ public class HarborClientOperator {
                 if (!CollectionUtils.isEmpty(harborImageLogs)) {
                     logListResult.addAll(harborImageLogs);
                 }
-            } while (!CollectionUtils.isEmpty(harborImageLogs));
+            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 10);
         } else {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
@@ -112,7 +112,7 @@ public class HarborClientOperator {
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             int page = 1;
-            int pageSize = 10;
+            int pageSize = 20;
             List<HarborImageLog> harborImageLogs = new ArrayList<>();
             do {
                 paramMap.put("page", page);
@@ -125,7 +125,7 @@ public class HarborClientOperator {
                 if (!CollectionUtils.isEmpty(harborImageLogs)) {
                     logListResult.addAll(harborImageLogs);
                 }
-            } while (!CollectionUtils.isEmpty(harborImageLogs));
+            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 10);
         } else {
             paramMap.put("page", 0);
             paramMap.put("page_size", 0);
