@@ -33,7 +33,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
   }
 
   const statusMap = useMemo(() => new Map([
-    ['UNKNOWN', { code: 'unready', name: '未知' }],
+    ['UNKNOWN', { code: 'success', name: '未知' }],
     ['NEGLIGIBLE', { code: 'unready', name: '可忽略' }],
     ['LOW', { code: 'running', name: '较低' }],
     ['MEDIUM', { code: 'opened', name: '中等' }],
@@ -212,7 +212,13 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
           margin: getCurrentTheme === 'theme4' ? '14px 0 0 15px' : '7px 0 0 15px',
         }}
         >
-          <Icon type="info" />
+          <Icon
+            type="info"
+            style={{
+              fontSize: '14px',
+              marginRight: '4px',
+            }}
+          />
           <span>执行扫描操作前，请确保该仓库已安装扫描插件。请先勾选列表中的摘要，才能点击下方的扫描按钮</span>
         </div>
       </div>
@@ -307,7 +313,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
 
   const renderExpand = ({ record }) => {
     const versions = record.get('tags');
-    return (
+    return versions ? (
       <div className="product-lib-docker-taglist-subTableContainer">
         <span className="product-lib-docker-taglist-line" />
         <table className="product-lib-docker-taglist-subTable">
@@ -337,7 +343,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
           }
         </table>
       </div>
-    );
+    ) : '';
   };
 
   const renderScanStatusTag = useCallback(({ record }) => {
@@ -368,7 +374,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
     const total = get(scanOverview, 'total');
     const summary = get(scanOverview, 'summary');
     const upperCode = severity && severity.toUpperCase();
-    const statusName = upperCode === 'UNKNOWN' ? '无漏洞' : `总计${total} - 可修复${fixable}`;
+    const statusName = upperCode === 'UNKNOWN' ? '无漏洞' : `总计${total}${fixable ? ` - 可修复${fixable}` : ''}`;
     const tooltitle = (
       <div>
         <p>
@@ -465,8 +471,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
           renderer={renderSeverityTag}
         />
         <Column name="sizeDesc" />
-        <Column name="os" renderer={({ record }) => `${record.get('os')}/${record.get('architecture')}`} />
-        {/* <Column name="author" renderer={renderUserName} width={150} /> */}
+        <Column name="os" renderer={({ record }) => record.get('os') && record.get('architecture') && `${record.get('os')}/${record.get('architecture')}`} />
         <Column name="pushTime" renderer={renderTime} />
         <Column name="pullTime" renderer={renderTime} />
       </Table>

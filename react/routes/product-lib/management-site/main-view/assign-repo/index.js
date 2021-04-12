@@ -80,14 +80,13 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
 
   return (
     <React.Fragment>
-      {repositoryId ?
-        <span className="header-title">{name}</span>
-        :
-        <span className="product-lib-site-management-lib-list-list-card-header-title" onClick={openModal}>
-          {name}
-        </span>
-
-      }
+      {repositoryId
+        ? <span className="header-title">{name}</span>
+        : (
+          <span className="product-lib-site-management-lib-list-list-card-header-title c7ncd-prolib-clickText" onClick={openModal}>
+            {name}
+          </span>
+        )}
     </React.Fragment>
   );
 };

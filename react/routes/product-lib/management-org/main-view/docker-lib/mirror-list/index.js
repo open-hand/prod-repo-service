@@ -168,7 +168,7 @@ const MirrorList = () => {
                   <Row className="product-lib-org-management-mirror-list-list-card-header" type="flex" justify="space-between">
                     <Col span={20} className="product-lib-org-management-mirror-list-list-card-header-icon">
                       <span
-                        className="product-lib-org-management-mirror-list-list-card-header-title"
+                        className="product-lib-org-management-mirror-list-list-card-header-title c7ncd-prolib-clickText"
                         onClick={() => openTagModal(imageName, repoName, projectId)}
                       >
                         {imageName}

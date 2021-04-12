@@ -151,7 +151,7 @@ public class HarborHttpClient {
 	 */
 	public ResponseEntity<String> customExchange(HarborConstants.HarborApiEnum apiEnum, Map<String, Object> paramMap, Object body, Object... pathParam) {
 		HarborCustomConfiguration harborCustomConfiguration = getHarborCustomConfiguration();
-		String url = HarborUtil.isApiVersion1(harborCustomConfiguration) ? harborCustomConfiguration + apiEnum.getApiUrl() : harborCustomConfiguration + apiEnum.getApiUrlV2();
+		String url = HarborUtil.isApiVersion1(harborCustomConfiguration) ? harborCustomConfiguration.getUrl() + apiEnum.getApiUrl() : harborCustomConfiguration.getUrl() + apiEnum.getApiUrlV2();
 		paramMap = paramMap == null ? new HashMap<>(2) : paramMap;
 		url = this.setParam(url, paramMap, pathParam);
 		HttpMethod httpMethod = apiEnum.getHttpMethod();

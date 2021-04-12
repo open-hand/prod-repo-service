@@ -84,29 +84,36 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
 		}
 		List<HarborImageLog> logListResult = harborClientOperator.listImageLogs(param, harborRepository, true);
 		Map<String, List<HarborImageLog>> logListMap = logListResult.stream().collect(Collectors.groupingBy(dto -> dto.getRepoName() + dto.getTagName()));
-		tagVo.getTags().forEach(t -> {
-			List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
-			if (CollectionUtils.isNotEmpty(logList)) {
-				t.setAuthor(logList.get(0).getLoginName());
-			}
-		});
+		if (CollectionUtils.isNotEmpty(tagVo.getTags())) {
+			tagVo.getTags().forEach(t -> {
+				List<HarborImageLog> logList = logListMap.get(repoName + t.getName());
+				if (CollectionUtils.isNotEmpty(logList)) {
+					t.setAuthor(logList.get(0).getLoginName());
+				}
+			});
+		}
 	}
 
 	public void setAuthorWithIam(List<HarborImageTagVo> harborImageTagVoList) {
 		Set<String> userNameSet = new HashSet<>();
-		harborImageTagVoList.forEach(dto -> dto.getTags().forEach(tag -> userNameSet.add(tag.getAuthor())));
-		Map<String,UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
-		harborImageTagVoList.forEach(dto->{
-			dto.getTags().forEach(tag -> {
-				String loginName = tag.getAuthor();
-				UserDTO userDTO = userDtoMap.get(loginName);
-				String realName = userDTO == null ? loginName : userDTO.getRealName();
-				String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
-				tag.setLoginName(loginName);
-				tag.setRealName(realName);
-				tag.setUserImageUrl(userImageUrl);
+		List<HarborImageTagVo> harborImageTagVos = harborImageTagVoList.stream().filter(dto -> CollectionUtils.isNotEmpty(dto.getTags())).collect(Collectors.toList());
+		if (CollectionUtils.isNotEmpty(harborImageTagVos)) {
+			harborImageTagVos.forEach(dto -> dto.getTags().forEach(tag -> userNameSet.add(tag.getAuthor())));
+			Map<String, UserDTO> userDtoMap = c7nBaseService.listUsersByLoginNames(userNameSet);
+			harborImageTagVoList.forEach(dto -> {
+				if (CollectionUtils.isNotEmpty(dto.getTags())) {
+					dto.getTags().forEach(tag -> {
+						String loginName = tag.getAuthor();
+						UserDTO userDTO = userDtoMap.get(loginName);
+						String realName = userDTO == null ? loginName : userDTO.getRealName();
+						String userImageUrl = userDTO == null ? null : userDTO.getImageUrl();
+						tag.setLoginName(loginName);
+						tag.setRealName(realName);
+						tag.setUserImageUrl(userImageUrl);
+					});
+				}
 			});
-		});
+		}
 	}
 
 	@Override

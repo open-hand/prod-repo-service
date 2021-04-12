@@ -201,7 +201,7 @@ const MirrorLib = () => {
                     <Col span={9} className="product-lib-org-management-mirror-lib-list-card-header-icon">
                       {/* {rendererOnlineStatus(online)} */}
                       <span
-                        className="product-lib-org-management-mirror-lib-list-card-header-title"
+                        className="product-lib-org-management-mirror-lib-list-card-header-title c7ncd-prolib-clickText"
                         onClick={() => handleToPackage(item)}
                       >
                         {code}
