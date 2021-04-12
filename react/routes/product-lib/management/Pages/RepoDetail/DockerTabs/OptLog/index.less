@@ -4,7 +4,7 @@
 .@{prefix}-timeline-container {
   padding: 12px 20px;
   overflow: scroll;
-  height: ~'calc(100% - 95px)';
+  height: ~"calc(100% - 95px)";
   .page-content {
     padding: 0;
   }
@@ -19,24 +19,39 @@
     justify-content: space-between;
     margin: 0 0 0.16rem;
     .@{prefix}-tab-button-group {
-      height: 0.36rem;
-      background: rgba(255, 255, 255, 1);
-      box-shadow: 0px 2px 6px 0px rgba(48, 63, 159, 0.2);
-      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      background-color: rgb(245, 246, 250);
+      position: relative;
+      width: fit-content;
+      border-radius: 3px;
+      padding: 4px;
+      height: fit-content;
       > .c7n-radio-button-wrapper:not(:first-child)::before {
         display: none;
       }
       > .c7n-radio-button-wrapper {
-        border: none;
-        height: 100%;
-        font-size: 0.14rem;
+        font-size: 13px;
+        font-family: PingFangSC-Regular, "PingFang SC";
         font-weight: 400;
-        color: @primary-color;
-        line-height: 0.36rem;
+        color: rgba(58, 52, 95, 0.87) !important;
+        line-height: 20px;
+        text-align: center;
+        cursor: pointer;
+        z-index: 2;
+        padding: 5px;
+        border: none;
+        border-radius: 3px;
       }
       > .c7n-radio-button-wrapper-checked {
-        background: rgba(140, 158, 255, 0.16);
+        background: #fff;
         box-shadow: none;
+        font-weight: 500;
+        color: rgb(83, 101, 234) !important;
+      }
+      > .c7n-radio-button-wrapper + .c7n-radio-button-wrapper {
+        margin-left: 10px;
+        position: relative;
       }
     }
 
@@ -136,7 +151,7 @@
       height: 0.43rem;
       position: relative;
       &::after {
-        content: '';
+        content: "";
         display: block;
         position: absolute;
         height: 0.01rem;

@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import io.choerodon.core.exception.CommonException;
+
 /**
  * @Author: scp
  * @Description:
@@ -219,8 +221,10 @@ public class HarborClientOperator {
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
-                dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
-                dto.setOs(dto.getExtraAttrs().getOs());
+                if (dto.getExtraAttrs() != null) {
+                    dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
+                    dto.setOs(dto.getExtraAttrs().getOs());
+                }
                 if (CollectionUtils.isNotEmpty(dto.getTags())) {
                     dto.getTags().forEach(tag -> tag.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime()));
                 }
@@ -252,7 +256,9 @@ public class HarborClientOperator {
                 dto.setExtraAttrs(null);
             });
         }
-        return harborImageTagVoList;
+        //对镜像的列表进行按照推送时间排序
+        List<HarborImageTagVo> harborImageTagVos = harborImageTagVoList.stream().sorted(Comparator.comparing(HarborImageTagVo::getPushTime).reversed()).collect(Collectors.toList());
+        return harborImageTagVos;
     }
 
     public List<HarborBuildLogDTO> listBuildLogs(String repoName, String tagName, String digest, Boolean adminAccountFlag) {
@@ -312,6 +318,9 @@ public class HarborClientOperator {
 
     public void copyTag(HarborImageReTag harborImageReTag) {
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            if(StringUtils.isEmpty(harborImageReTag.getDestImageTagName())){
+                throw new CommonException("error.image.tag.name");
+            }
             String srcImage = harborImageReTag.getSrcRepoName() + BaseConstants.Symbol.COLON + harborImageReTag.getDigest();
             String destRepoName = harborImageReTag.getDestProjectCode() + BaseConstants.Symbol.SLASH + harborImageReTag.getDestImageName();
             Map<String, Object> bodyMap = new HashMap<>(3);
@@ -464,14 +473,16 @@ public class HarborClientOperator {
                 scanOverview.setScanStatus(TypeUtil.objToString(harborImageTagVo.getScanOverviewJson().get("scan_status")));
                 scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(harborImageTagVo.getScanOverviewJson().get("severity"))));
                 Map<String, Object> imageMap = (Map<String, Object>) harborImageTagVo.getScanOverviewJson().get("components");
-                scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
                 HarborImageTagVo.Summary summary = harborImageTagVo.new Summary();
-                if (imageMap.get("summary") != null) {
-                    List<Object> summaryMap = (List<Object>) imageMap.get("summary");
-                    summaryMap.stream().forEach(t -> {
-                        Map<String, Object> map = (Map<String, Object>) t;
-                        setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
-                    });
+                if (imageMap != null) {
+                    scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
+                    if (imageMap.get("summary") != null) {
+                        List<Object> summaryMap = (List<Object>) imageMap.get("summary");
+                        summaryMap.stream().forEach(t -> {
+                            Map<String, Object> map = (Map<String, Object>) t;
+                            setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
+                        });
+                    }
                 }
                 scanOverview.setSummary(summary);
                 harborImageTagVo.setScanOverview(scanOverview);
