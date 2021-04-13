@@ -68,7 +68,7 @@ public class HarborClientOperator {
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
             int page = 1;
-            int pageSize = 20;
+            int pageSize = 200;
             List<HarborImageLog> harborImageLogs = new ArrayList<>();
             do {
                 Map<String, Object> paramMap = new HashMap<>();
@@ -83,7 +83,7 @@ public class HarborClientOperator {
                 if (!CollectionUtils.isEmpty(harborImageLogs)) {
                     logListResult.addAll(harborImageLogs);
                 }
-            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 10);
+            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
         } else {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
@@ -120,7 +120,7 @@ public class HarborClientOperator {
                 logListResult.addAll(harborImageLogs);
             } else {
                 int page = 1;
-                int pageSize = 20;
+                int pageSize = 100;
                 do {
                     paramMap.put("page", page);
                     paramMap.put("page_size", pageSize);
@@ -132,8 +132,8 @@ public class HarborClientOperator {
                     if (!CollectionUtils.isEmpty(harborImageLogs)) {
                         logListResult.addAll(harborImageLogs);
                     }
-                    //v1.0没有一次性查询所有日志的接口，所以只统计最近一千条的数据  不然接口会超时
-                } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 10);
+                    //v1.0没有一次性查询所有日志的接口，所以只统计最近200条  不然接口会超时
+                } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
             }
         } else {
             if (!Objects.isNull(paramMap.get("page")) && !Objects.isNull(paramMap.get("page_size"))) {
