@@ -10,7 +10,7 @@ import { Button, Tabs } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import { useCheckPermission } from '@/utils';
 import { useStore } from '../../index';
-import { RepositoryIdContext } from './../index';
+import { RepositoryIdContext } from '../index';
 import { OverView, NexusComponent, PublishAuth, OptLog } from './MavenTabs';
 import { MavenGuideButton } from '../GuideButton';
 import { MavenUploadButton } from '../UploadPackageButton';
@@ -24,7 +24,6 @@ export const TabKeyEnum = {
   PUBLIST_AUTH: 'publishAuth',
   OPTLOG: 'optLog',
 };
-
 
 const MavenTabContainer = (props) => {
   const { repositoryId, repositoryName, name, versionPolicy, type, enableFlag } = useContext(RepositoryIdContext);
@@ -43,7 +42,6 @@ const MavenTabContainer = (props) => {
 
   const uploadPackageButtonProps = useMemo(() => ({ repositoryId, repositoryName, mavenUploadPackageDs, formatMessage, nexusComponentDs }), [repositoryId, repositoryName, mavenUploadPackageDs, nexusComponentDs, formatMessage]);
   const guideButtonProps = useMemo(() => ({ repositoryId, formatMessage, name: repositoryName }), [repositoryId, formatMessage, repositoryName]);
-
 
   const overViewProps = useMemo(() => ({ repositoryId, overViewDs, formatMessage, activeTabKey }), [overViewDs, formatMessage, activeTabKey, repositoryId]);
   const nexusComponentProps = useMemo(() => ({ repositoryId, repositoryName, nexusComponentDs, formatMessage, activeTabKey, enableFlag }), [repositoryId, nexusComponentDs, formatMessage, activeTabKey, repositoryName]);
@@ -68,9 +66,8 @@ const MavenTabContainer = (props) => {
     <React.Fragment>
       <Header>
         <MavenGuideButton {...guideButtonProps} />
-        {activeTabKey === TabKeyEnum.NEXUS_COMPONENT && type === 'hosted' && versionPolicy === 'RELEASE' && enableFlag === 'Y' &&
-          <MavenUploadButton {...uploadPackageButtonProps} />
-        }
+        {activeTabKey === TabKeyEnum.NEXUS_COMPONENT && type === 'hosted' && versionPolicy === 'RELEASE' && enableFlag === 'Y'
+          && <MavenUploadButton {...uploadPackageButtonProps} />}
         {activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y' && <MavenAddMemberButton {...addMemberButtonProps} activeRepository={props.activeRepository} />}
         <Button
           icon="refresh"
@@ -101,14 +98,15 @@ const MavenTabContainer = (props) => {
               activeRepository={props.activeRepository}
             />
           </TabPane>
-          {ownerPermission &&
+          {ownerPermission
+            && (
             <TabPane tab={formatMessage({ id: `${intlPrefix}.view.optLog`, defaultMessage: '操作日志' })} key={TabKeyEnum.OPTLOG}>
               <OptLog {...optLogProps} activeRepository={props.activeRepository} />
             </TabPane>
-          }
+            )}
         </Tabs>
       </Content>
-    </React.Fragment >
+    </React.Fragment>
   );
 };
 

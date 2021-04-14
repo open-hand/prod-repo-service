@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/prod-repo",
   "routeName": "rdupm",
-  "version": "0.25.0",
+  "version": "0.25.2",
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "lint-staged": "lint-staged",
     "lint-staged:es": "eslint",
     "compile": "choerodon-front-boot compile",
-    "clean-install": "rm -rf node_modules && rm package-lock.json && npm i --registry https://nexus.choerodon.com.cn/repository/choerodon-npm"
+    "clean-install": "rm -rf node_modules && rm package-lock.json && npm i --registry https://nexus.choerodon.com.cn/repository/choerodon-npm",
+    "postinstall": "chmod -R u+x node_modules"
   },
   "contributors": [
     "choerodon"
