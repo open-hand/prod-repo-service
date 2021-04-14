@@ -260,8 +260,6 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             // 统计下载的次数与人数
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
-            paramMap.put("page", 0);
-            paramMap.put("page_size", 0);
             List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, dto, true);
 
             Long personTimes = 0L;
