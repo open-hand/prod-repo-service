@@ -149,8 +149,8 @@ public class HarborLogServiceImpl implements HarborLogService {
 		if(endDate != null){
 			paramMap.put("end_timestamp",HarborUtil.dateToTimestamp(endDate));
 		}
-		paramMap.put("page",0);
-		paramMap.put("page_size",0);
+		paramMap.put("page",pageRequest.getPage() == 0 ? 1 : pageRequest.getPage());
+		paramMap.put("page_size",pageRequest.getSize());
 		return paramMap;
 	}
 

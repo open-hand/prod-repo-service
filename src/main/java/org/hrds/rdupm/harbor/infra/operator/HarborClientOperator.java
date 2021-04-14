@@ -68,7 +68,7 @@ public class HarborClientOperator {
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
             int page = 1;
-            int pageSize = 10;
+            int pageSize = 200;
             List<HarborImageLog> harborImageLogs = new ArrayList<>();
             do {
                 Map<String, Object> paramMap = new HashMap<>();
@@ -83,7 +83,7 @@ public class HarborClientOperator {
                 if (!CollectionUtils.isEmpty(harborImageLogs)) {
                     logListResult.addAll(harborImageLogs);
                 }
-            } while (!CollectionUtils.isEmpty(harborImageLogs));
+            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
         } else {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
@@ -111,36 +111,51 @@ public class HarborClientOperator {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            int page = 1;
-            int pageSize = 10;
             List<HarborImageLog> harborImageLogs = new ArrayList<>();
-            do {
-                paramMap.put("page", page);
-                paramMap.put("page_size", pageSize);
+            //分页查询：
+            if (!Objects.isNull(paramMap.get("page")) && !Objects.isNull(paramMap.get("page_size"))) {
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectId);
                 harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
-                page++;
-                pageSize = +10;
-                if (!CollectionUtils.isEmpty(harborImageLogs)) {
-                    logListResult.addAll(harborImageLogs);
-                }
-            } while (!CollectionUtils.isEmpty(harborImageLogs));
-        } else {
-            paramMap.put("page", 0);
-            paramMap.put("page_size", 0);
-            responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
-            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-            }.getType());
-            if (logListResult != null) {
-                logListResult = logListResult.stream().map(t -> {
-                    if (t.getResource().contains(":")) {
-                        String[] strings = t.getResource().split(":");
-                        t.setRepoName(strings[0]);
-                        t.setTagName(strings[1]);
+                logListResult.addAll(harborImageLogs);
+            } else {
+                int page = 1;
+                int pageSize = 100;
+                do {
+                    paramMap.put("page", page);
+                    paramMap.put("page_size", pageSize);
+                    responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectId);
+                    harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+                    }.getType());
+                    page++;
+                    pageSize = +10;
+                    if (!CollectionUtils.isEmpty(harborImageLogs)) {
+                        logListResult.addAll(harborImageLogs);
                     }
-                    return t;
-                }).collect(Collectors.toList());
+                    //v1.0没有一次性查询所有日志的接口，所以只统计最近200条  不然接口会超时
+                } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
+            }
+        } else {
+            if (!Objects.isNull(paramMap.get("page")) && !Objects.isNull(paramMap.get("page_size"))) {
+                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
+                logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+                }.getType());
+            } else {
+                paramMap.put("page", 0);
+                paramMap.put("page_size", 0);
+                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
+                logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+                }.getType());
+                if (logListResult != null) {
+                    logListResult = logListResult.stream().map(t -> {
+                        if (t.getResource().contains(":")) {
+                            String[] strings = t.getResource().split(":");
+                            t.setRepoName(strings[0]);
+                            t.setTagName(strings[1]);
+                        }
+                        return t;
+                    }).collect(Collectors.toList());
+                }
             }
         }
         return logListResult;
@@ -318,7 +333,7 @@ public class HarborClientOperator {
 
     public void copyTag(HarborImageReTag harborImageReTag) {
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
-            if(StringUtils.isEmpty(harborImageReTag.getDestImageTagName())){
+            if (StringUtils.isEmpty(harborImageReTag.getDestImageTagName())) {
                 throw new CommonException("error.image.tag.name");
             }
             String srcImage = harborImageReTag.getSrcRepoName() + BaseConstants.Symbol.COLON + harborImageReTag.getDigest();

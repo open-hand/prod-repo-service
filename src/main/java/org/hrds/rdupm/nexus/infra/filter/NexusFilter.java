@@ -91,6 +91,16 @@ public class NexusFilter implements Filter {
         LOGGER.info("The uri of the request servlet :{}", servletUri);
         Long configId = Long.parseLong(configIdStr);
         NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
+
+        //http://nexus.c7n.devops.hand-china.com/repository/wx-java-snapshot/io/choerodon/springboot/0.0.1-SNAPSHOT/springboot-0.0.1-20210412.072018-1.jar
+        String pipelineDownLoad = httpServletRequest.getParameter("pipelineDownLoad");
+        //如果是流水线里面下载jar包的操作，那么
+        if (StringUtils.equalsIgnoreCase(pipelineDownLoad, Boolean.TRUE.toString())) {
+            httpServletResponse.sendRedirect(nexusServerConfig.getServerUrl() + servletUri);
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+        }
+
+
         //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZz==
         if ((StringUtils.endsWithIgnoreCase(servletUri, ".jar") || StringUtils.endsWithIgnoreCase(servletUri, ".tgz"))
                 && !StringUtils.isEmpty(httpServletRequest.getHeader("authorization"))) {
@@ -108,12 +118,12 @@ public class NexusFilter implements Filter {
                 String packageName = getPackageName(servletUri);
                 UserDTO userDTO = getUserDTO(httpServletRequest);
                 // 直接在流水线下载jar包不需要记录日志，传的用户
-                if (!Objects.isNull(userDTO)){
+                if (!Objects.isNull(userDTO)) {
                     //3.记录用户在哪个仓库下下载了哪个jar包的记录
                     NexusLog nexusLog = new NexusLog();
                     if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "get")) {
                         nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PULL);
-                    } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")){
+                    } else if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")) {
                         nexusLog = generateLog(repository, userDTO, packageName, servletUri, NexusConstants.LogOperateType.AUTH_PUSH);
                     }
                     nexusLogMapper.insert(nexusLog);
@@ -145,7 +155,7 @@ public class NexusFilter implements Filter {
         String content = "";
         if (NexusConstants.LogOperateType.AUTH_PULL.equals(operateType)) {
             content = String.format(LOG_PULL_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, packageName);
-        } else if (NexusConstants.LogOperateType.AUTH_PUSH.equals(operateType)){
+        } else if (NexusConstants.LogOperateType.AUTH_PUSH.equals(operateType)) {
             content = String.format(LOG_PUSH_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, packageName);
         }
         nexusLog.setContent(content);
