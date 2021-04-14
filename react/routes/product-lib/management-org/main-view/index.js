@@ -7,6 +7,7 @@ import { Header, Breadcrumb } from '@choerodon/boot';
 import { useProdStore } from '../stores';
 
 import './index.less';
+import './theme4.less';
 
 const DockerLib = lazy(() => import('./docker-lib'));
 const MavenLib = lazy(() => import('./maven-lib'));
@@ -45,7 +46,7 @@ const MainView = observer(() => {
   }, [getSelectedMenu]);
 
   return (
-    <React.Fragment >
+    <React.Fragment>
       <Header />
       <Breadcrumb />
       <div className="product-lib-org-management">
@@ -56,9 +57,8 @@ const MainView = observer(() => {
               onClick={() => setSelectedMenu(DOCKER)}
             >
               <div className="product-lib-org-management-lib-type-list-item-docker" />
-              {getSelectedMenu === DOCKER &&
-                <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />
-              }
+              {getSelectedMenu === DOCKER
+                && <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />}
             </div>
           )}
           {mavenPermission && (
@@ -67,9 +67,8 @@ const MainView = observer(() => {
               onClick={() => setSelectedMenu(MAVEN)}
             >
               <div className="product-lib-org-management-lib-type-list-item-maven" />
-              {getSelectedMenu === MAVEN &&
-                <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />
-              }
+              {getSelectedMenu === MAVEN
+                && <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />}
             </div>
           )}
           {npmPermission && (
@@ -78,9 +77,8 @@ const MainView = observer(() => {
               onClick={() => setSelectedMenu(NPM)}
             >
               <div className="product-lib-org-management-lib-type-list-item-npm" />
-              {getSelectedMenu === NPM &&
-                <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />
-              }
+              {getSelectedMenu === NPM
+                && <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />}
             </div>
           )}
         </div>
