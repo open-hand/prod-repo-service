@@ -11,10 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
  * Created by wangxiang on 2021/1/4
  */
 public interface NexusComponentHandService {
-    void uploadJar(NexusClient nexusClient, MultipartFile multipartFile, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer);
 
     void uploadJar(NexusClient nexusClient, File filePath, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer);
 
-    void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, MultipartFile assetTgz, NexusServer currentNexusServer);
+
+    void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
 
 }

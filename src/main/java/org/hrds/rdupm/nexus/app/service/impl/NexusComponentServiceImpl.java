@@ -267,27 +267,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         nexusClient.removeNexusServerInfo();
     }
 
-    @Override
-    public void componentsUpload(Long organizationId, Long projectId,
-                                 NexusServerComponentUpload componentUpload,
-                                 MultipartFile assetJar, MultipartFile assetPom) {
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步方法之前1>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
-        componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 
-        NexusServerConfig defaultNexusServerConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-        NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
-        if (serverRepository == null) {
-            throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
-        }
-        if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
-            throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
-        }
-        // 设置并返回当前nexus服务信息
-        NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步方法之前2>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        nexusComponentHandService.uploadJar(nexusClient, assetJar, assetPom, componentUpload, currentNexusServer);
-    }
 
     @Override
     public void componentsUpload(Long organizationId, Long projectId, NexusServerComponentUpload componentUpload, String filePath, MultipartFile assetPom) {
@@ -310,9 +290,10 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         nexusComponentHandService.uploadJar(nexusClient, jarfilePath, assetPom, componentUpload, currentNexusServer);
     }
 
-    @Override
-    public void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, MultipartFile assetTgz) {
 
+
+    @Override
+    public void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, String filePath) {
         NexusRepository nexusRepository = this.validateAuth(projectId, repositoryId);
 
         configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
@@ -326,8 +307,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
         // 设置并返回当前nexus服务信息
         NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-
-        nexusComponentHandService.uploadNPM(nexusClient, nexusRepository, assetTgz, currentNexusServer);
+        File npmfilePath = new File(filePath);
+        nexusComponentHandService.uploadNPM(nexusClient, nexusRepository, npmfilePath, currentNexusServer);
     }
 
     private NexusRepository validateAuth(Long projectId, Long repositoryId) {
