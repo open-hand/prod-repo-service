@@ -370,6 +370,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
   const renderSeverityTag = ({ record }) => {
     const scanOverview = record.get('scanOverview') || {};
     const severity = get(scanOverview, 'severity');
+    const scanStatus = get(scanOverview, 'scanStatus')?.toUpperCase();
     const fixable = get(scanOverview, 'fixable');
     const total = get(scanOverview, 'total');
     const summary = get(scanOverview, 'summary');
@@ -395,7 +396,7 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
       </div>
     );
     return (
-      upperCode ? (
+      upperCode && !['RUNNING', 'SCANNING'].includes(scanStatus) ? (
         <Tooltip title={summary ? tooltitle : ''}>
           <div>
             <StatusTag type="border" colorCode={get(statusMap.get(upperCode), 'code')} name={statusName} />
