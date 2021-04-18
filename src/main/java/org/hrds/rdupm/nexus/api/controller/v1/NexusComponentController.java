@@ -134,8 +134,8 @@ public class NexusComponentController extends BaseController {
 											  @ApiParam(value = "groupId") @RequestParam(name = "groupId", required = false) String groupId,
 											  @ApiParam(value = "artifactId") @RequestParam(name = "artifactId", required = false) String artifactId,
 											  @ApiParam(value = "版本") @RequestParam(name = "version", required = false) String version,
-											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
-//											  @ApiParam(value = "filePath") @RequestParam(name = "filePath", required = false) String filePath,
+//											  @ApiParam(value = "jar文件") @RequestParam(name = "assetJar", required = false) MultipartFile assetJar,
+											  @ApiParam(value = "filePath") @RequestParam(name = "filePath", required = false) String filePath,
 											  @ApiParam(value = "pom文件") @RequestParam(name = "assetPom", required = false) MultipartFile assetPom) {
 		NexusServerComponentUpload componentUpload = new NexusServerComponentUpload();
 		componentUpload.setRepositoryName(repositoryName);
@@ -145,15 +145,15 @@ public class NexusComponentController extends BaseController {
 		componentUpload.setVersion(version);
 
 		// validObject(componentUpload);
-		if (assetJar == null && assetPom == null) {
+		if (filePath == null && assetPom == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
 		}
-		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
+//		this.validateFileType(assetJar, NexusServerAssetUpload.JAR);
 		this.validateFileType(assetPom, NexusServerAssetUpload.XML);
 		if (assetPom != null) {
 			XMLValidator.validXMLDefault(assetPom);
 		}
-		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, assetJar, assetPom);
+		nexusComponentService.componentsUpload(organizationId, projectId, componentUpload, filePath, assetPom);
 		return Results.success();
 	}
 
@@ -172,12 +172,12 @@ public class NexusComponentController extends BaseController {
 	public ResponseEntity<?> npmComponentsUpload(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 												 @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 												 @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) @Encrypt Long repositoryId,
-												 @ApiParam(value = "jar文件") @RequestParam(name = "assetTgz", required = true) MultipartFile assetTgz) {
-		if (assetTgz == null) {
+												 @ApiParam(value = "filePath") @RequestParam(name = "filePath", required = false) String filePath) {
+		if (filePath == null) {
 			throw new CommonException(NexusMessageConstants.NEXUS_SELECT_FILE);
 		}
-		this.validateFileType(assetTgz, NexusServerAssetUpload.TGZ);
-		nexusComponentService.npmComponentsUpload(organizationId, projectId, repositoryId, assetTgz);
+//		this.validateFileType(assetTgz, NexusServerAssetUpload.TGZ);
+		nexusComponentService.npmComponentsUpload(organizationId, projectId, repositoryId, filePath);
 		return Results.success();
 	}
 

@@ -426,7 +426,7 @@ public class HarborClientOperator {
             responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.IMAGE_SCAN_DETAIL, null, null, true, imageScanVO.getRepoName(), imageScanVO.getTagName());
             imageScanResultVOS = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageScanResultVO>>() {
             }.getType());
-            if (CollectionUtils.isEmpty(imageScanResultVOS)) {
+            if (!CollectionUtils.isEmpty(imageScanResultVOS)) {
                 imageScanResultVOS.forEach(t -> {
                     t.setLinks(Collections.singletonList(t.getLink()));
                     t.setSeverity(getSecurity(TypeUtil.objTodouble(t.getSeverityObject())).toLowerCase());
@@ -441,13 +441,15 @@ public class HarborClientOperator {
             String jsonString = gson.toJson(imageMap.get("vulnerabilities"));
             imageScanResultVOS = gson.fromJson(jsonString, new TypeToken<List<HarborImageScanResultVO>>() {
             }.getType());
-            imageScanResultVOS.forEach(t -> {
-                t.setSeverity(TypeUtil.objToString(t.getSeverityObject()).toLowerCase());
-                t.setSeverityObject(null);
-            });
+            if (CollectionUtils.isNotEmpty(imageScanResultVOS)) {
+                imageScanResultVOS.forEach(t -> {
+                    t.setSeverity(TypeUtil.objToString(t.getSeverityObject()).toLowerCase());
+                    t.setSeverityObject(null);
+                });
+            }
         }
         if (!CollectionUtils.isEmpty(imageScanResultVOS)) {
-            Map<String, List<HarborImageScanResultVO>> securityMap = imageScanResultVOS.stream().collect(Collectors.groupingBy(HarborImageScanResultVO::getSeverity));
+            Map<String, List<HarborImageScanResultVO>> securityMap = imageScanResultVOS.stream().filter(t -> StringUtils.isNotEmpty(t.getSeverity())).collect(Collectors.groupingBy(HarborImageScanResultVO::getSeverity));
             imageScanResultVOS.clear();
             if (securityMap.get(HarborConstants.SeverityLevel.CRITICAL) != null) {
                 imageScanResultVOS.addAll(securityMap.get(HarborConstants.SeverityLevel.CRITICAL));

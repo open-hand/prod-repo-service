@@ -59,18 +59,6 @@ public interface NexusComponentService {
      */
     void deleteComponents(Long organizationId, Long projectId, Long repositoryId, List<String> componentIds);
 
-    /**
-     * 包上传
-     *
-     * @param organizationId  组织ID
-     * @param projectId       项目Id
-     * @param componentUpload 仓库名称
-     * @param assetJar        jar文件
-     * @param assetPom        pom文件
-     */
-    void componentsUpload(Long organizationId, Long projectId,
-                          NexusServerComponentUpload componentUpload,
-                          MultipartFile assetJar, MultipartFile assetPom);
 
     void componentsUpload(Long organizationId, Long projectId,
                           NexusServerComponentUpload componentUpload, String filePath, MultipartFile assetPom);
@@ -83,7 +71,8 @@ public interface NexusComponentService {
      * @param repositoryId   仓库Id
      * @param assetTgz       tgz包文件
      */
-    void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, MultipartFile assetTgz);
+
+    void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, String filePath);
 
     /**
      * jar引入， pom配置

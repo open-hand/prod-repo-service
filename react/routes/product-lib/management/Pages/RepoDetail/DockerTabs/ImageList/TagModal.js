@@ -90,6 +90,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
 
   const renderSeverityTag = ({ record }) => {
     const scanOverview = record.get('scanOverview') || {};
+    const scanStatus = get(scanOverview, 'scanStatus')?.toUpperCase();
     const severity = get(scanOverview, 'severity');
     const fixable = get(scanOverview, 'fixable');
     const total = get(scanOverview, 'total');
@@ -116,7 +117,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
       </div>
     );
     return (
-      upperCode ? (
+      upperCode && !['RUNNING', 'SCANNING'].includes(scanStatus) ? (
         <Tooltip title={summary ? tooltitle : ''}>
           <div>
             <StatusTag type="border" colorCode={get(statusMap.get(upperCode), 'code')} name={statusName} />
