@@ -29,41 +29,10 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
 
     @Override
     @Async
-    public void uploadJar(NexusClient nexusClient, MultipartFile assetJar, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer) {
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步方法>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        try (
-                InputStream assetJarStream = assetJar != null ? assetJar.getInputStream() : null;
-                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null
-        ) {
-            List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
-            if (assetJarStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetJarStream));
-                assetUpload.setExtension(NexusServerAssetUpload.JAR);
-                assetUploadList.add(assetUpload);
-            }
-            if (assetPomStream != null) {
-                NexusServerAssetUpload assetUpload = new NexusServerAssetUpload();
-                assetUpload.setAssetName(new InputStreamResource(assetPomStream));
-                assetUpload.setExtension(NexusServerAssetUpload.POM);
-                assetUploadList.add(assetUpload);
-            }
-            nexusServerComponentUpload.setAssetUploads(assetUploadList);
-            nexusClient.getComponentsApi().createMavenComponent(nexusServerComponentUpload, currentNexusServer);
-        } catch (Exception e) {
-            logger.error("上传jar包错误", e);
-        } finally {
-            // remove配置信息
-            nexusClient.removeNexusServerInfo();
-        }
-    }
-
-    @Override
     public void uploadJar(NexusClient nexusClient, File jarFile, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer) {
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步的分片上传方法>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         try (
                 InputStream assetJarStream = new FileInputStream(jarFile);
-//                InputStream assetJarStream = bufferedReader != null ? bufferedReader.getInputStream() : null;
                 InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null;
         ) {
             List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
@@ -89,11 +58,12 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
         }
     }
 
+
     @Override
     @Async
-    public void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, MultipartFile assetTgz, NexusServer currentNexusServer) {
+    public void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer) {
         try (
-                InputStream assetTgzStream = assetTgz != null ? assetTgz.getInputStream() : null;
+                InputStream assetTgzStream = new FileInputStream(filePath);
         ) {
 
             if (assetTgzStream != null) {
