@@ -127,7 +127,7 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
             //有项目所有者权限，但没有仓库管理员，则选择其中一个所有者进行更新
             List<NexusAuth> filterList = nexusAuthList.stream().filter(dto -> NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode().equals(dto.getRoleCode()) && !dto.getUserId().equals(nexusRepository.getDeleteUserId())).collect(Collectors.toList());
 
-            if (CollectionUtils.isEmpty(filterList)) {
+            if (CollectionUtils.isEmpty(filterList) && !CollectionUtils.isEmpty(nexusAuthList) && !Objects.isNull(nexusAuthList.get(0))) {
                 updateAuth(nexusRepository, nexusAuthList.get(0));
             }
         }
