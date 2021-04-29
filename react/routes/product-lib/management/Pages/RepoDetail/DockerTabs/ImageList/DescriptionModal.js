@@ -25,9 +25,8 @@ const DescriptionModal = ({ dockerImageListDs, modal, originData }) => {
     });
   }, [originData, modal]);
 
-
   return (
-    <TextArea cols={100} rows={33} value={desc} onChange={val => { desc = val; }} />
+    <TextArea cols={100} rows={10} value={desc} onChange={val => { desc = val; }} />
   );
 };
 
