@@ -1,10 +1,7 @@
 package org.hrds.rdupm.common.app.service.impl;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import java.util.stream.Collectors;
@@ -24,8 +21,10 @@ import org.hrds.rdupm.common.api.vo.ProductLibraryDTO;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
@@ -65,6 +64,9 @@ public class ProdUserServiceImpl implements ProdUserService {
 
     @Resource
     private TransactionalProducer transactionalProducer;
+
+    @Autowired
+    private C7nBaseService c7nBaseService;
 
     /***
      * 最少八个字符，至少一个大写字母，一个小写字母和一个数字
@@ -151,8 +153,9 @@ public class ProdUserServiceImpl implements ProdUserService {
         }
         Map<String, Map<Object, List<String>>> nexusMap = nexusAuthRepository.getUserRoleList(repositoryIds);
         nexusMap.forEach(resultMap::put);
-        //查询该用户是否为项目所有者
-        if (baseServiceFeignClient.checkIsProjectOwner(DetailsHelper.getUserDetails().getUserId(), projectId)) {
+        //查询该用户是否为项目所有者,或者为平台root
+        // 平台root 应该看到分配仓库权限的按钮
+        if (baseServiceFeignClient.checkIsProjectOwner(DetailsHelper.getUserDetails().getUserId(), projectId) || isRoot(DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername())) {
             Map<Object, List<String>> longListMap = nexusMap.get(ProductLibraryDTO.TYPE_MAVEN);
             for (List<String> value : longListMap.values()) {
                 value.clear();
@@ -165,6 +168,16 @@ public class ProdUserServiceImpl implements ProdUserService {
             }
         }
         return resultMap;
+    }
+
+    private boolean isRoot(String loginName) {
+        // 平台root 应该看到分配仓库权限的按钮
+        UserDTO userDTO = c7nBaseService.queryByLoginName(loginName);
+        boolean isRoot = false;
+        if (!Objects.isNull(userDTO) && userDTO.getAdmin()) {
+            isRoot = true;
+        }
+        return isRoot;
     }
 
     private void check(ProdUser prodUser) {
