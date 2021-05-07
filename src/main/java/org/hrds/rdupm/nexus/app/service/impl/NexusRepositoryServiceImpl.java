@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,6 +91,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     private NexusProxyConfigProperties nexusProxyConfigProperties;
     @Autowired
     private NexusLogMapper nexusLogMapper;
+    @Value("${nexus.filter.mavenRepo:market-repo}")
+    private String marketMavenRepo;
 
     @Override
     public NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -694,7 +697,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
 
         // remove配置信息
         nexusClient.removeNexusServerInfo();
-        return resultAll;
+        //去除应用市场的仓库
+        List<NexusRepositoryListDTO> nexusRepositoryListDTOS = resultAll.stream().filter(nexusRepositoryListDTO -> !StringUtils.equalsIgnoreCase(nexusRepositoryListDTO.getName().trim(), marketMavenRepo)).collect(Collectors.toList());
+        return nexusRepositoryListDTOS;
     }
 
     @Override
