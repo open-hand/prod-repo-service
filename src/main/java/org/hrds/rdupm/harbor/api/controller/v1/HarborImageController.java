@@ -46,7 +46,7 @@ public class HarborImageController {
 	@Permission(level = ResourceLevel.ORGANIZATION)
 	@GetMapping(value = "/list-org/{organizationId}")
 	public ResponseEntity<Page<HarborImageVo>> getByOrg(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId,
-														@ApiParam(value = "镜像库编码") @RequestParam String code,
+														@ApiParam(value = "镜像库编码") @RequestParam(required = false) String code,
 														@ApiParam(value = "镜像库名称") @RequestParam(required = false) String name,
 														@ApiParam(value = "镜像名称") @RequestParam(required = false) String imageName,
 														@ApiIgnore PageRequest pageRequest) {
