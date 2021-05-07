@@ -4,7 +4,7 @@ import { axios } from '@choerodon/boot';
 export default ((intlPrefix, formatMessage, projectId) => {
   async function checkoutDocker(value) {
     try {
-      const res = await axios.get(`/rdupm/v1/check/name/${projectId}?repositoryName=${value}`);
+      const res = await axios.get(`/rdupm/v1/harbor-project/check/name/${projectId}?repositoryName=${value}`);
       if (!res) {
         return 'docker仓库重名';
       }
