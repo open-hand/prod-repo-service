@@ -13,4 +13,6 @@ public interface HarborRepositoryRepository extends BaseRepository<HarborReposit
     HarborRepository getHarborRepositoryById(Long projectId);
 
     HarborRepository getHarborRepositoryByHarborId(Long harborId);
+
+    Boolean checkName(Long projectId, String repositoryName);
 }

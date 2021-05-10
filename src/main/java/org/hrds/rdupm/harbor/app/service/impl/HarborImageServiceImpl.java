@@ -92,6 +92,9 @@ public class HarborImageServiceImpl implements HarborImageService {
 
 	@Override
 	public Page<HarborImageVo> getByOrg(Long organizationId, String projectCode, String projectName, String imageName, PageRequest pageRequest) {
+		if (StringUtils.isEmpty(projectCode)) {
+			return new Page<>();
+		}
 		Sqls sql = Sqls.custom().andEqualTo(HarborRepository.FIELD_ORGANIZATION_ID,organizationId);
 		if(!StringUtils.isEmpty(projectCode)){
 			sql.andEqualTo(HarborRepository.FIELD_CODE,projectCode);

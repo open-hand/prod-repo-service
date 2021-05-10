@@ -47,7 +47,7 @@ export default injectIntl(inject('AppState')((props) => {
   const mavenUploadPackageDs = useMemo(() => new DataSet(mavenUploadPackageDataSet(organizationId, projectId)), [organizationId, projectId]);
   const publishAuthDs = useMemo(() => new DataSet(publishAuthDataSet(intlPrefix, formatMessage, projectId)), [projectId]);
 
-  const dockerCustomCreateDs = useMemo(() => new DataSet(dockerCustomCreateDataSet(intlPrefix, formatMessage)), []);
+  const dockerCustomCreateDs = useMemo(() => new DataSet(dockerCustomCreateDataSet(intlPrefix, formatMessage, projectId)), [projectId]);
   const dockerCreateBasicDs = useMemo(() => new DataSet(dockerCreateBasicDataSet(intlPrefix, formatMessage)), []);
   const dockerImageListDs = useMemo(() => new DataSet(dockerImageListDataSet(intlPrefix, formatMessage)), []);
   const dockerImageTagDs = useMemo(() => new DataSet(dockerImageTagDataSet(intlPrefix, formatMessage, projectId)), [projectId]);

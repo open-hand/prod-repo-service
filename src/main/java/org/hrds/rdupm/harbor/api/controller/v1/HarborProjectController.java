@@ -104,4 +104,14 @@ public class HarborProjectController extends BaseController {
 	public ResponseEntity<List<HarborRepository>> listAll(@PathVariable(value = "organizationId") @ApiParam(value = "猪齿鱼组织ID") Long organizationId) {
 		return Results.success(harborRepositoryRepository.select(HarborRepository.FIELD_ORGANIZATION_ID,organizationId));
 	}
+
+	@ApiOperation(value = "项目层--harbor仓库前做名称校验")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping(value = "/check/name/{projectId}")
+	public ResponseEntity<Boolean> checkName(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
+											 @RequestParam(value = "repositoryName") String repositoryName) {
+		return Results.success(harborRepositoryRepository.checkName(projectId,repositoryName));
+	}
+
+
 }

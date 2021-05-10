@@ -56,6 +56,9 @@ public class UserDTO {
 	private Integer passwordAttempt;
 
 	private List<RoleDTO> roles;
+	private Boolean admin;
+
+
 
 	public UserDTO(){}
 

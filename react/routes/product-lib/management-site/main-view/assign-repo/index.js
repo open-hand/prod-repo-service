@@ -30,7 +30,7 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
         textField: 'name',
         cascadeMap: { organizationId: 'organizationId' },
         dynamicProps: {
-          lookupUrl: ({ record }) => `/iam/choerodon/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all`,
+          lookupUrl: ({ record }) => `/iam/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all`,
         },
         required: true,
       },
