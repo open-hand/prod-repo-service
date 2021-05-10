@@ -115,7 +115,7 @@ public class HarborHttpClient {
         url = this.setParam(url, paramMap, pathParam);
         HttpMethod httpMethod = apiEnum.getHttpMethod();
         String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
-        LOGGER.info(">>>>userName:{}", userName);
+        LOGGER.info(">>>>userName:{}", DetailsHelper.getUserDetails().toString());
         //使用admin账号认证或者当前用户名=admin或者匿名用户创建时，使用当前项目配置的账号连接
         //使用平台root账号，就使用当前项目配置的账号连接
         UserDTO userDTO = c7nBaseService.queryByLoginName(userName);
