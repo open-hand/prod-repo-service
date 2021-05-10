@@ -37,6 +37,8 @@ import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -48,6 +50,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class HarborProjectCreateHandler {
+	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private HarborHttpClient harborHttpClient;
 
@@ -76,9 +79,11 @@ public class HarborProjectCreateHandler {
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String createProjectUserSaga(String message){
 		try {
+			LOGGER.info(">>>>userName1:{}", DetailsHelper.getUserDetails().toString());
 			HarborProjectVo harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
 			UserDTO userDTO = harborProjectVo.getUserDTO();
 			harborAuthService.saveHarborUser(userDTO);
+			LOGGER.info(">>>>userName2:{}", DetailsHelper.getUserDetails().toString());
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
@@ -88,6 +93,8 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectRepoSaga(String message) throws JsonProcessingException {
+		LOGGER.info(">>>>message:{}", message);
+		LOGGER.info(">>>>userName3:{}", DetailsHelper.getUserDetails().toString());
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
