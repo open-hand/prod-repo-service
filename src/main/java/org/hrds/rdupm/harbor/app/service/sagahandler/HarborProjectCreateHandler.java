@@ -79,11 +79,9 @@ public class HarborProjectCreateHandler {
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String createProjectUserSaga(String message){
 		try {
-			LOGGER.info(">>>>userName1:{}", DetailsHelper.getUserDetails().toString());
 			HarborProjectVo harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
 			UserDTO userDTO = harborProjectVo.getUserDTO();
 			harborAuthService.saveHarborUser(userDTO);
-			LOGGER.info(">>>>userName2:{}", DetailsHelper.getUserDetails().toString());
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
@@ -93,8 +91,6 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectRepoSaga(String message) throws JsonProcessingException {
-		LOGGER.info(">>>>message:{}", message);
-		LOGGER.info(">>>>userName3:{}", DetailsHelper.getUserDetails().toString());
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
