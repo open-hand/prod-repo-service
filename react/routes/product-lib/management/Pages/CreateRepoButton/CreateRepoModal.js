@@ -123,33 +123,30 @@ const CreateRepoModal = ({
             onClick={() => createChoiceStore.setLibType(CreateLibTypeEnum.MAVEN)}
             className={classnames('product-lib-create-repo-maven-img', { 'product-lib-create-repo-lib-img-active': createChoiceStore.libType === CreateLibTypeEnum.MAVEN })}
           >
-            {createChoiceStore.libType === CreateLibTypeEnum.MAVEN &&
-              <Icon type="check_circle" className="product-lib-create-repo-lib-selector-icon" />
-            }
+            {createChoiceStore.libType === CreateLibTypeEnum.MAVEN
+              && <Icon type="check_circle" className="product-lib-create-repo-lib-selector-icon" />}
           </div>
 
           <div
             onClick={() => createChoiceStore.setLibType(CreateLibTypeEnum.DOCKER)}
             className={classnames('product-lib-create-repo-docker-img', { 'product-lib-create-repo-lib-img-active': createChoiceStore.libType === CreateLibTypeEnum.DOCKER })}
           >
-            {createChoiceStore.libType === CreateLibTypeEnum.DOCKER &&
-              <Icon type="check_circle" className="product-lib-create-repo-lib-selector-icon" />
-            }
+            {createChoiceStore.libType === CreateLibTypeEnum.DOCKER
+              && <Icon type="check_circle" className="product-lib-create-repo-lib-selector-icon" />}
           </div>
 
           <div
             onClick={() => createChoiceStore.setLibType(CreateLibTypeEnum.NPM)}
             className={classnames('product-lib-create-repo-npm-img', { 'product-lib-create-repo-lib-img-active': createChoiceStore.libType === CreateLibTypeEnum.NPM })}
           >
-            {createChoiceStore.libType === CreateLibTypeEnum.NPM &&
-              <Icon type="check_circle" className="product-lib-create-repo-lib-selector-icon" />
-            }
+            {createChoiceStore.libType === CreateLibTypeEnum.NPM
+              && <Icon type="check_circle" className="product-lib-create-repo-lib-selector-icon" />}
           </div>
         </div>
       </div>
 
-
-      {createChoiceStore.libType === CreateLibTypeEnum.MAVEN &&
+      {createChoiceStore.libType === CreateLibTypeEnum.MAVEN
+        && (
         <React.Fragment>
           <Form>
             <SelectBox
@@ -166,17 +163,15 @@ const CreateRepoModal = ({
               </Option>
             </SelectBox>
           </Form>
-          {createMavenStore.mavenCreateType === NexusCreateTypeEnum.CREATE &&
-            <MavenCreateForm {...mavenCreateFormProps} />
-          }
-          {createMavenStore.mavenCreateType === NexusCreateTypeEnum.ASSOCIATE &&
-            <MavenAssociateForm {...mavenAssociateFormProps} />
-          }
+          {createMavenStore.mavenCreateType === NexusCreateTypeEnum.CREATE
+            && <MavenCreateForm {...mavenCreateFormProps} />}
+          {createMavenStore.mavenCreateType === NexusCreateTypeEnum.ASSOCIATE
+            && <MavenAssociateForm {...mavenAssociateFormProps} />}
         </React.Fragment>
-      }
+        )}
 
-
-      {createChoiceStore.libType === CreateLibTypeEnum.DOCKER &&
+      {createChoiceStore.libType === CreateLibTypeEnum.DOCKER
+        && (
         <React.Fragment>
           <Form>
             <SelectBox
@@ -194,17 +189,15 @@ const CreateRepoModal = ({
               </Option>
             </SelectBox>
           </Form>
-          {createDockerStore.dockerCreateType === CreateDockerTypeEnum.DEFAULT &&
-            <DockerCreateForm {...dockerCreateFormProps} />
-          }
-          {createDockerStore.dockerCreateType === CreateDockerTypeEnum.CUSTOM &&
-            <DockerCustomCreateForm {...dockerCustomCreateProps} />
-          }
+          {createDockerStore.dockerCreateType === CreateDockerTypeEnum.DEFAULT
+            && <DockerCreateForm {...dockerCreateFormProps} />}
+          {createDockerStore.dockerCreateType === CreateDockerTypeEnum.CUSTOM
+            && <DockerCustomCreateForm {...dockerCustomCreateProps} />}
         </React.Fragment>
-      }
-
+        )}
       
-      {createChoiceStore.libType === CreateLibTypeEnum.NPM &&
+      {createChoiceStore.libType === CreateLibTypeEnum.NPM
+        && (
         <React.Fragment>
           <Form>
             <SelectBox
@@ -221,14 +214,12 @@ const CreateRepoModal = ({
               </Option>
             </SelectBox>
           </Form>
-          {createNpmStore.npmCreateType === NexusCreateTypeEnum.CREATE &&
-            <NpmCreateForm {...npmCreateFormProps} />
-          }
-          {createNpmStore.npmCreateType === NexusCreateTypeEnum.ASSOCIATE &&
-            <NpmAssociateForm {...npmAssociateFormProps} />
-          }
+          {createNpmStore.npmCreateType === NexusCreateTypeEnum.CREATE
+            && <NpmCreateForm {...npmCreateFormProps} />}
+          {createNpmStore.npmCreateType === NexusCreateTypeEnum.ASSOCIATE
+            && <NpmAssociateForm {...npmAssociateFormProps} />}
         </React.Fragment>
-      }
+        )}
     </React.Fragment>
   );
 };

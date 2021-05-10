@@ -4,7 +4,10 @@ import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
 import io.choerodon.core.iam.ResourceLevel;
+
+import java.util.*;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
@@ -15,7 +18,6 @@ import org.hrds.rdupm.nexus.api.dto.NexusRepositoryCreateDTO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.service.*;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
-import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerUser;
 import org.hrds.rdupm.nexus.domain.entity.NexusAuth;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
@@ -23,8 +25,6 @@ import org.hrds.rdupm.nexus.domain.entity.NexusRole;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRoleRepository;
-import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
-import org.hrds.rdupm.nexus.infra.annotation.NexusOperateLog;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
@@ -35,16 +35,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * 删除成员， nexus服务， 权限处理
+ *
  * @author weisen.yang@hand-china.com 2020-03-27
  */
 @Service
@@ -107,31 +102,32 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
     }
 
 
-
-
-
-
     public void createNewOwner(NexusRepository nexusRepository) {
-
+        //为当前的这个仓库创建一个新的仓库管理员，新的仓库管理员从项目下的项目所有者中挑选一位
         Long projectId = nexusRepository.getProjectId();
+        //可能为空
         Map<Long, UserDTO> userDTOMap = c7nBaseService.listProjectOwnerById(projectId);
-
-        //查询权限列表中属于项目所有者的信息
+        List<NexusAuth> nexusAuthList = new ArrayList<>();
         Long repositoryId = nexusRepository.getRepositoryId();
-        List<NexusAuth> nexusAuthList = nexusAuthRepository.selectByCondition(Condition.builder(NexusAuth.class)
-                .where(Sqls.custom()
-                        .andEqualTo(NexusAuth.FIELD_REPOSITORY_ID, repositoryId)
-                        .andIn(NexusAuth.FIELD_USER_ID, userDTOMap.keySet())
-                        .andNotEqualTo(NexusAuth.FIELD_USER_ID, nexusRepository.getDeleteUserId())
-                ).build());
-        //无项目所有者权限，则创建
+        //查询权限列表中属于项目所有者的信息
+        if (!MapUtils.isEmpty(userDTOMap)) {
+            nexusAuthList = nexusAuthRepository.selectByCondition(Condition.builder(NexusAuth.class)
+                    .where(Sqls.custom()
+                            .andEqualTo(NexusAuth.FIELD_REPOSITORY_ID, repositoryId)
+                            .andIn(NexusAuth.FIELD_USER_ID, userDTOMap.keySet())
+                            .andNotEqualTo(NexusAuth.FIELD_USER_ID, nexusRepository.getDeleteUserId())
+                    ).build());
+        }
+
+        //无项目所有者权限，则创建 可能为空
         UserDTO userDTO = c7nBaseService.getProjectOwnerById(projectId);
-        if (CollectionUtils.isEmpty(nexusAuthList)) {
+        if (CollectionUtils.isEmpty(nexusAuthList) && !Objects.isNull(userDTO)) {
             saveAuth(nexusRepository, userDTO);
         } else {
             //有项目所有者权限，但没有仓库管理员，则选择其中一个所有者进行更新
-            List<NexusAuth> filterList = nexusAuthList.stream().filter(dto-> NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode().equals(dto.getRoleCode()) && !dto.getUserId().equals(nexusRepository.getDeleteUserId())).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(filterList)) {
+            List<NexusAuth> filterList = nexusAuthList.stream().filter(dto -> NexusConstants.NexusRoleEnum.PROJECT_ADMIN.getRoleCode().equals(dto.getRoleCode()) && !dto.getUserId().equals(nexusRepository.getDeleteUserId())).collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(filterList) && !CollectionUtils.isEmpty(nexusAuthList) && !Objects.isNull(nexusAuthList.get(0))) {
                 updateAuth(nexusRepository, nexusAuthList.get(0));
             }
         }
@@ -157,7 +153,7 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
 
         //创建账号
         String password = RandomStringUtils.randomAlphanumeric(BaseConstants.Digital.EIGHT);
-        ProdUser prodUser = new ProdUser(nexusAuth.getUserId(), nexusAuth.getLoginName(), password,0);
+        ProdUser prodUser = new ProdUser(nexusAuth.getUserId(), nexusAuth.getLoginName(), password, 0);
         ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
         String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
 
@@ -169,6 +165,9 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
     }
 
     private void updateAuth(NexusRepository nexusRepository, NexusAuth nexusAuth) {
+        if (Objects.isNull(nexusAuth)) {
+            return;
+        }
         String oldRoleCode = nexusAuth.getRoleCode();
         String oldNeRoleId = nexusAuth.getNeRoleId();
 

@@ -11,7 +11,7 @@ import { observer } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
 import { ChunkUploader } from '@choerodon/components';
 
-const UploadPackageModal = ({ repositoryId, repositoryName, npmUploadPackageDs, modal, npmComponentDs }) => {
+const UploadPackageModal = observer(({ repositoryId, repositoryName, npmUploadPackageDs, modal, npmComponentDs }) => {
   const formData = useRef(new FormData()).current;
 
   const [uploading, setUploading] = useState(false);
@@ -109,6 +109,6 @@ const UploadPackageModal = ({ repositoryId, repositoryName, npmUploadPackageDs, 
       </div>
     </Form>
   );
-};
+});
 
-export default observer(UploadPackageModal);
+export default UploadPackageModal;

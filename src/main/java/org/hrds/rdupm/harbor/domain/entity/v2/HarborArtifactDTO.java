@@ -8,6 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hrds.rdupm.harbor.api.vo.HarborC7nImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
 
 /**
@@ -24,6 +25,6 @@ public class HarborArtifactDTO {
     private String digest;
     @SerializedName("repository_id")
     private Long repositoryId;
-    private List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo> tags;
+    private List<HarborC7nImageTagVo> tags;
 
 }

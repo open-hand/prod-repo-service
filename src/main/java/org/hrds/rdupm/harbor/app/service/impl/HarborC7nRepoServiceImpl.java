@@ -7,10 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
-import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
-import org.hrds.rdupm.harbor.api.vo.HarborImageTagVo;
-import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hrds.rdupm.harbor.api.vo.*;
 import org.hrds.rdupm.harbor.app.service.*;
 import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
@@ -131,8 +128,10 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		String paramName = repoName + BaseConstants.Symbol.SLASH + imageName;
 		List<HarborImageTagVo> harborImageTagVoList = new ArrayList<>();
 		if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
+			registryUrlResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO,null,null,true);
 			harborImageTagVoList = harborClientOperator.listImageTags(paramName);
 		} else {
+			registryUrlResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO,null,null);
 			harborImageTagVoList = harborClientOperator.listImageTags(paramName, true);
 		}
 
@@ -149,7 +148,7 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		}
 		//处理镜像版本
 		harborImageTagVoList = harborImageTagVoList.stream().sorted(Comparator.comparing(HarborImageTagVo::getPushTime).reversed()).collect(Collectors.toList());
-		List<HarborC7nRepoImageTagVo.HarborC7nImageTagVo> harborC7nImageTagVoList = ConvertUtil.convertList(harborImageTagVoList, HarborC7nRepoImageTagVo.HarborC7nImageTagVo.class);
+		List<HarborC7nImageTagVo> harborC7nImageTagVoList = ConvertUtil.convertList(harborImageTagVoList, HarborC7nImageTagVo.class);
 		harborC7nImageTagVoList.forEach(dto -> {
 			String pullCmd = String.format("docker pull %s/%s:%s", registryUrl, paramName, dto.getTagName());
 			dto.setPullCmd(pullCmd);

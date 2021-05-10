@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useCallback, useMemo, useRef } from 'react';
 import { Button } from 'choerodon-ui';
 import { Modal, DataSet } from 'choerodon-ui/pro';
@@ -16,9 +17,6 @@ const UploadPackageButton = ({ repositoryId, repositoryName, formatMessage, npmC
         name: 'repositoryName',
         type: 'string',
         label: '仓库',
-        lookupUrl: `/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/component`,
-        textField: 'name',
-        valueField: 'name',
         required: true,
       },
     ],

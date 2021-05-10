@@ -42,7 +42,6 @@
     "timeago-react": "^3.0.0"
   },
   "devDependencies": {
-    "@choerodon/components": "0.0.1",
     "@babel/plugin-proposal-decorators": "^7.12.1",
     "@babel/plugin-proposal-export-default-from": "^7.12.1",
     "@babel/preset-react": "^7.12.10",

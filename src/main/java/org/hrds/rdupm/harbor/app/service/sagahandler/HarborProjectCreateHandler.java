@@ -37,6 +37,8 @@ import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -48,6 +50,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class HarborProjectCreateHandler {
+	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private HarborHttpClient harborHttpClient;
 
