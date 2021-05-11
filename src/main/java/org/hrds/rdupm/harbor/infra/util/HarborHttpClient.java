@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.infra.util;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
+import org.omg.CORBA.UnknownUserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -228,7 +232,10 @@ public class HarborHttpClient {
             } else {
                 throw new CommonException(e.getMessage());
             }
+        } catch (ResourceAccessException exception) {
+            throw new CommonException("error.repo.url", exception.getMessage());
         }
+
         Map<String, Object> systemMap = JSONObject.parseObject(responseEntity.getBody(), Map.class);
         if (systemMap == null) {
             throw new CommonException("error.get.system.version");
