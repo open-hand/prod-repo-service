@@ -46,10 +46,9 @@ const AppModals = observer(() => {
       dockerStore.setLoadMoreBtn(res.hasNextPage);
       dockerStore.setOpeLoading(false);
       return res;
-    } else {
-      dockerStore.setOpeLoading(false);
-      return false;
     }
+    dockerStore.setOpeLoading(false);
+    return false;
   }, [logListDs]);
 
   function refresh() {
@@ -88,7 +87,13 @@ const AppModals = observer(() => {
   }
 
   function getButtons() {
-    return [
+    const result = [
+      {
+        icon: 'refresh',
+        handler: refresh,
+        display: true,
+        group: 1,
+      },
       {
         name: formatMessage({ id: `${intlPrefix}.view.globalResource` }),
         icon: 'settings_applications',
@@ -103,13 +108,12 @@ const AppModals = observer(() => {
         display: currentTab === AUTH_TAB,
         group: 1,
       },
-      {
-        name: formatMessage({ id: 'refresh' }),
-        icon: 'refresh',
-        handler: refresh,
-        display: true,
-        group: 1,
-      }];
+    ];
+    const res = result.filter((i) => i.display);
+    if (res.length !== 1) {
+      res[res.length - 1].color = 'primary';
+    }
+    return result;
   }
   const exportProps = {
     exportStore: dockerStore,
@@ -119,12 +123,11 @@ const AppModals = observer(() => {
     title: formatMessage({ id: `${intlPrefix}.view.dockerLib`, defaultMessage: 'Docker制品库' }),
   };
 
-
   return (
-    <React.Fragment>
+    <>
       <HeaderButtons items={getButtons()} />
       <ExportAuthority {...exportProps} />
-    </React.Fragment>
+    </>
   );
 });
 

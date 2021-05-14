@@ -39,10 +39,9 @@ const AppModals = observer(() => {
       npmStore.setLoadMoreBtn(res.hasNextPage);
       npmStore.setOpeLoading(false);
       return res;
-    } else {
-      npmStore.setOpeLoading(false);
-      return false;
     }
+    npmStore.setOpeLoading(false);
+    return false;
   }, [logListDs]);
 
   function refresh() {
@@ -65,21 +64,25 @@ const AppModals = observer(() => {
   }
 
   function getButtons() {
-    return [
-      {
-        name: formatMessage({ id: 'exportAuth' }),
-        icon: 'get_app',
-        handler: () => { npmStore.setExportModalVisible(true); },
-        display: currentTab === AUTH_TAB,
-        group: 1,
-      },
-      {
-        name: formatMessage({ id: 'refresh' }),
-        icon: 'refresh',
-        handler: refresh,
-        display: true,
-        group: 1,
-      }];
+    const result = [{
+      icon: 'refresh',
+      handler: refresh,
+      display: true,
+      group: 1,
+    },
+    {
+      name: formatMessage({ id: 'exportAuth' }),
+      icon: 'get_app',
+      handler: () => { npmStore.setExportModalVisible(true); },
+      display: currentTab === AUTH_TAB,
+      group: 1,
+    },
+    ];
+    const res = result.filter((i) => i.display);
+    if (res.length !== 1) {
+      res[res.length - 1].color = 'primary';
+    }
+    return result;
   }
   const exportProps = {
     exportStore: npmStore,
@@ -89,12 +92,11 @@ const AppModals = observer(() => {
     title: formatMessage({ id: `${intlPrefix}.view.npmLib`, defaultMessage: 'npm制品库' }),
   };
 
-
   return (
-    <React.Fragment>
+    <>
       <HeaderButtons items={getButtons()} />
       <ExportAuthority {...exportProps} />
-    </React.Fragment>
+    </>
   );
 });
 

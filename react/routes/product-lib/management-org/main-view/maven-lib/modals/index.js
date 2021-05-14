@@ -38,10 +38,9 @@ const AppModals = observer(() => {
       mavenStore.setLoadMoreBtn(res.hasNextPage);
       mavenStore.setOpeLoading(false);
       return res;
-    } else {
-      mavenStore.setOpeLoading(false);
-      return false;
     }
+    mavenStore.setOpeLoading(false);
+    return false;
   }, [logListDs]);
 
   function refresh() {
@@ -64,20 +63,24 @@ const AppModals = observer(() => {
   }
 
   function getButtons() {
-    return [{
+    const result = [{
+      icon: 'refresh',
+      handler: refresh,
+      display: true,
+      group: 1,
+    }, {
       name: formatMessage({ id: 'exportAuth' }),
       icon: 'get_app',
       handler: () => { mavenStore.setExportModalVisible(true); },
       display: currentTab === AUTH_TAB,
       group: 1,
     },
-    {
-      name: formatMessage({ id: 'refresh' }),
-      icon: 'refresh',
-      handler: refresh,
-      display: true,
-      group: 1,
-    }];
+    ];
+    const res = result.filter((i) => i.display);
+    if (res.length !== 1) {
+      res[res.length - 1].color = 'primary';
+    }
+    return result;
   }
 
   const exportProps = {
@@ -89,10 +92,10 @@ const AppModals = observer(() => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <HeaderButtons items={getButtons()} />
       <ExportAuthority {...exportProps} />
-    </React.Fragment>
+    </>
   );
 });
 
