@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React, { createContext, useMemo } from 'react';
 import { Page, Header, Breadcrumb } from '@choerodon/boot';
-import { Button } from 'choerodon-ui';
+import { Button } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import CreateRepoButton from '../CreateRepoButton';
 import { useStore } from '../../index';
@@ -43,7 +44,7 @@ const RepoList = ({ setActiveRepository, init }) => {
     npmAssociateDs,
   ]);
 
-  const nexusAssociateButtonProps = useMemo(() => ({ init, formatMessage }), [init, formatMessage]); 
+  const nexusAssociateButtonProps = useMemo(() => ({ init, formatMessage }), [init, formatMessage]);
 
   const repoListProps = useMemo(() => ({ setActiveRepository }), []);
   const noRepoListPageProps = useMemo(() => ({
@@ -70,14 +71,12 @@ const RepoList = ({ setActiveRepository, init }) => {
   return (
     <Page>
       <Header>
-        <CreateRepoButton {...createButtonProps} />
-        <NexusAssociateBtn {...nexusAssociateButtonProps} />
         <Button
           icon="refresh"
           onClick={() => init()}
-        >
-          {formatMessage({ id: 'refresh' })}
-        </Button>
+         />
+        <CreateRepoButton {...createButtonProps} />
+        <NexusAssociateBtn {...nexusAssociateButtonProps} />
       </Header>
       <Breadcrumb />
       {(repoListDs.records.length > 0 ? <RepoListPage {...repoListProps} /> : <NoRepoList {...noRepoListPageProps} />)}

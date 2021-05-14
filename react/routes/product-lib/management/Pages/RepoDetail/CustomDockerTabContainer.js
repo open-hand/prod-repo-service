@@ -1,9 +1,14 @@
-import React, { useMemo, useContext, useState, useRef } from 'react';
-import { Header, Content, Breadcrumb } from '@choerodon/boot';
+/* eslint-disable */
+import React, {
+  useMemo, useContext, useState, useRef,
+} from 'react';
+import {
+  Header, Content, Breadcrumb, HeaderButtons,
+} from '@choerodon/boot';
 import { Button, Tabs } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../index';
-import { RepositoryIdContext } from './../index';
+import { RepositoryIdContext } from '../index';
 import { OverView } from './CustomDockerTabs';
 
 const { TabPane } = Tabs;
@@ -12,7 +17,6 @@ export const TabKeyEnum = {
   OVERVIEW: 'overview',
   ASSOCIATE: 'associate',
 };
-
 
 const DockerTabContainer = () => {
   const overviewRef = useRef();
@@ -33,14 +37,17 @@ const DockerTabContainer = () => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <Header>
-        <Button
-          icon="refresh"
-          onClick={refresh}
-        >
-          {formatMessage({ id: 'refresh' })}
-        </Button>
+        <HeaderButtons
+          showClassName={false}
+          items={([{
+            icon: 'refresh',
+            display: true,
+            iconOnly: true,
+            handler: refresh,
+          }])}
+        />
       </Header>
 
       <Breadcrumb title={repoName} />
@@ -49,7 +56,7 @@ const DockerTabContainer = () => {
         <Tabs
           activeKey={activeTabKey}
           animated={false}
-          onChange={newActiveKey => setActiveTabKey(newActiveKey)}
+          onChange={(newActiveKey) => setActiveTabKey(newActiveKey)}
           className="product-lib-management-tabs"
         >
           <TabPane tab={formatMessage({ id: `${intlPrefix}.view.overviewRepo`, defaultMessage: '仓库总览' })} key={TabKeyEnum.OVERVIEW}>
@@ -57,7 +64,7 @@ const DockerTabContainer = () => {
           </TabPane>
         </Tabs>
       </Content>
-    </React.Fragment >
+    </>
   );
 };
 
