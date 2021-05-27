@@ -117,6 +117,7 @@ hzero:
       master-name: ${SPRING_REDIS_SENTINEL_MASTER:mymaster}
       sentinel-addresses: ${SPRING_REDIS_SENTINEL_NODES:127.0.0.1:6389,127.0.0.1:6399}
       #单节点模式
+      password: ${SPRING_REDIS_PASSWORD:}
     single-server:
       address: ${SPRING_REDIS_HOST:localhost}
       port: ${SPRING_REDIS_PORT:6379}
