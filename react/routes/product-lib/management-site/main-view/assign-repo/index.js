@@ -42,7 +42,7 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
         valueField: 'id',
         textField: 'realName',
         dynamicProps: {
-          lookupUrl: ({ record }) => `/iam/choerodon/v1/prod/projects/${record.get('projectId') || 0}/owner/list`,
+          lookupUrl: ({ record }) => `/iam/v1/prod/projects/${record.get('projectId') || 0}/owner/list`,
         },
         required: true,
       },
