@@ -109,6 +109,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         NexusServerConfig serverConfig = configService.setNexusInfoByRepositoryId(nexusClient, repositoryId);
 
         NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+        //将成员列表重名的去重
+        nexusServerRepository.setRepoMemberList(nexusServerRepository.getRepoMemberList().stream().distinct().collect(Collectors.toList()));
+
         if (nexusServerRepository == null) {
             throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
         }
