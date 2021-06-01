@@ -32,7 +32,7 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
     public void uploadJar(NexusClient nexusClient, File jarFile, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer) {
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步的分片上传方法>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         try (
-                InputStream assetJarStream = new FileInputStream(jarFile);
+                InputStream assetJarStream = jarFile != null ? new FileInputStream(jarFile) : null;
                 InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null;
         ) {
             List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();

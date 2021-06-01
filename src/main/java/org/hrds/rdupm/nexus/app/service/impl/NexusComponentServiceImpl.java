@@ -6,6 +6,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import java.io.File;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
@@ -268,10 +269,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     }
 
 
-
     @Override
     public void componentsUpload(Long organizationId, Long projectId, NexusServerComponentUpload componentUpload, String filePath, MultipartFile assetPom) {
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入分片上传方法1>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
         componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 
@@ -285,11 +284,13 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         // 设置并返回当前nexus服务信息
         NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
-        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入分片上传方法2>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        File jarfilePath = new File(filePath);
+        File jarfilePath = null;
+        //当只上传jar包的时候，filePath就为空
+        if (StringUtils.isNotBlank(filePath)) {
+            jarfilePath = new File(filePath);
+        }
         nexusComponentHandService.uploadJar(nexusClient, jarfilePath, assetPom, componentUpload, currentNexusServer);
     }
-
 
 
     @Override
