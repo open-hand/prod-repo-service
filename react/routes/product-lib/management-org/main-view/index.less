@@ -1,113 +1,102 @@
-@import '~choerodon-ui/lib/style/themes/default';
+@import "~choerodon-ui/lib/style/themes/default";
 
 .product-lib-org-management {
-    position: relative;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    height: calc(100% - 1.04rem);
-    width: 100%;
-    border-top: 0.01rem solid rgba(0, 0, 0, 0.12);
-    .page-content {
-      padding: 20px;
-    }
+  position: relative;
+  display: flex;
+  height: calc(100% - 1.04rem);
+  width: 100%;
+  border-top: 0.01rem solid rgba(0, 0, 0, 0.12);
+  .page-content {
+    padding: 20px;
+  }
   &-lib-type-list {
     overflow: scroll;
     height: calc(100% + 52px);
     width: 1.18rem;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
     flex-direction: column;
     border-right: 1px solid #d8d8d8;
-    padding: 12px 0 0 12px;
     &-item {
-     &-selector-icon {
-      color: rgba(104, 135, 232, 1);
-      position: absolute;
-      padding-bottom: 0.42rem;
-      margin-left: 0.53rem;
-      font-size: 0.12rem;
-    }
+      &-selector-icon {
+        color: rgba(104, 135, 232, 1);
+        position: absolute;
+        padding-bottom: 0.42rem;
+        margin-left: 0.53rem;
+        font-size: 0.12rem;
+      }
       margin-top: 0.2rem;
       margin-left: 0.17rem;
       cursor: pointer;
-      width: .7rem;
-      height: .6rem;
+      width: 0.7rem;
+      height: 0.6rem;
       background: rgba(255, 255, 255, 1);
-      border-radius: .04rem;
-      border: .01rem solid  rgba(236, 238, 246, 1);
+      border-radius: 0.04rem;
+      border: 0.01rem solid rgba(236, 238, 246, 1);
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: .20rem;
+      margin-bottom: 0.2rem;
       &-docker {
-        width: .58rem;
-        height: .48rem;
+        width: 0.58rem;
+        height: 0.48rem;
         background: url("./image/docker.png") no-repeat;
         background-size: contain;
       }
       &-maven {
         background: url("./image/maven.png") no-repeat;
         background-size: contain;
-        width: .58rem;
+        width: 0.58rem;
         // height: .48rem;
-        height: .20rem;
+        height: 0.2rem;
         margin-top: 5px;
       }
       &-npm {
         background: url("./image/npm.png") no-repeat;
         background-size: contain;
-        width: .58rem;
-        height: .30rem;
+        width: 0.58rem;
+        height: 0.3rem;
         margin-top: 5px;
       }
     }
     &-item:hover {
       cursor: pointer;
-      width: .7rem;
-      height: .6rem;
+      width: 0.7rem;
+      height: 0.6rem;
       background: rgba(255, 255, 255, 1);
-      border-radius: .04rem;
-      border: .01rem solid  rgba(82, 102, 212, 1);
-      box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
-      -moz-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
-      -webkit-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
-      transition: border .5s;
+      border-radius: 0.04rem;
+      border: 0.01rem solid rgba(82, 102, 212, 1);
+      box-shadow: 0 0.02rem 0.02rem 0 rgba(202, 202, 228, 1);
+      -moz-box-shadow: 0 0.02rem 0.02rem 0 rgba(202, 202, 228, 1);
+      -webkit-box-shadow: 0 0.02rem 0.02rem 0 rgba(202, 202, 228, 1);
+      transition: border 0.5s;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: .20rem;
+      margin-bottom: 0.2rem;
     }
     &-item-selected {
       margin-top: 0.2rem;
       margin-left: 0.17rem;
       cursor: pointer;
-      width: .7rem;
-      height: .6rem;
+      width: 0.7rem;
+      height: 0.6rem;
       background: rgba(255, 255, 255, 1);
-      border-radius: .04rem;
-      border: .01rem solid  rgba(82, 102, 212, 1);
-      box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
-      -moz-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
-      -webkit-box-shadow: 0 .02rem .02rem 0 rgba(202, 202, 228, 1);
-      transition: border .5s;
+      border-radius: 0.04rem;
+      border: 0.01rem solid rgba(82, 102, 212, 1);
+      box-shadow: 0 0.02rem 0.02rem 0 rgba(202, 202, 228, 1);
+      -moz-box-shadow: 0 0.02rem 0.02rem 0 rgba(202, 202, 228, 1);
+      -webkit-box-shadow: 0 0.02rem 0.02rem 0 rgba(202, 202, 228, 1);
+      transition: border 0.5s;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: .20rem;
+      margin-bottom: 0.2rem;
       &-icon {
         position: absolute;
         /* float: right; */
-        top: .23rem;
-        left: .8rem;
-        font-size: .12rem;
+        top: 0.23rem;
+        left: 0.8rem;
+        font-size: 0.12rem;
         /* margin: 1px; */
         /* background: rgba(104,135,232,1); */
         color: rgba(104, 135, 232, 1);
@@ -123,16 +112,19 @@
     }
   }
   &-tab-page-content {
-     height: calc(100% + 36px);
+    height: calc(100% + 36px);
     margin-left: 0 !important;
     .@{c7n-prefix}-tabs {
       height: 100%;
     }
-    .@{c7n-prefix}-tabs:not(.@{c7n-prefix}-tabs-vertical) > .@{c7n-prefix}-tabs-content {
+    .@{c7n-prefix}-tabs:not(.@{c7n-prefix}-tabs-vertical)
+      > .@{c7n-prefix}-tabs-content {
       width: 100%;
       height: 100%;
     }
-    .@{c7n-prefix}-tabs:not(.@{c7n-prefix}-tabs-vertical) > .@{c7n-prefix}-tabs-content > .@{c7n-prefix}-tabs-tabpane {
+    .@{c7n-prefix}-tabs:not(.@{c7n-prefix}-tabs-vertical)
+      > .@{c7n-prefix}-tabs-content
+      > .@{c7n-prefix}-tabs-tabpane {
       -webkit-flex-shrink: 0;
       -ms-flex-negative: 0;
       flex-shrink: 0;
@@ -153,8 +145,8 @@
     -ms-flex-direction: column;
     flex-direction: column;
     .page-content-header .description {
-      font-size: .13rem;
-      line-height: .20rem;
+      font-size: 0.13rem;
+      line-height: 0.2rem;
       margin-bottom: 0;
     }
   }
