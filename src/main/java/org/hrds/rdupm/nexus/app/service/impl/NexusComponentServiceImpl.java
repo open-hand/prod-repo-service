@@ -4,6 +4,7 @@ import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
+import com.google.inject.internal.asm.$Attribute;
 import java.io.File;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -289,7 +290,13 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         if (StringUtils.isNotBlank(filePath)) {
             jarfilePath = new File(filePath);
         }
-        nexusComponentHandService.uploadJar(nexusClient, jarfilePath, assetPom, componentUpload, currentNexusServer);
+        InputStream assetPomStream = null;
+        try {
+            assetPomStream = assetPom != null ? assetPom.getInputStream() : null;
+        } catch (IOException e) {
+            logger.error("获取文件输入流失败", e);
+        }
+        nexusComponentHandService.uploadJar(nexusClient, jarfilePath, componentUpload, currentNexusServer, assetPomStream);
     }
 
 

@@ -29,11 +29,10 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
 
     @Override
     @Async
-    public void uploadJar(NexusClient nexusClient, File jarFile, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer) {
+    public void uploadJar(NexusClient nexusClient, File jarFile, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer, InputStream assetPomStream) {
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>进入异步的分片上传方法>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         try (
                 InputStream assetJarStream = jarFile != null ? new FileInputStream(jarFile) : null;
-                InputStream assetPomStream = assetPom != null ? assetPom.getInputStream() : null;
         ) {
             List<NexusServerAssetUpload> assetUploadList = new ArrayList<>();
             if (assetJarStream != null) {
@@ -55,6 +54,13 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
         } finally {
             // remove配置信息
             nexusClient.removeNexusServerInfo();
+            if (assetPomStream != null) {
+                try {
+                    assetPomStream.close();
+                } catch (IOException e) {
+                    logger.error("关闭流失败", e);
+                }
+            }
         }
     }
 

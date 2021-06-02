@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.app.service;
 
 import java.io.File;
+import java.io.InputStream;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
@@ -12,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface NexusComponentHandService {
 
-    void uploadJar(NexusClient nexusClient, File filePath, MultipartFile assetPom, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer);
+    void uploadJar(NexusClient nexusClient, File filePath, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer, InputStream inputStream);
 
 
     void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
