@@ -4,9 +4,9 @@
 * @creationDate 2020/4/28
 * @copyright 2020 ® HAND
 */
+/* eslint-disable */
 import React, { useCallback } from 'react';
-import { Modal } from 'choerodon-ui/pro';
-import { Button } from 'choerodon-ui';
+import { Modal, Button } from 'choerodon-ui/pro';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import { axios, stores, Permission } from '@choerodon/boot';
 import { intlPrefix } from '../../../index';

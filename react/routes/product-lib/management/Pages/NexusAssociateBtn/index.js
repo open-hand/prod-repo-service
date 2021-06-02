@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useCallback, useMemo } from 'react';
 import { Tooltip, Icon } from 'choerodon-ui';
 import { Modal, Button } from 'choerodon-ui/pro';
@@ -44,6 +45,7 @@ const NexusAssociateBtn = ({ formatMessage, init }) => {
       <Button
         icon="filter_center_focus"
         onClick={openModal}
+        color="primary"
       >
         {formatMessage({ id: `${intlPrefix}.view.customNexus`, defaultMessage: '自定义nexus服务' })}
       </Button>

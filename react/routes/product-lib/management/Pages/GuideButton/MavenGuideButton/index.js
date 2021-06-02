@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
 * 制品库配置指引
 * @author JZH <zhihao.jiang@hand-china.com>
@@ -5,8 +6,7 @@
 * @copyright 2020 ® HAND
 */
 import React, { useCallback } from 'react';
-import { Modal } from 'choerodon-ui/pro';
-import { Button } from 'choerodon-ui';
+import { Modal, Button } from 'choerodon-ui/pro';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import { axios, Permission } from '@choerodon/boot';
 import { intlPrefix } from '../../../index';

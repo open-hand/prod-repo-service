@@ -4,14 +4,20 @@
  * @creationDate 2020/4/38
  * @copyright 2020 ® HAND
  */
-import React, { useMemo, useContext, useState, useRef } from 'react';
+/* eslint-disable */
+import React, {
+  useMemo, useContext, useState, useRef,
+} from 'react';
 import { Header, Content, Breadcrumb } from '@choerodon/boot';
-import { Button, Tabs } from 'choerodon-ui';
+import { Tabs } from 'choerodon-ui';
+import { Button } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { useCheckPermission } from '@/utils';
 import { useStore } from '../../index';
-import { RepositoryIdContext } from './../index';
-import { OverView, ImageList, AuthList, OptLog } from './DockerTabs';
+import { RepositoryIdContext } from '../index';
+import {
+  OverView, ImageList, AuthList, OptLog,
+} from './DockerTabs';
 import { DockerGuideButton } from '../GuideButton';
 import { DockerAddMemberButton } from '../AddAuthButton';
 
@@ -52,11 +58,11 @@ const DockerTabContainer = (props) => {
 
   const overViewProps = useMemo(() => ({ harborId, formatMessage, activeTabKey }), [formatMessage, activeTabKey, harborId]);
 
-  const imageListProps = useMemo(() => ({ 
-    dockerImageTagDs, 
-    dockerImageListDs, 
-    harborId, 
-    formatMessage, 
+  const imageListProps = useMemo(() => ({
+    dockerImageTagDs,
+    dockerImageListDs,
+    harborId,
+    formatMessage,
     activeTabKey,
     dockerImageScanDetailsDs,
     // getCurrentTheme,
@@ -80,16 +86,16 @@ const DockerTabContainer = (props) => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <Header>
-        <DockerGuideButton {...guideButtonProps} />
-        {activeTabKey === TabKeyEnum.USER_AUTH && <DockerAddMemberButton {...addMemberButtonProps} />}
         <Button
           icon="refresh"
           onClick={refresh}
         >
           {formatMessage({ id: 'refresh' })}
         </Button>
+        <DockerGuideButton {...guideButtonProps} />
+        {activeTabKey === TabKeyEnum.USER_AUTH && <DockerAddMemberButton {...addMemberButtonProps} />}
       </Header>
 
       <Breadcrumb title={name} />
@@ -98,11 +104,11 @@ const DockerTabContainer = (props) => {
         <Tabs
           activeKey={activeTabKey}
           animated={false}
-          onChange={newActiveKey => setActiveTabKey(newActiveKey)}
+          onChange={(newActiveKey) => setActiveTabKey(newActiveKey)}
           className="product-lib-management-tabs"
         >
-          {allPermission &&
-            [
+          {allPermission
+            && [
               <TabPane tab={formatMessage({ id: `${intlPrefix}.view.overviewRepo`, defaultMessage: '仓库总览' })} key={TabKeyEnum.OVERVIEW}>
                 <OverView ref={overviewRef} {...overViewProps} />
               </TabPane>,
@@ -112,16 +118,16 @@ const DockerTabContainer = (props) => {
               <TabPane tab={formatMessage({ id: `${intlPrefix}.view.userAuth`, defaultMessage: '用户权限' })} key={TabKeyEnum.USER_AUTH}>
                 <AuthList {...authListProps} />
               </TabPane>,
-            ]
-          }
-          {ownerPermission &&
+            ]}
+          {ownerPermission
+            && (
             <TabPane tab={formatMessage({ id: `${intlPrefix}.view.optLog`, defaultMessage: '操作日志' })} key={TabKeyEnum.OPT_LOG}>
               <OptLog {...optLogProps} activeRepository={props.activeRepository} />
             </TabPane>
-          }
+            )}
         </Tabs>
       </Content>
-    </React.Fragment >
+    </>
   );
 };
 

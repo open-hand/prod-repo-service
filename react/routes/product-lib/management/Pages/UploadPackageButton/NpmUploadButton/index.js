@@ -1,7 +1,6 @@
 /* eslint-disable */
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Button } from 'choerodon-ui';
-import { Modal, DataSet } from 'choerodon-ui/pro';
+import { Modal, DataSet, Button } from 'choerodon-ui/pro';
 import { Permission, stores } from '@choerodon/boot';
 import UploadPackageModal from './UploadPackageModal';
 import { useUserAuth } from '../../index';

@@ -1,4 +1,5 @@
 // stores/index.js
+/* eslint-disable */
 import React, { createContext, useContext, useMemo } from 'react';
 import { DataSet } from 'choerodon-ui/pro';
 import { inject } from 'mobx-react';
@@ -59,7 +60,7 @@ export default injectIntl(inject('AppState')((props) => {
   const npmOverViewDs = useMemo(() => new DataSet(overViewDataSet(intlPrefix, formatMessage, organizationId, projectId)), [organizationId, projectId]);
   const npmComponentDs = useMemo(() => new DataSet(npmComponentDataSet(formatMessage, organizationId, projectId)), [organizationId, projectId]);
   const npmOptLogDs = useMemo(() => new DataSet(npmOptLogDataSet(intlPrefix, formatMessage, organizationId)), [organizationId]);
-  
+
   const mavenAssociateDs = useMemo(() => new DataSet(mavenAssociateDataSet(formatMessage)), []);
   const npmAssociateDs = useMemo(() => new DataSet(npmAssociateDataSet(formatMessage)), []);
 

@@ -1,6 +1,6 @@
+/* eslint-disable */
 import React, { useCallback, useMemo } from 'react';
-import { Button } from 'choerodon-ui';
-import { Modal } from 'choerodon-ui/pro';
+import { Modal, Button } from 'choerodon-ui/pro';
 import { Permission } from '@choerodon/boot';
 import AddMemberModal from './AddMemberModal';
 import { useUserAuth } from '../../index';
@@ -25,8 +25,9 @@ const AddMemberButton = ({ formatMessage, dockerAuthDs }) => {
   }, []);
 
   return (
-    <React.Fragment>
-      {userAuth?.includes('projectAdmin') &&
+    <>
+      {userAuth?.includes('projectAdmin')
+        && (
         <Permission service={['choerodon.code.project.infra.product-lib.ps.project-owner-harbor']}>
           <Button
             icon="playlist_add"
@@ -35,8 +36,8 @@ const AddMemberButton = ({ formatMessage, dockerAuthDs }) => {
             {formatMessage({ id: `${intlPrefix}.view.addMember`, defaultMessage: '添加成员' })}
           </Button>
         </Permission>
-      }
-    </React.Fragment>
+)}
+    </>
   );
 };
 
