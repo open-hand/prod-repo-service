@@ -19,6 +19,7 @@ import {
 import { NpmGuideButton } from '../GuideButton';
 import { NpmUploadButton } from '../UploadPackageButton';
 import { MavenAddMemberButton } from '../AddAuthButton';
+import { HeaderButtons } from '@choerodon/master';
 
 const { TabPane } = Tabs;
 
@@ -76,20 +77,33 @@ const NpmTabContainer = (props) => {
     }
   };
 
+  debugger
+
   return (
     <>
       <Header>
-        <Button
-          icon="refresh"
-          onClick={() => refresh()}
-        >
-          {formatMessage({ id: 'refresh' })}
-        </Button>
-        <NpmGuideButton {...guideButtonProps} />
-        {activeTabKey === TabKeyEnum.PACKAGE_LIST && type === 'hosted' && enableFlag === 'Y'
-          && <NpmUploadButton {...uploadPackageButtonProps} />}
-        {/* npm和maven是一样的 */}
-        {activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y' && <MavenAddMemberButton {...addMemberButtonProps} activeRepository={props.activeRepository} />}
+        <HeaderButtons 
+          items={[
+            {
+              display: activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y',
+              element: <MavenAddMemberButton {...addMemberButtonProps} activeRepository={props.activeRepository} />,
+            },
+            {
+              display: activeTabKey === TabKeyEnum.PACKAGE_LIST && type === 'hosted' && enableFlag === 'Y',
+              element: <NpmUploadButton {...uploadPackageButtonProps} />,
+            },
+            {
+              element: <NpmGuideButton {...guideButtonProps} />
+            },
+            {
+              iconOnly: true,
+              icon: 'refresh',
+              name: formatMessage({ id: 'refresh' }),
+              handler: refresh,
+              color: 'default'
+            }
+          ]}
+        />
       </Header>
 
       <Breadcrumb title={name} />

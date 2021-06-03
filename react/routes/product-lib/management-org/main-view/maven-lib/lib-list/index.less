@@ -28,7 +28,7 @@
     justify-content: space-between;
     &-text {
       // width: ~'calc(100% - 32px)';
-      color: #000;
+      color: var(--text-color);
       overflow: hidden;
       text-overflow: ellipsis;
       &:hover {
@@ -89,7 +89,7 @@
       &-title {
         font-size: 0.15rem;
         font-weight: 500;
-        color: rgba(0, 0, 0, 1);
+        color: var(--text-color);
         line-height: 0.21rem;
         &:hover {
           color: @primary-color;
@@ -103,9 +103,9 @@
       margin-top: 0.19rem;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color: rgba(0, 0, 0, 0.54);
+      color: var(--text-color4);
       &-text {
-        color: rgba(0, 0, 0, 1);
+        color: var(--text-color);
       }
       &-date {
         display: flex;
@@ -140,7 +140,7 @@
           font-size: 0.17rem;
           margin-right: 0.05rem;
           margin-bottom: 0.02rem;
-          color: rgba(0, 0, 0, 1) !important;
+          color: var(--text-color) !important;
         }
       }
     }

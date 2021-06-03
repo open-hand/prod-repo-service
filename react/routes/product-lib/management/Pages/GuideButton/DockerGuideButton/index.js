@@ -12,7 +12,7 @@ import { axios, stores, Permission } from '@choerodon/boot';
 import { intlPrefix } from '../../../index';
 import DockerGuideModal from './DockerGuideModal';
 
-const GuideButton = ({ formatMessage, name }) => {
+const GuideButton = ({ formatMessage, name }, ...props) => {
   const guideInfo = useLocalStore(() => ({
     info: {},
     setGuideInfo(info) {
@@ -53,7 +53,7 @@ const GuideButton = ({ formatMessage, name }) => {
         'choerodon.code.project.infra.product-lib.ps.project-member-harbor',
       ]}
     >
-      <Button icon="find_in_page-o" onClick={handleOpenGuideModal}>
+      <Button icon="find_in_page-o" onClick={handleOpenGuideModal} {...props}>
         {formatMessage({ id: `${intlPrefix}.view.configGuideTitle`, defaultMessage: '配置指引' })}
       </Button>
     </Permission>
