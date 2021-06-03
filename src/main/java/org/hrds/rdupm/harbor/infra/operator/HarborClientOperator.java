@@ -269,6 +269,12 @@ public class HarborClientOperator {
                 }
                 dto.setScanOverviewJson(null);
                 dto.setExtraAttrs(null);
+
+                //V2版本的harbor 处理tagName
+                if (StringUtils.isBlank(dto.getTagName()) && CollectionUtils.isNotEmpty(dto.getTags())) {
+                    dto.setTagName(dto.getTags().get(0).getName());
+                }
+
             });
         }
         //对镜像的列表进行按照推送时间排序
