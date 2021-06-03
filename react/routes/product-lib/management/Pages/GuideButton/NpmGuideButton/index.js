@@ -40,14 +40,6 @@ const GuideButton = ({ formatMessage, npmOverViewDs }) => {
       setRegistory: `npm config set registry=${url}`,
       login: 'npm login',
       pull: `npm install testDemo@1.1.0 --registry=${url}`,
-      // packagejson: JSON.stringify({
-      //   name: 'testDemo',
-      //   version: '1.1.0',
-      //   description: '',
-      //   main: 'index.js',
-      //   author: '',
-      //   license: 'MIT',
-      // }),
       packagejson: '{\n    "name": testDemo,\n    "version": 1.1.0,\n    "description": "",\n    "main": index.js,\n    "author": "",\n    "license": MIT\n }',
       pushcmd: `npm publish --registry=${url}`,
     });

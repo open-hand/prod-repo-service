@@ -15,6 +15,7 @@ import { observer } from 'mobx-react-lite';
 import { useCheckPermission } from '@/utils';
 import { useStore } from '../../index';
 import { RepositoryIdContext } from '../index';
+import { HeaderButtons } from '@choerodon/master';
 import {
   OverView, ImageList, AuthList, OptLog,
 } from './DockerTabs';
@@ -88,14 +89,24 @@ const DockerTabContainer = (props) => {
   return (
     <>
       <Header>
-        <Button
-          icon="refresh"
-          onClick={refresh}
-        >
-          {formatMessage({ id: 'refresh' })}
-        </Button>
-        <DockerGuideButton {...guideButtonProps} />
-        {activeTabKey === TabKeyEnum.USER_AUTH && <DockerAddMemberButton {...addMemberButtonProps} />}
+      <HeaderButtons 
+          items={[
+            {
+              display: activeTabKey === TabKeyEnum.USER_AUTH ,
+              element:  <DockerAddMemberButton {...addMemberButtonProps} />,
+            },
+            {
+              element: <DockerGuideButton {...guideButtonProps} />
+            },
+            {
+              iconOnly: true,
+              icon: 'refresh',
+              name: formatMessage({ id: 'refresh' }),
+              handler: refresh,
+              color: 'default'
+            }
+          ]}
+        />
       </Header>
 
       <Breadcrumb title={name} />

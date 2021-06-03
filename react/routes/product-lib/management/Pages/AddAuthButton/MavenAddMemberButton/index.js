@@ -7,7 +7,7 @@ import { useUserAuth, useAuthPermisson } from '../../index';
 
 const intlPrefix = 'infra.prod.lib';
 
-const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRepository }) => {
+const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRepository }, ...props) => {
   const userAuth = useUserAuth();
 
   const addMemberModalProps = useMemo(() => ({ repositoryId, formatMessage, publishAuthDs }), [repositoryId, publishAuthDs, formatMessage]);
@@ -38,6 +38,8 @@ const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRep
           <Button
             icon="playlist_add"
             onClick={openModal}
+            color="primary"
+            {...props}
           >
             {formatMessage({ id: `${intlPrefix}.view.addMember`, defaultMessage: '添加成员' })}
           </Button>
@@ -54,6 +56,8 @@ const AddMemberButton = ({ repositoryId, formatMessage, publishAuthDs, activeRep
         <Button
           icon="playlist_add"
           onClick={openModal}
+          color="primary"
+          {...props}
         >
           {formatMessage({ id: `${intlPrefix}.view.addMember`, defaultMessage: '添加成员' })}
         </Button>

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
 * 镜像列表
 * @author JZH <zhihao.jiang@hand-china.com>
@@ -6,7 +7,9 @@
 */
 import React, { useEffect, useMemo } from 'react';
 import { Icon, message } from 'choerodon-ui';
-import { Spin, Form, TextField, Pagination, Modal } from 'choerodon-ui/pro';
+import {
+  Spin, Form, TextField, Pagination, Modal,
+} from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
 import { axios, stores, Action } from '@choerodon/boot';
@@ -18,7 +21,9 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetailsDs, formatMessage, activeTabKey }) => {
+const ImageList = ({
+  dockerImageTagDs, dockerImageListDs, dockerImageScanDetailsDs, formatMessage, activeTabKey,
+}) => {
   const userAuth = useUserAuth();
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.DOCKER_IMAGE) {
@@ -48,9 +53,10 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetails
         }
       },
       footer: ((okBtn, cancelBtn) => (
-        <React.Fragment>
-          {cancelBtn}{okBtn}
-        </React.Fragment>
+        <>
+          {cancelBtn}
+          {okBtn}
+        </>
       )),
       movable: false,
     });
@@ -101,6 +107,7 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetails
             dockerImageListDs.query();
           }
         }}
+        role="none"
       >
         <Form dataSet={dockerImageListDs.queryDataSet}>
           <TextField name="imageName" />
@@ -108,36 +115,38 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetails
       </div>
       {dockerImageListDs.records.length > 0
         ? (
-          <React.Fragment>
+          <>
             <ul className="product-lib-docker-imagelist-list">
               {
-              imageList.map(data => {
-                const { imageId, imageName, updateTime, tagsCount, pullCount } = data;
+              imageList.map((data) => {
+                const {
+                  imageId, imageName, updateTime, tagsCount, pullCount,
+                } = data;
                 return (
                   <li
                     key={imageId}
                     className="product-lib-docker-imagelist-record-card"
                   >
                     <div style={{ width: '100%', paddingBottom: '10px' }}>
-                      <div className="product-lib-docker-imagelist-record-card-image-name" onClick={() => openTagModal(data)}>
+                      <div role="none" className="product-lib-docker-imagelist-record-card-image-name" onClick={() => openTagModal(data)}>
                         <span className="link-cell">{imageName}</span>
                       </div>
                       <div style={{ display: 'flex', marginTop: '10px' }}>
                         <div className="product-lib-docker-imagelist-record-card-updateTime" style={{ width: '30%' }}>
                           <Icon type="date_range-o" style={{ marginRight: '2px' }} />
                           {`${formatMessage({ id: `${intlPrefix}.model.updateTime`, defaultMessage: '最新更新时间' })}：`}
-                          <span style={{ color: 'rgba(0,0,0,1)' }}>{moment(updateTime).format('YYYY-MM-DD HH:mm:ss')}</span>
+                          <span style={{ color: 'var(--text-color)' }}>{moment(updateTime).format('YYYY-MM-DD HH:mm:ss')}</span>
                         </div>
                         <div className="product-lib-docker-imagelist-record-card-updateTime" style={{ width: '30%' }}>
                           <Icon type="book-o" style={{ marginRight: '2px' }} />
                           {`${formatMessage({ id: `${intlPrefix}.model.tagsCount`, defaultMessage: '版本数' })}：`}
-                          <span style={{ color: 'rgba(0,0,0,1)' }}>{tagsCount}</span>
+                          <span style={{ color: 'var(--text-color)' }}>{tagsCount}</span>
                         </div>
 
                         <div className="product-lib-docker-imagelist-record-card-updateTime" style={{ width: '30%' }}>
                           <Icon type="get_app-o" style={{ marginRight: '2px' }} />
                           {`${formatMessage({ id: `${intlPrefix}.model.pullCount`, defaultMessage: '下载数' })}：`}
-                          <span style={{ color: 'rgba(0,0,0,1)' }}>{pullCount}</span>
+                          <span style={{ color: 'var(--text-color)' }}>{pullCount}</span>
                         </div>
                       </div>
                     </div>
@@ -177,7 +186,7 @@ const ImageList = ({ dockerImageTagDs, dockerImageListDs, dockerImageScanDetails
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Pagination dataSet={dockerImageListDs} />
             </div>
-          </React.Fragment>
+          </>
         )
         : (
           <div className="product-lib-docker-imagelist-no-content">

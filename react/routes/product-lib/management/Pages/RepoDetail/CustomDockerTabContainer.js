@@ -3,8 +3,9 @@ import React, {
   useMemo, useContext, useState, useRef,
 } from 'react';
 import {
-  Header, Content, Breadcrumb, HeaderButtons,
+  Header, Content, Breadcrumb,
 } from '@choerodon/boot';
+import { HeaderButtons } from '@choerodon/master';
 import { Button, Tabs } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../index';
@@ -46,6 +47,7 @@ const DockerTabContainer = () => {
             display: true,
             iconOnly: true,
             handler: refresh,
+            color: 'default'
           }])}
         />
       </Header>

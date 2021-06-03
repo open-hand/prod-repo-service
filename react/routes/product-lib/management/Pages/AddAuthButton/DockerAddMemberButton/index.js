@@ -7,7 +7,7 @@ import { useUserAuth } from '../../index';
 
 const intlPrefix = 'infra.prod.lib';
 
-const AddMemberButton = ({ formatMessage, dockerAuthDs }) => {
+const AddMemberButton = ({ formatMessage, dockerAuthDs }, ...props) => {
   const userAuth = useUserAuth();
   const addMemberModalProps = useMemo(() => ({ formatMessage, dockerAuthDs }), [dockerAuthDs, formatMessage]);
 
@@ -32,11 +32,13 @@ const AddMemberButton = ({ formatMessage, dockerAuthDs }) => {
           <Button
             icon="playlist_add"
             onClick={openModal}
+            color="primary"
+            {...props}
           >
             {formatMessage({ id: `${intlPrefix}.view.addMember`, defaultMessage: '添加成员' })}
           </Button>
         </Permission>
-)}
+        )}
     </>
   );
 };

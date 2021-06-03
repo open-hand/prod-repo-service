@@ -34,7 +34,7 @@ body[data-theme="theme4"] {
     justify-content: space-between;
     &-text {
       // width: ~'calc(100% - 32px)';
-      color: #000;
+      color: var(--text-color);
       overflow: hidden;
       text-overflow: ellipsis;
       &:hover {
@@ -126,9 +126,9 @@ body[data-theme="theme4"] {
       margin-top: 0.12rem;
       font-family: PingFangSC-Regular, PingFang SC;
       font-weight: 400;
-      color: rgba(0, 0, 0, 0.54);
+      color: var(--text-color4);
       &-text {
-        color: rgba(0, 0, 0, 1);
+        color: var(--text-color);
       }
       &-date {
         display: flex;
@@ -162,7 +162,7 @@ body[data-theme="theme4"] {
           font-size: 0.17rem;
           margin-right: 0.05rem;
           margin-bottom: 0.02rem;
-          color: rgba(0, 0, 0, 1) !important;
+          color: var(--text-color) !important;
         }
       }
     }
@@ -205,7 +205,7 @@ body[data-theme="theme4"] {
       color: rgba(0, 0, 0, 0.65);
     }
     &-click-table-name {
-      color: #000;
+      color: var(--text-color);
       line-height: .20rem;
       // margin-left: .08rem;
 

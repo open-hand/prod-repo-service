@@ -1,6 +1,6 @@
 import React, { useRef, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import HeaderButtons from '../../../components/header-buttons/index';
+import { HeaderButtons, Header } from '@choerodon/master';
 import { useNpmStore } from '../stores';
 import ExportAuthority from './export-authority';
 import './index.less';
@@ -64,24 +64,19 @@ const AppModals = observer(() => {
   }
 
   function getButtons() {
-    const result = [{
-      icon: 'refresh',
-      handler: refresh,
-      display: true,
-      group: 1,
-    },
-    {
-      name: formatMessage({ id: 'exportAuth' }),
-      icon: 'get_app',
-      handler: () => { npmStore.setExportModalVisible(true); },
-      display: currentTab === AUTH_TAB,
-      group: 1,
-    },
+    const result = [
+      {
+        name: formatMessage({ id: 'exportAuth' }),
+        icon: 'get_app',
+        handler: () => { npmStore.setExportModalVisible(true); },
+        display: currentTab === AUTH_TAB,
+      },
+      {
+        icon: 'refresh',
+        handler: refresh,
+        iconOnly: true,
+      },
     ];
-    const res = result.filter((i) => i.display);
-    if (res.length !== 1) {
-      res[res.length - 1].color = 'primary';
-    }
     return result;
   }
   const exportProps = {
@@ -94,7 +89,9 @@ const AppModals = observer(() => {
 
   return (
     <>
-      <HeaderButtons items={getButtons()} />
+      <Header>
+        <HeaderButtons items={getButtons()} />
+      </Header>
       <ExportAuthority {...exportProps} />
     </>
   );

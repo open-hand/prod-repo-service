@@ -13,6 +13,7 @@ import { observer } from 'mobx-react-lite';
 import { useCheckPermission } from '@/utils';
 import { useStore } from '../../index';
 import { RepositoryIdContext } from '../index';
+import { HeaderButtons } from '@choerodon/master';
 import {
   OverView, NexusComponent, PublishAuth, OptLog,
 } from './MavenTabs';
@@ -81,16 +82,28 @@ const MavenTabContainer = (props) => {
   return (
     <>
       <Header>
-        <Button
-          icon="refresh"
-          onClick={() => refresh()}
-        >
-          {formatMessage({ id: 'refresh' })}
-        </Button>
-        <MavenGuideButton {...guideButtonProps} />
-        {activeTabKey === TabKeyEnum.NEXUS_COMPONENT && type === 'hosted' && versionPolicy === 'RELEASE' && enableFlag === 'Y'
-          && <MavenUploadButton {...uploadPackageButtonProps} />}
-        {activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y' && <MavenAddMemberButton {...addMemberButtonProps} activeRepository={props.activeRepository} />}
+      <HeaderButtons 
+          items={[
+            {
+              display:activeTabKey === TabKeyEnum.PUBLIST_AUTH && enableFlag === 'Y',
+              element: <MavenAddMemberButton {...addMemberButtonProps} activeRepository={props.activeRepository} />
+            },
+            {
+              display: activeTabKey === TabKeyEnum.NEXUS_COMPONENT && type === 'hosted' && versionPolicy === 'RELEASE' && enableFlag === 'Y',
+              element:  <MavenUploadButton {...uploadPackageButtonProps} />,
+            },
+            {
+              element: <MavenGuideButton {...guideButtonProps} />
+            },
+            {
+              iconOnly: true,
+              icon: 'refresh',
+              name: formatMessage({ id: 'refresh' }),
+              handler: refresh,
+              color: 'default'
+            }
+          ]}
+        />
       </Header>
 
       <Breadcrumb title={name} />

@@ -2,7 +2,7 @@ import React, { useRef, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 // import { Modal } from 'choerodon-ui/pro';
 import { Modal } from 'choerodon-ui/pro';
-import HeaderButtons from '../../../components/header-buttons/index';
+import { HeaderButtons, Header } from '@choerodon/master';
 import { useDockerStore } from '../stores';
 import ResourceConfig from './resource-config';
 import ExportAuthority from './export-authority';
@@ -89,30 +89,24 @@ const AppModals = observer(() => {
   function getButtons() {
     const result = [
       {
-        icon: 'refresh',
-        handler: refresh,
-        display: true,
-        group: 1,
-      },
-      {
         name: formatMessage({ id: `${intlPrefix}.view.globalResource` }),
         icon: 'settings_applications',
         handler: openConfigModal,
         display: currentTab === MIRROR_TAB || currentTab === LIST_TAB,
-        group: 1,
       },
       {
         name: formatMessage({ id: 'exportAuth' }),
         icon: 'get_app',
         handler: () => { dockerStore.setExportModalVisible(true); },
         display: currentTab === AUTH_TAB,
-        group: 1,
+      },
+      {
+        icon: 'refresh',
+        handler: refresh,
+        iconOnly: true,
+        color: 'default',
       },
     ];
-    const res = result.filter((i) => i.display);
-    if (res.length !== 1) {
-      res[res.length - 1].color = 'primary';
-    }
     return result;
   }
   const exportProps = {
@@ -125,7 +119,9 @@ const AppModals = observer(() => {
 
   return (
     <>
-      <HeaderButtons items={getButtons()} />
+      <Header>
+        <HeaderButtons items={getButtons()} />
+      </Header>
       <ExportAuthority {...exportProps} />
     </>
   );
