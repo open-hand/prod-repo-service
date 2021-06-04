@@ -80,7 +80,7 @@ public class HarborImageServiceImpl implements HarborImageService {
 		return PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(),totalSize, harborImageVoList);
 	}
 
-	private List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest, String projectCode) {
+	public List<HarborImageVo> getImageList(Long harborId, String imageName, PageRequest pageRequest, String projectCode) {
 		Integer page = pageRequest.getPage() == 0 ? 1 : pageRequest.getPage() + 1;
 		Integer pageSize = pageRequest.getSize();
 		List<HarborImageVo> harborImageVoList = harborClientOperator.listImages(harborId, page, pageSize, imageName);
