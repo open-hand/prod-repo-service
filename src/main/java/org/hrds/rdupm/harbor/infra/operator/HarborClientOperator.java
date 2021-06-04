@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * @Author: scp
@@ -269,6 +270,12 @@ public class HarborClientOperator {
                 }
                 dto.setScanOverviewJson(null);
                 dto.setExtraAttrs(null);
+
+                //V2版本的harbor 处理tagName
+                if (StringUtils.isBlank(dto.getTagName()) && CollectionUtils.isNotEmpty(dto.getTags())) {
+                    dto.setTagName(dto.getTags().get(0).getName());
+                }
+
             });
         }
         //对镜像的列表进行按照推送时间排序
@@ -610,5 +617,118 @@ public class HarborClientOperator {
         }
     }
 
+
+    public List<HarborImageTagVo> listImageTagsByPage(String repoName, PageRequest pageRequest) {
+        Map<String, Object> paramMap = new HashMap<>(1);
+        paramMap.put("detail", "true");
+        ResponseEntity<String> tagResponseEntity;
+        List<HarborImageTagVo> harborImageTagVoList;
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, repoName);
+            harborImageTagVoList = gson.fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
+            }.getType());
+            if (CollectionUtils.isEmpty(harborImageTagVoList)) {
+                return new ArrayList<>();
+            }
+            harborImageTagVoList.forEach(dto -> {
+                dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
+                dto.setPullTime(HarborConstants.DEFAULT_DATE.equals(dto.getPullTime()) ? null : dto.getPullTime());
+                if (dto.getScanOverviewJson() != null) {
+                    HarborImageTagVo.ScanOverview scanOverview = dto.new ScanOverview();
+                    scanOverview.setScanStatus(TypeUtil.objToString(dto.getScanOverviewJson().get("scan_status")).toUpperCase());
+                    scanOverview.setSeverity(getSecurity(TypeUtil.objTodouble(dto.getScanOverviewJson().get("severity"))));
+                    if (dto.getScanOverviewJson().get("components") != null) {
+                        Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("components");
+                        scanOverview.setTotal(Math.round(TypeUtil.objTodouble(imageMap.get("total"))));
+                        HarborImageTagVo.Summary summary = dto.new Summary();
+                        if (imageMap.get("summary") != null) {
+                            List<Object> summaryMap = (List<Object>) imageMap.get("summary");
+                            summaryMap.stream().forEach(t -> {
+                                Map<String, Object> map = (Map<String, Object>) t;
+                                setSecurity(TypeUtil.objTodouble(map.get("severity")), TypeUtil.objTodouble(map.get("count")), summary);
+                            });
+                        }
+                        scanOverview.setSummary(summary);
+                    }
+                    if (dto.getScanOverviewJson().get("job_id") != null) {
+                        double jobIdDouble = TypeUtil.objTodouble(dto.getScanOverviewJson().get("job_id"));
+                        String url = String.format("%s/api/jobs/scan/%s/log", harborHttpClient.getHarborInfo().getBaseUrl(), Math.round(jobIdDouble));
+                        scanOverview.setLogUrl(url);
+                    }
+                    dto.setScanOverview(scanOverview);
+                }
+                List<HarborImageTagVo.Tag> tags = new ArrayList<>();
+                HarborImageTagVo.Tag tag = dto.new Tag();
+                tag.setName(dto.getTagName());
+                tag.setPullTime(dto.getPullTime());
+                tag.setPushTime(dto.getPushTime());
+                tags.add(tag);
+                dto.setTags(tags);
+
+                dto.setScanOverviewJson(null);
+                dto.setExtraAttrs(null);
+            });
+        } else {
+            paramMap.put("with_tag", "true");
+            paramMap.put("with_scan_overview", "true");
+            paramMap.put("page", pageRequest.getPage());
+            paramMap.put("page_size", pageRequest.getSize());
+            String[] strArr = repoName.split(BaseConstants.Symbol.SLASH);
+
+            tagResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_IMAGE_TAG, paramMap, null, true, strArr[0], strArr[1]);
+
+            harborImageTagVoList = gson.fromJson(tagResponseEntity.getBody(), new TypeToken<List<HarborImageTagVo>>() {
+            }.getType());
+            if (CollectionUtils.isEmpty(harborImageTagVoList)) {
+                return new ArrayList<>();
+            }
+            harborImageTagVoList.forEach(dto -> {
+                dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
+                dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
+                if (dto.getExtraAttrs() != null) {
+                    dto.setArchitecture(dto.getExtraAttrs().getArchitecture());
+                    dto.setOs(dto.getExtraAttrs().getOs());
+                }
+                if (CollectionUtils.isNotEmpty(dto.getTags())) {
+                    dto.getTags().forEach(tag -> tag.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime()));
+                }
+                if (dto.getScanOverviewJson() != null) {
+                    Map<String, Object> imageMap = (Map<String, Object>) dto.getScanOverviewJson().get("application/vnd.scanner.adapter.vuln.report.harbor+json; version=1.0");
+                    HarborImageTagVo.ScanOverview scanOverview;
+                    if (imageMap.get("summary") != null) {
+                        String jsonString = gson.toJson(imageMap.get("summary"));
+                        Map<String, Object> summaryMap = (Map<String, Object>) imageMap.get("summary");
+                        scanOverview = gson.fromJson(jsonString, HarborImageTagVo.ScanOverview.class);
+                        jsonString = gson.toJson(summaryMap.get("summary"));
+                        HarborImageTagVo.Summary summary = gson.fromJson(jsonString, HarborImageTagVo.Summary.class);
+                        scanOverview.setSummary(summary);
+                    } else {
+                        scanOverview = dto.new ScanOverview();
+                    }
+                    if (imageMap.get("report_id") != null) {
+                        String reportId = TypeUtil.objToString(imageMap.get("report_id"));
+                        String url = String.format("%s/api/v2.0/projects/%s/repositories/%s/artifacts/%s/scan/%s/log", harborHttpClient.getHarborInfo().getBaseUrl(), strArr[0], strArr[1], dto.getDigest(), reportId);
+                        scanOverview.setLogUrl(url);
+                    }
+                    scanOverview.setScanStatus(TypeUtil.objToString(imageMap.get("scan_status")).toUpperCase());
+                    scanOverview.setSeverity(TypeUtil.objToString(imageMap.get("severity")));
+                    dto.setScanOverview(scanOverview);
+                } else {
+                    dto.setScanOverview(null);
+                }
+                dto.setScanOverviewJson(null);
+                dto.setExtraAttrs(null);
+
+                //V2版本的harbor 处理tagName
+                if (StringUtils.isBlank(dto.getTagName()) && CollectionUtils.isNotEmpty(dto.getTags())) {
+                    dto.setTagName(dto.getTags().get(0).getName());
+                }
+
+            });
+        }
+        //对镜像的列表进行按照推送时间排序
+        List<HarborImageTagVo> harborImageTagVos = harborImageTagVoList.stream().sorted(Comparator.comparing(HarborImageTagVo::getPushTime).reversed()).collect(Collectors.toList());
+        return harborImageTagVos;
+    }
 
 }

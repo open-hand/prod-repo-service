@@ -18,6 +18,7 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.util.ConvertUtil;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
@@ -129,6 +130,7 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		List<HarborImageTagVo> harborImageTagVoList = new ArrayList<>();
 		if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
 			registryUrlResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO,null,null,true);
+			// paramName=  dev-25-test-25-4/choerodon-register
 			harborImageTagVoList = harborClientOperator.listImageTags(paramName);
 		} else {
 			registryUrlResponse = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO,null,null);
@@ -140,10 +142,12 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		String registryUrl = resultMap ==null ? null : resultMap.get("registry_url").toString();
 
 		//获取镜像版本
-		if(StringUtils.isNotEmpty(tagName)){
+		if (StringUtils.isNotBlank(tagName)){
 			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().contains(tagName)).collect(Collectors.toList());
 		}
-		if(CollectionUtils.isEmpty(harborImageTagVoList)){
+		//V2 过滤掉tag name 为null的镜像
+		harborImageTagVoList = harborImageTagVoList.stream().filter(harborImageTagVo -> StringUtils.isNotBlank(harborImageTagVo.getTagName())).collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(harborImageTagVoList)) {
 			return null;
 		}
 		//处理镜像版本
