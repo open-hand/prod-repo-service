@@ -180,7 +180,6 @@ const MirrorLib = () => {
     }];
     return (
       <Action
-        style={{ color: '#000' }}
         placement="bottomRight"
         data={actionData}
       />

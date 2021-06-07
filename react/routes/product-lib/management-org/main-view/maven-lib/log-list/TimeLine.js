@@ -69,7 +69,7 @@ const TimeLine = ({ formatMessage, isMore, opEventTypeLookupData, loadData, logL
                     <div className="product-lib-org-management-log-timeLine-card-header-icon">
                       <Icon type={getOpEventTypeMeaning(operateType).icon} style={getOpEventTypeMeaning(operateType).style} />
                       <span className="product-lib-org-management-log-timeLine-card-header-title">{getOpEventTypeMeaning(operateType).meaning}</span>
-                      <div style={{ display: 'inline-flex', marginLeft: '0.32rem', color: 'rgba(0, 0, 0, 0.65)' }}>
+                      <div style={{ display: 'inline-flex', marginLeft: '0.32rem', color: 'var(--text-color3) !important' }}>
                         <UserAvatar
                           user={{
                             loginName: projectCode || repoName,
