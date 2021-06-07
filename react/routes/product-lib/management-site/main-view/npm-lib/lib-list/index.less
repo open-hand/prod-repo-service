@@ -1,8 +1,8 @@
-@import '~choerodon-ui/lib/style/themes/default';
+@import "~choerodon-ui/lib/style/themes/default";
 
 .product-lib-site-management-lib-list {
   overflow-x: hidden;
-  height: ~'calc(100% - 75px)' !important;
+  height: ~"calc(100% - 75px)" !important;
   &-filter-form {
     margin-top: 0.1rem;
   }
@@ -72,7 +72,7 @@
             font-size: 0.13rem;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
-            color: rgba(0, 0, 0, 0.65);
+            color: var(--text-color3) !important;
             line-height: 0.18rem;
           }
         }
@@ -143,14 +143,14 @@
             font-size: 0.17rem;
             margin-right: 0.05rem;
             margin-bottom: 0.02rem;
-            color: var(--text-color) !important;
+            color: var(--primary-color) !important;
           }
         }
       }
     }
     &-no-content {
       height: 0.8rem;
-      color: rgba(0, 0, 0, 0.65);
+      color: var(--text-color3) !important;
       -webkit-box-flex: 1;
       -webkit-flex: 1;
       -ms-flex: 1;
