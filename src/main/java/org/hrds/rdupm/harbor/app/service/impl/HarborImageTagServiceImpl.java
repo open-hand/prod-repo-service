@@ -17,6 +17,8 @@ import org.hrds.rdupm.harbor.domain.entity.v2.HarborBuildLogDTO;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
+import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,9 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
     @Autowired
     private HarborImageService harborImageService;
 
+    @Autowired
+    private HarborHttpClient harborHttpClient;
+
     @Override
     public Page<HarborImageTagVo> list(Long projectId, String repoName, String tagName, PageRequest pageRequest) {
         //repoName=wx-ufc100/wx-hao-jing
@@ -73,14 +78,19 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
         setAuthorWithIam(harborImageTagVoList);
         PageRequest request = new PageRequest();
         request.setPage(0);
-        request.setSize(10);
-        // TODO: 2021/6/3 待优化 
-        List<HarborImageVo> imageServiceImageList = harborImageService.getImageList(harborRepository.getHarborId(), null, request, repoName.split(BaseConstants.Symbol.SLASH)[0]);
-        HarborImageVo imageVo = imageServiceImageList.stream().filter(harborImageVo -> StringUtils.equalsIgnoreCase(repoName, harborImageVo.getRepoName())).collect(Collectors.toList()).get(0);
-//        Integer repoCountByHarborId = harborClientOperator.getRepoCountByHarborId(harborRepository.getHarborId());
-
-//        imageServiceImageList.stream().filter(harborImageVo -> harborImageVo.get)
-        pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(),imageVo.getArtifactCount(), harborImageTagVoList);
+        request.setSize(1);
+        //V2.0查询仓库下 工件的数量 /projects/{project_name}/repositories/{repository_name}/artifacts  V2.0 使用返回的请求头作为 x-total-count: 3
+        //V1.0 就用这个接口来查询所有的tag /repositories/{repo_name}/tags
+        // V1.0使用tagsCount作为总的数据条数
+        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
+            //对于V1.0来说查询image的列表没有分页的接口
+            Page<HarborImageTagVo> imageTagVos = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), harborImageTagVoList);
+            return imageTagVos;
+        }
+        Integer totalCount = 0;
+        HarborImageTagVo harborImageTagVo = harborImageTagVoList.get(0);
+        totalCount = harborImageTagVo.getTotalCount();
+        pageInfo = PageConvertUtils.convert(pageRequest.getPage(), pageRequest.getSize(), totalCount, harborImageTagVoList);
         return pageInfo;
     }
 
