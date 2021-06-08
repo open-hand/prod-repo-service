@@ -121,6 +121,7 @@ public class HarborHttpClient {
         String userName = DetailsHelper.getUserDetails() == null ? HarborConstants.ANONYMOUS : DetailsHelper.getUserDetails().getUsername();
         //使用admin账号认证或者当前用户名=admin或者匿名用户创建时，使用当前项目配置的账号连接
         //使用平台root账号，就使用当前项目配置的账号连接
+        LOGGER.info(">>>>>>>>>>>>>>>>>harbor exchange user:{}>>>>>>>>>>>>>>>>>>>>>>", userName);
         UserDTO userDTO = c7nBaseService.queryByLoginName(userName);
         boolean isRoot = false;
         if (!Objects.isNull(userDTO) && userDTO.getAdmin()) {
