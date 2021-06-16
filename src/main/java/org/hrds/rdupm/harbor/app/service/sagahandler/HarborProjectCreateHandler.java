@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -33,6 +34,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.util.CustomContextUtil;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
@@ -41,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -100,10 +103,12 @@ public class HarborProjectCreateHandler {
 		UserDTO userDTO = harborProjectVo.getUserDTO();
 		String userName = userDTO.getLoginName();
 
+		CustomUserDetails userDetails = DetailsHelper.getUserDetails();
 		//创建Harbor项目
 		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
+		//填入创建用户的上下文,去创建仓库
+		CustomContextUtil.setDefaultIfNull(harborProjectVo.getUserDTO());
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,false);
-
 		//查询harbor-id
 		Integer harborId = null;
 		Map<String,Object> paramMap2 = new HashMap<>(3);
