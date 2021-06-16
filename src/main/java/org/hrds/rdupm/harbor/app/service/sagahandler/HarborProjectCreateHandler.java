@@ -3,10 +3,7 @@ package org.hrds.rdupm.harbor.app.service.sagahandler;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -77,6 +74,8 @@ public class HarborProjectCreateHandler {
     private HarborRobotService harborRobotService;
 	@Autowired
     private HarborRepositoryRepository harborRepositoryRepository;
+	@Autowired
+	private C7nBaseService c7nBaseService;
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
@@ -107,7 +106,10 @@ public class HarborProjectCreateHandler {
 		//创建Harbor项目
 		HarborProjectDTO harborProjectDTO = new HarborProjectDTO(harborProjectVo);
 		//填入创建用户的上下文,去创建仓库
-		CustomContextUtil.setDefaultIfNull(harborProjectVo.getUserDTO());
+		UserDTO dto = c7nBaseService.queryByLoginName(userName);
+		if (!Objects.isNull(dto)) {
+			CustomContextUtil.setDefaultIfNull(dto);
+		}
 		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,false);
 		//查询harbor-id
 		Integer harborId = null;
