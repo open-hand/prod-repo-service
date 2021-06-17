@@ -74,6 +74,9 @@ public class HarborImageTagVo {
     @ApiModelProperty("扫描结果")
     private ScanOverview scanOverview;
 
+    @ApiModelProperty
+    private Integer totalCount;
+
     @Getter
     @Setter
     public class ExtraAttr {
