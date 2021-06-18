@@ -8,6 +8,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hrds.rdupm.harbor.api.vo.*;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
@@ -21,6 +22,7 @@ import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.util.TypeUtil;
 import org.hzero.core.base.BaseConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -234,6 +236,16 @@ public class HarborClientOperator {
             if (CollectionUtils.isEmpty(harborImageTagVoList)) {
                 return new ArrayList<>();
             }
+            // v2.0 拿到仓库面镜像的总数
+            Integer totalCount = 0;
+            HttpHeaders headers = tagResponseEntity.getHeaders();
+            if (Objects.isNull(headers)) {
+                if (CollectionUtils.isNotEmpty(headers.get("x-total-count")) && NumberUtils.isParsable(headers.get("x-total-count").get(0))) {
+                    totalCount = NumberUtils.toInt(headers.get("x-total-count").get(0));
+                }
+            }
+
+            Integer finalTotalCount = totalCount;
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
@@ -271,10 +283,11 @@ public class HarborClientOperator {
                 dto.setScanOverviewJson(null);
                 dto.setExtraAttrs(null);
 
-                //V2版本的harbor 处理tagName
+                //V2版本的harbor 处理tagName  ,从他的tagList里面取第一个tag来作为他的tagName
                 if (StringUtils.isBlank(dto.getTagName()) && CollectionUtils.isNotEmpty(dto.getTags())) {
                     dto.setTagName(dto.getTags().get(0).getName());
                 }
+                dto.setTotalCount(finalTotalCount);
 
             });
         }
@@ -682,6 +695,15 @@ public class HarborClientOperator {
             if (CollectionUtils.isEmpty(harborImageTagVoList)) {
                 return new ArrayList<>();
             }
+            // v2.0 拿到仓库面镜像的总数
+            Integer totalCount = 0;
+            HttpHeaders headers = tagResponseEntity.getHeaders();
+            if (!Objects.isNull(headers)) {
+                if (CollectionUtils.isNotEmpty(headers.get("x-total-count")) && NumberUtils.isParsable(headers.get("x-total-count").get(0))) {
+                    totalCount = NumberUtils.toInt(headers.get("x-total-count").get(0));
+                }
+            }
+            Integer finalTotalCount = totalCount;
             harborImageTagVoList.forEach(dto -> {
                 dto.setSizeDesc(HarborUtil.getTagSizeDesc(Long.valueOf(dto.getSize())));
                 dto.setPullTime(HarborConstants.DEFAULT_DATE_V2.equals(dto.getPullTime()) ? null : dto.getPullTime());
@@ -723,7 +745,7 @@ public class HarborClientOperator {
                 if (StringUtils.isBlank(dto.getTagName()) && CollectionUtils.isNotEmpty(dto.getTags())) {
                     dto.setTagName(dto.getTags().get(0).getName());
                 }
-
+                dto.setTotalCount(finalTotalCount);
             });
         }
         //对镜像的列表进行按照推送时间排序
