@@ -102,10 +102,8 @@ const ImageList = ({
     <Spin dataSet={dockerImageListDs}>
       <div
         className="product-lib-docker-imagelist-search"
-        onKeyDown={(event) => {
-          if (event.keyCode === 13) {
-            dockerImageListDs.query();
-          }
+        onChange={() => {
+          dockerImageListDs.query();
         }}
         role="none"
       >

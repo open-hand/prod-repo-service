@@ -34,7 +34,7 @@ const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, reposit
     const { repository, componentIds } = record;
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
     const button = await Modal.confirm({
-      children: (
+      title: (
         <div>
           <p>{formatMessage({ id: 'confirm.delete', defaultMessage: '确认删除？' })}</p>
         </div>
