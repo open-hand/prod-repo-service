@@ -6,6 +6,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import com.google.inject.internal.asm.$Attribute;
 import java.io.File;
+import java.util.function.Function;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
@@ -14,6 +15,7 @@ import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
+import org.hrds.rdupm.nexus.api.vo.MavenComponentVO;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
@@ -366,5 +368,20 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         // remove配置信息
         nexusClient.removeNexusServerInfo();
         return componentGuideDTO;
+    }
+
+    @Override
+    public void batchDeleteComponents(Long organizationId, Long projectId, List<MavenComponentVO> mavenComponentVOS) {
+        //按照仓库进行分组
+        if (CollectionUtils.isNotEmpty(mavenComponentVOS)) {
+            return;
+        }
+        Map<Long, List<MavenComponentVO>> longListMap = mavenComponentVOS.stream().collect(Collectors.groupingBy(MavenComponentVO::getRepositoryId));
+        for (Map.Entry<Long, List<MavenComponentVO>> longListEntry : longListMap.entrySet()) {
+            List<MavenComponentVO> longListEntryValue = longListEntry.getValue();
+            List<String> componentIds = longListEntryValue.stream().map(MavenComponentVO::getComponentId).collect(Collectors.toList());
+            deleteComponents(organizationId, projectId, longListEntry.getKey(), componentIds);
+        }
+
     }
 }

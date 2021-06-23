@@ -5,6 +5,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
+import org.hrds.rdupm.nexus.api.vo.MavenComponentVO;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,4 +82,6 @@ public interface NexusComponentService {
      * @return NexusComponentGuideDTO
      */
     NexusComponentGuideDTO componentGuide(NexusServerComponentInfo componentInfo);
+
+    void batchDeleteComponents(Long organizationId, Long projectId, List<MavenComponentVO> mavenComponentVOS);
 }

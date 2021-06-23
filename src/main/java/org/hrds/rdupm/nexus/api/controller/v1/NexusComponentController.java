@@ -8,10 +8,9 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
-import org.hrds.rdupm.nexus.api.dto.NexusRepositoryDTO;
+import org.hrds.rdupm.nexus.api.vo.MavenComponentVO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentService;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
-import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.util.XMLValidator;
@@ -109,6 +108,16 @@ public class NexusComponentController extends BaseController {
 											  @ApiParam(value = "仓库Id", required = true) @RequestParam(name = "repositoryId" ) @Encrypt Long repositoryId,
 											  @RequestBody List<String> componentIds) {
 		nexusComponentService.deleteComponents(organizationId, projectId, repositoryId, componentIds);
+		return Results.success();
+	}
+
+	@ApiOperation(value = "项目层-maven 批量删除包")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@DeleteMapping("/{organizationId}/project/{projectId}")
+	public ResponseEntity<?> batchDeleteComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
+											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
+											  @RequestBody List<MavenComponentVO> mavenComponentVOS) {
+		nexusComponentService.batchDeleteComponents(organizationId, projectId, mavenComponentVOS);
 		return Results.success();
 	}
 
