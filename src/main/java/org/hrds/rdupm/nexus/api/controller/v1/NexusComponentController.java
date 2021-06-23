@@ -113,7 +113,7 @@ public class NexusComponentController extends BaseController {
 
 	@ApiOperation(value = "项目层-maven 批量删除包")
 	@Permission(level = ResourceLevel.ORGANIZATION)
-	@DeleteMapping("/{organizationId}/project/{projectId}")
+	@DeleteMapping("/{organizationId}/project/{projectId}/batch")
 	public ResponseEntity<?> batchDeleteComponents(@ApiParam(value = "组织ID", required = true) @PathVariable(name = "organizationId") Long organizationId,
 											  @ApiParam(value = "项目Id", required = true) @PathVariable(name = "projectId") Long projectId,
 											  @RequestBody List<MavenComponentVO> mavenComponentVOS) {
