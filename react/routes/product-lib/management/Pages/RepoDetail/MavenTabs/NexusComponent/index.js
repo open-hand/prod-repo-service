@@ -4,10 +4,10 @@
 * @creationDate 2020/4/3
 * @copyright 2020 ® HAND
 */
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Table, Button, Modal } from 'choerodon-ui/pro';
 import { Menu, Dropdown, message } from 'choerodon-ui';
-import { axios, stores } from '@choerodon/boot';
+import { axios, stores, Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
@@ -17,10 +17,15 @@ import GuideButton from './GuideButton';
 import { TabKeyEnum } from '../../MavenTabContainer';
 import './index.less';
 
-
 const { Column } = Table;
-const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, repositoryId, repositoryName, enableFlag }) => {
+const NexusComponent = ({
+  formatMessage, nexusComponentDs, activeTabKey, repositoryId, repositoryName, enableFlag,
+}) => {
   const userAuth = useUserAuth();
+
+  const hasPermission = useMemo(() => (
+    (userAuth.includes('projectAdmin') || userAuth.includes('developer')) && enableFlag === 'Y'
+  ), [userAuth, enableFlag]);
 
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.NEXUS_COMPONENT) {
@@ -29,6 +34,16 @@ const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, reposit
       nexusComponentDs.query();
     }
   }, [activeTabKey, repositoryName, repositoryId]);
+
+  useEffect(() => {
+    if (hasPermission) {
+      // eslint-disable-next-line no-param-reassign
+      nexusComponentDs.selection = 'multiple';
+    } else {
+      // eslint-disable-next-line no-param-reassign
+      nexusComponentDs.selection = false;
+    }
+  }, [hasPermission]);
 
   const handleDelete = async (record) => {
     const { repository, componentIds } = record;
@@ -51,26 +66,14 @@ const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, reposit
     }
   };
 
-  const rendererDropDown = ({ text, record }) => {
-    const menu = (
-      <Menu>
-        <Menu.Item key="0">
-          <a onClick={() => handleDelete(record)}>{formatMessage({ id: 'delete', defaultMessage: '删除' })}</a>
-        </Menu.Item>
-      </Menu>
-    );
-    return (
-      <div className="product-lib-management-selfrepo-render-dropdown-column">
-        <GuideButton text={text} record={record} formatMessage={formatMessage} repositoryId={repositoryId} />
-        {(userAuth.includes('projectAdmin') || userAuth.includes('developer')) && enableFlag === 'Y' &&
-          <Dropdown overlay={menu} trigger={['click']}>
-            <Button shape="circle" icon="more_vert" style={{ flexShrink: 0, float: 'right' }} />
-          </Dropdown>
-        }
-      </div>
-    );
-  };
-
+  const rendererDropDown = ({ text, record }) => (
+    <GuideButton
+      text={text}
+      record={record}
+      formatMessage={formatMessage}
+      repositoryId={repositoryId}
+    />
+  );
 
   const expandedRowRenderer = ({ record }) => {
     const { components } = record.toData();
@@ -78,7 +81,7 @@ const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, reposit
       <table style={{ width: '100%' }}>
         <tbody>
           {
-            components.map(o => (
+            components.map((o) => (
               <tr key={o.id}>
                 <td style={{ paddingLeft: '10px' }}>
                   {rendererDropDown({
@@ -125,12 +128,24 @@ const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, reposit
     return avatar;
   }
 
+  const renderAction = ({ record }) => {
+    const actionData = [{
+      text: formatMessage({ id: 'delete', defaultMessage: '删除' }),
+      handle: () => handleDelete(record),
+    }];
+    return <Action data={actionData} />;
+  };
+
   return (
     <Table
       dataSet={nexusComponentDs}
-      expandedRowRenderer={expandedRowRenderer}
+      mode="tree"
+      // expandedRowRenderer={expandedRowRenderer}
     >
-      <Column name="version" renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })} />
+      <Column name="version" renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })} tooltip="overflow" />
+      {hasPermission ? (
+        <Column renderer={renderAction} width={60} />
+      ) : null}
       <Column name="group" />
       <Column name="name" />
       <Column name="creatorRealName" renderer={renderName} width={200} />
