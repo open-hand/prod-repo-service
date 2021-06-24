@@ -83,5 +83,5 @@ public interface NexusComponentService {
      */
     NexusComponentGuideDTO componentGuide(NexusServerComponentInfo componentInfo);
 
-    void batchDeleteComponents(Long organizationId, Long projectId, List<MavenComponentVO> mavenComponentVOS);
+    void batchDeleteComponents(Long organizationId, Long projectId, Long repositoryId, List<MavenComponentVO> mavenComponentVOS);
 }

@@ -1,30 +1,20 @@
 package org.hrds.rdupm.nexus.api.vo;
 
-import org.hzero.starter.keyencrypt.core.Encrypt;
+import java.util.List;
+
 
 /**
  * Created by wangxiang on 2021/6/23
  */
 public class MavenComponentVO {
 
-    @Encrypt
-    private Long repositoryId;
+    private List<String> componentIds;
 
-    private String componentId;
-
-    public Long getRepositoryId() {
-        return repositoryId;
+    public List<String> getComponentIds() {
+        return componentIds;
     }
 
-    public void setRepositoryId(Long repositoryId) {
-        this.repositoryId = repositoryId;
-    }
-
-    public String getComponentId() {
-        return componentId;
-    }
-
-    public void setComponentId(String componentId) {
-        this.componentId = componentId;
+    public void setComponentIds(List<String> componentIds) {
+        this.componentIds = componentIds;
     }
 }
