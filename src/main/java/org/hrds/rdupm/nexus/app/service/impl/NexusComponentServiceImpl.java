@@ -371,17 +371,13 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     }
 
     @Override
-    public void batchDeleteComponents(Long organizationId, Long projectId, List<MavenComponentVO> mavenComponentVOS) {
+    public void batchDeleteComponents(Long organizationId, Long projectId, Long repositoryId, List<MavenComponentVO> mavenComponentVOS) {
         //按照仓库进行分组
         if (CollectionUtils.isNotEmpty(mavenComponentVOS)) {
             return;
         }
-        Map<Long, List<MavenComponentVO>> longListMap = mavenComponentVOS.stream().collect(Collectors.groupingBy(MavenComponentVO::getRepositoryId));
-        for (Map.Entry<Long, List<MavenComponentVO>> longListEntry : longListMap.entrySet()) {
-            List<MavenComponentVO> longListEntryValue = longListEntry.getValue();
-            List<String> componentIds = longListEntryValue.stream().map(MavenComponentVO::getComponentId).collect(Collectors.toList());
-            deleteComponents(organizationId, projectId, longListEntry.getKey(), componentIds);
-        }
-
+        mavenComponentVOS.forEach(mavenComponentVO -> {
+            deleteComponents(organizationId, projectId, repositoryId, mavenComponentVO.getComponentIds());
+        });
     }
 }
