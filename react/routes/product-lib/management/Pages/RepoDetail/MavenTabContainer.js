@@ -15,7 +15,7 @@ import { useStore } from '../../index';
 import { RepositoryIdContext } from '../index';
 import { HeaderButtons } from '@choerodon/master';
 import {
-  OverView, NexusComponent, PublishAuth, OptLog,
+  OverView, NexusComponent, PublishAuth, OptLog, BatchDelete,
 } from './MavenTabs';
 import { MavenGuideButton } from '../GuideButton';
 import { MavenUploadButton } from '../UploadPackageButton';
@@ -66,6 +66,11 @@ const MavenTabContainer = (props) => {
   }), [mavenOptLogDs, formatMessage, activeTabKey, repositoryId]);
 
   const addMemberButtonProps = useMemo(() => ({ repositoryId, publishAuthDs, formatMessage }), [repositoryId, publishAuthDs, formatMessage]);
+  const batchDeleteButtonProps = useMemo(() => ({
+    formatMessage,
+    nexusComponentDs,
+    repositoryId,
+  }), [repositoryId, nexusComponentDs]);
 
   const refresh = () => {
     if (activeTabKey === TabKeyEnum.OVERVIEW) {
@@ -91,6 +96,10 @@ const MavenTabContainer = (props) => {
             {
               display: activeTabKey === TabKeyEnum.NEXUS_COMPONENT && type === 'hosted' && versionPolicy === 'RELEASE' && enableFlag === 'Y',
               element:  <MavenUploadButton {...uploadPackageButtonProps} />,
+            },
+            {
+              display: activeTabKey === TabKeyEnum.NEXUS_COMPONENT && enableFlag === 'Y',
+              element: <BatchDelete {...batchDeleteButtonProps} refresh={refresh} />
             },
             {
               element: <MavenGuideButton {...guideButtonProps} />
