@@ -35,15 +35,15 @@ const NexusComponent = ({
     }
   }, [activeTabKey, repositoryName, repositoryId]);
 
-  useEffect(() => {
-    if (hasPermission) {
-      // eslint-disable-next-line no-param-reassign
-      nexusComponentDs.selection = 'multiple';
-    } else {
-      // eslint-disable-next-line no-param-reassign
-      nexusComponentDs.selection = false;
-    }
-  }, [hasPermission]);
+  // useEffect(() => {
+  //   if (hasPermission) {
+  //     // eslint-disable-next-line no-param-reassign
+  //     nexusComponentDs.selection = 'multiple';
+  //   } else {
+  //     // eslint-disable-next-line no-param-reassign
+  //     nexusComponentDs.selection = false;
+  //   }
+  // }, [hasPermission]);
 
   const handleDelete = async (record) => {
     const { repository, componentIds } = record;
@@ -140,9 +140,17 @@ const NexusComponent = ({
     <Table
       dataSet={nexusComponentDs}
       mode="tree"
+      expandIconColumnIndex={hasPermission ? 1 : 0}
       // expandedRowRenderer={expandedRowRenderer}
+      className="product-lib-nexusComponent-table"
     >
-      <Column name="version" renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })} tooltip="overflow" />
+      {hasPermission ? <Column name="isChecked" editor width={50} /> : null}
+      <Column
+        name="version"
+        renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })}
+        tooltip="overflow"
+        className={hasPermission ? '' : 'product-lib-nexusComponent-table-version'}
+      />
       {hasPermission ? (
         <Column renderer={renderAction} width={60} />
       ) : null}

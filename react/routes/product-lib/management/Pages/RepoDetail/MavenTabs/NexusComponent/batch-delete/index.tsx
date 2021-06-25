@@ -31,7 +31,7 @@ const BatchDelete = ({
   const userAuth = useUserAuth();
 
   const handleDelete = useCallback(async () => {
-    const records = nexusComponentDs.selected;
+    const records = nexusComponentDs.filter((record) => record.get('isChecked'));
     const postData = map(records, (record) => ({
       componentIds: record.get('componentIds'),
     }));
@@ -54,7 +54,6 @@ const BatchDelete = ({
       key: deleteModalKey,
       title: '批量删除',
       children: '确定删除所选包吗？',
-      okText: formatMessage({ id: 'delete', defaultMessage: '删除' }),
       onOk: handleDelete,
     });
   }, [handleDelete]);
@@ -63,7 +62,7 @@ const BatchDelete = ({
     return (
       <Button
         icon="delete"
-        disabled={!nexusComponentDs.selected?.length}
+        disabled={!nexusComponentDs.some((record) => record.get('isChecked'))}
         onClick={handleOpenDeleteModal}
         color={'primary' as ButtonColor}
       >
