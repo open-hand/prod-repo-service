@@ -11,6 +11,7 @@ export default ((formatMessage, organizationId, projectId) => ({
   pageSize: 10,
   primaryKey: 'id',
   parentField: 'parentId',
+  checkField: 'isChecked',
   idField: 'id',
   transport: {
     read: () => ({
@@ -42,6 +43,7 @@ export default ((formatMessage, organizationId, projectId) => ({
     }),
   },
   fields: [
+    { name: 'isChecked', type: 'boolean' },
     { name: 'version', type: 'string', label: 'version' },
     { name: 'group', type: 'string', label: 'groupId' },
     { name: 'name', type: 'string', label: 'artifactId' },
