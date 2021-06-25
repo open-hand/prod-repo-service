@@ -373,7 +373,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     @Override
     public void batchDeleteComponents(Long organizationId, Long projectId, Long repositoryId, List<MavenComponentVO> mavenComponentVOS) {
         //按照仓库进行分组
-        if (CollectionUtils.isNotEmpty(mavenComponentVOS)) {
+        if (CollectionUtils.isEmpty(mavenComponentVOS)) {
             return;
         }
         mavenComponentVOS.forEach(mavenComponentVO -> {
