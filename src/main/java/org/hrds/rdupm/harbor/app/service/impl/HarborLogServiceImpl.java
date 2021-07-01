@@ -98,10 +98,10 @@ public class HarborLogServiceImpl implements HarborLogService {
 		}
 		Map<String, Object> paramMap = getParamMap(pageRequest, imageName, loginName, tagName, operateType, startDate, endDate);
 		List<HarborImageLog> dataList = harborClientOperator.listImageLogs(paramMap, harborRepository, true);
-		List<HarborImageLog> harborImageLogList = dataList == null ? new ArrayList<>() : dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList());
+//		List<HarborImageLog> harborImageLogList = dataList == null ? new ArrayList<>() : dataList.stream().filter(dto->!HarborConstants.LOWER_CREATE.equals(dto.getOperateType()) ).collect(Collectors.toList());
 
-		processImageLogList(harborImageLogList);
-		return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),harborImageLogList);
+		processImageLogList(dataList);
+		return PageConvertUtils.convert(pageRequest.getPage(),pageRequest.getSize(),dataList);
 	}
 
 	@Override

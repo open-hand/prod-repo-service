@@ -265,9 +265,12 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             Long personTimes = 0L;
             Long downloadTimes = 0L;
             if (!CollectionUtils.isEmpty(dataList)) {
-                downloadTimes = Long.valueOf(dataList.size());
-                Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
-                personTimes = Long.valueOf(stringListMap.keySet().size());
+                List<HarborImageLog> harborImageLogs = dataList.stream().filter(harborImageLog -> StringUtils.equalsIgnoreCase(harborImageLog.getOperateType(), HarborConstants.HarborImageOperateEnum.PULL.getOperateType())).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(harborImageLogs)) {
+                    downloadTimes = Long.valueOf(harborImageLogs.size());
+                    Map<String, List<HarborImageLog>> stringListMap = harborImageLogs.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
+                    personTimes = Long.valueOf(stringListMap.keySet().size());
+                }
             }
             dto.setDownloadTimes(downloadTimes);
             dto.setPersonTimes(personTimes);
