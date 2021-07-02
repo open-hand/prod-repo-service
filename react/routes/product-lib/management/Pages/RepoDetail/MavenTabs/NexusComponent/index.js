@@ -151,9 +151,9 @@ const NexusComponent = ({
         tooltip="overflow"
         className={hasPermission ? '' : 'product-lib-nexusComponent-table-version'}
       />
-      {hasPermission ? (
+      {/* {hasPermission ? ( */}
         <Column renderer={renderAction} width={60} />
-      ) : null}
+      {/* ) : null} */}
       <Column name="group" />
       <Column name="name" />
       <Column name="creatorRealName" renderer={renderName} width={200} />

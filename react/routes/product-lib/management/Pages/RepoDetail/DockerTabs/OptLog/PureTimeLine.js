@@ -5,9 +5,10 @@ import { Spin } from 'choerodon-ui/pro';
 import uuidv4 from 'uuid/v4';
 import moment from 'moment';
 
-const TimeLine = ({ isMore, operateTypeLookupData, loadData, optLogDs }) => {
+const TimeLine = ({
+  isMore, operateTypeLookupData, loadData, optLogDs,
+}) => {
   const record = optLogDs.current && optLogDs.toData();
-
 
   const getOperateTypeMeaning = useCallback((code) => {
     let icon;
@@ -29,6 +30,7 @@ const TimeLine = ({ isMore, operateTypeLookupData, loadData, optLogDs }) => {
         icon = 'get_app';
         style = { background: 'rgba(81, 79, 160, 1)' };
         break;
+      case 'create':
       case 'push': // 推送
         icon = 'file_upload';
         style = { background: 'rgba(104, 135, 232, 1)' };
@@ -36,22 +38,19 @@ const TimeLine = ({ isMore, operateTypeLookupData, loadData, optLogDs }) => {
       default:
         icon = 'account_circle';
     }
-    return { ...operateTypeLookupData.find(o => o.value === code), icon, style };
+    return { ...operateTypeLookupData.find((o) => o.value === code), icon, style };
   }, [operateTypeLookupData]);
-
 
   // 更多操作
   function loadMoreOptsRecord() {
     loadData(optLogDs.currentPage + 1);
   }
 
-
   const getUserIcon = (imageUrl, name = '') => {
     if (imageUrl) {
       return <img src={imageUrl} alt="" />;
-    } else {
-      return <div className="product-lib-timeLine-card-content-text-div-icon">{name[0]}</div>;
     }
+    return <div className="product-lib-timeLine-card-content-text-div-icon">{name[0]}</div>;
   };
 
   function renderData() {
@@ -59,7 +58,9 @@ const TimeLine = ({ isMore, operateTypeLookupData, loadData, optLogDs }) => {
       <ul>
         {
           record.map((item, index) => {
-            const { operateTime, operateType, content, userImageUrl } = item;
+            const {
+              operateTime, operateType, content, userImageUrl,
+            } = item;
             const [date, time] = moment(operateTime).format('YYYY-MM-DD HH:mm:ss').split(' ');
             return (
               <li key={uuidv4()}>
@@ -81,7 +82,10 @@ const TimeLine = ({ isMore, operateTypeLookupData, loadData, optLogDs }) => {
                       {getUserIcon(userImageUrl, content)}
                       <p>{content}</p>
                     </div>
-                    <div className="product-lib-timeLine-card-content-time"><Icon type="av_timer" /><span style={{ marginLeft: '0.15rem' }}>{time}</span></div>
+                    <div className="product-lib-timeLine-card-content-time">
+                      <Icon type="av_timer" />
+                      <span style={{ marginLeft: '0.15rem' }}>{time}</span>
+                    </div>
                   </div>
                   {index !== record.length - 1 && <div className="product-lib-timeLine-card-line" />}
                 </div>
@@ -101,11 +105,12 @@ const TimeLine = ({ isMore, operateTypeLookupData, loadData, optLogDs }) => {
             <div className="product-lib-timeLine-body">
               {renderData()}
             </div>
-          ) :
-            (
+          )
+            : (
               <div className="product-lib-timeLine-no-content">
                 <span>暂无操作记录</span>
-              </div>)
+              </div>
+            )
         }
         {isMore && <Button type="primary" onClick={loadMoreOptsRecord}>加载更多</Button>}
       </div>
