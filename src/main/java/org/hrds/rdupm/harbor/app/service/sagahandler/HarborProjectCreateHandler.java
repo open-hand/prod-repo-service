@@ -93,6 +93,7 @@ public class HarborProjectCreateHandler {
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
 	private String createProjectRepoSaga(String message) throws JsonProcessingException {
+		//创建镜像仓库的创建者统一使用admin账号来创建，目的是去掉普通用户创建仓库的权限
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -110,7 +111,7 @@ public class HarborProjectCreateHandler {
 		if (!Objects.isNull(dto)) {
 			CustomContextUtil.setDefaultIfNull(dto);
 		}
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,false);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,true);
 		//查询harbor-id
 		Integer harborId = null;
 		Map<String,Object> paramMap2 = new HashMap<>(3);
