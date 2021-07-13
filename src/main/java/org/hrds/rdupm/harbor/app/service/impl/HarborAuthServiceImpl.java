@@ -277,7 +277,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         memberMap.put("username", dto.getLoginName());
         bodyMap.put("role_id", dto.getHarborRoleId());
         bodyMap.put("member_user", memberMap);
-        harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH, null, bodyMap, false, harborId);
+        harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH, null, bodyMap, true, harborId);
 
         ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH, null, null, true, harborId);
         List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborAuthVo>>() {
