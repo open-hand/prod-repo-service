@@ -144,6 +144,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         // 参数校验
         nexusRepoCreateDTO.validParam(baseServiceFeignClient, true);
 
+        //仓库的code不能相同
+        checkRepoName(nexusRepoCreateDTO);
+
         NexusServerConfig serverConfig = configService.setNexusInfo(nexusClient, projectId);
 
         // 匿名访问控制
@@ -219,6 +222,15 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         // remove配置信息
         nexusClient.removeNexusServerInfo();
         return nexusRepoCreateDTO;
+    }
+
+    private void checkRepoName(NexusRepositoryCreateDTO nexusRepoCreateDTO) {
+        NexusRepository conditionRepo = new NexusRepository();
+        conditionRepo.setNeRepositoryName(nexusRepoCreateDTO.getName());
+        List<NexusRepository> nexusRepositories = nexusRepositoryRepository.select(conditionRepo);
+        if (!CollectionUtils.isEmpty(nexusRepositories)) {
+            throw new CommonException("error.nexus.client.repo.name.exist");
+        }
     }
 
     @Override
