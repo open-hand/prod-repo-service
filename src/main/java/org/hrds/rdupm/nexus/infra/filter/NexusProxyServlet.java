@@ -65,8 +65,7 @@ public class NexusProxyServlet extends ProxyServlet {
             return super.createHttpClient();
         }
         //在这里配置HttpClient的是否跳过SSL证书校验
-        CloseableHttpClient httpClient = createSkipSslHttpClient();
-        return httpClient;
+        return createSkipSslHttpClient();
     }
 
     private CloseableHttpClient createSkipSslHttpClient() {
