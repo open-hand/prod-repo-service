@@ -202,6 +202,8 @@ nexus:
     servicesGatewayUrl: ${SERVICES_GATEWAY_URL:http://api.example.com}
     # 网关路由
     serviceRoute: ${SERVICE_ROUTE:/rdupm}
+    # 下载jar包跳过SSL校验
+    skipSSL: ${NEXUS_SKIP_SSL:false}
   filter:
     mavenRepo: ${MARKET_MAVEN:market-repo}
 DesEncrypt:
