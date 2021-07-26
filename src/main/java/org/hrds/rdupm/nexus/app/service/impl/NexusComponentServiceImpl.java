@@ -109,9 +109,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
             NexusRepository query = new NexusRepository();
             query.setOrganizationId(organizationId);
             query.setRepoType(componentQuery.getRepoType());
+            query.setProjectId(projectId);
 
             List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query, serverConfig.getConfigId());
-            logger.info(">>>>>>>>>>>>>>>>>>>>>>>list返回：{}",JsonHelper.marshalByJackson(repositoryList));
             Map<String, NexusRepository> repositoryMap = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, k -> k));
             List<String> proRepoList = repositoryList.stream().filter(nexusRepository -> Objects.equals(nexusRepository.getProjectId(), projectId)).map(NexusRepository::getNeRepositoryName).collect(Collectors.toList());
 
