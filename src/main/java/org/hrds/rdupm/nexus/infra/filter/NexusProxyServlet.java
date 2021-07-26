@@ -29,12 +29,15 @@ import org.apache.http.ssl.SSLContexts;
 import org.hrds.rdupm.nexus.infra.constant.NexusProxyConstants;
 import org.hzero.core.base.BaseConstants;
 import org.mitre.dsmiley.httpproxy.ProxyServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Created by wangxiang on 2020/12/9
  */
 public class NexusProxyServlet extends ProxyServlet {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NexusProxyServlet.class);
 
     @Value("${nexus.proxy.skipSSL:false}")
     private Boolean skipSSL;
@@ -65,6 +68,7 @@ public class NexusProxyServlet extends ProxyServlet {
             return super.createHttpClient();
         }
         //在这里配置HttpClient的是否跳过SSL证书校验
+        LOGGER.info("跳过ssl证书校验");
         return createSkipSslHttpClient();
     }
 
