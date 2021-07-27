@@ -25,6 +25,8 @@ public class NexusProxyConfigProperties {
 
     private String serviceRoute;
 
+    private boolean skipSSL;
+
     public String getServiceRoute() {
         return serviceRoute;
     }
@@ -63,5 +65,13 @@ public class NexusProxyConfigProperties {
 
     public void setServletUri(String servletUri) {
         this.servletUri = servletUri;
+    }
+
+    public boolean getSkipSSL() {
+        return skipSSL;
+    }
+
+    public void setSkipSSL(boolean skipSSL) {
+        this.skipSSL = skipSSL;
     }
 }

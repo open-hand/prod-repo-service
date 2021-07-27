@@ -5,6 +5,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.SSLContext;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,12 +27,19 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
+import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
+import org.hrds.rdupm.nexus.app.service.NexusComponentService;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusProxyConstants;
 import org.hzero.core.base.BaseConstants;
 import org.mitre.dsmiley.httpproxy.ProxyServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Created by wangxiang on 2020/12/9
@@ -39,8 +47,17 @@ import org.springframework.beans.factory.annotation.Value;
 public class NexusProxyServlet extends ProxyServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(NexusProxyServlet.class);
 
-    @Value("${nexus.proxy.skipSSL:false}")
-    private Boolean skipSSL;
+
+    private NexusProxyConfigProperties nexusProxyConfigProperties;
+
+    @Override
+    protected void initTarget() throws ServletException {
+        super.initTarget();
+        // initTarget 在createHttpClient之前调用，所以在initTarget()方法后面为对象的配置类赋值
+        ServletContext servletContext = this.getServletContext();
+        WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+        nexusProxyConfigProperties = (NexusProxyConfigProperties) ctx.getBean("nexusProxyConfigProperties");
+    }
 
     @Override
     protected void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws ServletException, IOException {
@@ -64,11 +81,10 @@ public class NexusProxyServlet extends ProxyServlet {
 
     @Override
     protected HttpClient createHttpClient() {
-        if (!skipSSL) {
+        if (!nexusProxyConfigProperties.getSkipSSL()) {
             return super.createHttpClient();
         }
-        //在这里配置HttpClient的是否跳过SSL证书校验
-        LOGGER.info("跳过ssl证书校验");
+        //在这里配置HttpClient的跳过SSL证书校验
         return createSkipSslHttpClient();
     }
 
