@@ -23,21 +23,15 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
-import org.hrds.rdupm.nexus.app.service.NexusComponentService;
-import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusProxyConstants;
 import org.hzero.core.base.BaseConstants;
 import org.mitre.dsmiley.httpproxy.ProxyServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -85,6 +79,7 @@ public class NexusProxyServlet extends ProxyServlet {
             return super.createHttpClient();
         }
         //在这里配置HttpClient的跳过SSL证书校验
+        LOGGER.info(">>>>>>>>>>创建skipSsl client>>>>>>>>>>>.");
         return createSkipSslHttpClient();
     }
 
