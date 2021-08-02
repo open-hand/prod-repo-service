@@ -6,12 +6,12 @@
     <parent>
         <groupId>io.choerodon</groupId>
         <artifactId>choerodon-framework-parent</artifactId>
-        <version>0.19.1.RELEASE</version>
+        <version>0.19.3.RELEASE</version>
     </parent>
 
     <groupId>org.hrds.rdupm</groupId>
     <artifactId>prod-repo-service</artifactId>
-    <version>0.25.10.RELEASE</version>
+    <version>0.25.11.RELEASE</version>
     <name>rdupm</name>
 
     <properties>
