@@ -28,6 +28,8 @@ import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class IamSagaHandler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(IamSagaHandler.class);
+
 	/**
 	 * IAM删除角色
 	 */
@@ -156,7 +160,7 @@ public class IamSagaHandler {
 		try {
 			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
 		} catch (ParseException e) {
-			e.printStackTrace();
+			LOGGER.error("error.format.date", e);
 		}
 		authList.add(harborAuth);
 

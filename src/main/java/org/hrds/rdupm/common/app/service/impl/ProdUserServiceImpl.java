@@ -71,7 +71,7 @@ public class ProdUserServiceImpl implements ProdUserService {
     /***
      * 最少八个字符，至少一个大写字母，一个小写字母和一个数字
      */
-    public static Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[\\s\\S]{8,}$");
+    public static final Pattern PWD_PATTERN = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[\\s\\S]{8,}$");
 
     @Override
     public void saveMultiUser(List<ProdUser> prodUserList) {
@@ -103,7 +103,7 @@ public class ProdUserServiceImpl implements ProdUserService {
     }
 
     @Override
-    @Saga(code = HarborConstants.HarborSagaCode.UPDATE_PWD, description = "更新密码", inputSchemaClass = ProdUser.class)
+    @Saga(code = HarborConstants.HarborSagaCode.UPDATE_PSW, description = "更新密码", inputSchemaClass = ProdUser.class)
     public void updatePwd(ProdUser dto) {
         checkPwd(dto);
         if (!dto.getUserId().equals(DetailsHelper.getUserDetails().getUserId())) {
@@ -130,7 +130,7 @@ public class ProdUserServiceImpl implements ProdUserService {
         existUser.setLastUpdateDate(null);
 
         transactionalProducer.apply(StartSagaBuilder.newBuilder()
-                        .withSagaCode(HarborConstants.HarborSagaCode.UPDATE_PWD)
+                        .withSagaCode(HarborConstants.HarborSagaCode.UPDATE_PSW)
                         .withLevel(ResourceLevel.PROJECT)
                         .withRefType("dockerRepo")
                         .withSourceId(existUser.getUserId()),

@@ -32,7 +32,7 @@ public interface HarborConstants {
 
 	String TB = "TB";
 
-	String DEFAULT_PASSWORD = "Abcd1234";
+	String DEFAULT_PSW = "Abcd1234";
 
 	String ASSIGN_AUTH = "assign";
 
@@ -107,11 +107,11 @@ public interface HarborConstants {
 
 		String CREATE_AUTH_DB = "rdupm-docker-auth-create.db";
 
-		String UPDATE_PWD = "rdupm-docker-user-update";
+		String UPDATE_PSW = "rdupm-docker-user-update";
 
-		String UPDATE_PWD_HARBOR = "rdupm-docker-user-update.harbor";
+		String UPDATE_PSW_HARBOR = "rdupm-docker-user-update.harbor";
 
-		String UPDATE_PWD_NEXUS = "rdupm-docker-user-update.nexus";
+		String UPDATE_PSW_NEXUS = "rdupm-docker-user-update.nexus";
 
         /**
          * 创建自定义镜像仓库

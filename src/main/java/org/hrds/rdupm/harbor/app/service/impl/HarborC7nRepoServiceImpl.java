@@ -22,6 +22,7 @@ import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.util.ConvertUtil;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +101,8 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		String pullPassword = null;
 		if(HarborRepoDTO.DEFAULT_REPO.equals(repoType)){
 			HarborRepository harborRepository = harborRepositoryRepository.selectByPrimaryKey(repoId);
-			repoName = harborRepository==null?null:harborRepository.getCode();
+			AssertUtils.notNull(harborRepository, "error.default.harbor.repo.not.exist");
+			repoName = harborRepository.getCode();
 
 			//获取机器人账号
 			List<HarborRobot> harborRobotList = harborRobotService.getRobotByProjectId(harborRepository.getProjectId(), HarborConstants.HarborRobot.ACTION_PULL);
