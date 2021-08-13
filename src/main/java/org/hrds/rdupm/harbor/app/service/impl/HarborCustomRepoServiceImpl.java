@@ -625,9 +625,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (repoId == null || HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
             return getDefaultHarborConfig(projectId, repoId, null);
         } else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
-            Set<Long> ids = new HashSet<Long>() {{
-                add(repoId);
-            }};
+            Set<Long> ids = new HashSet<>();
+            ids.add(repoId);
             return getCustomHarborConfig(projectId, ids, null, null);
         }
         return null;
@@ -825,6 +824,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void batchSaveRelationByServiceIds(Long projectId, Long repoId, String repoType, List<Long> appServiceIds) {
         if (CollectionUtils.isEmpty(appServiceIds)) {
             if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {

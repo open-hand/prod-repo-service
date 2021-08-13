@@ -178,7 +178,7 @@ public class HarborProjectCreateHandler {
 		try {
 			harborAuth.setEndDate(new SimpleDateFormat(BaseConstants.Pattern.DATE).parse("2099-12-31"));
 		} catch (ParseException e) {
-			e.printStackTrace();
+			LOGGER.error("error.format.date", e);
 		}
 		authList.add(harborAuth);
 		harborAuthService.saveOwnerAuth(projectDTO.getId(),projectDTO.getOrganizationId(),harborProjectVo.getHarborId(),authList);

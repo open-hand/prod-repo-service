@@ -37,8 +37,8 @@ public class ProdUser extends AuditDomain {
     public static final String FIELD_ID = "id";
     public static final String FIELD_USER_ID = "userId";
     public static final String FIELD_LOGIN_NAME = "loginName";
-    public static final String FIELD_PASSWORD = "password";
-    public static final String FIELD_PWD_UPDATE_FLAG = "pwdUpdateFlag";
+    public static final String FIELD_PSW = "password";
+    public static final String FIELD_PSW_UPDATE_FLAG = "pwdUpdateFlag";
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_CREATED_BY = "createdBy";
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";

@@ -10,9 +10,11 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.constraints.NotBlank;
+
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -60,56 +62,57 @@ public class HarborLog extends AuditDomain {
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
-	@Encrypt
+    @Encrypt
     private Long logId;
-    @ApiModelProperty(value = "操作者ID",required = true)
+    @ApiModelProperty(value = "操作者ID", required = true)
     @NotNull
     private Long operatorId;
-    @ApiModelProperty(value = "猪齿鱼项目ID",required = true)
+    @ApiModelProperty(value = "猪齿鱼项目ID", required = true)
     @NotNull
     private Long projectId;
-    @ApiModelProperty(value = "组织ID",required = true)
+    @ApiModelProperty(value = "组织ID", required = true)
     @NotNull
     private Long organizationId;
-    @ApiModelProperty(value = "操作类型",required = true)
+    @ApiModelProperty(value = "操作类型", required = true)
     @NotBlank
     private String operateType;
-    @ApiModelProperty(value = "日志内容",required = true)
+    @ApiModelProperty(value = "日志内容", required = true)
     @NotBlank
     private String content;
-    @ApiModelProperty(value = "操作时间",required = true)
+    @ApiModelProperty(value = "操作时间", required = true)
     @NotNull
     private Date operateTime;
 
 
-	@Transient
-	@ApiModelProperty("项目编码")
-	private String projectCode;
+    @Transient
+    @ApiModelProperty("项目编码")
+    private String projectCode;
 
     @Transient
-	@ApiModelProperty("项目名称")
-	private String projectName;
+    @ApiModelProperty("项目名称")
+    private String projectName;
 
     @Transient
-	@ApiModelProperty("项目图标URL")
-	private String projectImageUrl;
+    @ApiModelProperty("项目图标URL")
+    private String projectImageUrl;
 
-	public HarborLog(){}
+    public HarborLog() {
+    }
 
-	public HarborLog(@NotNull Long projectId, @NotNull Long organizationId, @NotBlank String operateType, String content, Date startDate, Date endDate) {
-		this.projectId = projectId;
-		this.organizationId = organizationId;
-		this.operateType = operateType;
-		this.content = content;
-		this.startDate = startDate;
-		this.endDate = endDate;
-	}
-
-	@Transient
-	private Date startDate;
+    public HarborLog(Long projectId, Long organizationId, String operateType, String content, Date startDate, Date endDate) {
+        this.projectId = projectId;
+        this.organizationId = organizationId;
+        this.operateType = operateType;
+        this.content = content;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 
     @Transient
-	private Date endDate;
+    private Date startDate;
+
+    @Transient
+    private Date endDate;
 
 
 }

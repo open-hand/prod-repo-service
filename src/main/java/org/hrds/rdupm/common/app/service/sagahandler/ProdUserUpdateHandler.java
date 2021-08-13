@@ -52,8 +52,8 @@ public class ProdUserUpdateHandler {
 	@Autowired
 	private NexusClient nexusClient;
 
-	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PWD_HARBOR,description = "更新用户：harbor",
-			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PWD,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
+	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PSW_HARBOR,description = "更新用户：harbor",
+			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PSW,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String updateHarborUser(String message){
 		ProdUser prodUser = null;
 		try {
@@ -81,8 +81,8 @@ public class ProdUserUpdateHandler {
 		return message;
 	}
 
-	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PWD_NEXUS,description = "更新用户：nexus",
-			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PWD,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
+	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PSW_NEXUS,description = "更新用户：nexus",
+			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PSW,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	private String updateNexusUser(String message){
 		ProdUser prodUser = null;
 		try {

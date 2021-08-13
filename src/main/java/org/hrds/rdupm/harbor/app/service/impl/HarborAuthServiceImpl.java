@@ -47,6 +47,8 @@ import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -59,6 +61,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class HarborAuthServiceImpl implements HarborAuthService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HarborAuthServiceImpl.class);
 
     @Autowired
     private HarborRepositoryRepository harborRepositoryRepository;
@@ -236,8 +240,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
                     .andEqualTo(HarborAuth.FIELD_PROJECT_ID, harborAuth.getProjectId())
                     .andEqualTo(HarborAuth.FIELD_AUTH_ID, harborAuth.getAuthId())
             ).build()).stream().findFirst().orElse(null);
-            harborAuth.setObjectVersionNumber(dbAuth.getObjectVersionNumber());
-            harborAuth.setHarborAuthId(dbAuth.getHarborAuthId());
+            if (!Objects.isNull(dbAuth)) {
+                harborAuth.setObjectVersionNumber(dbAuth.getObjectVersionNumber());
+                harborAuth.setHarborAuthId(dbAuth.getHarborAuthId());
+            }
         }
     }
 
@@ -325,6 +331,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
                 .andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID, DetailsHelper.getUserDetails().getTenantId())
                 .andEqualTo(HarborAuth.FIELD_AUTH_ID, harborAuth.getAuthId())
         ).build()).stream().findFirst().orElse(null);
+        if (Objects.isNull(dbAuth)) {
+            return;
+        }
         //非仓库管理员角色更新删除，通过
         if (!HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId().equals(dbAuth.getHarborRoleId())) {
             return;
@@ -392,7 +401,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
             try {
                 harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD, null, bodyMap, true, userMap.get(loginName).getUserId());
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("error.change.psw", e);
             }
         }
     }
