@@ -6,7 +6,9 @@
 */
 import React, { useEffect } from 'react';
 import { Icon, Row, Col } from 'choerodon-ui';
-import { Pagination, Spin, Modal, Form, TextField, Button, DataSet, Select } from 'choerodon-ui/pro';
+import {
+  Pagination, Spin, Modal, Form, TextField, Button, DataSet, Select,
+} from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { isUndefined } from 'lodash';
 import { useNpmStore } from '../stores';
@@ -44,7 +46,9 @@ const MirrorList = () => {
 
   function openTagModal(name, repository) {
     const repositoryId = packageListDs.queryDataSet.records[0].get('repositoryId');
-    const tagListDs = new DataSet(TagListDS({ intlPrefix, formatMessage, organizationId, repositoryName: repository, name, repositoryId }));
+    const tagListDs = new DataSet(TagListDS({
+      intlPrefix, formatMessage, organizationId, repositoryName: repository, name, repositoryId,
+    }));
     const tagPros = {
       formatMessage,
       intlPrefix,
@@ -102,14 +106,17 @@ const MirrorList = () => {
     return listData ? (
       <ul>
         {
-          listData.map(item => {
-            const { id, name, repository, newestVersion, versionCount } = item;
+          listData.map((item) => {
+            const {
+              id, name, repository, newestVersion, versionCount,
+            } = item;
             return (
               <li key={id}>
                 <div className="product-lib-org-management-package-list-list-card">
                   <Row className="product-lib-org-management-package-list-list-card-header" type="flex" justify="space-between" style={{ marginBottom: '0.08rem' }}>
                     <Col span={20} className="product-lib-org-management-package-list-list-card-header-icon">
                       <span
+                        role="none"
                         className="product-lib-org-management-package-list-list-card-header-title"
                         onClick={() => openTagModal(name, repository)}
                       >
@@ -120,17 +127,20 @@ const MirrorList = () => {
                   <Row className="product-lib-org-management-package-list-list-card-header" type="flex">
                     <Col span={10} className="product-lib-org-management-package-list-list-card-footer">
                       <Icon type="date_range" />
-                      <span>{formatMessage({ id: `${intlPrefix}.model.newestVersion` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.newestVersion` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-package-list-list-card-footer-text">{newestVersion}</span>
                     </Col>
                     <Col span={10} className="product-lib-org-management-package-list-list-card-footer">
                       <Icon type="book-o" />
-                      <span>{formatMessage({ id: `${intlPrefix}.model.tagsCount` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.tagsCount` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-package-list-list-card-footer-text">{versionCount}</span>
                     </Col>
-                    {/* <Col span={1} className="product-lib-org-management-package-list-list-card-footer-action">
-                      <div style={{ position: 'absolute', top: '-0.15rem', right: 0 }}>{renderAction(item)}</div>
-                    </Col> */}
                   </Row>
                 </div>
               </li>
@@ -141,7 +151,6 @@ const MirrorList = () => {
     ) : null;
   }
 
-
   return (
     <div className="product-lib-org-management-package-list">
       <Spin dataSet={packageListDs}>
@@ -149,20 +158,20 @@ const MirrorList = () => {
           {renderFilterForm()}
           {
             listData && listData.length > 0 ? (
-              <React.Fragment>
+              <>
                 <div className="product-lib-org-management-package-list-list-body">
                   {renderData()}
                 </div>
                 <div className="product-lib-org-management-package-list-pagination">
                   <Pagination dataSet={packageListDs} />
                 </div>
-              </React.Fragment>
+              </>
             ) : (
                 // eslint-disable-next-line react/jsx-indent
                 <div className="product-lib-org-management-package-list-list-no-content">
                   {formatMessage({ id: `${intlPrefix}.view.noContent` })}
                 </div>
-              )
+            )
           }
         </div>
       </Spin>

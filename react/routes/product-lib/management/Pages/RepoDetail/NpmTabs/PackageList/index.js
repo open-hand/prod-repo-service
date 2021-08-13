@@ -6,7 +6,9 @@
 */
 import React, { useEffect, useMemo } from 'react';
 import { Icon, message } from 'choerodon-ui';
-import { Spin, Form, TextField, Pagination, Modal } from 'choerodon-ui/pro';
+import {
+  Spin, Form, TextField, Pagination, Modal,
+} from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
 import { axios, stores, Action } from '@choerodon/boot';
@@ -17,7 +19,9 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKey, repositoryId, repositoryName, enableFlag }) => {
+const PackageList = ({
+  npmOverViewDs, npmComponentDs, formatMessage, activeTabKey, repositoryId, repositoryName, enableFlag,
+}) => {
   const userAuth = useUserAuth();
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.PACKAGE_LIST) {
@@ -48,15 +52,18 @@ const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKe
         }
       },
       footer: ((okBtn, cancelBtn) => (
-        <React.Fragment>
-          {cancelBtn}{okBtn}
-        </React.Fragment>
+        <>
+          {cancelBtn}
+          {okBtn}
+        </>
       )),
       movable: false,
     });
   };
 
-  const tagModalProps = useMemo(() => ({ formatMessage, npmOverViewDs, repositoryId, repositoryName, userAuth, enableFlag }), [repositoryId, enableFlag, userAuth, repositoryName, formatMessage, npmOverViewDs]);
+  const tagModalProps = useMemo(() => ({
+    formatMessage, npmOverViewDs, repositoryId, repositoryName, userAuth, enableFlag,
+  }), [repositoryId, enableFlag, userAuth, repositoryName, formatMessage, npmOverViewDs]);
 
   const openTagModal = (data) => {
     const { name } = data;
@@ -73,7 +80,6 @@ const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKe
     });
   };
 
-
   const packageList = useMemo(() => npmComponentDs.toData(), [npmComponentDs.data]);
 
   return (
@@ -86,16 +92,19 @@ const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKe
           }
         }}
       >
-        <Form dataSet={npmComponentDs.queryDataSet} >
+        <Form dataSet={npmComponentDs.queryDataSet}>
           <TextField name="name" />
         </Form>
       </div>
-      {npmComponentDs.records.length > 0 ?
-        <React.Fragment>
-          <ul className="product-lib-npm-imagelist-list">
-            {
-              packageList.map(data => {
-                const { id, name, lastUpdateDate, versionCount, newestVersion } = data;
+      {npmComponentDs.records.length > 0
+        ? (
+          <>
+            <ul className="product-lib-npm-imagelist-list">
+              {
+              packageList.map((data) => {
+                const {
+                  id, name, lastUpdateDate, versionCount, newestVersion,
+                } = data;
                 return (
                   <li
                     key={id}
@@ -126,7 +135,8 @@ const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKe
                       </div>
                     </div>
                     <div>
-                      {(userAuth?.includes('projectAdmin') || userAuth?.includes('developer')) && enableFlag === 'Y' &&
+                      {(userAuth?.includes('projectAdmin') || userAuth?.includes('developer')) && enableFlag === 'Y'
+                        && (
                         <Action
                           data={[
                             {
@@ -136,23 +146,24 @@ const PackageList = ({ npmOverViewDs, npmComponentDs, formatMessage, activeTabKe
                             },
                           ]}
                         />
-                      }
+                        )}
                     </div>
                   </li>
                 );
               })
             }
-          </ul>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Pagination dataSet={npmComponentDs} />
+            </ul>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Pagination dataSet={npmComponentDs} />
+            </div>
+          </>
+        )
+        : (
+          <div className="product-lib-npm-imagelist-no-content">
+            <span>暂无数据</span>
           </div>
-        </React.Fragment>
-        :
-        <div className="product-lib-npm-imagelist-no-content">
-          <span>暂无数据</span>
-        </div>
-      }
-    </Spin >
+        )}
+    </Spin>
   );
 };
 

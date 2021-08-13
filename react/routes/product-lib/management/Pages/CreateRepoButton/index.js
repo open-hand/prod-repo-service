@@ -8,7 +8,6 @@ import CreateRepoModal from './CreateRepoModal';
 import { intlPrefix } from '../../index';
 import './index.less';
 
-
 export const useOpenModal = ({
   init,
   formatMessage,
@@ -77,10 +76,10 @@ export const useOpenModal = ({
 
   const openModal = useCallback(async () => {
     const key = Modal.key();
-    
+
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
     const res = await axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`);
-    const enableFlagItem = res.find(o => o.enableFlag === 1);
+    const enableFlagItem = res.find((o) => o.enableFlag === 1);
     const { enableAnonymousFlag } = enableFlagItem;
 
     modal.current = Modal.open({
@@ -99,10 +98,10 @@ export const useOpenModal = ({
       footer: (okBtn, cancelBtn) => (
         <Observer>
           {() => (
-            <React.Fragment>
+            <>
+              {[cancelBtn, okBtn]}
               {testBtnStore.isShow && <Button color="primary" funcType="raised" onClick={validateConnect}>测试连接</Button>}
-              {[okBtn, cancelBtn]}
-            </React.Fragment>
+            </>
           )}
         </Observer>
       ),

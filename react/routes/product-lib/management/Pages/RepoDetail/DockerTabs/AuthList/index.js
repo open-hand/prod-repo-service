@@ -13,7 +13,6 @@ import { TabKeyEnum } from '../../DockerTabContainer';
 import EditModal from './EditModal';
 import { useUserAuth } from '../../../index';
 
-
 const imgStyle = {
   width: '18px',
   height: '18px',
@@ -89,9 +88,10 @@ const AuthList = ({ dockerAuthDs, formatMessage, activeTabKey }) => {
         }
       },
       footer: ((okBtn, cancelBtn) => (
-        <React.Fragment>
-          {cancelBtn}{okBtn}
-        </React.Fragment>
+        <>
+          {cancelBtn}
+          {okBtn}
+        </>
       )),
       movable: false,
     });
@@ -127,7 +127,7 @@ const AuthList = ({ dockerAuthDs, formatMessage, activeTabKey }) => {
   }
 
   return (
-    <Table dataSet={dockerAuthDs} className="no-border-top-table" >
+    <Table dataSet={dockerAuthDs} className="no-border-top-table">
       <Column name="loginName" />
       {userAuth?.includes('projectAdmin') && <Column renderer={renderAction} width={70} />}
       <Column name="realName" renderer={({ text, record }) => rendererIcon(record.toData().userImageUrl, text)} />

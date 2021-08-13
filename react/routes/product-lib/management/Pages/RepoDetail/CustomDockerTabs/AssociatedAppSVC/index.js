@@ -15,7 +15,9 @@ import AssociatedAppSVCDataSet from './AssociatedAppSVCDataSet';
 const intlPrefix = 'infra.prod.lib';
 
 const { Column } = Table;
-const AssociatedAppSVC = ({ detail, repositoryId, projectShare, formatMessage, activeTabKey }, ref) => {
+const AssociatedAppSVC = ({
+  detail, repositoryId, projectShare, formatMessage, activeTabKey,
+}, ref) => {
   const { currentMenuType: { projectId, organizationId } } = stores.AppState;
   const associatedAppSVCDs = React.useRef(new DataSet(AssociatedAppSVCDataSet(intlPrefix, formatMessage, organizationId, projectId))).current;
 
@@ -49,9 +51,10 @@ const AssociatedAppSVC = ({ detail, repositoryId, projectShare, formatMessage, a
         }
       },
       footer: ((okBtn, cancelBtn) => (
-        <React.Fragment>
-          {cancelBtn}{okBtn}
-        </React.Fragment>
+        <>
+          {cancelBtn}
+          {okBtn}
+        </>
       )),
       movable: false,
     });
@@ -70,7 +73,7 @@ const AssociatedAppSVC = ({ detail, repositoryId, projectShare, formatMessage, a
   }
 
   return useObserver(() => (
-    <Table dataSet={associatedAppSVCDs} className="no-border-top-table" >
+    <Table dataSet={associatedAppSVCDs} className="no-border-top-table">
       <Column name="name" />
       {projectShare === 'false' && <Column renderer={renderAction} width={70} />}
       <Column name="code" />

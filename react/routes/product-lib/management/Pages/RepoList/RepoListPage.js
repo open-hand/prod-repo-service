@@ -310,8 +310,8 @@ const RepoList = ({ setActiveRepository }) => {
         <Observer>
           {() => (
             <React.Fragment>
+              {[cancelBtn, okBtn]}
               <Button color="primary" funcType="raised" onClick={validateConnect}>测试连接</Button>
-              {[okBtn, cancelBtn]}
             </React.Fragment>
           )}
         </Observer>
