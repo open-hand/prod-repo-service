@@ -39,8 +39,6 @@ const AssociatedAppSVC = ({
       title: formatMessage({ id: 'confirm.delete' }),
       children: '确认删除关联应用服务？',
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         try {
           await axios.delete(`/rdupm/v1/${organizationId}/harbor-custom-repos/delete-relation/${data.id}`, { data: detail });

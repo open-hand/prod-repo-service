@@ -76,8 +76,6 @@ const AuthList = ({ dockerAuthDs, formatMessage, activeTabKey }) => {
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteAuth` }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         try {
           await axios.delete('/rdupm/v1/harbor-auths', { data });
