@@ -79,8 +79,6 @@ const RepoList = ({ setActiveRepository }) => {
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         const { currentMenuType: { projectId } } = stores.AppState;
         try {
@@ -107,8 +105,6 @@ const RepoList = ({ setActiveRepository }) => {
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
         try {
@@ -135,8 +131,6 @@ const RepoList = ({ setActiveRepository }) => {
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
         try {
@@ -162,8 +156,6 @@ const RepoList = ({ setActiveRepository }) => {
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
         try {
@@ -310,8 +302,8 @@ const RepoList = ({ setActiveRepository }) => {
         <Observer>
           {() => (
             <React.Fragment>
+              {[cancelBtn, okBtn]}
               <Button color="primary" funcType="raised" onClick={validateConnect}>测试连接</Button>
-              {[okBtn, cancelBtn]}
             </React.Fragment>
           )}
         </Observer>
