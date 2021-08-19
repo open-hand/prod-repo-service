@@ -319,4 +319,9 @@ public class HarborUtil {
         return harborInfo.getApiVersion() == null ||
                 harborInfo.getApiVersion().equals(HarborConstants.API_VERSION_1);
     }
+
+    public static Boolean isApiVersion2(HarborInfoConfiguration harborInfo) {
+        return harborInfo.getApiVersion() == null ||
+                harborInfo.getApiVersion().equals(HarborConstants.API_VERSION_2);
+    }
 }

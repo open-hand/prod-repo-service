@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class HarborRobotServiceImpl implements HarborRobotService {
     public static final Logger logger = LoggerFactory.getLogger(HarborRobotServiceImpl.class);
+    private static final Long SECONDS_IN_A_YEAR = 1660838400L;
     @Autowired
     private HarborHttpClient harborHttpClient;
     @Autowired
@@ -79,8 +80,13 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         String robotResource = String.format(HarborConstants.HarborRobot.ROBOT_RESOURCE, harborRobot.getHarborProjectId());
         List<HarborRobotAccessVO> accessVOList = new ArrayList<>(1);
         accessVOList.add(new HarborRobotAccessVO(harborRobot.getAction(), robotResource));
-
-        HarborRobotVO createRobotVo = new HarborRobotVO(harborRobot.getName(), harborRobot.getDescription(), accessVOList);
+        //如果是V2  过期时间设置为一年
+        HarborRobotVO createRobotVo;
+        if (HarborUtil.isApiVersion2(harborHttpClient.getHarborInfo())) {
+            createRobotVo = new HarborRobotVO(harborRobot.getName(), harborRobot.getDescription(), accessVOList, SECONDS_IN_A_YEAR);
+        } else {
+            createRobotVo = new HarborRobotVO(harborRobot.getName(), harborRobot.getDescription(), accessVOList);
+        }
         ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT, null, createRobotVo, true, harborRobot.getHarborProjectId());
         HarborRobotVO newRobotVO = new Gson().fromJson(robotResponseEntity.getBody(), HarborRobotVO.class);
         AssertUtils.notNull(newRobotVO.getToken(), "the robot response token empty");
@@ -183,7 +189,15 @@ public class HarborRobotServiceImpl implements HarborRobotService {
                 List<HarborRobotAccessVO> accessVOList = new ArrayList<>(1);
                 accessVOList.add(new HarborRobotAccessVO(robot.getAction(), robotResource));
                 String robotName = robot.getName().replace(HarborConstants.HarborRobot.ROBOT_NAME_PREFIX, "");
-                HarborRobotVO createRobotVo = new HarborRobotVO(robotName, robot.getDescription(), accessVOList);
+
+                //如果是V2  过期时间设置为一年
+                HarborRobotVO createRobotVo;
+                if (HarborUtil.isApiVersion2(harborHttpClient.getHarborInfo())) {
+                    createRobotVo = new HarborRobotVO(robotName, robot.getDescription(), accessVOList, SECONDS_IN_A_YEAR);
+                } else {
+                    createRobotVo = new HarborRobotVO(robotName, robot.getDescription(), accessVOList);
+                }
+
                 ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT, null, createRobotVo, true, robot.getHarborProjectId());
                 HarborRobotVO newRobotVO = new Gson().fromJson(robotResponseEntity.getBody(), HarborRobotVO.class);
                 AssertUtils.notNull(newRobotVO.getToken(), "the robot response token empty");
