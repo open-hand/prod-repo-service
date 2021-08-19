@@ -62,6 +62,13 @@ public class HarborRobotVO {
     @ApiModelProperty("机器人账户功能（创建时用到）")
     private List<HarborRobotAccessVO> access;
 
+    public HarborRobotVO(String name, String description, List<HarborRobotAccessVO> access, Long expiresAt) {
+        this.name = name;
+        this.description = description;
+        this.access = access;
+        this.expiresAt = expiresAt;
+    }
+
     public HarborRobotVO(String name, String description, List<HarborRobotAccessVO> access) {
         this.name = name;
         this.description = description;
