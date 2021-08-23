@@ -1,6 +1,5 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import javax.persistence.Id;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -9,16 +8,11 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import io.choerodon.asgard.saga.annotation.Saga;
-import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.mybatis.domain.AuditDomain;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborRobotAccessVO;
 import org.hrds.rdupm.harbor.api.vo.HarborRobotVO;
 import org.hrds.rdupm.harbor.app.service.HarborRobotService;
@@ -48,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class HarborRobotServiceImpl implements HarborRobotService {
     public static final Logger logger = LoggerFactory.getLogger(HarborRobotServiceImpl.class);
-    private static final Long SECONDS_IN_A_YEAR = 1660838400L;
+    private static final Long MILLISECONDS_IN_A_DAY = 86400000L;
     @Autowired
     private HarborHttpClient harborHttpClient;
     @Autowired
@@ -80,13 +74,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         String robotResource = String.format(HarborConstants.HarborRobot.ROBOT_RESOURCE, harborRobot.getHarborProjectId());
         List<HarborRobotAccessVO> accessVOList = new ArrayList<>(1);
         accessVOList.add(new HarborRobotAccessVO(harborRobot.getAction(), robotResource));
-        //如果是V2  过期时间设置为一年
-        HarborRobotVO createRobotVo;
-        if (HarborUtil.isApiVersion2(harborHttpClient.getHarborInfo())) {
-            createRobotVo = new HarborRobotVO(harborRobot.getName(), harborRobot.getDescription(), accessVOList, SECONDS_IN_A_YEAR);
-        } else {
-            createRobotVo = new HarborRobotVO(harborRobot.getName(), harborRobot.getDescription(), accessVOList);
-        }
+        HarborRobotVO createRobotVo = new HarborRobotVO(harborRobot.getName(), harborRobot.getDescription(), accessVOList);
         ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT, null, createRobotVo, true, harborRobot.getHarborProjectId());
         HarborRobotVO newRobotVO = new Gson().fromJson(robotResponseEntity.getBody(), HarborRobotVO.class);
         AssertUtils.notNull(newRobotVO.getToken(), "the robot response token empty");
@@ -189,15 +177,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
                 List<HarborRobotAccessVO> accessVOList = new ArrayList<>(1);
                 accessVOList.add(new HarborRobotAccessVO(robot.getAction(), robotResource));
                 String robotName = robot.getName().replace(HarborConstants.HarborRobot.ROBOT_NAME_PREFIX, "");
-
-                //如果是V2  过期时间设置为一年
-                HarborRobotVO createRobotVo;
-                if (HarborUtil.isApiVersion2(harborHttpClient.getHarborInfo())) {
-                    createRobotVo = new HarborRobotVO(robotName, robot.getDescription(), accessVOList, SECONDS_IN_A_YEAR);
-                } else {
-                    createRobotVo = new HarborRobotVO(robotName, robot.getDescription(), accessVOList);
-                }
-
+                HarborRobotVO createRobotVo = new HarborRobotVO(robotName, robot.getDescription(), accessVOList);
                 ResponseEntity<String> robotResponseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ROBOT, null, createRobotVo, true, robot.getHarborProjectId());
                 HarborRobotVO newRobotVO = new Gson().fromJson(robotResponseEntity.getBody(), HarborRobotVO.class);
                 AssertUtils.notNull(newRobotVO.getToken(), "the robot response token empty");
@@ -245,7 +225,7 @@ public class HarborRobotServiceImpl implements HarborRobotService {
         if (robotVO.getExpiresAt() * 1000 != robot.getEndDate().getTime()) {
             throw new CommonException("error.harbor.robot.endDate.different");
         }
-        if ((robot.getEndDate().getTime() - System.currentTimeMillis()) <= 86400000L) {
+        if ((robot.getEndDate().getTime() - System.currentTimeMillis()) <= MILLISECONDS_IN_A_DAY) {
             robotInvalidProcess(robot);
         }
     }
