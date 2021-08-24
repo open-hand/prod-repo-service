@@ -67,19 +67,14 @@ public class HarborLog extends AuditDomain {
     @ApiModelProperty(value = "操作者ID", required = true)
     private Long operatorId;
     @ApiModelProperty(value = "猪齿鱼项目ID", required = true)
-    @NotNull
     private Long projectId;
     @ApiModelProperty(value = "组织ID", required = true)
-    @NotNull
     private Long organizationId;
     @ApiModelProperty(value = "操作类型", required = true)
-    @NotBlank
     private String operateType;
     @ApiModelProperty(value = "日志内容", required = true)
-    @NotBlank
     private String content;
     @ApiModelProperty(value = "操作时间", required = true)
-    @NotNull
     private Date operateTime;
 
 

@@ -151,7 +151,7 @@ public interface NexusUrlConstants {
 		/**
 		 * 密码更改
 		 */
-		String CHANGE_PASSWORD = "/service/rest/beta/security/users/{userId}/change-password";
+		String CHANGE_PSW = "/service/rest/beta/security/users/{userId}/change-password";
 
 	}
 

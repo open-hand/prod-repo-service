@@ -268,33 +268,25 @@ public interface HarborConstants {
 			return apiUrl;
 		}
 
-		public void setApiUrl(String apiUrl) {
-			this.apiUrl = apiUrl;
-		}
+
 
 		public HttpMethod getHttpMethod() {
 			return httpMethod;
 		}
 
-		public void setHttpMethod(HttpMethod httpMethod) {
-			this.httpMethod = httpMethod;
-		}
+
 
 		public String getApiDesc() {
 			return apiDesc;
 		}
 
-		public void setApiDesc(String apiDesc) {
-			this.apiDesc = apiDesc;
-		}
+
 
 		public String getApiUrlV2() {
 			return apiUrlV2;
 		}
 
-		public void setApiUrlV2(String apiUrlV2) {
-			this.apiUrlV2 = apiUrlV2;
-		}
+
 
 		HarborApiEnum(String apiUrl, HttpMethod method, String apiDesc) {
 			this.apiUrl = apiUrl;
@@ -347,25 +339,19 @@ public interface HarborConstants {
 			return roleId;
 		}
 
-		public void setRoleId(Long roleId) {
-			this.roleId = roleId;
-		}
+
 
 		public String getRoleValue() {
 			return roleValue;
 		}
 
-		public void setRoleValue(String roleValue) {
-			this.roleValue = roleValue;
-		}
+
 
 		public String getRoleName() {
 			return roleName;
 		}
 
-		public void setRoleName(String roleName) {
-			this.roleName = roleName;
-		}
+
 
 		HarborRoleEnum(Long roleId, String roleValue, String roleName) {
 			this.roleId = roleId;
@@ -423,16 +409,10 @@ public interface HarborConstants {
 			return operateType;
 		}
 
-		public void setOperateType(String operateType) {
-			this.operateType = operateType;
-		}
+
 
 		public String getOperateName() {
 			return operateName;
-		}
-
-		public void setOperateName(String operateName) {
-			this.operateName = operateName;
 		}
 
 		HarborImageOperateEnum(String operateType, String operateName) {

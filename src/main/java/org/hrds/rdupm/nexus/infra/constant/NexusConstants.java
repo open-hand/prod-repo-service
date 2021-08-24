@@ -36,17 +36,12 @@ public interface NexusConstants {
             return roleCode;
         }
 
-        public void setRoleCode(String roleCode) {
-            this.roleCode = roleCode;
-        }
+
 
         public String getRoleName() {
             return roleName;
         }
 
-        public void setRoleName(String roleName) {
-            this.roleName = roleName;
-        }
 
         NexusRoleEnum(String roleCode, String roleName) {
             this.roleCode = roleCode;

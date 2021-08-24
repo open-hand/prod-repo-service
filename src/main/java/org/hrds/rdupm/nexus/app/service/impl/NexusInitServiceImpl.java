@@ -82,7 +82,7 @@ public class NexusInitServiceImpl implements NexusInitService {
 				defaultConfig.setAnonymousRole(null);
 			}
 			nexusServerConfigRepository.updateOptional(defaultConfig, NexusServerConfig.FIELD_SERVER_URL,
-					NexusServerConfig.FIELD_USER_NAME, NexusServerConfig.FIELD_PASSWORD,
+					NexusServerConfig.FIELD_USER_NAME, NexusServerConfig.FIELD_PSW,
 					NexusServerConfig.FIELD_ENABLE_ANONYMOUS_FLAG, NexusServerConfig.FIELD_ANONYMOUS,
 					NexusServerConfig.FIELD_ANONYMOUS_ROLE);
 		}
