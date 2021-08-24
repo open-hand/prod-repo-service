@@ -84,9 +84,6 @@ public class ProdUser extends AuditDomain {
 	@ApiModelProperty(value = "确认密码")
 	private String rePassword;
 
-	public ProdUser(){
-
-	}
 
 	public ProdUser(@NotNull Long userId, @NotBlank String loginName, @NotBlank String password, @NotNull Integer pwdUpdateFlag) {
 		this.userId = userId;
