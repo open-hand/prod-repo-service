@@ -65,7 +65,6 @@ public class HarborLog extends AuditDomain {
     @Encrypt
     private Long logId;
     @ApiModelProperty(value = "操作者ID", required = true)
-    @NotNull
     private Long operatorId;
     @ApiModelProperty(value = "猪齿鱼项目ID", required = true)
     @NotNull

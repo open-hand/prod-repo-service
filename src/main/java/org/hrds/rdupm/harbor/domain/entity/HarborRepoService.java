@@ -59,7 +59,6 @@ public class HarborRepoService extends AuditDomain {
 	@Encrypt
     private Long id;
     @ApiModelProperty(value = "自定义镜像仓库ID",required = true)
-    @NotNull
 	@Encrypt
     private Long customRepoId;
    @ApiModelProperty(value = "应用服务ID")    
