@@ -93,7 +93,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 
 	@Override
 	public void changePassword(String userId, String newPassword) {
-		String url = NexusUrlConstants.User.CHANGE_PASSWORD.replace("{userId}", userId);
+		String url = NexusUrlConstants.User.CHANGE_PSW.replace("{userId}", userId);
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, newPassword, MediaType.TEXT_PLAIN_VALUE);
 	}
 

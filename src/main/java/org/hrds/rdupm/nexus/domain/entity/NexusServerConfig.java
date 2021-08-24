@@ -56,7 +56,7 @@ public class NexusServerConfig extends AuditDomain {
     public static final String FIELD_SERVER_NAME = "serverName";
     public static final String FIELD_SERVER_URL = "serverUrl";
     public static final String FIELD_USER_NAME = "userName";
-    public static final String FIELD_PASSWORD = "password";
+    public static final String FIELD_PSW = "password";
     public static final String FIELD_ANONYMOUS = "anonymous";
     public static final String FIELD_ANONYMOUS_ROLE = "anonymousRole";
     public static final String FIELD_DEFAULT_FLAG = "defaultFlag";
@@ -115,7 +115,7 @@ public class NexusServerConfig extends AuditDomain {
             nexusExistUser = nexusClient.getNexusUserApi().getUsers(this.userName);
         } catch (NexusResponseException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
+                throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PSW_ERROR);
             }
             if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
                 throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);

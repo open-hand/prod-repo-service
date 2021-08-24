@@ -11,9 +11,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.constraints.NotBlank;
+
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -66,7 +68,7 @@ public class HarborAuth extends AuditDomain {
     // ------------------------------------------------------------------------------
 
 
-	@Encrypt
+    @Encrypt
     @ApiModelProperty("表ID，主键，供其他表做外键")
     @Id
     @GeneratedValue
@@ -76,92 +78,92 @@ public class HarborAuth extends AuditDomain {
     private Long projectId;
 
     @ApiModelProperty(value = "猪齿鱼用户ID,必输")
-	@Encrypt
+    @Encrypt
     private Long userId;
 
-    @ExcelColumn(title = "登录名",order = 3)
-   @ApiModelProperty(value = "登录名")
+    @ExcelColumn(title = "登录名", order = 3)
+    @ApiModelProperty(value = "登录名")
     private String loginName;
 
-    @ExcelColumn(title = "用户名",order = 4)
-   @ApiModelProperty(value = "用户姓名")
+    @ExcelColumn(title = "用户名", order = 4)
+    @ApiModelProperty(value = "用户姓名")
     private String realName;
 
     private Long harborRoleId;
 
-	@ApiModelProperty(value = "harbor权限角色值，必输")
-	@NotNull
-	@Transient
+    @ApiModelProperty(value = "harbor权限角色值，必输")
+    @Transient
     private String harborRoleValue;
 
-	@ExcelColumn(title = "权限角色", order = 6)
-	@Transient
-	private String harborRoleMeaning;
+    @ExcelColumn(title = "权限角色", order = 6)
+    @Transient
+    private String harborRoleMeaning;
 
-	@ExcelColumn(title = "有效期",pattern = BaseConstants.Pattern.DATE ,order = 7)
-	@ApiModelProperty(value = "有效期，必输")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ExcelColumn(title = "有效期", pattern = BaseConstants.Pattern.DATE, order = 7)
+    @ApiModelProperty(value = "有效期，必输")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 
-	@ApiModelProperty(value = "harbor权限ID")
-	@Encrypt
-	private Long harborAuthId;
+    @ApiModelProperty(value = "harbor权限ID")
+    @Encrypt
+    private Long harborAuthId;
 
-	@ApiModelProperty(value = "组织ID")
+    @ApiModelProperty(value = "组织ID")
     private Long organizationId;
 
     @Transient
-	private Long harborId;
+    private Long harborId;
 
     @Transient
-	private String userImageUrl;
+    private String userImageUrl;
 
-	@ExcelColumn(title = "成员角色",order = 5)
-	@Transient
-	private String memberRole;
+    @ExcelColumn(title = "成员角色", order = 5)
+    @Transient
+    private String memberRole;
 
-	@ExcelColumn(title = "镜像仓库编码",order = 1)
-	@Transient
-	private String code;
+    @ExcelColumn(title = "镜像仓库编码", order = 1)
+    @Transient
+    private String code;
 
-	@ExcelColumn(title = "镜像仓库名称",order = 2)
-	@Transient
-	private String name;
+    @ExcelColumn(title = "镜像仓库名称", order = 2)
+    @Transient
+    private String name;
 
-	@ApiModelProperty("锁定")
-	private String locked;
+    @ApiModelProperty("锁定")
+    private String locked;
 
-	@Transient
-	private String params;
+    @Transient
+    private String params;
 
-	public HarborAuth(){}
+    public HarborAuth() {
+    }
 
-	public HarborAuth(Long projectId, @NotBlank String loginName, String realName,String harborRoleName) {
-		this.projectId = projectId;
-		this.loginName = loginName;
-		this.realName = realName;
-		this.harborRoleId = HarborConstants.HarborRoleEnum.getIdByName(harborRoleName);
-	}
+    public HarborAuth(Long projectId, @NotBlank String loginName, String realName, String harborRoleName) {
+        this.projectId = projectId;
+        this.loginName = loginName;
+        this.realName = realName;
+        this.harborRoleId = HarborConstants.HarborRoleEnum.getIdByName(harborRoleName);
+    }
 
-	public HarborAuth(@NotBlank String loginName, String realName, Long organizationId, String code, String name,String harborRoleName) {
-		this.loginName = loginName;
-		this.realName = realName;
-		this.organizationId = organizationId;
-		this.code = code;
-		this.name = name;
-		this.harborRoleId = HarborConstants.HarborRoleEnum.getIdByName(harborRoleName);
-	}
+    public HarborAuth(@NotBlank String loginName, String realName, Long organizationId, String code, String name, String harborRoleName) {
+        this.loginName = loginName;
+        this.realName = realName;
+        this.organizationId = organizationId;
+        this.code = code;
+        this.name = name;
+        this.harborRoleId = HarborConstants.HarborRoleEnum.getIdByName(harborRoleName);
+    }
 
-	public void setHarborRoleValue(String value){
-		Long roleId = HarborConstants.HarborRoleEnum.getIdByValue(value);
-		this.harborRoleId = roleId;
-		this.harborRoleValue = value;
-	}
+    public void setHarborRoleValue(String value) {
+        Long roleId = HarborConstants.HarborRoleEnum.getIdByValue(value);
+        this.harborRoleId = roleId;
+        this.harborRoleValue = value;
+    }
 
-	public void setHarborRoleValueById(Long roleId){
-		this.harborRoleValue = HarborConstants.HarborRoleEnum.getValueById(roleId);
-	}
+    public void setHarborRoleValueById(Long roleId) {
+        this.harborRoleValue = HarborConstants.HarborRoleEnum.getValueById(roleId);
+    }
 
 	/*public static class AuthorityValueRenderer implements ValueRenderer {
 		@Override

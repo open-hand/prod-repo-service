@@ -145,7 +145,7 @@ public class HarborHttpClient {
             DisableSSLCertificateCheck.disableChecks();
             responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
         } catch (HttpClientErrorException e) {
-            e.printStackTrace();
+            LOGGER.error("exchange harbor error", e);
             int statusCode = e.getStatusCode().value();
             if (statusCode == 404) {
                 return new ResponseEntity<String>((String) null, HttpStatus.NO_CONTENT);
@@ -186,7 +186,7 @@ public class HarborHttpClient {
         try {
             responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
         } catch (HttpClientErrorException e) {
-            e.printStackTrace();
+            LOGGER.error("custom exchange harbor error", e);
             int statusCode = e.getStatusCode().value();
             switch (statusCode) {
                 case 401:
@@ -226,7 +226,7 @@ public class HarborHttpClient {
         try {
             responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, String.class);
         } catch (HttpClientErrorException e) {
-            e.printStackTrace();
+            LOGGER.error("Get System Info error", e);
             int statusCode = e.getStatusCode().value();
             if (statusCode == 404 && apiVersion.equals(HarborConstants.API_VERSION_1)) {
                 return getSystemInfo(apiEnum, HarborConstants.API_VERSION_2);

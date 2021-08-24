@@ -246,7 +246,7 @@ public class HarborUtil {
         try {
             FieldUtils.writeDeclaredField(auditDomain, idFieldName, null, true);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            LOGGER.error("reset domain error", e);
         }
         auditDomain.setCreatedBy(null);
         auditDomain.setCreationDate(null);

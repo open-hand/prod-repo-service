@@ -180,7 +180,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 		String encryptPassword = DESEncryptUtil.encode(newPassword);
 
 		nexusServerConfig.setPassword(encryptPassword);
-		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_PASSWORD,
+		nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_PSW,
 				NexusServerConfig.FIELD_ENABLE_ANONYMOUS_FLAG, NexusServerConfig.FIELD_ANONYMOUS, NexusServerConfig.FIELD_ANONYMOUS_ROLE);
 
 		if (nexusServerConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
