@@ -1,6 +1,5 @@
 import React, { useRef, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-// import { Modal } from 'choerodon-ui/pro';
 import { Modal } from 'choerodon-ui/pro';
 import { HeaderButtons, Header } from '@choerodon/master';
 import { useDockerStore } from '../stores';
@@ -78,14 +77,20 @@ const AppModals = observer(() => {
       title: formatMessage({ id: `${intlPrefix}.view.globalResource.title` }),
       className: 'infra-prod-lib-org-modals',
       children: <ResourceConfig
-        refresh={refresh}
+        refresh
         intlPrefix={intlPrefix}
         repoName="全部仓库"
       />,
       okText: formatMessage({ id: 'save' }),
     });
   }
-
+  const openExportModal = useCallback(() => {
+    console.log('a');
+    Modal.open({
+      title: formatMessage({ id: 'exportModal.confirm.title', defaultMessage: '权限导出确认' }),
+      children: <ExportAuthority {...exportProps} />,
+    });
+  }, []);
   function getButtons() {
     const result = [
       {
@@ -97,7 +102,7 @@ const AppModals = observer(() => {
       {
         name: formatMessage({ id: 'exportAuth' }),
         icon: 'get_app',
-        handler: () => { dockerStore.setExportModalVisible(true); },
+        handler: () => openExportModal(),
         display: currentTab === AUTH_TAB,
       },
       {
@@ -122,7 +127,6 @@ const AppModals = observer(() => {
       <Header>
         <HeaderButtons items={getButtons()} />
       </Header>
-      <ExportAuthority {...exportProps} />
     </>
   );
 });

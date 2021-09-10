@@ -11,7 +11,6 @@ const productManagement = asyncRouter(() => import('./routes/product-lib/managem
 const productManagementOrg = asyncRouter(() => import('./routes/product-lib/management-org'));
 const productManagementSite = asyncRouter(() => import('./routes/product-lib/management-site'));
 
-
 function RDUPMIndex({ match, AppState: { currentLanguage: language } }) {
   const IntlProviderAsync = asyncLocaleProvider(language, () => import(`./locale/${language}`));
   return (
