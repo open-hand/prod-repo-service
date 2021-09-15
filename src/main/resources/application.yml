@@ -101,10 +101,10 @@ mybatis:
 
 logging:
   level:
-    org.apache.ibatis: ${LOGGING_LEVEL:debug}
-    io.choerodon: ${LOGGING_LEVEL:debug}
-    org.hzero: ${LOGGING_LEVEL:debug}
-    org.hrds.rdupm: ${LOGGING_LEVEL:debug}
+    org.apache.ibatis: ${LOG_LEVEL:debug}
+    io.choerodon: ${LOG_LEVEL:debug}
+    org.hzero: ${LOG_LEVEL:debug}
+    org.hrds.rdupm: ${LOG_LEVEL:debug}
 
 hzero:
   scheduler:
