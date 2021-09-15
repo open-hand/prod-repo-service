@@ -92,7 +92,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
-	public String createProjectRepoSaga(String message) throws JsonProcessingException {
+	private String createProjectRepoSaga(String message) throws JsonProcessingException {
 		//创建镜像仓库的创建者统一使用admin账号来创建，目的是去掉普通用户创建仓库的权限
 		HarborProjectVo harborProjectVo = null;
 		try {
