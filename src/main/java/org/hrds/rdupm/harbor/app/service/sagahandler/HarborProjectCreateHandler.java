@@ -88,6 +88,7 @@ public class HarborProjectCreateHandler {
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
+		LOGGER.info("++++++++++++++++{}", message);
 		return message;
 	}
 
