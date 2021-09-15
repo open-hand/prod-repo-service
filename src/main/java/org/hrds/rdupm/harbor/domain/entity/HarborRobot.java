@@ -101,4 +101,7 @@ public class HarborRobot extends AuditDomain {
     // getter/setter
     // ------------------------------------------------------------------------------
 
+
+    public HarborRobot() {
+    }
 }

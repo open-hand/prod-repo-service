@@ -84,8 +84,13 @@ public class ProdUser extends AuditDomain {
 	@ApiModelProperty(value = "确认密码")
 	private String rePassword;
 
+    /**
+     * 这里的构造方法不能省略,Repository里面会newInstance来创建实例 少了构造方法会报错
+     */
+    public ProdUser() {
+    }
 
-	public ProdUser(@NotNull Long userId, @NotBlank String loginName, @NotBlank String password, @NotNull Integer pwdUpdateFlag) {
+    public ProdUser(@NotNull Long userId, @NotBlank String loginName, @NotBlank String password, @NotNull Integer pwdUpdateFlag) {
 		this.userId = userId;
 		this.loginName = loginName;
 		this.password = password;
