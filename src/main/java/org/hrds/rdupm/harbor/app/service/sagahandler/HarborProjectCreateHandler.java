@@ -79,7 +79,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER,description = "创建Docker镜像仓库：创建用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
-	private String createProjectUserSaga(String message){
+	public String createProjectUserSaga(String message){
 		try {
 			HarborProjectVo harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
 			UserDTO userDTO = harborProjectVo.getUserDTO();
@@ -92,7 +92,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_REPO,description = "创建Docker镜像仓库：创建镜像仓库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 2,maxRetryCount = 3, outputSchemaClass = String.class)
-	private String createProjectRepoSaga(String message) throws JsonProcessingException {
+	public String createProjectRepoSaga(String message) throws JsonProcessingException {
 		//创建镜像仓库的创建者统一使用admin账号来创建，目的是去掉普通用户创建仓库的权限
 		HarborProjectVo harborProjectVo = null;
 		try {
@@ -139,7 +139,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：更新harbor_id字段到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 3,maxRetryCount = 3, outputSchemaClass = String.class)
-	private String createProjectDbSaga(String message){
+	public String createProjectDbSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -156,7 +156,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_AUTH,description = "创建Docker镜像仓库：保存创建者权限到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 4,maxRetryCount = 3, outputSchemaClass = String.class)
-	private String createProjectAuthSaga(String message){
+	public String createProjectAuthSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -187,7 +187,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_QUOTA,description = "创建Docker镜像仓库：保存存储容量配置",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 5,maxRetryCount = 3)
-	private void createProjectQuotaSaga(String message){
+	public void createProjectQuotaSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -202,7 +202,7 @@ public class HarborProjectCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_CVE,description = "创建Docker镜像仓库：保存cve白名单",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 5,maxRetryCount = 3)
-	private void createProjectCveSaga(String message){
+	public void createProjectCveSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -214,7 +214,7 @@ public class HarborProjectCreateHandler {
 
     @SagaTask(code = HarborConstants.HarborSagaCode.ROBOT_SAGA_TASK_CODE, description = "创建harbor机器人账户",
             sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT, seq = 4, maxRetryCount = 3, outputSchemaClass = String.class)
-    public String generateRobot(String message){
+	public String generateRobot(String message){
         HarborProjectVo projectVo = new Gson().fromJson(message, HarborProjectVo.class);
 
         List<HarborRepository> repositoryList = harborRepositoryRepository.selectByCondition(Condition.builder(HarborRepository.class)

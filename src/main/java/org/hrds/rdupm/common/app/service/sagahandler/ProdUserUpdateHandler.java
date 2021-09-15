@@ -54,7 +54,7 @@ public class ProdUserUpdateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PSW_HARBOR,description = "更新用户：harbor",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PSW,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
-	private String updateHarborUser(String message){
+	public String updateHarborUser(String message){
 		ProdUser prodUser = null;
 		try {
 			prodUser = objectMapper.readValue(message, ProdUser.class);
@@ -83,7 +83,7 @@ public class ProdUserUpdateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PSW_NEXUS,description = "更新用户：nexus",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PSW,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
-	private String updateNexusUser(String message){
+	public String updateNexusUser(String message){
 		ProdUser prodUser = null;
 		try {
 			prodUser = objectMapper.readValue(message, ProdUser.class);

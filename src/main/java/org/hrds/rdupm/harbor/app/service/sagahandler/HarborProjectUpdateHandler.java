@@ -35,7 +35,7 @@ public class HarborProjectUpdateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_REPO,description = "更新Docker镜像仓库：保存仓库元数据",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
-	private String updateProjectRepoSaga(String message){
+	public String updateProjectRepoSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -49,7 +49,7 @@ public class HarborProjectUpdateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_QUOTA,description = "更新Docker镜像仓库：保存存储容量配置",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PROJECT,seq = 2,maxRetryCount = 3)
-	private void updateProjectQuotaSaga(String message){
+	public void updateProjectQuotaSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
@@ -61,7 +61,7 @@ public class HarborProjectUpdateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.UPDATE_PROJECT_CVE,description = "更新Docker镜像仓库：保存cve白名单",
 			sagaCode = HarborConstants.HarborSagaCode.UPDATE_PROJECT,seq = 2,maxRetryCount = 3)
-	private void updateProjectCveSaga(String message){
+	public void updateProjectCveSaga(String message){
 		HarborProjectVo harborProjectVo = null;
 		try {
 			harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
