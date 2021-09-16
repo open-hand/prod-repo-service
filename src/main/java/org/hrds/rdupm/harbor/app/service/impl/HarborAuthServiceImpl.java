@@ -375,10 +375,12 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             password = harborInfoConfiguration.getPassword();
         }
+        LOGGER.info(">>>>>>>>>step1.1:>>>>>>");
         ProdUser prodUser = new ProdUser(userId, loginName, password, 0);
         ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
+        LOGGER.info(">>>>>>>>>step1.2:>>>>>>");
         String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
-
+        LOGGER.info(">>>>>>>>>step1.3:>>>>>>");
         //若为管理员用户，则不创建
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             return;
