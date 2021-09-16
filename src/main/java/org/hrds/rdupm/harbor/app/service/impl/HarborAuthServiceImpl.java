@@ -372,6 +372,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         LOGGER.info(">>>>>>>>>step1:>>>>>>");
         //数据库插入制品库用户
         String password = HarborUtil.getPassword();
+        LOGGER.info(">>>>>>>>>step1.0:>>>>>>");
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             password = harborInfoConfiguration.getPassword();
         }

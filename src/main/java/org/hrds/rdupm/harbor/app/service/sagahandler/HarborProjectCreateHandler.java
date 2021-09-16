@@ -81,14 +81,12 @@ public class HarborProjectCreateHandler {
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	public String createProjectUserSaga(String message){
 		try {
-			LOGGER.info("=================={}",message);
 			HarborProjectVo harborProjectVo = objectMapper.readValue(message, HarborProjectVo.class);
 			UserDTO userDTO = harborProjectVo.getUserDTO();
 			harborAuthService.saveHarborUser(userDTO);
 		} catch (IOException e) {
 			throw new CommonException(e);
 		}
-		LOGGER.info("++++++++++++++++{}", message);
 		return message;
 	}
 
