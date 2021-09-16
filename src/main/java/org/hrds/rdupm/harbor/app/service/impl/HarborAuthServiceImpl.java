@@ -369,7 +369,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         if (HarborConstants.ADMIN.equals(loginName)) {
             loginName = harborInfoConfiguration.getUsername();
         }
-
+        LOGGER.info(">>>>>>>>>step1:>>>>>>");
         //数据库插入制品库用户
         String password = HarborUtil.getPassword();
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
@@ -383,23 +383,27 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             return;
         }
+        LOGGER.info(">>>>>>>>>step2:>>>>>>");
         //判断harbor中是否存在当前用户
         Map<String, Object> paramMap = new HashMap<>(1);
         paramMap.put("username", loginName);
         ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME, paramMap, null, true);
         List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
         Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto -> dto));
-
+        LOGGER.info(">>>>>>>>>step3:>>>>>>");
         //Harbor中新建用户
         if (userMap.get(loginName) == null) {
             User user = new User(loginName, email, newPassword, realName);
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER, null, user, true);
+            LOGGER.info(">>>>>>>>>step4:>>>>>>");
         } else {
+            LOGGER.info(">>>>>>>>>step5:>>>>>>");
             //更新Harbor中用户密码
             Map<String, Object> bodyMap = new HashMap<>(1);
             bodyMap.put("new_password", newPassword);
             try {
                 harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD, null, bodyMap, true, userMap.get(loginName).getUserId());
+                LOGGER.info(">>>>>>>>>step6:>>>>>>");
             } catch (Exception e) {
                 LOGGER.error("error.change.psw", e);
             }
