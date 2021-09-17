@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
 * 制品库自建或关联仓库查询
 * @author LZY <zhuyan.luo@hand-china.com>
@@ -6,7 +7,9 @@
 */
 import React, { useEffect, useState } from 'react';
 import { Icon, Row, Col } from 'choerodon-ui';
-import { Stores, Pagination, Spin, Modal, Form, Select, Button, TextField } from 'choerodon-ui/pro';
+import {
+  Stores, Pagination, Spin, Modal, Form, Select, Button, TextField,
+} from 'choerodon-ui/pro';
 import { Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
@@ -108,7 +111,7 @@ const LibList = () => {
   };
 
   const getTypeName = (code) => {
-    const item = typeList.find(o => o.value === code);
+    const item = typeList.find((o) => o.value === code);
     return item && item.meaning;
   };
 
@@ -132,11 +135,13 @@ const LibList = () => {
   };
 
   function renderData() {
-    return listData ? (
+    return listData.length ? (
       <ul>
         {
-          listData.map(item => {
-            const { repositoryId, neRepositoryName, projectName, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type } = item;
+          listData.map((item) => {
+            const {
+              repositoryId, neRepositoryName, projectName, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type,
+            } = item;
             return (
               <li key={repositoryId + neRepositoryName}>
                 <div className="product-lib-org-management-lib-list-list-card">
@@ -144,6 +149,7 @@ const LibList = () => {
                     <Col span={9} className="product-lib-org-management-lib-list-list-card-header-icon">
                       {/* {rendererOnlineStatus(online)} */}
                       <span
+                        role="none"
                         className="product-lib-org-management-lib-list-list-card-header-title"
                         onClick={() => handleToPackage(item.repositoryId)}
                       >
@@ -169,17 +175,26 @@ const LibList = () => {
                   <Row className="product-lib-org-management-lib-list-list-card-footer">
                     <Col span={9}>
                       <Icon type="account_circle-o" />
-                      <span>{formatMessage({ id: `${intlPrefix}.model.createdBy` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.createdBy` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-lib-list-list-card-footer-text">{creatorRealName ? `${creatorRealName} (${creatorLoginName})` : ''}</span>
                     </Col>
                     <Col span={9} className="product-lib-org-management-lib-list-list-card-header-project">
                       <Icon type="date_range" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.creationDate` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.creationDate` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-lib-list-list-card-footer-text">{creationDate}</span>
                     </Col>
                     <Col span={5} className="product-lib-org-management-lib-list-list-card-header-project">
                       <Icon type="category-o" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.type` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.type` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-lib-list-list-card-footer-text">{getTypeName(type)}</span>
                     </Col>
                     <Col span={1} className="product-lib-org-management-lib-list-list-card-footer-action">
@@ -195,7 +210,6 @@ const LibList = () => {
     ) : null;
   }
 
-
   return (
     <div className="product-lib-org-management-lib-list">
       <Spin dataSet={libListDs}>
@@ -203,20 +217,20 @@ const LibList = () => {
           {renderFilterForm()}
           {
             listData && listData.length > 0 ? (
-              <React.Fragment>
+              <>
                 <div className="product-lib-org-management-lib-list-list-body">
                   {renderData()}
                 </div>
                 <div className="product-lib-org-management-lib-list-pagination">
                   <Pagination dataSet={libListDs} />
                 </div>
-              </React.Fragment>
+              </>
             ) : (
                 // eslint-disable-next-line react/jsx-indent
                 <div className="product-lib-org-management-lib-list-list-no-content">
                   {formatMessage({ id: `${intlPrefix}.view.noContent` })}
                 </div>
-              )
+            )
           }
         </div>
       </Spin>

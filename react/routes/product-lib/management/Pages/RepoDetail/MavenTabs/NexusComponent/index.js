@@ -5,8 +5,8 @@
 * @copyright 2020 ® HAND
 */
 import React, { useEffect, useMemo } from 'react';
-import { Table, Button, Modal } from 'choerodon-ui/pro';
-import { Menu, Dropdown, message } from 'choerodon-ui';
+import { Table, Modal } from 'choerodon-ui/pro';
+import { message } from 'choerodon-ui';
 import { axios, stores, Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import moment from 'moment';
@@ -68,44 +68,6 @@ const NexusComponent = ({
     />
   );
 
-  const expandedRowRenderer = ({ record }) => {
-    const { components } = record.toData();
-    return (
-      <table style={{ width: '100%' }}>
-        <tbody>
-          {
-            components.map((o) => (
-              <tr key={o.id}>
-                <td style={{ paddingLeft: '10px' }}>
-                  {rendererDropDown({
-                    text: o.version,
-                    record: o,
-                  })}
-                </td>
-                <td style={{ paddingLeft: '10px' }}>{o.group}</td>
-                <td style={{ paddingLeft: '20px' }}>{o.name}</td>
-                <td style={{ paddingLeft: '20px' }}>
-                  <div style={{ display: 'inline-flex' }}>
-                    <UserAvatar
-                      user={{
-                        loginName: o.creatorLoginName,
-                        realName: o.creatorRealName,
-                        imageUrl: o.creatorImageUrl,
-                      }}
-                    />
-                  </div>
-                </td>
-                <td style={{ paddingLeft: '20px' }}>
-                  {o.creationDate && <Timeago date={moment(o.creationDate).format('YYYY-MM-DD HH:mm:ss')} />}
-                </td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
-    );
-  };
-
   function renderName({ record }) {
     const avatar = (
       <div style={{ display: 'inline-flex' }}>
@@ -134,7 +96,6 @@ const NexusComponent = ({
       dataSet={nexusComponentDs}
       mode="tree"
       expandIconColumnIndex={hasPermission ? 1 : 0}
-      // expandedRowRenderer={expandedRowRenderer}
       className="product-lib-nexusComponent-table"
     >
       {hasPermission ? <Column name="isChecked" editor width={50} /> : null}
