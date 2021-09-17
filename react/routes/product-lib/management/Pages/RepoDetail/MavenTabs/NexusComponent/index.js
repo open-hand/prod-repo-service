@@ -9,9 +9,9 @@ import { Table, Button, Modal } from 'choerodon-ui/pro';
 import { Menu, Dropdown, message } from 'choerodon-ui';
 import { axios, stores, Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
+import moment from 'moment';
 import UserAvatar from '@/components/user-avatar';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
-import moment from 'moment';
 import { useUserAuth } from '../../../index';
 import GuideButton from './GuideButton';
 import { TabKeyEnum } from '../../MavenTabContainer';
@@ -35,35 +35,28 @@ const NexusComponent = ({
     }
   }, [activeTabKey, repositoryName, repositoryId]);
 
-  // useEffect(() => {
-  //   if (hasPermission) {
-  //     // eslint-disable-next-line no-param-reassign
-  //     nexusComponentDs.selection = 'multiple';
-  //   } else {
-  //     // eslint-disable-next-line no-param-reassign
-  //     nexusComponentDs.selection = false;
-  //   }
-  // }, [hasPermission]);
+  async function handleDeleteVerison(record) {
+    const { repository, componentIds } = record.toData();
+    const { currentMenuType: { projectId, organizationId } } = stores.AppState;
+    try {
+      await axios.delete(`/rdupm/v1/nexus-components/${organizationId}/project/${projectId}?repositoryId=${repositoryId}&repositoryName=${repository}`, { data: componentIds });
+      message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
+      nexusComponentDs.query();
+    } catch (error) {
+      // message.error(error);
+    }
+  }
 
   const handleDelete = async (record) => {
-    const { repository, componentIds } = record;
-    const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-    const button = await Modal.confirm({
+    Modal.open({
+      title: '删除包版本',
       children: (
         <div>
-          <p>{formatMessage({ id: 'confirm.delete', defaultMessage: '确认删除？' })}</p>
+          <p>确认要删除包版本吗？</p>
         </div>
       ),
+      onOk: () => handleDeleteVerison(record),
     });
-    if (button !== 'cancel') {
-      try {
-        await axios.delete(`/rdupm/v1/nexus-components/${organizationId}/project/${projectId}?repositoryId=${repositoryId}&&repositoryName=${repository}`, { data: componentIds });
-        message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
-        nexusComponentDs.query();
-      } catch (error) {
-        // message.error(error);
-      }
-    }
   };
 
   const rendererDropDown = ({ text, record }) => (
@@ -131,7 +124,7 @@ const NexusComponent = ({
   const renderAction = ({ record }) => {
     const actionData = [{
       text: formatMessage({ id: 'delete', defaultMessage: '删除' }),
-      handle: () => handleDelete(record),
+      action: () => handleDelete(record),
     }];
     return <Action data={actionData} />;
   };
@@ -152,7 +145,7 @@ const NexusComponent = ({
         className={hasPermission ? '' : 'product-lib-nexusComponent-table-version'}
       />
       {/* {hasPermission ? ( */}
-        <Column renderer={renderAction} width={60} />
+      <Column renderer={renderAction} width={60} />
       {/* ) : null} */}
       <Column name="group" />
       <Column name="name" />
