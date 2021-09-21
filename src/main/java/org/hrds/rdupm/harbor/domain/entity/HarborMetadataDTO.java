@@ -45,4 +45,6 @@ public class HarborMetadataDTO {
 	@SerializedName("prevent_vul")
 	private String preventVulnerableFlag;
 
+	public HarborMetadataDTO() {
+	}
 }

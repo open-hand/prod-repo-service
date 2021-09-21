@@ -22,9 +22,11 @@ import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusAuthRepository;
@@ -67,6 +69,9 @@ public class ProdUserServiceImpl implements ProdUserService {
 
     @Autowired
     private C7nBaseService c7nBaseService;
+
+    @Autowired
+    private HarborAuthMapper harborAuthMapper;
 
     /***
      * 最少八个字符，至少一个大写字母，一个小写字母和一个数字

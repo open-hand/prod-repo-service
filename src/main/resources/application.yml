@@ -101,10 +101,10 @@ mybatis:
 
 logging:
   level:
-    org.apache.ibatis: ${LOGGING_LEVEL:debug}
-    io.choerodon: ${LOGGING_LEVEL:debug}
-    org.hzero: ${LOGGING_LEVEL:debug}
-    org.hrds.rdupm: ${LOGGING_LEVEL:debug}
+    org.apache.ibatis: ${LOG_LEVEL:debug}
+    io.choerodon: ${LOG_LEVEL:debug}
+    org.hzero: ${LOG_LEVEL:debug}
+    org.hrds.rdupm: ${LOG_LEVEL:debug}
 
 hzero:
   scheduler:
@@ -158,15 +158,16 @@ choerodon:
   saga:
     service: choerodon-asgard
     consumer:
-      enabled: true # 启动消费端
-      thread-num: 2 # saga消息消费线程池大小
-      max-poll-size: 200 # 每次拉取消息最大数量
-      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+      core-thread-num: 20
+      max-thread-num: 20 # 消费线程数
+      poll-interval: 3 # 拉取消息的间隔(秒)，默认1秒
+      enabled: true # 是否启用消费端
   schedule:
     consumer:
       enabled: true # 启用任务调度消费端
-      thread-num: 1 # 任务调度消费线程数
-      poll-interval-ms: 1000 # 拉取间隔，默认1000毫秒
+      core-thread-num: 20
+      max-thread-num: 20 # 消费线程数
+      poll-interval-ms: 3000 # 拉取间隔，默认1000毫秒
   cleanPermission: false
 
 harbor:

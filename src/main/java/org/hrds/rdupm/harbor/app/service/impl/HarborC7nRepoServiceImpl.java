@@ -1,6 +1,9 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
@@ -18,7 +21,6 @@ import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
-import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.util.ConvertUtil;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
@@ -144,8 +146,8 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
 		String registryUrl = resultMap ==null ? null : resultMap.get("registry_url").toString();
 
 		//获取镜像版本
-		if (StringUtils.isNotBlank(tagName)){
-			harborImageTagVoList = harborImageTagVoList.stream().filter(dto->dto.getTagName().contains(tagName)).collect(Collectors.toList());
+		if (StringUtils.isNotBlank(tagName)) {
+			harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> !StringUtils.isEmpty(dto.getTagName()) && dto.getTagName().contains(tagName)).collect(Collectors.toList());
 		}
 		//V2 过滤掉tag name 为null的镜像
 		harborImageTagVoList = harborImageTagVoList.stream().filter(harborImageTagVo -> StringUtils.isNotBlank(harborImageTagVo.getTagName())).collect(Collectors.toList());

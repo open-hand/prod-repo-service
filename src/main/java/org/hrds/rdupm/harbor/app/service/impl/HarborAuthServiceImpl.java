@@ -369,7 +369,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         if (HarborConstants.ADMIN.equals(loginName)) {
             loginName = harborInfoConfiguration.getUsername();
         }
-
         //数据库插入制品库用户
         String password = HarborUtil.getPassword();
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
@@ -378,7 +377,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         ProdUser prodUser = new ProdUser(userId, loginName, password, 0);
         ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
         String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
-
         //若为管理员用户，则不创建
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             return;
@@ -389,7 +387,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME, paramMap, null, true);
         List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
         Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto -> dto));
-
         //Harbor中新建用户
         if (userMap.get(loginName) == null) {
             User user = new User(loginName, email, newPassword, realName);
