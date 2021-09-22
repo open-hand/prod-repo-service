@@ -15,9 +15,41 @@ public class UserNexusInfo {
      */
     private String userName;
 
+    /**
+     * 包的名字
+     */
     private String packageName;
 
+    /**
+     * 仓库类型
+     */
     private String repoType;
+
+    /**
+     * nexus配置的id
+     */
+    private Long configId;
+
+    /**
+     * 操作类型
+     */
+    private String operateType;
+
+    public String getOperateType() {
+        return operateType;
+    }
+
+    public void setOperateType(String operateType) {
+        this.operateType = operateType;
+    }
+
+    public Long getConfigId() {
+        return configId;
+    }
+
+    public void setConfigId(Long configId) {
+        this.configId = configId;
+    }
 
     public String getRepoType() {
         return repoType;

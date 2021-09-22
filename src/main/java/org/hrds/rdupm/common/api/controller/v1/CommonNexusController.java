@@ -31,7 +31,7 @@ public class CommonNexusController {
     }
 
 
-    @ApiOperation(value = "公开的接口，代理通过配置的id 查询nexus的地址")
+    @ApiOperation(value = "公开的接口，记录拉取jar包日志")
     @Permission(permissionPublic = true)
     @PostMapping("/audit/log")
     public ResponseEntity<Void> auditNexusLog(
