@@ -24,7 +24,7 @@ import io.choerodon.swagger.annotation.Permission;
 public class NexusProxyController {
     private static final Logger logger = LoggerFactory.getLogger(NexusProxyController.class);
 
-    @RequestMapping(value = "/**", method = RequestMethod.GET)
+    @RequestMapping(value = "/**")
     @Permission(permissionPublic = true)
     public ResponseEntity<ExceptionResponse> nexusProxy(HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.error("nexus proxy is error!");
