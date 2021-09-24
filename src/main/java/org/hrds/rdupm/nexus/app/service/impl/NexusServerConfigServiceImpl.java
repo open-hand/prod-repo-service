@@ -3,6 +3,8 @@ package org.hrds.rdupm.nexus.app.service.impl;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 
+import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.common.api.vo.UserNexusInfo;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
@@ -21,7 +23,9 @@ import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusProjectServiceRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
+import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
@@ -66,6 +70,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
     private C7nBaseService c7nBaseService;
     @Autowired
     private NexusRepositoryMapper nexusRepositoryMapper;
+    @Autowired
+    private NexusLogMapper nexusLogMapper;
 
     @Override
     public NexusServerConfig setNexusInfo(NexusClient nexusClient, Long projectId) {
@@ -310,31 +316,32 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
     @Override
     public void auditNexusLog(UserNexusInfo userNexusInfo) {
         UserDTO userDTO = c7nBaseService.queryByLoginName(userNexusInfo.getUserName());
-
         NexusRepository nexusRepository = new NexusRepository();
         nexusRepository.setNeRepositoryName(userNexusInfo.getRepositoryName());
         nexusRepository.setConfigId(userNexusInfo.getConfigId());
         NexusRepository repository = nexusRepositoryMapper.selectOne(nexusRepository);
-
         userNexusInfo.getRepositoryName();
-
         NexusLog nexusLog = generateLog(userDTO, repository, userNexusInfo);
-
-
-
+        nexusLogMapper.insert(nexusLog);
     }
 
     private NexusLog generateLog(UserDTO userDTO, NexusRepository nexusRepository, UserNexusInfo userNexusInfo) {
-
-
         NexusLog nexusLog = new NexusLog();
         nexusLog.setOperatorId(userDTO.getId());
         nexusLog.setOperateType(userNexusInfo.getRepoType());
         nexusLog.setProjectId(nexusRepository.getProjectId());
         nexusLog.setOrganizationId(nexusRepository.getOrganizationId());
         nexusLog.setRepositoryId(nexusRepository.getRepositoryId());
+        String repo = userNexusInfo.getRepoType();
 
-
-
+        String content = "";
+        if (NexusConstants.LogOperateType.AUTH_PULL.equals(userNexusInfo.getOperateType())) {
+            content = String.format(LOG_PULL_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, userNexusInfo.getPackageName());
+        } else if (NexusConstants.LogOperateType.AUTH_PUSH.equals(userNexusInfo.getOperateType())) {
+            content = String.format(LOG_PUSH_TEMPLATE, userDTO.getRealName(), userDTO.getLoginName(), repo, userNexusInfo.getPackageName());
+        }
+        nexusLog.setContent(content);
+        nexusLog.setOperateTime(new Date());
+        return nexusLog;
     }
 }
