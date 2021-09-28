@@ -60,7 +60,7 @@ public class NexusCapacityStatistics {
             return;
         }
         nexusRepositoryList.forEach(nexusRepository1 -> {
-            // TODO: 2021/9/26  
+            // TODO: 2021/9/26
         });
 
     }

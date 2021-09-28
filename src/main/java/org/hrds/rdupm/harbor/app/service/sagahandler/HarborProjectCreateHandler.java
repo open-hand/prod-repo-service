@@ -18,14 +18,17 @@ import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.*;
 import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRobotRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
@@ -39,6 +42,7 @@ import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -53,6 +57,18 @@ public class HarborProjectCreateHandler {
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	@Autowired
 	private HarborHttpClient harborHttpClient;
+
+	/**
+	 * 免费版 试用版 标准版 一个项目限制 20GB
+	 */
+	@Value("${harbor.choerodon.capacity.limit.base: 20}")
+	private Integer harborBaseCapacityLimit;
+
+	/**
+	 * 企业版 一个项目限制50G
+	 */
+	@Value("${harbor.choerodon.capacity.limit.business: 50}")
+	private Integer harborBusinessCapacityLimit;
 
 	@Autowired
 	private HarborAuthService harborAuthService;
@@ -111,7 +127,10 @@ public class HarborProjectCreateHandler {
 		if (!Objects.isNull(dto)) {
 			CustomContextUtil.setDefaultIfNull(dto);
 		}
-		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT,null,harborProjectDTO,true);
+		//创建仓库的时候，做容量的限制  免费版 试用版 标准版 一个项目限制 20GB  企业版 一个项目限制50G
+		harborCapacityLimit(harborProjectVo, harborProjectDTO);
+		harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_PROJECT, null, harborProjectDTO, true);
+
 		//查询harbor-id
 		Integer harborId = null;
 		Map<String,Object> paramMap2 = new HashMap<>(3);
@@ -135,6 +154,28 @@ public class HarborProjectCreateHandler {
 		}
 		harborProjectVo.setHarborId(harborId);
 		return objectMapper.writeValueAsString(harborProjectVo);
+	}
+
+	private void harborCapacityLimit(HarborProjectVo harborProjectVo, HarborProjectDTO harborProjectDTO) {
+		ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
+		projectDTO.getOrganizationId();
+		ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(projectDTO.getOrganizationId());
+		if (Objects.isNull(externalTenantVO)) {
+			throw new CommonException("tenant not exists");
+		}
+		if (externalTenantVO.getRegister()) {
+			harborProjectDTO.setStorageLimit(HarborUtil.getStorageLimit(harborBaseCapacityLimit, HarborConstants.GB));
+		}
+		if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())) {
+			harborProjectDTO.setStorageLimit(HarborUtil.getStorageLimit(harborBaseCapacityLimit, HarborConstants.GB));
+		}
+		if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+			harborProjectDTO.setStorageLimit(HarborUtil.getStorageLimit(harborBaseCapacityLimit, HarborConstants.GB));
+		}
+		if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
+			harborProjectDTO.setStorageLimit(HarborUtil.getStorageLimit(harborBusinessCapacityLimit, HarborConstants.GB));
+		}
+		LOGGER.info(">>>harbor仓库的容量为{}", harborProjectDTO.getStorageLimit());
 	}
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_DB,description = "创建Docker镜像仓库：更新harbor_id字段到数据库",
