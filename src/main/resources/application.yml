@@ -176,6 +176,11 @@ harbor:
   password: ${HARBOR_PASSWORD:admin}
   apiVersion: ${HARBOR_API_VERSION:v1}
   skipSSL: ${HARBOR_SKIP_SSL:false}
+  choerodon:
+    capacity:
+      limit:
+        base: ${HARBOR_BASE_CAPACITY_LIMIT:20}  #单位G
+        business: ${HARBOR_BUS_CAPACITY_LIMIT:50}
 
 nexus:
   default:
