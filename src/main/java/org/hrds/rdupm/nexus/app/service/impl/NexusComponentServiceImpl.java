@@ -11,8 +11,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.vo.MavenComponentVO;
@@ -276,6 +280,24 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     public void componentsUpload(Long organizationId, Long projectId, NexusServerComponentUpload componentUpload, String filePath, MultipartFile assetPom) {
         NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
         componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
+
+        // TODO: 2021/10/7 根据项目对应的组织类型，判断是不是需要进行容量的限制
+        ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+        if (Objects.isNull(externalTenantVO)) {
+            throw new CommonException("tenant not exists");
+        }
+        if (externalTenantVO.getRegister()) {
+
+        }
+        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())) {
+
+        }
+        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+
+        }
+        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
+
+        }
 
         NexusServerConfig defaultNexusServerConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
         NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
