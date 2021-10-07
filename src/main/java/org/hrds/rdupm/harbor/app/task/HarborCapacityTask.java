@@ -55,7 +55,7 @@ public class HarborCapacityTask {
 
     @JobTask(maxRetryCount = 3, code = "harborCapacitylimit", description = "SaaS组织,试用组织Harbor容量的限制")
     public void harborCapacitylimit(Map<String, Object> map) {
-        LOGGER.info("》》》》》》》》》》start harbor Capacitylimit 》》》》》》》》》》》");
+        LOGGER.info("》》》》》》》》》》start harbor capacity limit 》》》》》》》》》》》");
         //1.查询所有正在生效的SaaS组织
         //1.查询正在生效的免费版，标准版的SaaS组织
         List<String> saasLevels = Arrays.asList(SaasLevelEnum.FREE.name(), SaasLevelEnum.STANDARD.name(), SaasLevelEnum.SENIOR.name());
@@ -84,16 +84,18 @@ public class HarborCapacityTask {
         //处理基础版本的仓库
         if (!CollectionUtils.isEmpty(registerAndBaseSaasTenants)) {
             registerAndBaseSaasTenants.forEach(saaSTenantVO -> {
+                LOGGER.info("处理组织id为：{}的harbor仓库", saaSTenantVO.getTenantId());
                 updateHarborCapacity(saaSTenantVO, harborBaseCapacityLimit);
             });
         }
         //处理商业版本的仓库
         if (!CollectionUtils.isEmpty(busSaasTenants)) {
             busSaasTenants.forEach(externalTenantVO -> {
+                LOGGER.info("处理组织id为：{}的harbor仓库", externalTenantVO.getTenantId());
                 updateHarborCapacity(externalTenantVO, harborBusinessCapacityLimit);
             });
         }
-        LOGGER.info("》》》》》》》》》》end harbor Capacitylimit 》》》》》》》》》》》");
+        LOGGER.info("》》》》》》》》》》end harbor capacity limit 》》》》》》》》》》》");
     }
 
     private void updateHarborCapacity(ExternalTenantVO saaSTenantVO, Integer limit) {

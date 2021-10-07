@@ -93,16 +93,16 @@ public interface BaseFeignClient {
     @GetMapping("/v1/projects/{project_id}/owner/list")
     ResponseEntity<List<UserDTO>> listProjectOwnerById(@PathVariable(name = "project_id") Long projectId);
 
-    @PostMapping("/choerodon/v1/organizations/saas/tenants")
+    @PostMapping("/v1/organizations/saas/tenants")
     ResponseEntity<List<ExternalTenantVO>> querySaasTenants(@RequestBody List<String> saasLevels);
 
 
-    @GetMapping("/choerodon/v1/organizations/{organization_id}/projects/all")
-    ResponseEntity<List<ProjectDTO>> queryProjectByOrgId(@Param("organization_id") Long organizationId);
+    @GetMapping("/v1/organizations/{organization_id}/projects/all")
+    ResponseEntity<List<ProjectDTO>> queryProjectByOrgId(@PathVariable("organization_id") Long organizationId);
 
-    @GetMapping("/choerodon/v1/organizations/register/tenants")
+    @GetMapping("/v1/organizations/register/tenants")
     ResponseEntity<List<ExternalTenantVO>> queryRegisterTenant();
 
-    @GetMapping("/choerodon/v1/organizations/external/tenants")
+    @GetMapping("/v1/organizations/external/tenants")
     ResponseEntity<ExternalTenantVO> queryTenantByIdWithExternalInfo(@RequestParam("organization_id") Long organizationId);
 }
