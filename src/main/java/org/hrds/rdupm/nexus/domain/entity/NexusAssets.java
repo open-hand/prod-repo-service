@@ -37,9 +37,6 @@ public class NexusAssets extends AuditDomain {
     @ApiModelProperty("包的名字")
     private String name;
 
-    @ApiModelProperty("包的版本")
-    private String version;
-
     @ApiModelProperty("包的类型")
     private String type;
 

@@ -67,7 +67,7 @@ public class NexusCapacityTask {
 
 
     @JobTask(maxRetryCount = 3, code = "nexusCapacitylimit", description = "SaaS组织,试用组织Nexus容量的限制")
-    public void harborCapacitylimit(Map<String, Object> map) {
+    public void nexusCapacitylimit(Map<String, Object> map) {
         //1.查询所有的Saas组织，试用组织
         LOGGER.info("》》》》》》》》》》start nexus capacity limit 》》》》》》》》》》》");
         List<String> saasLevels = Arrays.asList(SaasLevelEnum.FREE.name(), SaasLevelEnum.STANDARD.name(), SaasLevelEnum.SENIOR.name());
@@ -105,15 +105,15 @@ public class NexusCapacityTask {
 
         //查询所有的仓库
         List<ExtdirectResponseData> hostedNexusRepo = getHostedNexusRepo(nexusServerConfig);
+        ExternalTenantVO externalTenantVO = new ExternalTenantVO();
 
-
-        //处理基础版本
+        //将基础版和高级版的包持久化到数据库中
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(registerAndBaseSaasTenants)) {
             registerAndBaseSaasTenants.forEach(saaSTenantVO -> {
                 persistenceNexusBaseAssetSize(saaSTenantVO, defaultNexusConfig.getConfigId(), hostedNexusRepo);
             });
         }
-
+        LOGGER.info("》》》》》》》》》》end nexus capacity limit 》》》》》》》》》》》");
 
     }
 
@@ -200,7 +200,7 @@ public class NexusCapacityTask {
             record.setName(responseData.getName());
 //            record.setVersion(responseData.getVersionPolicy());
             List<NexusAssets> nexusAssetsList = nexusAssetsMapper.select(record);
-            if (!CollectionUtils.isEmpty(nexusAssetsList)) {
+            if (CollectionUtils.isEmpty(nexusAssetsList)) {
                 nexusAssetsMapper.insert(assets);
             }
         });

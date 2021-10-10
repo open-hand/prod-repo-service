@@ -286,15 +286,12 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         if (Objects.isNull(externalTenantVO)) {
             throw new CommonException("tenant not exists");
         }
-        if (externalTenantVO.getRegister()) {
+        if (externalTenantVO.getRegister()
+                || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
+                || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
 
         }
-        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())) {
 
-        }
-        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
-
-        }
         if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
 
         }

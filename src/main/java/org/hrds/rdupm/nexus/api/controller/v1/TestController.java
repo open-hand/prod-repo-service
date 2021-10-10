@@ -8,6 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.QuotasVO;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
+import org.hrds.rdupm.harbor.app.task.HarborCapacityTask;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
@@ -41,32 +42,38 @@ public class TestController {
     @Autowired
     private HarborQuotaService harborQuotaService;
 
+    @Autowired
+    private HarborCapacityTask harborCapacityTask;
+
     @GetMapping("/test")
     @Permission(permissionPublic = true)
     public void test() {
-        //查询该项目下是否有默认的docker仓库
-        HarborRepository harborRepository = new HarborRepository();
-        harborRepository.setOrganizationId(1131L);
-        harborRepository.setProjectId(228483927390908416L);
-        HarborRepository repository = harborRepositoryMapper.selectOne(harborRepository);
-        if (repository == null) {
-            return;
-        }
-        List<QuotasVO> allHarborQuotas = harborQuotaService.getAllHarborQuotas();
-        Integer projectQuotasId = getProjectQuotasId(repository.getCode(), allHarborQuotas);
-        //如果存在harbor仓库，则容量限制
-        //判断harbor中是否存在当前用户
-        Map<String, Object> paramMap = new HashMap<>(1);
-        paramMap.put("id", repository.getHarborId());
+        nexusCapacityTask.nexusCapacitylimit(null);
+//        harborCapacityTask.harborCapacitylimit(null);
 
-        // v1  {"hard":{"count":101,"storage":104857600}}
-        // v2 {"hard":{"storage":193986560}}
-        //先要查到仓库对应的quotas id
-        Map<String, Object> hard = new HashMap<>(1);
-        Map<String, Object> storage = new HashMap<>(1);
-        storage.put("storage", HarborUtil.getStorageLimit(5, HarborConstants.GB));
-        hard.put("hard", storage);
-        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, null, hard, true, projectQuotasId);
+//        //查询该项目下是否有默认的docker仓库
+//        HarborRepository harborRepository = new HarborRepository();
+//        harborRepository.setOrganizationId(1131L);
+//        harborRepository.setProjectId(228483927390908416L);
+//        HarborRepository repository = harborRepositoryMapper.selectOne(harborRepository);
+//        if (repository == null) {
+//            return;
+//        }
+//        List<QuotasVO> allHarborQuotas = harborQuotaService.getAllHarborQuotas();
+//        Integer projectQuotasId = getProjectQuotasId(repository.getCode(), allHarborQuotas);
+//        //如果存在harbor仓库，则容量限制
+//        //判断harbor中是否存在当前用户
+//        Map<String, Object> paramMap = new HashMap<>(1);
+//        paramMap.put("id", repository.getHarborId());
+//
+//        // v1  {"hard":{"count":101,"storage":104857600}}
+//        // v2 {"hard":{"storage":193986560}}
+//        //先要查到仓库对应的quotas id
+//        Map<String, Object> hard = new HashMap<>(1);
+//        Map<String, Object> storage = new HashMap<>(1);
+//        storage.put("storage", HarborUtil.getStorageLimit(5, HarborConstants.GB));
+//        hard.put("hard", storage);
+//        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, null, hard, true, projectQuotasId);
 
 //        nexusCapacityTask.harborCapacitylimit(null);
     }
