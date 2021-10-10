@@ -383,7 +383,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         // 设置并返回当前nexus服务信息
         NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
         File npmfilePath = new File(filePath);
-        nexusComponentHandService.uploadNPM(nexusClient, nexusRepository, npmfilePath, currentNexusServer);
+        nexusComponentHandService.uploadNPM(repositoryId, nexusClient, nexusRepository, npmfilePath, currentNexusServer);
     }
 
     private NexusRepository validateAuth(Long projectId, Long repositoryId) {
