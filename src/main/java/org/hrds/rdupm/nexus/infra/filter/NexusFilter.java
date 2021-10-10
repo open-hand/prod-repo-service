@@ -4,14 +4,22 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
+import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
+import org.hrds.rdupm.nexus.domain.entity.NexusAssets;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
@@ -19,6 +27,7 @@ import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusProxyConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
+import org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
 import org.hrds.rdupm.util.NexusUtils;
@@ -27,7 +36,9 @@ import org.mitre.dsmiley.httpproxy.ProxyServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import io.choerodon.core.exception.CommonException;
 
@@ -49,6 +60,15 @@ public class NexusFilter implements Filter {
 
     private static final Base64.Decoder decoder = Base64.getDecoder();
 
+    @Value("${nexus.choerodon.capacity.limit.base: 2}")
+    private Integer nexusBaseCapacityLimit;
+
+    /**
+     * 企业版 一个项目限制5G
+     */
+    @Value("${nexus.choerodon.capacity.limit.business: 5}")
+    private Integer nexusBusinessCapacityLimit;
+
     @Autowired
     private NexusProxyConfigProperties nexusProxyConfigProperties;
 
@@ -62,6 +82,11 @@ public class NexusFilter implements Filter {
     private NexusRepositoryMapper nexusRepositoryMapper;
     @Autowired
     private NexusServerConfigRepository nexusServerConfigRepository;
+
+    @Autowired
+    private NexusAssetsMapper nexusAssetsMapper;
+    @Autowired
+    private C7nBaseService c7nBaseService;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -113,6 +138,35 @@ public class NexusFilter implements Filter {
                 nexusRepository.setNeRepositoryName(repositoryName);
                 nexusRepository.setConfigId(configId);
                 repository = nexusRepositoryMapper.selectOne(nexusRepository);
+            }
+            /**
+             *  如果是推包 查询当前仓库容量，如果超出限制 则终止
+             */
+            if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")) {
+                NexusAssets record = new NexusAssets();
+                record.setRepositoryId(repository.getRepositoryId());
+                List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+                if (!CollectionUtils.isEmpty(nexusAssets)) {
+                    Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
+                    ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
+                    if (Objects.isNull(externalTenantVO)) {
+                        throw new CommonException("tenant not exists");
+                    }
+                    if (externalTenantVO.getRegister()
+                            || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
+                            || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+                        if (totalSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                          throw new CommonException("Exceeded repository capacity limit");
+                        }
+                    }
+
+                    if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
+                        if (totalSize <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+                            throw new CommonException("Exceeded repository capacity limit");
+                        }
+                    }
+                }
+
             }
             if (!Objects.isNull(repository)) {
                 String packageName = getPackageName(servletUri);

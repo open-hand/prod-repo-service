@@ -115,7 +115,7 @@ public class HarborCapacityTask {
     }
 
 
-    private void updateHarborCapacity(ExternalTenantVO saaSTenantVO, Integer limit, List<QuotasVO> allHarborQuotas) {
+    private void updateHarborCapacity(ExternalTenantVO saaSTenantVO, Integer harborCapacityLimit, List<QuotasVO> allHarborQuotas) {
         //2.查询组织下的项目
         List<ProjectDTO> projectDTOS = c7nBaseService.queryProjectByOrgId(saaSTenantVO.getTenantId());
         if (CollectionUtils.isEmpty(projectDTOS)) {
@@ -131,24 +131,18 @@ public class HarborCapacityTask {
                 return;
             }
             //如果存在harbor仓库，则容量限制
-            //判断harbor中是否存在当前用户
-//            Map<String, Object> paramMap = new HashMap<>(1);
-//            paramMap.put("id", repository.getHarborId());
-
             //获取quotas id
             Integer projectQuotasId = getProjectQuotasId(repository.getCode(), allHarborQuotas);
             if (projectQuotasId == null) {
                 LOGGER.error("{} Quotas Id is null", repository.getCode());
+                return;
             }
 
-
-            // v1  {"hard":{"count":101,"storage":104857600}}
-            // v2 {"hard":{"storage":193986560}}
             Map<String, Object> hard = new HashMap<>(1);
             Map<String, Object> storage = new HashMap<>(1);
-            storage.put("storage", HarborUtil.getStorageLimit(limit, HarborConstants.GB));
+            storage.put("storage", HarborUtil.getStorageLimit(harborCapacityLimit, HarborConstants.GB));
             hard.put("hard", storage);
-            ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, null, null, true, projectQuotasId);
+            ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, null, hard, true, projectQuotasId);
         });
     }
 
