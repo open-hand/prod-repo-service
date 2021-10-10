@@ -13,9 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface NexusComponentHandService {
 
-    void uploadJar(NexusClient nexusClient, File filePath, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer, InputStream inputStream);
+    void uploadJar(Long repositoryId, NexusClient nexusClient, File filePath, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer, InputStream inputStream);
 
 
-    void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
+    void uploadNPM(Long repositoryId, NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
 
 }

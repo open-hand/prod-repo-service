@@ -287,7 +287,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
             nexusClient.getComponentsApi().deleteComponentScript(deleteParam);
         }
         //删除数据库的包
-        if (CollectionUtils.isNotEmpty(componentIds)){
+        if (CollectionUtils.isNotEmpty(componentIds)) {
             nexusAssetsMapper.batchDelete(componentIds);
 
         }
@@ -325,7 +325,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         } catch (IOException e) {
             logger.error("获取文件输入流失败", e);
         }
-        nexusComponentHandService.uploadJar(nexusClient, jarfilePath, componentUpload, currentNexusServer, assetPomStream);
+        nexusComponentHandService.uploadJar(componentUpload.getRepositoryId(), nexusClient, jarfilePath, componentUpload, currentNexusServer, assetPomStream);
     }
 
     private void checkRepositoryCapacityLimit(Long organizationId, Long repositoryId, String filePath) {
