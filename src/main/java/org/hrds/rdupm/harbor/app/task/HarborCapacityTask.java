@@ -1,11 +1,17 @@
 package org.hrds.rdupm.harbor.app.task;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.gson.Gson;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
+import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
+import org.hrds.rdupm.harbor.api.vo.QuotasVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
@@ -13,6 +19,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +59,9 @@ public class HarborCapacityTask {
     @Autowired
     private HarborHttpClient harborHttpClient;
 
+    @Autowired
+    private HarborQuotaService harborQuotaService;
+
 
     @JobTask(maxRetryCount = 3, code = "harborCapacitylimit", description = "SaaS组织,试用组织Harbor容量的限制")
     public void harborCapacitylimit(Map<String, Object> map) {
@@ -81,24 +91,31 @@ public class HarborCapacityTask {
         if (!CollectionUtils.isEmpty(registerTenants)) {
             registerAndBaseSaasTenants.addAll(registerTenants);
         }
+        //获取所有仓库的 配额 quotas
+        List<QuotasVO> allHarborQuotas = harborQuotaService.getAllHarborQuotas();
+        if (CollectionUtils.isEmpty(allHarborQuotas)) {
+            LOGGER.info(" Harbor has no project");
+            return;
+        }
         //处理基础版本的仓库
         if (!CollectionUtils.isEmpty(registerAndBaseSaasTenants)) {
             registerAndBaseSaasTenants.forEach(saaSTenantVO -> {
                 LOGGER.info("处理组织id为：{}的harbor仓库", saaSTenantVO.getTenantId());
-                updateHarborCapacity(saaSTenantVO, harborBaseCapacityLimit);
+                updateHarborCapacity(saaSTenantVO, harborBaseCapacityLimit, allHarborQuotas);
             });
         }
         //处理商业版本的仓库
         if (!CollectionUtils.isEmpty(busSaasTenants)) {
             busSaasTenants.forEach(externalTenantVO -> {
                 LOGGER.info("处理组织id为：{}的harbor仓库", externalTenantVO.getTenantId());
-                updateHarborCapacity(externalTenantVO, harborBusinessCapacityLimit);
+                updateHarborCapacity(externalTenantVO, harborBusinessCapacityLimit, allHarborQuotas);
             });
         }
         LOGGER.info("》》》》》》》》》》end harbor capacity limit 》》》》》》》》》》》");
     }
 
-    private void updateHarborCapacity(ExternalTenantVO saaSTenantVO, Integer limit) {
+
+    private void updateHarborCapacity(ExternalTenantVO saaSTenantVO, Integer limit, List<QuotasVO> allHarborQuotas) {
         //2.查询组织下的项目
         List<ProjectDTO> projectDTOS = c7nBaseService.queryProjectByOrgId(saaSTenantVO.getTenantId());
         if (CollectionUtils.isEmpty(projectDTOS)) {
@@ -115,16 +132,32 @@ public class HarborCapacityTask {
             }
             //如果存在harbor仓库，则容量限制
             //判断harbor中是否存在当前用户
-            Map<String, Object> paramMap = new HashMap<>(1);
-            paramMap.put("id", repository.getHarborId());
+//            Map<String, Object> paramMap = new HashMap<>(1);
+//            paramMap.put("id", repository.getHarborId());
+
+            //获取quotas id
+            Integer projectQuotasId = getProjectQuotasId(repository.getCode(), allHarborQuotas);
+            if (projectQuotasId == null) {
+                LOGGER.error("{} Quotas Id is null", repository.getCode());
+            }
+
 
             // v1  {"hard":{"count":101,"storage":104857600}}
             // v2 {"hard":{"storage":193986560}}
             Map<String, Object> hard = new HashMap<>(1);
             Map<String, Object> storage = new HashMap<>(1);
             storage.put("storage", HarborUtil.getStorageLimit(limit, HarborConstants.GB));
-            hard.put("metadata", storage);
-            ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, paramMap, null, true);
+            hard.put("hard", storage);
+            ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, null, null, true, projectQuotasId);
         });
+    }
+
+    private Integer getProjectQuotasId(String code, List<QuotasVO> allHarborQuotas) {
+        List<QuotasVO> quotasVOS = allHarborQuotas.stream().filter(quotasVO -> StringUtils.equalsIgnoreCase(quotasVO.getRef().getName(), code)).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(quotasVOS)) {
+            return quotasVOS.get(0).getId();
+        } else {
+            return null;
+        }
     }
 }
