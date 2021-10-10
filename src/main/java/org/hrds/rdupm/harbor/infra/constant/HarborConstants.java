@@ -250,7 +250,9 @@ public interface HarborConstants {
         IMAGE_QUERY_SCANNER_STATUS("", HttpMethod.GET, "", "/api/v2.0/projects/%s/scanner", "harbor项目Id"),
 
         //修改资源定额 /api/v2.0/quotas/908
-        UPDATE_QUOTAS("/api/quotas/{id}", HttpMethod.PUT, "修改仓库资源定额", "/api/%s/quotas/{id}", "修改仓库资源定额");
+        UPDATE_QUOTAS("/api/quotas/%s", HttpMethod.PUT, "修改仓库资源定额", "/api/v2.0/quotas/%s", "修改仓库资源定额"),
+        LIST_QUOTAS("/api/quotas", HttpMethod.GET, "查询项目定额列表", "/api/v2.0/quotas", "查询项目定额列表");
+
 
         /**
          * v2.0接口
