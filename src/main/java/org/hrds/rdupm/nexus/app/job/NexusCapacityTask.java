@@ -117,7 +117,7 @@ public class NexusCapacityTask {
 
     }
 
-    private List<ExtdirectResponseData> getHostedNexusRepo(NexusServerConfig nexusServerConfig) {
+    public List<ExtdirectResponseData> getHostedNexusRepo(NexusServerConfig nexusServerConfig) {
         NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
                 nexusServerConfig.getUserName(),
                 DESEncryptUtil.decode(nexusServerConfig.getPassword()));
@@ -178,7 +178,7 @@ public class NexusCapacityTask {
 
     }
 
-    private void insertNexusAssetsDb(Long repositoryId, Long projectId, List<AssetResponseData> components) {
+    public void insertNexusAssetsDb(Long repositoryId, Long projectId, List<AssetResponseData> components) {
         List<NexusAssets> nexusAssets = new ArrayList<>();
         components.forEach(responseData -> {
             NexusAssets assets = new NexusAssets();
@@ -210,7 +210,7 @@ public class NexusCapacityTask {
 
     }
 
-    private List<AssetResponseData> getComponentsByRepository(ExtdirectResponseData nexusRepo, String repositoryName) {
+    public List<AssetResponseData> getComponentsByRepository(ExtdirectResponseData nexusRepo, String repositoryName) {
         List<AssetResponseData> components = new ArrayList<>();
         //如果不是叶子节点就一直请求,找到是叶子节点且是以.jar或者是以.tgz结尾的文件
 
