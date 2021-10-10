@@ -1,6 +1,7 @@
 package org.hrds.rdupm.nexus.infra.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.hrds.rdupm.nexus.domain.entity.NexusAssets;
 
 
@@ -13,5 +14,6 @@ import io.choerodon.mybatis.common.BaseMapper;
  */
 public interface NexusAssetsMapper extends BaseMapper<NexusAssets> {
 
-    void batchInsert(List<NexusAssets> nexusAssets);
+
+    void batchDelete(@Param("componentIds") List<String> componentIds);
 }
