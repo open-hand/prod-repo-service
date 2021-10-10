@@ -50,6 +50,9 @@ public class NexusAssets extends AuditDomain {
     @ApiModelProperty("项目Id")
     private Long size;
 
+    @ApiModelProperty("包的id")
+    private String assetsId;
+
 
 
 }

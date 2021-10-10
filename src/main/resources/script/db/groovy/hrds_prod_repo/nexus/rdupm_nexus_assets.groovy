@@ -14,6 +14,7 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_nexus_assets.groovy') {
         createTable(tableName: "rdupm_nexus_assets", remarks: "制品库_nexus制品信息表") {
 
             column(name: "id", type: "bigint", autoIncrement: true ,   remarks: "")  {constraints(primaryKey: true)}
+            column(name: "assets_id", type: "varchar(" + 200 * weight + ")",  remarks: "包的id")  {constraints(nullable:"false")}
             column(name: "name", type: "varchar(" + 200 * weight + ")",  remarks: "nexus包的名称")  {constraints(nullable:"false")}
             column(name: "type", type: "varchar(" + 10 * weight + ")",  remarks: "nexus包的类型")  {constraints(nullable:"false")}
             column(name: "repository_id", type: "bigint",  remarks: "rdupm_nexus_repository表主键")  {constraints(nullable:"false")}

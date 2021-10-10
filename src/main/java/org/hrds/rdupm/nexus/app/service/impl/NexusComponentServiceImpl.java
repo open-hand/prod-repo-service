@@ -27,6 +27,7 @@ import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
+import org.hrds.rdupm.nexus.domain.entity.NexusAssets;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.entity.NexusUser;
@@ -36,14 +37,17 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
+import org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -60,7 +64,14 @@ import java.util.stream.Collectors;
 public class NexusComponentServiceImpl implements NexusComponentService {
     private static final Logger logger = LoggerFactory.getLogger(NexusComponentServiceImpl.class);
 
+    @Value("${nexus.choerodon.capacity.limit.base: 2}")
+    private Integer nexusBaseCapacityLimit;
 
+    /**
+     * 企业版 一个项目限制5G
+     */
+    @Value("${nexus.choerodon.capacity.limit.business: 5}")
+    private Integer nexusBusinessCapacityLimit;
     @Autowired
     private NexusClient nexusClient;
     @Autowired
@@ -81,6 +92,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     private NexusProxyConfigProperties nexusProxyConfigProperties;
     @Autowired
     private NexusComponentHandService nexusComponentHandService;
+
+    @Autowired
+    private NexusAssetsMapper nexusAssetsMapper;
 
     @Override
     public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -247,6 +261,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteComponents(Long organizationId, Long projectId, Long repositoryId, List<String> componentIds) {
 
         NexusRepository nexusRepository = this.validateAuth(projectId, repositoryId);
@@ -271,6 +286,11 @@ public class NexusComponentServiceImpl implements NexusComponentService {
             deleteParam.setComponents(componentIds);
             nexusClient.getComponentsApi().deleteComponentScript(deleteParam);
         }
+        //删除数据库的包
+        if (CollectionUtils.isNotEmpty(componentIds)){
+            nexusAssetsMapper.batchDelete(componentIds);
+
+        }
         // remove配置信息
         nexusClient.removeNexusServerInfo();
     }
@@ -282,19 +302,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 
         // TODO: 2021/10/7 根据项目对应的组织类型，判断是不是需要进行容量的限制
-        ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
-        if (Objects.isNull(externalTenantVO)) {
-            throw new CommonException("tenant not exists");
-        }
-        if (externalTenantVO.getRegister()
-                || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
-                || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
-
-        }
-
-        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
-
-        }
+        checkRepositoryCapacityLimit(organizationId, componentUpload.getRepositoryId(), filePath);
 
         NexusServerConfig defaultNexusServerConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
         NexusServerRepository serverRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
@@ -320,6 +328,43 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         nexusComponentHandService.uploadJar(nexusClient, jarfilePath, componentUpload, currentNexusServer, assetPomStream);
     }
 
+    private void checkRepositoryCapacityLimit(Long organizationId, Long repositoryId, String filePath) {
+        ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+        if (Objects.isNull(externalTenantVO)) {
+            throw new CommonException("tenant not exists");
+        }
+        File file = new File(filePath);
+        long fileSize = file.length();
+        logger.info(">>>>>>>>>上传的包的大小为:{}>>>>>>>>>>", fileSize);
+        if (externalTenantVO.getRegister()
+                || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
+                || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+            NexusAssets record = new NexusAssets();
+            record.setRepositoryId(repositoryId);
+            List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+            if (!org.springframework.util.CollectionUtils.isEmpty(nexusAssets)) {
+                Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
+                logger.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
+                logger.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
+                if (totalSize + fileSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                    throw new CommonException("Exceeded repository capacity limit");
+                }
+            }
+        }
+
+        if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
+            NexusAssets record = new NexusAssets();
+            record.setRepositoryId(repositoryId);
+            List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+            if (!org.springframework.util.CollectionUtils.isEmpty(nexusAssets)) {
+                Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
+                if (totalSize + fileSize <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+                    throw new CommonException("Exceeded repository capacity limit");
+                }
+            }
+        }
+    }
+
 
     @Override
     public void npmComponentsUpload(Long organizationId, Long projectId, Long repositoryId, String filePath) {
@@ -333,7 +378,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         if (serverRepository.getWritePolicy().equals(NexusApiConstants.WritePolicy.DENY)) {
             throw new CommonException(NexusMessageConstants.NEXUS_REPO_IS_READ_ONLY_NOT_UPLOAD);
         }
-
+        //
+        checkRepositoryCapacityLimit(organizationId, repositoryId, filePath);
         // 设置并返回当前nexus服务信息
         NexusServer currentNexusServer = configService.setCurrentNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());
         File npmfilePath = new File(filePath);

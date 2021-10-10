@@ -185,6 +185,7 @@ public class NexusCapacityTask {
             assets.setName(responseData.getName());
             assets.setProjectId(projectId);
             assets.setRepositoryId(repositoryId);
+            assets.setAssetsId(responseData.getId());
             //npm 还是 jar
             if (StringUtils.endsWithIgnoreCase(responseData.getName(), ".jar")) {
                 assets.setType(NexusConstants.RepoType.JAR);
