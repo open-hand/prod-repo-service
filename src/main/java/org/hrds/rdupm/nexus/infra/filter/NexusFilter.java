@@ -127,7 +127,50 @@ public class NexusFilter implements Filter {
             httpServletResponse.sendRedirect(nexusServerConfig.getServerUrl() + servletUri);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         }
+        /**
+         *  如果是推包 查询当前仓库容量，如果超出限制 则终止
+         */
+        if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")) {
+            NexusRepository repository = null;
+            String repositoryName = getRepositoryName(servletUri);
+            LOGGER.info("The name of the repository is : {}", repositoryName);
+            if (!StringUtils.isEmpty(repositoryName)) {
+                NexusRepository nexusRepository = new NexusRepository();
+                nexusRepository.setNeRepositoryName(repositoryName);
+                nexusRepository.setConfigId(configId);
+                repository = nexusRepositoryMapper.selectOne(nexusRepository);
+            }
+            NexusAssets record = new NexusAssets();
+            record.setRepositoryId(repository.getRepositoryId());
+            List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+            //拿到当前文件的长度
+//                String bodyReaderHttpServletRequestWrapper = bodyReaderHttpServletRequestWrapper(httpServletRequest);
+            if (!CollectionUtils.isEmpty(nexusAssets)) {
+                Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
+                ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
+                if (Objects.isNull(externalTenantVO)) {
+                    throw new CommonException("tenant not exists");
+                }
+                if (externalTenantVO.getRegister()
+                        || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
+                        || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+                    LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
+                    LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
 
+                    if (totalSize >= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                        throw new CommonException("Exceeded repository capacity limit");
+                    }
+                }
+
+                if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
+                    if (totalSize >= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+                        throw new CommonException("Exceeded repository capacity limit");
+                    }
+                }
+            }
+            //同步到数据库
+            nexusComponentHandService.syncAssetsToDB(repository.getRepositoryId());
+        }
 
         //2.提取拉取制品包的地址和包的名字，仓库的名字 解析用户名和密码 Basic MjUzMjg6V2FuZz==
         if ((StringUtils.endsWithIgnoreCase(servletUri, ".jar") || StringUtils.endsWithIgnoreCase(servletUri, ".tgz"))
@@ -141,42 +184,6 @@ public class NexusFilter implements Filter {
                 nexusRepository.setNeRepositoryName(repositoryName);
                 nexusRepository.setConfigId(configId);
                 repository = nexusRepositoryMapper.selectOne(nexusRepository);
-            }
-            /**
-             *  如果是推包 查询当前仓库容量，如果超出限制 则终止
-             */
-            if (org.apache.commons.lang3.StringUtils.equalsIgnoreCase(httpServletRequest.getMethod(), "put")) {
-                NexusAssets record = new NexusAssets();
-                record.setRepositoryId(repository.getRepositoryId());
-                List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
-                //拿到当前文件的长度
-//                String bodyReaderHttpServletRequestWrapper = bodyReaderHttpServletRequestWrapper(httpServletRequest);
-                if (!CollectionUtils.isEmpty(nexusAssets)) {
-                    Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
-                    ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
-                    if (Objects.isNull(externalTenantVO)) {
-                        throw new CommonException("tenant not exists");
-                    }
-                    if (externalTenantVO.getRegister()
-                            || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
-                            || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
-                        LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
-                        LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
-
-                        if (totalSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
-                            throw new CommonException("Exceeded repository capacity limit");
-                        }
-                    }
-
-                    if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
-                        if (totalSize  <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
-                            throw new CommonException("Exceeded repository capacity limit");
-                        }
-                    }
-                }
-                //同步到数据库
-                nexusComponentHandService.syncAssetsToDB(repository.getRepositoryId());
-
             }
             if (!Objects.isNull(repository)) {
                 String packageName = getPackageName(servletUri);
