@@ -150,7 +150,7 @@ public class NexusFilter implements Filter {
                 record.setRepositoryId(repository.getRepositoryId());
                 List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
                 //拿到当前文件的长度
-                String bodyReaderHttpServletRequestWrapper = bodyReaderHttpServletRequestWrapper(httpServletRequest);
+//                String bodyReaderHttpServletRequestWrapper = bodyReaderHttpServletRequestWrapper(httpServletRequest);
                 if (!CollectionUtils.isEmpty(nexusAssets)) {
                     Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
                     ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
@@ -163,13 +163,13 @@ public class NexusFilter implements Filter {
                         LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
                         LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
 
-                        if (totalSize + bodyReaderHttpServletRequestWrapper.length() <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                        if (totalSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
                             throw new CommonException("Exceeded repository capacity limit");
                         }
                     }
 
                     if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
-                        if (totalSize + bodyReaderHttpServletRequestWrapper.length() <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+                        if (totalSize  <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
                             throw new CommonException("Exceeded repository capacity limit");
                         }
                     }
