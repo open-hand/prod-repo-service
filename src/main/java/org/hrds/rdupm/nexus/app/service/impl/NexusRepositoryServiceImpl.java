@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.init.config.NexusDefaultInitConfiguration;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.*;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
@@ -35,6 +36,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
+import org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
@@ -93,6 +95,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     private NexusLogMapper nexusLogMapper;
     @Value("${nexus.filter.mavenRepo:market-repo}")
     private String marketMavenRepo;
+    @Autowired
+    private NexusServerConfigMapper nexusServerConfigMapper;
+
+    @Autowired
+    private NexusDefaultInitConfiguration nexusDefaultInitConfiguration;
 
     @Override
     public NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -952,7 +959,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
             if (nexusServerRepositoryMapAll.containsKey(key)) {
                 NexusServerRepository nexusServerRepository = nexusServerRepositoryMapAll.get(key);
                 nexusRepoDTO.setType(nexusServerRepository.getType());
-                nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
+                //如果是默认仓库的改回代理的地址
+                NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepoDTO.getConfigId());
+                if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+                    nexusRepoDTO.setUrl(nexusServerRepository.getUrl().replace(nexusDefaultInitConfiguration.getServerUrl(), nexusProxyConfigProperties.getServicesGatewayUrl() + nexusProxyConfigProperties.getServiceRoute() + nexusProxyConfigProperties.getUriPrefix() + BaseConstants.Symbol.SLASH + nexusServerConfig.getConfigId()));
+                } else {
+                    nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
+                }
                 nexusRepoDTO.setVersionPolicy(nexusServerRepository.getVersionPolicy());
                 if (nexusRepoDTO.getNeUserPassword() != null) {
                     nexusRepoDTO.setNeUserPassword(DESEncryptUtil.decode(nexusRepoDTO.getNeUserPassword()));
