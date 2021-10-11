@@ -18,4 +18,5 @@ public interface NexusComponentHandService {
 
     void uploadNPM(Long repositoryId, NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
 
+    void syncAssetsToDB(Long repositoryId);
 }

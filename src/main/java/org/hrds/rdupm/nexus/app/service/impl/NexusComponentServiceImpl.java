@@ -301,7 +301,6 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         NexusRepository nexusRepository = this.validateAuth(projectId, componentUpload.getRepositoryId());
         componentUpload.setRepositoryName(nexusRepository.getNeRepositoryName());
 
-        // TODO: 2021/10/7 根据项目对应的组织类型，判断是不是需要进行容量的限制
         checkRepositoryCapacityLimit(organizationId, componentUpload.getRepositoryId(), filePath);
 
         NexusServerConfig defaultNexusServerConfig = configService.setNexusInfoByRepositoryId(nexusClient, nexusRepository.getRepositoryId());

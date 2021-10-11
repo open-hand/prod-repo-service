@@ -18,6 +18,7 @@ import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
+import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
 import org.hrds.rdupm.nexus.domain.entity.NexusAssets;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
@@ -86,6 +87,9 @@ public class NexusFilter implements Filter {
     private NexusAssetsMapper nexusAssetsMapper;
     @Autowired
     private C7nBaseService c7nBaseService;
+
+    @Autowired
+    private NexusComponentHandService nexusComponentHandService;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -170,6 +174,8 @@ public class NexusFilter implements Filter {
                         }
                     }
                 }
+                //同步到数据库
+                nexusComponentHandService.syncAssetsToDB(repository.getRepositoryId());
 
             }
             if (!Objects.isNull(repository)) {

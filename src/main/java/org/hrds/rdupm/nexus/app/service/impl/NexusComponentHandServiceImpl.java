@@ -83,7 +83,8 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
         }
     }
 
-    private void syncAssetsToDB(Long repositoryId) {
+    @Override
+    public void syncAssetsToDB(Long repositoryId) {
         // 如果用的是默认的nexus
         NexusRepository nexusRepository = nexusRepositoryMapper.selectByPrimaryKey(repositoryId);
         NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepository.getConfigId());
