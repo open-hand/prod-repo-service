@@ -1,7 +1,6 @@
 package org.hrds.rdupm.nexus.infra.filter;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -146,6 +145,8 @@ public class NexusFilter implements Filter {
                 NexusAssets record = new NexusAssets();
                 record.setRepositoryId(repository.getRepositoryId());
                 List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+                //拿到当前文件的长度
+                String bodyReaderHttpServletRequestWrapper = bodyReaderHttpServletRequestWrapper(httpServletRequest);
                 if (!CollectionUtils.isEmpty(nexusAssets)) {
                     Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
                     ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
@@ -158,13 +159,13 @@ public class NexusFilter implements Filter {
                         LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
                         LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
 
-                        if (totalSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
-                          throw new CommonException("Exceeded repository capacity limit");
+                        if (totalSize + bodyReaderHttpServletRequestWrapper.length() <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                            throw new CommonException("Exceeded repository capacity limit");
                         }
                     }
 
                     if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
-                        if (totalSize <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+                        if (totalSize + bodyReaderHttpServletRequestWrapper.length() <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
                             throw new CommonException("Exceeded repository capacity limit");
                         }
                     }
@@ -193,6 +194,35 @@ public class NexusFilter implements Filter {
         httpServletRequest.setAttribute(ATTR_TARGET_URI, nexusServerConfig.getServerUrl());
         httpServletRequest.setAttribute(NexusProxyConstants.CONFIG_SERVER_ID, configId);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    public String bodyReaderHttpServletRequestWrapper(HttpServletRequest request) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader bufferedReader = null;
+        try {
+            InputStream inputStream = request.getInputStream();
+            if (inputStream != null) {
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                char[] charBuffer = new char[128];
+                int bytesRead = -1;
+                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+                    stringBuilder.append(charBuffer, 0, bytesRead);
+                }
+            } else {
+                stringBuilder.append("");
+            }
+        } catch (IOException ex) {
+            throw ex;
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException ex) {
+                    throw ex;
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 
     private NexusLog generateLog(NexusRepository repository, UserDTO userDTO, String packageName, String servletUri, String operateType) {
