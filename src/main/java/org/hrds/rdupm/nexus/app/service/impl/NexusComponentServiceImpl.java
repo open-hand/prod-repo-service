@@ -345,7 +345,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
                 Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
                 logger.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
                 logger.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
-                if (totalSize + fileSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                if (totalSize + fileSize >= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
                     throw new CommonException("Exceeded repository capacity limit");
                 }
             }
