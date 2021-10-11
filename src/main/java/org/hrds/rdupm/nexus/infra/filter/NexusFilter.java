@@ -155,6 +155,9 @@ public class NexusFilter implements Filter {
                     if (externalTenantVO.getRegister()
                             || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
                             || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+                        LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
+                        LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
+
                         if (totalSize <= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
                           throw new CommonException("Exceeded repository capacity limit");
                         }
