@@ -156,15 +156,16 @@ public class NexusFilter implements Filter {
                         || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
                     LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
                     LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
-
-                    if (totalSize >= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
-                        throw new CommonException("Exceeded repository capacity limit");
+                    //如果超限，转发到Controller 进行异常处理的处理
+                    if (totalSize >= 1) {
+                        httpServletRequest.setAttribute("errorMessage", "Exceeded repository capacity limit");
+                        httpServletRequest.getRequestDispatcher("/v1/exceeded/capacity/limit").forward(httpServletRequest, httpServletResponse);
                     }
                 }
 
                 if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
                     if (totalSize >= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
-                        throw new CommonException("Exceeded repository capacity limit");
+                        httpServletRequest.getRequestDispatcher("/v1/exceeded/capacity/limit").forward(httpServletRequest, httpServletResponse);
                     }
                 }
             }
