@@ -19,6 +19,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
+import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.domain.entity.NexusAssets;
 import org.hrds.rdupm.nexus.domain.entity.NexusLog;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
@@ -91,6 +92,9 @@ public class NexusFilter implements Filter {
     @Autowired
     private NexusComponentHandService nexusComponentHandService;
 
+    @Autowired
+    private NexusRepositoryService nexusRepositoryService;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -140,35 +144,32 @@ public class NexusFilter implements Filter {
                 nexusRepository.setConfigId(configId);
                 repository = nexusRepositoryMapper.selectOne(nexusRepository);
             }
-            NexusAssets record = new NexusAssets();
-            record.setRepositoryId(repository.getRepositoryId());
-            List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+
             //拿到当前文件的长度
 //                String bodyReaderHttpServletRequestWrapper = bodyReaderHttpServletRequestWrapper(httpServletRequest);
-            if (!CollectionUtils.isEmpty(nexusAssets)) {
-                Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
-                ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
-                if (Objects.isNull(externalTenantVO)) {
-                    throw new CommonException("tenant not exists");
-                }
-                if (externalTenantVO.getRegister()
-                        || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
-                        || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
-                    LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
-                    LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
-                    //如果超限，转发到Controller 进行异常处理的处理
-                    if (totalSize >= 1) {
-                        httpServletRequest.setAttribute("errorMessage", "Exceeded repository capacity limit");
-                        httpServletRequest.getRequestDispatcher("/v1/exceeded/capacity/limit").forward(httpServletRequest, httpServletResponse);
-                    }
-                }
-
-                if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
-                    if (totalSize >= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
-                        httpServletRequest.getRequestDispatcher("/v1/exceeded/capacity/limit").forward(httpServletRequest, httpServletResponse);
-                    }
+            Long totalSize = nexusRepositoryService.queryNexusProjectCapacity(repository.getRepositoryId());
+            ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(repository.getOrganizationId());
+            if (Objects.isNull(externalTenantVO)) {
+                throw new CommonException("tenant not exists");
+            }
+            if (externalTenantVO.getRegister()
+                    || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
+                    || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
+                LOGGER.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
+                LOGGER.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
+                //如果超限，转发到Controller 进行异常处理的处理
+                if (totalSize >= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB) && nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+                    httpServletRequest.setAttribute("errorMessage", "Exceeded repository capacity limit");
+                    httpServletRequest.getRequestDispatcher("/v1/exceeded/capacity/limit").forward(httpServletRequest, httpServletResponse);
                 }
             }
+
+            if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
+                if (totalSize >= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)&& nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+                    httpServletRequest.getRequestDispatcher("/v1/exceeded/capacity/limit").forward(httpServletRequest, httpServletResponse);
+                }
+            }
+
             //同步到数据库
             nexusComponentHandService.syncAssetsToDB(repository.getRepositoryId());
         }
