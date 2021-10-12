@@ -172,4 +172,8 @@ public interface NexusRepositoryService {
 	 */
 	void selfRelatedMavenRepo(Long organizationId, Long projectId, String repoType, String repositoryName, NexusServerConfig serverConfig);
 
+	NexusRepository queryNexusRepositoryByName(Long nexusServiceConfigId, String repositoryName);
+
+	Long queryNexusProjectCapacity(Long repositoryId);
+
 }

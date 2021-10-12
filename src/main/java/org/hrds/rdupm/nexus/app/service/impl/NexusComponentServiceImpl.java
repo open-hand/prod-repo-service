@@ -20,10 +20,7 @@ import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.NexusComponentGuideDTO;
 import org.hrds.rdupm.nexus.api.vo.MavenComponentVO;
-import org.hrds.rdupm.nexus.app.service.NexusAuthService;
-import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
-import org.hrds.rdupm.nexus.app.service.NexusComponentService;
-import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
+import org.hrds.rdupm.nexus.app.service.*;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.constant.NexusApiConstants;
 import org.hrds.rdupm.nexus.client.nexus.model.*;
@@ -95,6 +92,8 @@ public class NexusComponentServiceImpl implements NexusComponentService {
 
     @Autowired
     private NexusAssetsMapper nexusAssetsMapper;
+    @Autowired
+    private NexusRepositoryService nexusRepositoryService;
 
     @Override
     public Page<NexusServerComponentInfo> listComponents(Long organizationId, Long projectId, Boolean deleteFlag,
@@ -338,28 +337,17 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         if (externalTenantVO.getRegister()
                 || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
                 || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
-            NexusAssets record = new NexusAssets();
-            record.setRepositoryId(repositoryId);
-            List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
-            if (!org.springframework.util.CollectionUtils.isEmpty(nexusAssets)) {
-                Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
-                logger.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
-                logger.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
-                if (totalSize + fileSize >= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
-                    throw new CommonException("Exceeded repository capacity limit");
-                }
+            Long totalSize = nexusRepositoryService.queryNexusProjectCapacity(repositoryId);
+            logger.info(">>>>>>>>>>>仓库的容量限制为{}>>>>>>>>>>>>>>>>", HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB));
+            logger.info(">>>>>>>>>>>已经使用的仓库的大小为{}>>>>>>>>>>>>>>>>", totalSize);
+            if (totalSize + fileSize >= HarborUtil.getStorageLimit(nexusBaseCapacityLimit, HarborConstants.GB)) {
+                throw new CommonException("Exceeded repository capacity limit");
             }
         }
-
         if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
-            NexusAssets record = new NexusAssets();
-            record.setRepositoryId(repositoryId);
-            List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
-            if (!org.springframework.util.CollectionUtils.isEmpty(nexusAssets)) {
-                Long totalSize = nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
-                if (totalSize + fileSize <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
-                    throw new CommonException("Exceeded repository capacity limit");
-                }
+            Long totalSize = nexusRepositoryService.queryNexusProjectCapacity(repositoryId);
+            if (totalSize + fileSize <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+                throw new CommonException("Exceeded repository capacity limit");
             }
         }
     }

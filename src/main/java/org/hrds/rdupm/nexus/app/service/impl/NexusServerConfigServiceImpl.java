@@ -325,6 +325,8 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
         nexusLogMapper.insert(nexusLog);
     }
 
+
+
     private NexusLog generateLog(UserDTO userDTO, NexusRepository nexusRepository, UserNexusInfo userNexusInfo) {
         NexusLog nexusLog = new NexusLog();
         nexusLog.setOperatorId(userDTO.getId());

@@ -48,7 +48,7 @@ public class TestController {
     @GetMapping("/test")
     @Permission(permissionPublic = true)
     public void test() {
-        nexusCapacityTask.nexusCapacitylimit(null);
+//        nexusCapacityTask.nexusCapacitylimit(null);
 //        harborCapacityTask.harborCapacitylimit(null);
 
 //        //查询该项目下是否有默认的docker仓库

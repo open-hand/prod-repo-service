@@ -35,6 +35,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
+import org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
@@ -97,6 +98,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     private String marketMavenRepo;
     @Autowired
     private NexusServerConfigMapper nexusServerConfigMapper;
+    @Autowired
+    private NexusAssetsMapper nexusAssetsMapper;
 
     @Autowired
     private NexusDefaultInitConfiguration nexusDefaultInitConfiguration;
@@ -1068,4 +1071,29 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
                             .withSourceId(projectId);
                 });
     }
+
+    @Override
+    public NexusRepository queryNexusRepositoryByName(Long nexusServiceConfigId, String repositoryName) {
+        NexusRepository nexusRepository = new NexusRepository();
+        nexusRepository.setNeRepositoryName(repositoryName);
+        nexusRepository.setConfigId(nexusServiceConfigId);
+        return nexusRepositoryRepository.selectOne(nexusRepository);
+    }
+
+    @Override
+    public Long queryNexusProjectCapacity(Long repositoryId) {
+        NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+        if (nexusRepository == null) {
+            return Long.valueOf(BaseConstants.Digital.NEGATIVE_ONE);
+        }
+        NexusAssets record = new NexusAssets();
+        record.setProjectId(nexusRepository.getProjectId());
+        List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+        if (CollectionUtils.isEmpty(nexusAssets)) {
+            return Long.valueOf(BaseConstants.Digital.ZERO);
+        } else {
+            return nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
+        }
+    }
+
 }
