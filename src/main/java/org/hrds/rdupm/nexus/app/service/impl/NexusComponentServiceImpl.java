@@ -334,7 +334,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         File file = new File(filePath);
         long fileSize = file.length();
         logger.info(">>>>>>>>>上传的包的大小为:{}>>>>>>>>>>", fileSize);
-        if (externalTenantVO.getRegister()
+        if ((externalTenantVO.getRegister() != null && externalTenantVO.getRegister())
                 || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.FREE.name())
                 || StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.STANDARD.name())) {
             Long totalSize = nexusRepositoryService.queryNexusProjectCapacity(repositoryId);
