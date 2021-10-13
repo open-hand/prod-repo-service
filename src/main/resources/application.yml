@@ -199,6 +199,7 @@ nexus:
   #代理的配置
   proxy:
     # 过滤器拦截的uri前缀
+    url: ${NEXUS_PROXY_URL:http://localhost}
     uriPrefix: ${NEXUS_PROXY_URIPREFIX:/v1/nexus/proxy}
     #nexus的地址
     base: ${NEXUS_DEFAULT_BASE_URL:https://localhost}

@@ -966,7 +966,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
                 //如果是默认仓库的改回代理的地址
                 NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepoDTO.getConfigId());
                 if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
-                    nexusRepoDTO.setUrl(nexusServerRepository.getUrl().replace(nexusDefaultInitConfiguration.getServerUrl(), nexusProxyConfigProperties.getServicesGatewayUrl() + nexusProxyConfigProperties.getServiceRoute() + nexusProxyConfigProperties.getUriPrefix() + BaseConstants.Symbol.SLASH + nexusServerConfig.getConfigId()));
+                    nexusRepoDTO.setUrl(nexusServerRepository.getUrl().replace(nexusDefaultInitConfiguration.getServerUrl(), nexusProxyConfigProperties.getUrl() + nexusProxyConfigProperties.getUriPrefix() + BaseConstants.Symbol.SLASH + nexusServerConfig.getConfigId()));
                 } else {
                     nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
                 }
