@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "nexus.proxy")
 public class NexusProxyConfigProperties {
+    /**
+     * 代理服务的地址
+     */
+    private String url;
 
     /**
      * uri前缀
@@ -24,6 +28,14 @@ public class NexusProxyConfigProperties {
     private String servicesGatewayUrl;
 
     private String serviceRoute;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getServiceRoute() {
         return serviceRoute;
