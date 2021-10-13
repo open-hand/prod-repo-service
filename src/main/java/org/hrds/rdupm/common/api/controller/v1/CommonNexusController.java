@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiOperation;
 import org.hrds.rdupm.common.api.vo.UserNexusInfo;
 import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
+import org.hrds.rdupm.nexus.api.vo.NexusRepositoryVO;
+import org.hrds.rdupm.nexus.api.vo.NexusServerConfigVO;
 import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
@@ -39,7 +41,7 @@ public class CommonNexusController {
     @ApiOperation(value = "公开的接口，代理通过配置的id 查询nexus的地址")
     @Permission(permissionPublic = true)
     @GetMapping("/service/config")
-    public ResponseEntity<NexusServerConfig> queryNexusServiceConfigById(
+    public ResponseEntity<NexusServerConfigVO> queryNexusServiceConfigById(
             @RequestParam(value = "config_server_id") Long nexusServiceConfigId) {
         return Results.success(nexusServerConfigService.queryNexusServiceConfigById(nexusServiceConfigId));
     }
@@ -47,7 +49,7 @@ public class CommonNexusController {
     @ApiOperation(value = "公开的接口，通过仓库名查询仓库")
     @Permission(permissionPublic = true)
     @GetMapping("/repository")
-    public ResponseEntity<NexusRepository> queryNexusRepositoryByName(
+    public ResponseEntity<NexusRepositoryVO> queryNexusRepositoryByName(
             @RequestParam(value = "config_server_id") Long nexusServiceConfigId,
             @RequestParam(value = "repository_name") String repositoryName) {
         return Results.success(nexusRepositoryService.queryNexusRepositoryByName(nexusServiceConfigId, repositoryName));

@@ -10,6 +10,7 @@ import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.nexus.api.vo.NexusServerConfigVO;
 import org.hrds.rdupm.nexus.app.service.NexusApiService;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
@@ -31,6 +32,7 @@ import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Lazy;
@@ -299,17 +301,15 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
     }
 
     @Override
-    public NexusServerConfig queryNexusServiceConfigById(Long nexusServiceConfigId) {
+    public NexusServerConfigVO queryNexusServiceConfigById(Long nexusServiceConfigId) {
         NexusServerConfig nexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(nexusServiceConfigId);
         if (nexusServerConfig == null) {
             return null;
         } else {
             //去除敏感字段
-            nexusServerConfig.setPassword(null);
-            nexusServerConfig.setUserName(null);
-            nexusServerConfig.setAnonymous(null);
-            nexusServerConfig.setAnonymousRole(null);
-            return nexusServerConfig;
+            NexusServerConfigVO nexusServerConfigVO = new NexusServerConfigVO();
+            BeanUtils.copyProperties(nexusServerConfig, nexusServerConfigVO);
+            return nexusServerConfigVO;
         }
     }
 
@@ -324,7 +324,6 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
         NexusLog nexusLog = generateLog(userDTO, repository, userNexusInfo);
         nexusLogMapper.insert(nexusLog);
     }
-
 
 
     private NexusLog generateLog(UserDTO userDTO, NexusRepository nexusRepository, UserNexusInfo userNexusInfo) {

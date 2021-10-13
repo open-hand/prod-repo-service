@@ -21,6 +21,7 @@ import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.init.config.NexusDefaultInitConfiguration;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.*;
+import org.hrds.rdupm.nexus.api.vo.NexusRepositoryVO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
@@ -1073,11 +1074,14 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     }
 
     @Override
-    public NexusRepository queryNexusRepositoryByName(Long nexusServiceConfigId, String repositoryName) {
+    public NexusRepositoryVO queryNexusRepositoryByName(Long nexusServiceConfigId, String repositoryName) {
         NexusRepository nexusRepository = new NexusRepository();
         nexusRepository.setNeRepositoryName(repositoryName);
         nexusRepository.setConfigId(nexusServiceConfigId);
-        return nexusRepositoryRepository.selectOne(nexusRepository);
+        NexusRepository repository = nexusRepositoryRepository.selectOne(nexusRepository);
+        NexusRepositoryVO nexusRepositoryVO = new NexusRepositoryVO();
+        BeanUtils.copyProperties(repository, nexusRepositoryVO);
+        return nexusRepositoryVO;
     }
 
     @Override
