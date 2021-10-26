@@ -164,18 +164,20 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             // 统计下载的次数与人数
             //自定义仓库没有存仓库id 所以这里需要查询
             getHarborProjectId(harborCustomRepo);
-            List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
-
-            Long personTimes = 0L;
-            Long downloadTimes = 0L;
-            if (!CollectionUtils.isEmpty(dataList)) {
-                downloadTimes = Long.valueOf(dataList.size());
-                Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
-                personTimes = Long.valueOf(stringListMap.keySet().size());
+            try {
+                List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
+                Long personTimes = 0L;
+                Long downloadTimes = 0L;
+                if (!CollectionUtils.isEmpty(dataList)) {
+                    downloadTimes = Long.valueOf(dataList.size());
+                    Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
+                    personTimes = Long.valueOf(stringListMap.keySet().size());
+                }
+                harborCustomRepo.setDownloadTimes(downloadTimes);
+                harborCustomRepo.setPersonTimes(personTimes);
+            } catch (Exception e) {
+                LOGGER.error("query.custom.image.list", e);
             }
-            harborCustomRepo.setDownloadTimes(downloadTimes);
-            harborCustomRepo.setPersonTimes(personTimes);
-
             harborCustomRepoDTOList.add(new HarborCustomRepoDTO(harborCustomRepo));
         });
         return harborCustomRepoDTOList;
