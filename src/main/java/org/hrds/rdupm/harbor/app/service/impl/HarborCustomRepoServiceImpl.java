@@ -251,7 +251,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createByProject(Long projectId, HarborCustomRepo harborCustomRepo) {
-        if (!harborRepositoryRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
+        if (!harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
         checkCustomRepo(harborCustomRepo);

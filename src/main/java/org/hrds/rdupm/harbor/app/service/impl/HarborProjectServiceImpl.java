@@ -103,6 +103,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
         //获取猪齿鱼项目信息
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         String code = (DetailsHelper.getUserDetails().getTenantNum().toLowerCase() + "-" + projectDTO.getCode()).toLowerCase();
+        if(!harborRepositoryRepository.checkName(projectId, code)){
+            throw new CommonException("error.repo.already.exists.under.the.project");
+        }
         harborProjectVo.setCode(code);
         harborProjectVo.setProjectDTO(projectDTO);
         harborProjectVo.setUserDTO(new UserDTO(DetailsHelper.getUserDetails()));
