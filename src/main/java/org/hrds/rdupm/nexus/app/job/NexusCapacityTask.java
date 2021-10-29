@@ -66,8 +66,8 @@ public class NexusCapacityTask {
     private NexusClient nexusClient;
 
 
-    @JobTask(maxRetryCount = 3, code = "nexusCapacitylimit", description = "SaaS组织,试用组织Nexus容量的限制")
-    public void nexusCapacitylimit(Map<String, Object> map) {
+    @JobTask(maxRetryCount = 3, code = "nexusCapacityLimit", description = "SaaS组织,试用组织Nexus制品的同步")
+    public void nexusCapacityLimit(Map<String, Object> map) {
         //1.查询所有的Saas组织，试用组织
         LOGGER.info("》》》》》》》》》》start nexus capacity limit 》》》》》》》》》》》");
         List<String> saasLevels = Arrays.asList(SaasLevelEnum.FREE.name(), SaasLevelEnum.STANDARD.name(), SaasLevelEnum.SENIOR.name());
@@ -75,7 +75,6 @@ public class NexusCapacityTask {
         List<ExternalTenantVO> registerTenants = c7nBaseService.queryRegisterTenant();
 
         List<ExternalTenantVO> registerAndBaseSaasTenants = new ArrayList<>();
-//        List<ExternalTenantVO> busSaasTenants = new ArrayList<>();
 
 
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(saasTenants)) {
@@ -105,7 +104,6 @@ public class NexusCapacityTask {
 
         //查询所有的仓库
         List<ExtdirectResponseData> hostedNexusRepo = getHostedNexusRepo(nexusServerConfig);
-        ExternalTenantVO externalTenantVO = new ExternalTenantVO();
 
         //将基础版和高级版的包持久化到数据库中
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(registerAndBaseSaasTenants)) {
@@ -179,7 +177,6 @@ public class NexusCapacityTask {
     }
 
     public void insertNexusAssetsDb(Long repositoryId, Long projectId, List<AssetResponseData> components) {
-        List<NexusAssets> nexusAssets = new ArrayList<>();
         components.forEach(responseData -> {
             NexusAssets assets = new NexusAssets();
             assets.setName(responseData.getName());
@@ -192,22 +189,15 @@ public class NexusCapacityTask {
             } else {
                 assets.setType(NexusConstants.RepoType.NPM);
             }
-
             assets.setSize(Long.valueOf(responseData.getSize()));
-//            assets.setVersion(responseData.getVersionPolicy());
-//            nexusAssets.add(assets);
             NexusAssets record = new NexusAssets();
             record.setRepositoryId(repositoryId);
             record.setName(responseData.getName());
-//            record.setVersion(responseData.getVersionPolicy());
             List<NexusAssets> nexusAssetsList = nexusAssetsMapper.select(record);
             if (CollectionUtils.isEmpty(nexusAssetsList)) {
                 nexusAssetsMapper.insert(assets);
             }
         });
-//        nexusAssetsMapper.batchInsert(nexusAssets);
-
-
     }
 
     public List<AssetResponseData> getComponentsByRepository(ExtdirectResponseData nexusRepo, String repositoryName) {
