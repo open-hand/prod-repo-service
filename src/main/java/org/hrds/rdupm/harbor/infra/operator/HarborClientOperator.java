@@ -99,8 +99,10 @@ public class HarborClientOperator {
                 logListResult = logListResult.stream().map(t -> {
                     if (t.getResource().contains(":")) {
                         String[] strings = t.getResource().split(":");
-                        t.setRepoName(strings[0]);
-                        t.setTagName(strings[1]);
+                        if (strings != null && strings.length >= 2) {
+                            t.setRepoName(strings[0]);
+                            t.setTagName(strings[1]);
+                        }
                     }
                     return t;
                 }).collect(Collectors.toList());
