@@ -1,8 +1,11 @@
 package org.hrds.rdupm.harbor.infra.repository.impl;
 
+import java.util.Objects;
 import org.hzero.mybatis.base.impl.BaseRepositoryImpl;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
+import org.hzero.mybatis.domian.Condition;
+import org.hzero.mybatis.util.Sqls;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,5 +16,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class HarborCustomRepoRepositoryImpl extends BaseRepositoryImpl<HarborCustomRepo> implements HarborCustomRepoRepository {
 
+    @Override
+    public Boolean checkName(Long projectId, String repositoryName) {
+        HarborCustomRepo harborCustomRepo = this.selectByCondition(Condition.builder(HarborCustomRepo.class).where(Sqls.custom()
+                .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                .andEqualTo(HarborCustomRepo.FIELD_REPO_NAME, repositoryName)
+        ).build()).stream().findFirst().orElse(null);
+        if (Objects.isNull(harborCustomRepo)) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
   
 }

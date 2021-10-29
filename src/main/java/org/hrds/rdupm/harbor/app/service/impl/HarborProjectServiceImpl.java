@@ -1,13 +1,10 @@
 package org.hrds.rdupm.harbor.app.service.impl;
 
-import com.google.common.reflect.TypeToken;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.choerodon.core.domain.Page;
 
@@ -16,14 +13,12 @@ import com.google.gson.Gson;
 import io.choerodon.asgard.saga.annotation.Saga;
 import io.choerodon.asgard.saga.producer.StartSagaBuilder;
 import io.choerodon.asgard.saga.producer.TransactionalProducer;
-import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.mybatis.pagehelper.PageHelper;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
-import io.swagger.models.auth.In;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
@@ -33,25 +28,20 @@ import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
-import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborLog;
 import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
-import org.hrds.rdupm.harbor.infra.mapper.HarborLogMapper;
-import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
-import org.hrds.rdupm.nexus.domain.entity.NexusLog;
-import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
-import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hzero.core.util.AssertUtils;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
@@ -97,6 +87,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
     @Autowired
     private HarborClientOperator harborClientOperator;
 
+    @Autowired
+    private HarborCustomRepoRepository harborCustomRepoRepository;
+
     @Override
     @Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT, description = "创建Docker镜像仓库", inputSchemaClass = HarborProjectVo.class)
     public void createSaga(Long projectId, HarborProjectVo harborProjectVo) {
@@ -110,6 +103,9 @@ public class HarborProjectServiceImpl implements HarborProjectService {
         //获取猪齿鱼项目信息
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         String code = (DetailsHelper.getUserDetails().getTenantNum().toLowerCase() + "-" + projectDTO.getCode()).toLowerCase();
+        if(!harborRepositoryRepository.checkName(projectId, code)){
+            throw new CommonException("error.repo.already.exists.under.the.project");
+        }
         harborProjectVo.setCode(code);
         harborProjectVo.setProjectDTO(projectDTO);
         harborProjectVo.setUserDTO(new UserDTO(DetailsHelper.getUserDetails()));
@@ -331,6 +327,17 @@ public class HarborProjectServiceImpl implements HarborProjectService {
             metadataMap.put("public", publicFlag);
             bodyMap.put("metadata", metadataMap);
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT, null, bodyMap, true, harborRepository.getHarborId());
+        }
+    }
+
+    @Override
+    public Boolean checkName(Long projectId, String repositoryName) {
+        Boolean defaultHarbor = harborRepositoryRepository.checkName(projectId, repositoryName);
+        Boolean customHarbor = harborCustomRepoRepository.checkName(projectId, repositoryName);
+        if (!defaultHarbor && !customHarbor) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
         }
     }
 

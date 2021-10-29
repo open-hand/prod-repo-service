@@ -71,4 +71,6 @@ public interface HarborProjectService {
 	 */
 	void updatePublicFlag(Long projectId, String publicFlag);
 
+    Boolean checkName(Long projectId, String repositoryName);
+
 }
