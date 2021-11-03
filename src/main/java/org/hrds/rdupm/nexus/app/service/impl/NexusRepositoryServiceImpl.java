@@ -15,6 +15,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
@@ -963,9 +964,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
             if (nexusServerRepositoryMapAll.containsKey(key)) {
                 NexusServerRepository nexusServerRepository = nexusServerRepositoryMapAll.get(key);
                 nexusRepoDTO.setType(nexusServerRepository.getType());
-                //如果是默认仓库的改回代理的地址
+                //如果是默认仓库，并且组织属于注册或者试用组织 则返回回代理的地址
                 NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepoDTO.getConfigId());
-                if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+                ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+                if (Objects.isNull(externalTenantVO)) {
+                    throw new CommonException("tenant not exists");
+                }
+                if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES) && isRegisterOrSaasOrganization(externalTenantVO)) {
                     nexusRepoDTO.setUrl(nexusServerRepository.getUrl().replace(nexusDefaultInitConfiguration.getServerUrl(), nexusProxyConfigProperties.getUrl() + nexusProxyConfigProperties.getUriPrefix() + BaseConstants.Symbol.SLASH + nexusServerConfig.getConfigId()));
                 } else {
                     nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
@@ -982,6 +987,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         });
         nexusClient.removeNexusServerInfo();
         return result;
+    }
+
+    private Boolean isRegisterOrSaasOrganization(ExternalTenantVO externalTenantVO) {
+        if (externalTenantVO.getRegister() == null && externalTenantVO.getSaasLevel() == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override
