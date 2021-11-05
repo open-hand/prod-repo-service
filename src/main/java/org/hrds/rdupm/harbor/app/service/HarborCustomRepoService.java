@@ -227,4 +227,6 @@ public interface HarborCustomRepoService {
      * @param appServiceIds
      */
     void batchSaveRelationByServiceIds(Long projectId, Long repoId, String repoType, List<Long> appServiceIds);
+
+    void deleteAllRelationByService(Long projectId, Long appServiceId);
 }

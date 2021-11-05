@@ -850,4 +850,13 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             }
         }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteAllRelationByService(Long projectId, Long appServiceId) {
+        HarborRepoService harborRepoService = new HarborRepoService();
+        harborRepoService.setProjectId(projectId);
+        harborRepoService.setAppServiceId(appServiceId);
+        harborRepoServiceRepository.delete(harborRepoService);
+    }
 }
