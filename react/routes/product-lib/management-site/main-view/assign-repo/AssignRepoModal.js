@@ -157,6 +157,7 @@ const AssignRepoModal = ({
   const handleOrganizationChange = (value) => {
     assignDs.getField('projectId').fetchLookup(true);
   };
+  console.log(666);
 
   return (
     <Form dataSet={assignDs} columns={1}>
