@@ -18,7 +18,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusDefaultInitConfiguration;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.*;
@@ -133,8 +136,27 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         nexusRepository.setEnableAnonymousFlag(serverConfig.getEnableAnonymousFlag());
         NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
         nexusRepositoryDTO.convert(nexusRepository, nexusServerRepository);
+        //Saas组织 默认仓库 注册组织默认仓库  则不展示URL
+        ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+        if (Objects.isNull(externalTenantVO)) {
+            throw new CommonException("tenant not exists");
+        }
+        if (isRegister(externalTenantVO) || isSaas(externalTenantVO)) {
+            if (serverConfig.getDefaultFlag() == BaseConstants.Flag.YES) {
+                nexusRepositoryDTO.setUrl(null);
+            }
+        }
+
         nexusClient.removeNexusServerInfo();
         return nexusRepositoryDTO;
+    }
+
+    private boolean isRegister(ExternalTenantVO externalTenantVO) {
+        return externalTenantVO.getRegister() != null && externalTenantVO.getRegister();
+    }
+
+    private boolean isSaas(ExternalTenantVO externalTenantVO) {
+        return externalTenantVO.getSaasLevel() != null;
     }
 
     @Override
