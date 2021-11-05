@@ -143,6 +143,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         }
         if (isRegister(externalTenantVO) || isSaas(externalTenantVO)) {
             if (serverConfig.getDefaultFlag() == BaseConstants.Flag.YES) {
+                nexusRepositoryDTO.setInternalUrl(nexusRepositoryDTO.getUrl());
                 nexusRepositoryDTO.setUrl(null);
             }
         }
