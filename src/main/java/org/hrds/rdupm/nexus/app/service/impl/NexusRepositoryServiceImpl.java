@@ -1134,4 +1134,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         }
     }
 
+    @Override
+    public NexusServerConfig getDefaultMavenRepo(Long organizationId) {
+        NexusServerConfig nexusServerConfig = new NexusServerConfig();
+        nexusServerConfig.setDefaultFlag(BaseConstants.Flag.YES);
+        return nexusServerConfigMapper.selectOne(nexusServerConfig);
+    }
 }
