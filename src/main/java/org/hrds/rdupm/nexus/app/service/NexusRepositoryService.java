@@ -177,4 +177,5 @@ public interface NexusRepositoryService {
 
 	Long queryNexusProjectCapacity(Long repositoryId);
 
+	NexusServerConfig getDefaultMavenRepo(Long organizationId);
 }

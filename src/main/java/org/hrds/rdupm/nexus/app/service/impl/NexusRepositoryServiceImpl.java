@@ -15,9 +15,13 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.init.config.NexusDefaultInitConfiguration;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.*;
@@ -132,8 +136,28 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         nexusRepository.setEnableAnonymousFlag(serverConfig.getEnableAnonymousFlag());
         NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
         nexusRepositoryDTO.convert(nexusRepository, nexusServerRepository);
+        //Saas组织 默认仓库 注册组织默认仓库  则不展示URL
+        ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+        if (Objects.isNull(externalTenantVO)) {
+            throw new CommonException("tenant not exists");
+        }
+        if (isRegister(externalTenantVO) || isSaas(externalTenantVO)) {
+            if (serverConfig.getDefaultFlag() == BaseConstants.Flag.YES) {
+                nexusRepositoryDTO.setInternalUrl(nexusRepositoryDTO.getUrl());
+                nexusRepositoryDTO.setUrl(null);
+            }
+        }
+
         nexusClient.removeNexusServerInfo();
         return nexusRepositoryDTO;
+    }
+
+    private boolean isRegister(ExternalTenantVO externalTenantVO) {
+        return externalTenantVO.getRegister() != null && externalTenantVO.getRegister();
+    }
+
+    private boolean isSaas(ExternalTenantVO externalTenantVO) {
+        return externalTenantVO.getSaasLevel() != null;
     }
 
     @Override
@@ -963,9 +987,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
             if (nexusServerRepositoryMapAll.containsKey(key)) {
                 NexusServerRepository nexusServerRepository = nexusServerRepositoryMapAll.get(key);
                 nexusRepoDTO.setType(nexusServerRepository.getType());
-                //如果是默认仓库的改回代理的地址
+                //如果是默认仓库，并且组织属于注册或者试用组织 则返回回代理的地址
                 NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepoDTO.getConfigId());
-                if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+                ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+                if (Objects.isNull(externalTenantVO)) {
+                    throw new CommonException("tenant not exists");
+                }
+                if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES) && isRegisterOrSaasOrganization(externalTenantVO)) {
                     nexusRepoDTO.setUrl(nexusServerRepository.getUrl().replace(nexusDefaultInitConfiguration.getServerUrl(), nexusProxyConfigProperties.getUrl() + nexusProxyConfigProperties.getUriPrefix() + BaseConstants.Symbol.SLASH + nexusServerConfig.getConfigId()));
                 } else {
                     nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
@@ -982,6 +1010,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         });
         nexusClient.removeNexusServerInfo();
         return result;
+    }
+
+    private Boolean isRegisterOrSaasOrganization(ExternalTenantVO externalTenantVO) {
+        if (externalTenantVO.getRegister() == null && externalTenantVO.getSaasLevel() == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -1100,4 +1135,10 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         }
     }
 
+    @Override
+    public NexusServerConfig getDefaultMavenRepo(Long organizationId) {
+        NexusServerConfig nexusServerConfig = new NexusServerConfig();
+        nexusServerConfig.setDefaultFlag(BaseConstants.Flag.YES);
+        return nexusServerConfigMapper.selectOne(nexusServerConfig);
+    }
 }

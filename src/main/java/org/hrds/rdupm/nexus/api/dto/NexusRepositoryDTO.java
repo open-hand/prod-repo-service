@@ -128,6 +128,8 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 
 	@ApiModelProperty(value = "仓库拉取包的人数")
 	private Long personTimes;
+	@ApiModelProperty(value = "内部url")
+	private String internalUrl;
 
 	@Override
 	public Class<? extends SecurityToken> associateEntityClass() {
