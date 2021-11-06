@@ -145,6 +145,16 @@ public class HarborClientOperator {
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
                 logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
+                if (logListResult != null) {
+                    logListResult = logListResult.stream().map(t -> {
+                        if (t.getResource().contains(":")) {
+                            String[] strings = t.getResource().split(":");
+                            t.setRepoName(strings[0]);
+                            t.setTagName(strings[1]);
+                        }
+                        return t;
+                    }).collect(Collectors.toList());
+                }
             } else {
                 paramMap.put("page", 0);
                 paramMap.put("page_size", 0);
