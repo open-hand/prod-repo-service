@@ -8,24 +8,31 @@ import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.app.job.NexusCapacityTask;
 import org.hrds.rdupm.nexus.app.service.NexusComponentHandService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
 import org.hrds.rdupm.nexus.client.nexus.api.vo.AssetResponseData;
 import org.hrds.rdupm.nexus.client.nexus.api.vo.ExtdirectResponseData;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerAsset;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerAssetUpload;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponentUpload;
+import org.hrds.rdupm.nexus.domain.entity.NexusAssets;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
+import org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusRepositoryMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper;
+import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.AssertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.choerodon.core.exception.CommonException;
 
@@ -43,6 +50,14 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
     private NexusRepositoryMapper nexusRepositoryMapper;
     @Autowired
     private NexusServerConfigMapper nexusServerConfigMapper;
+
+    @Autowired
+    private NexusClient nexusClient;
+    @Autowired
+    private NexusComponentsApi nexusComponentsApi;
+
+    @Autowired
+    private NexusAssetsMapper nexusAssetsMapper;
 
 
     @Override
@@ -84,6 +99,7 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void syncAssetsToDB(Long repositoryId) {
         // 如果用的是默认的nexus
         NexusRepository nexusRepository = nexusRepositoryMapper.selectByPrimaryKey(repositoryId);
@@ -103,6 +119,45 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
         return;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void syncAssetsToDB(Long repositoryId, String path) {
+        NexusRepository nexusRepository = nexusRepositoryMapper.selectByPrimaryKey(repositoryId);
+        AssertUtils.notNull(nexusRepository, "error.nexus.repository.is.null");
+        NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepository.getConfigId());
+        AssertUtils.notNull(nexusRepository, "error.nexus.config.is.null");
+        if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES)) {
+            //塞上验证信息
+            NexusServer nexusServer = new NexusServer(nexusServerConfig.getServerUrl(),
+                    nexusServerConfig.getUserName(),
+                    DESEncryptUtil.decode(nexusServerConfig.getPassword()));
+            nexusClient.setNexusServerInfo(nexusServer);
+            NexusServerAsset asset = nexusComponentsApi.findAsset(nexusRepository.getNeRepositoryName(), path);
+            if (asset != null) {
+                NexusAssets assets = new NexusAssets();
+                assets.setName(asset.getPath());
+                assets.setProjectId(nexusRepository.getProjectId());
+                assets.setRepositoryId(repositoryId);
+                assets.setAssetsId(asset.getId());
+                //npm 还是 jar
+                if (StringUtils.endsWithIgnoreCase(asset.getPath(), ".jar")) {
+                    assets.setType(NexusConstants.RepoType.JAR);
+                } else if (StringUtils.endsWithIgnoreCase(asset.getPath(), ".tgz")) {
+                    assets.setType(NexusConstants.RepoType.NPM);
+                }
+                assets.setSize(Long.valueOf(asset.getSize()));
+                NexusAssets record = new NexusAssets();
+                record.setRepositoryId(repositoryId);
+                record.setName(asset.getPath());
+                List<NexusAssets> nexusAssetsList = nexusAssetsMapper.select(record);
+                if (CollectionUtils.isEmpty(nexusAssetsList)) {
+                    nexusAssetsMapper.insert(assets);
+                }
+            }
+        }
+
+
+    }
 
     @Override
     @Async
