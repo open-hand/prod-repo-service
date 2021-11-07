@@ -1,5 +1,6 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,10 @@ import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.app.job.NexusCapacityTask;
+import org.hrds.rdupm.nexus.app.service.NexusChoerodonService;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
+import org.hrds.rdupm.nexus.client.nexus.model.NexusServerComponent;
+import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +49,18 @@ public class TestController {
     @Autowired
     private HarborCapacityTask harborCapacityTask;
 
+    @Autowired
+    private NexusChoerodonService nexusChoerodonService;
+
+
     @GetMapping("/test")
     @Permission(permissionPublic = true)
     public void test() {
+        NexusRepository nexusRepository = nexusChoerodonService.validExist(1486L, 243688320436453376L, 243744487803850752L);
+
+        List<NexusServerComponent> springboot = nexusChoerodonService.listComponentList("test113-snapshot", "io.choerodon", "springboot");
+
+//        List<QuotasVO> allHarborQuotas = harborQuotaService.getAllHarborQuotas().stream().filter(quotasVO -> quotasVO.getRef()==null).collect(Collectors.toList());
 //        nexusCapacityTask.nexusCapacitylimit(null);
 //        harborCapacityTask.harborCapacitylimit(null);
 

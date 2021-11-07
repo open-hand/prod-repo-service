@@ -147,7 +147,8 @@ public class HarborCapacityTask {
     }
 
     private Integer getProjectQuotasId(String code, List<QuotasVO> allHarborQuotas) {
-        List<QuotasVO> quotasVOS = allHarborQuotas.stream().filter(quotasVO -> StringUtils.equalsIgnoreCase(quotasVO.getRef().getName(), code)).collect(Collectors.toList());
+        List<QuotasVO> quotasVOS = allHarborQuotas.stream().filter(quotasVO -> quotasVO.getRef() != null
+                && StringUtils.equalsIgnoreCase(quotasVO.getRef().getName(), code)).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(quotasVOS)) {
             return quotasVOS.get(0).getId();
         } else {
