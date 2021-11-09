@@ -1,13 +1,5 @@
 package org.hrds.rdupm.nexus.client.nexus.api.http;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusExtdirectApi;
 import org.hrds.rdupm.nexus.client.nexus.api.vo.AssetResponseVO;

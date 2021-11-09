@@ -329,7 +329,7 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
     private NexusLog generateLog(UserDTO userDTO, NexusRepository nexusRepository, UserNexusInfo userNexusInfo) {
         NexusLog nexusLog = new NexusLog();
         nexusLog.setOperatorId(userDTO.getId());
-        nexusLog.setOperateType(userNexusInfo.getRepoType());
+        nexusLog.setOperateType(userNexusInfo.getOperateType());
         nexusLog.setProjectId(nexusRepository.getProjectId());
         nexusLog.setOrganizationId(nexusRepository.getOrganizationId());
         nexusLog.setRepositoryId(nexusRepository.getRepositoryId());

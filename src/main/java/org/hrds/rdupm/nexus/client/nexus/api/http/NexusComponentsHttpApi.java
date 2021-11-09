@@ -7,6 +7,7 @@ import io.choerodon.core.exception.CommonException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.nexus.api.vo.AssetQuery;
 import org.hrds.rdupm.nexus.client.nexus.NexusRequest;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusComponentsApi;
 import org.hrds.rdupm.nexus.client.nexus.api.NexusScriptApi;
@@ -162,6 +163,17 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add(NexusServerComponentUpload.NPM_TGX, streamResource);
         componentExceptHandler(paramMap, body, currentNexusServer);
+    }
+
+    @Override
+    public NexusServerAsset findAsset(String repositoryName, String path) {
+        AssetQuery assetQuery = new AssetQuery();
+        assetQuery.setPath(path);
+        assetQuery.setRepositoryName(repositoryName);
+        NexusScriptResult nexusScriptResult = nexusScriptApi.runScript(NexusApiConstants.ScriptName.FIND_ASSET, JSONObject.toJSONString(assetQuery));
+        String result = nexusScriptResult.getResult();
+        NexusServerAsset nexusServerAsset = JSON.parseObject(result, NexusServerAsset.class);
+        return nexusServerAsset;
     }
 
     private void componentExceptHandler(Map<String, Object> paramMap, MultiValueMap<String, Object> body, NexusServer currentNexusServer) {
