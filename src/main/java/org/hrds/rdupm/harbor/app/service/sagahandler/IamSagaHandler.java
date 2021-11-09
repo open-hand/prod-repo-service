@@ -1,5 +1,7 @@
 package org.hrds.rdupm.harbor.app.service.sagahandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -13,24 +15,36 @@ import io.choerodon.asgard.saga.annotation.SagaTask;
 import io.choerodon.core.exception.CommonException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.IamGroupMemberVO;
+import org.hrds.rdupm.harbor.api.vo.QuotasVO;
+import org.hrds.rdupm.harbor.api.vo.RegisterSaasOrderAttrVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
+import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.entity.RegisterOrgDTO;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
+import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
+import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.util.JsonHelper;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +64,20 @@ public class IamSagaHandler {
 
 	public static final String DOCKER_DELETE_AUTH = "rdupm-docker-delete-auth";
 
+	public static final String SAAS_TENANT_UPGRADE = "saas-tenant-upgrade";
+
+	public static final String SAAS_VERSION_UPGRADE = "saas-version-upgrade";
+
 	private String project = "project";
+
+	@Value("${harbor.choerodon.capacity.limit.base: 20}")
+	private Integer harborBaseCapacityLimit;
+
+	/**
+	 * 企业版 一个项目限制50G
+	 */
+	@Value("${harbor.choerodon.capacity.limit.business: 50}")
+	private Integer harborBusinessCapacityLimit;
 
 	@Autowired
 	private HarborAuthService harborAuthService;
@@ -67,6 +94,12 @@ public class IamSagaHandler {
 
 	@Autowired
 	private C7nBaseService c7nBaseService;
+
+	@Autowired
+	private HarborQuotaService harborQuotaService;
+
+	@Autowired
+	private HarborRepositoryMapper harborRepositoryMapper;
 
 	/**
 	 * 删除角色同步事件
@@ -102,6 +135,74 @@ public class IamSagaHandler {
 			}
 		});
 		return payload;
+	}
+
+
+	@SagaTask(code = SAAS_TENANT_UPGRADE, description = "Saas组织升级，修改Harbor仓库容量", sagaCode = SAAS_VERSION_UPGRADE, maxRetryCount = 3, seq = 1)
+	public void changeHarborCapacity(String payload) {
+		RegisterSaasOrderAttrVO registerSaasOrderAttrVO = null;
+		try {
+			registerSaasOrderAttrVO = JsonHelper.unmarshalByJackson(payload, RegisterSaasOrderAttrVO.class);
+		} catch (Exception e) {
+			throw new CommonException(e);
+		}
+		List<String> saasLevels = Arrays.asList(SaasLevelEnum.FREE.name(), SaasLevelEnum.STANDARD.name(), SaasLevelEnum.SENIOR.name());
+		if (registerSaasOrderAttrVO == null || registerSaasOrderAttrVO.getVersion() == null || !saasLevels.contains(registerSaasOrderAttrVO.getVersion())) {
+			LOGGER.warn(">>Saas tenant not exist ");
+		}
+		 Integer harborCapacityLimit = null;
+		if (StringUtils.equalsIgnoreCase(SaasLevelEnum.FREE.name(), registerSaasOrderAttrVO.getVersion())
+				|| StringUtils.equalsIgnoreCase(SaasLevelEnum.STANDARD.name(), registerSaasOrderAttrVO.getVersion())) {
+			harborCapacityLimit = harborBaseCapacityLimit;
+		}
+		else if (StringUtils.equalsIgnoreCase(SaasLevelEnum.SENIOR.name(), registerSaasOrderAttrVO.getVersion())) {
+			harborCapacityLimit=harborBusinessCapacityLimit;
+		}
+
+		//查询组织
+		List<ProjectDTO> projectDTOS = c7nBaseService.queryProjectByOrgId(registerSaasOrderAttrVO.getTenantId());
+		if (CollectionUtils.isEmpty(projectDTOS)) {
+			return;
+		}
+
+		List<QuotasVO> allHarborQuotas = harborQuotaService.getAllHarborQuotas();
+		Integer finalHarborCapacityLimit = harborCapacityLimit;
+		projectDTOS.forEach(projectDTO -> {
+			//查询该项目下是否有默认的docker仓库
+			HarborRepository harborRepository = new HarborRepository();
+			harborRepository.setOrganizationId(projectDTO.getOrganizationId());
+			harborRepository.setProjectId(projectDTO.getId());
+			HarborRepository repository = harborRepositoryMapper.selectOne(harborRepository);
+			if (repository == null) {
+				return;
+			}
+			//如果存在harbor仓库，则容量限制
+			//获取quotas id
+			Integer projectQuotasId = getProjectQuotasId(repository.getCode(), allHarborQuotas);
+			if (projectQuotasId == null) {
+				LOGGER.error("{} Quotas Id is null", repository.getCode());
+				return;
+			}
+			Map<String, Object> hard = new HashMap<>(1);
+			Map<String, Object> storage = new HashMap<>(1);
+			storage.put("storage", HarborUtil.getStorageLimit(finalHarborCapacityLimit, HarborConstants.GB));
+			hard.put("hard", storage);
+			ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_QUOTAS, null, hard, true, projectQuotasId);
+		});
+
+
+
+		return;
+	}
+
+	private Integer getProjectQuotasId(String code, List<QuotasVO> allHarborQuotas) {
+		List<QuotasVO> quotasVOS = allHarborQuotas.stream().filter(quotasVO -> quotasVO.getRef() != null
+				&& StringUtils.equalsIgnoreCase(quotasVO.getRef().getName(), code)).collect(Collectors.toList());
+		if (CollectionUtils.isNotEmpty(quotasVOS)) {
+			return quotasVOS.get(0).getId();
+		} else {
+			return null;
+		}
 	}
 
 	public void createNewOwner(HarborRepository harborRepository,Long userId){
