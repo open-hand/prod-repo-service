@@ -75,8 +75,9 @@ public class CommonNexusController {
     @Permission(permissionPublic = true)
     @GetMapping("/sync/assets/persistence")
     public ResponseEntity<Void> syncAssetsPersistence(
-            @RequestParam(value = "repository_id") Long repositoryId) {
-        nexusComponentHandService.syncAssetsToDB(repositoryId);
+            @RequestParam(value = "repository_id") Long repositoryId,
+            @RequestParam(value = "path") String path) {
+        nexusComponentHandService.syncAssetsToDB(repositoryId, path);
         return Results.success();
     }
 

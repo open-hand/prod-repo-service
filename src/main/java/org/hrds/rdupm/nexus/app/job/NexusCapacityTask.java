@@ -184,10 +184,12 @@ public class NexusCapacityTask {
             assets.setRepositoryId(repositoryId);
             assets.setAssetsId(responseData.getId());
             //npm 还是 jar
-            if (StringUtils.endsWithIgnoreCase(responseData.getName(), ".jar")) {
+            if (StringUtils.endsWithIgnoreCase(responseData.getName(), ".jar") && !StringUtils.endsWithIgnoreCase(responseData.getName(), "javadoc.jar")) {
                 assets.setType(NexusConstants.RepoType.JAR);
-            } else {
+            } else if (StringUtils.endsWithIgnoreCase(responseData.getName(), ".tgz")) {
                 assets.setType(NexusConstants.RepoType.NPM);
+            } else {
+                return;
             }
             assets.setSize(Long.valueOf(responseData.getSize()));
             NexusAssets record = new NexusAssets();

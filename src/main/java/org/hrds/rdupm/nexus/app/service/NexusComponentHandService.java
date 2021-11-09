@@ -18,5 +18,16 @@ public interface NexusComponentHandService {
 
     void uploadNPM(Long repositoryId, NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
 
+    /**
+     * 根据包路径 同步包信息到仓库
+     * @param repositoryId
+     * @param path
+     */
+    void syncAssetsToDB(Long repositoryId, String path);
+
+    /**
+     * 根据仓库Id仓库下所有的包信息到仓库
+     * @param repositoryId
+     */
     void syncAssetsToDB(Long repositoryId);
 }
