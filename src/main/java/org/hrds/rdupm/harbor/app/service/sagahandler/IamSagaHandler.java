@@ -36,6 +36,7 @@ import org.hrds.rdupm.harbor.infra.mapper.HarborAuthMapper;
 import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.util.JsonHelper;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
@@ -141,8 +142,8 @@ public class IamSagaHandler {
 	public void changeHarborCapacity(String payload) {
 		RegisterSaasOrderAttrVO registerSaasOrderAttrVO = null;
 		try {
-			registerSaasOrderAttrVO = new ObjectMapper().readValue(payload, RegisterSaasOrderAttrVO.class);
-		} catch (IOException e) {
+			registerSaasOrderAttrVO = JsonHelper.unmarshalByJackson(payload, RegisterSaasOrderAttrVO.class);
+		} catch (Exception e) {
 			throw new CommonException(e);
 		}
 		List<String> saasLevels = Arrays.asList(SaasLevelEnum.FREE.name(), SaasLevelEnum.STANDARD.name(), SaasLevelEnum.SENIOR.name());
