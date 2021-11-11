@@ -7,10 +7,7 @@ import org.hrds.rdupm.nexus.api.vo.ResourceVO;
 import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.swagger.annotation.Permission;
@@ -19,7 +16,7 @@ import io.choerodon.swagger.annotation.Permission;
  * Created by wangxiang on 2021/11/9
  */
 @RestController("resourcesController.v1")
-@RequestMapping("/v1/{organizationId}/repo/resources")
+@RequestMapping("/v1/{organization_id}/repo/resources")
 public class ResourcesController {
 
 
@@ -29,7 +26,9 @@ public class ResourcesController {
 
     @PostMapping("/by_project_ids")
     @Permission(level = ResourceLevel.ORGANIZATION)
-    public ResponseEntity<List<ResourceVO>> queryResourceLimitByProjectIds(@RequestBody List<Long> projectIds) {
+    public ResponseEntity<List<ResourceVO>> queryResourceLimitByProjectIds(
+            @PathVariable(name = "organization_id") Long organizationId,
+            @RequestBody List<Long> projectIds) {
         return Results.success(resourceService.listResourceByIds(projectIds));
     }
 }

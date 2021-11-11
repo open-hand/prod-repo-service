@@ -30,8 +30,6 @@ public class ResourceServiceImpl implements ResourceService {
     @Autowired
     private HarborRepositoryMapper harborRepositoryMapper;
 
-    @Autowired
-    private HarborRepository harborRepository;
 
     @Autowired
     private NexusAssetsMapper nexusAssetsMapper;
@@ -55,11 +53,12 @@ public class ResourceServiceImpl implements ResourceService {
             }
             //获取存储容量
             DecimalFormat df = new DecimalFormat("#.00");
-            HarborQuotaVo harborQuotaVo = harborQuotaService.getProjectQuota(harborRepository.getProjectId());
+            HarborQuotaVo harborQuotaVo = harborQuotaService.getProjectQuota(repository.getProjectId());
             if (harborQuotaVo != null) {
-                if (harborQuotaVo.getUsedStorage() < ONE_GB_TO_B) {
+                if (harborQuotaVo.getUsedStorage() == 0) {
+                    resourceVO.setCurrentHarborCapacity(String.valueOf(0));
+                } else if (harborQuotaVo.getUsedStorage() < ONE_GB_TO_B && harborQuotaVo.getUsedStorage() > 0) {
                     resourceVO.setCurrentHarborCapacity(df.format(Math.pow(harborQuotaVo.getUsedStorage(), 1.0 / 2.0)) + "MB");
-
                 } else if (harborQuotaVo.getUsedStorage() >= ONE_GB_TO_B) {
                     resourceVO.setCurrentHarborCapacity(df.format(Math.pow(harborQuotaVo.getUsedStorage(), 1.0 / 3.0) + "GB"));
                 }
@@ -74,6 +73,8 @@ public class ResourceServiceImpl implements ResourceService {
                 } else if (count >= ONE_GB_TO_B) {
                     resourceVO.setCurrentNexusCapacity(df.format(Math.pow(count, 1.0 / 3.0) + "GB"));
                 }
+            } else {
+                resourceVO.setCurrentNexusCapacity(String.valueOf(0));
             }
             result.add(resourceVO);
 
