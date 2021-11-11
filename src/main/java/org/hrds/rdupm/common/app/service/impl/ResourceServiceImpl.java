@@ -58,7 +58,7 @@ public class ResourceServiceImpl implements ResourceService {
                 if (harborQuotaVo.getUsedStorage() == 0) {
                     resourceVO.setCurrentHarborCapacity(String.valueOf(0));
                 } else if (harborQuotaVo.getUsedStorage() < ONE_GB_TO_B && harborQuotaVo.getUsedStorage() > 0) {
-                    resourceVO.setCurrentHarborCapacity(String.format("%2.f", harborQuotaVo.getUsedStorage() / new BigDecimal(1024).pow(2).doubleValue()) + "MB");
+                    resourceVO.setCurrentHarborCapacity(String.format("%.2f", harborQuotaVo.getUsedStorage() / new BigDecimal(1024).pow(2).doubleValue()) + "MB");
                 } else if (harborQuotaVo.getUsedStorage() >= ONE_GB_TO_B) {
                     resourceVO.setCurrentHarborCapacity(String.format("%.2f", harborQuotaVo.getUsedStorage() / new BigDecimal(1024).pow(3).doubleValue()) + "GB");
                 }
