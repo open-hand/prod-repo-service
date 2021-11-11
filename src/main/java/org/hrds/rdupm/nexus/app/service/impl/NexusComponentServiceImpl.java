@@ -346,7 +346,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
         }
         if (StringUtils.equalsIgnoreCase(externalTenantVO.getSaasLevel(), SaasLevelEnum.SENIOR.name())) {
             Long totalSize = nexusRepositoryService.queryNexusProjectCapacity(repositoryId);
-            if (totalSize + fileSize <= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
+            if (totalSize + fileSize >= HarborUtil.getStorageLimit(nexusBusinessCapacityLimit, HarborConstants.GB)) {
                 throw new CommonException("Exceeded repository capacity limit");
             }
         }
