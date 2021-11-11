@@ -1,5 +1,6 @@
 package org.hrds.rdupm.common.app.service.impl;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,15 +53,14 @@ public class ResourceServiceImpl implements ResourceService {
                 return;
             }
             //获取存储容量
-            DecimalFormat df = new DecimalFormat("#.00");
             HarborQuotaVo harborQuotaVo = harborQuotaService.getProjectQuota(repository.getProjectId());
             if (harborQuotaVo != null) {
                 if (harborQuotaVo.getUsedStorage() == 0) {
                     resourceVO.setCurrentHarborCapacity(String.valueOf(0));
                 } else if (harborQuotaVo.getUsedStorage() < ONE_GB_TO_B && harborQuotaVo.getUsedStorage() > 0) {
-                    resourceVO.setCurrentHarborCapacity(df.format(Math.pow(harborQuotaVo.getUsedStorage(), 1.0 / 2.0)) + "MB");
+                    resourceVO.setCurrentHarborCapacity(String.format("%2.f", harborQuotaVo.getUsedStorage() / new BigDecimal(1024).pow(2).doubleValue()) + "MB");
                 } else if (harborQuotaVo.getUsedStorage() >= ONE_GB_TO_B) {
-                    resourceVO.setCurrentHarborCapacity(df.format(Math.pow(harborQuotaVo.getUsedStorage(), 1.0 / 3.0) + "GB"));
+                    resourceVO.setCurrentHarborCapacity(String.format("%.2f", harborQuotaVo.getUsedStorage() / new BigDecimal(1024).pow(3).doubleValue()) + "GB");
                 }
             }
             NexusAssets assetRecord = new NexusAssets();
@@ -69,9 +69,9 @@ public class ResourceServiceImpl implements ResourceService {
             if (!CollectionUtils.isEmpty(nexusAssets)) {
                 long count = nexusAssets.stream().map(NexusAssets::getSize).count();
                 if (count < ONE_GB_TO_B) {
-                    resourceVO.setCurrentNexusCapacity(df.format(Math.pow(count, 1.0 / 2.0)) + "MB");
+                    resourceVO.setCurrentNexusCapacity(String.format("%.2f", count / new BigDecimal(1024).pow(2).doubleValue()) + "MB");
                 } else if (count >= ONE_GB_TO_B) {
-                    resourceVO.setCurrentNexusCapacity(df.format(Math.pow(count, 1.0 / 3.0) + "GB"));
+                    resourceVO.setCurrentNexusCapacity(String.format("%.2f", count / new BigDecimal(1024).pow(3).longValue()) + "GB");
                 }
             } else {
                 resourceVO.setCurrentNexusCapacity(String.valueOf(0));
