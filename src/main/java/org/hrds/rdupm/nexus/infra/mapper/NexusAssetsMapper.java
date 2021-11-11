@@ -16,4 +16,6 @@ public interface NexusAssetsMapper extends BaseMapper<NexusAssets> {
 
 
     void batchDelete(@Param("componentIds") List<String> componentIds);
+
+    List<NexusAssets> selectAssetsByRepositoryIds(@Param("repositoryIds") List<Long> repositoryIds);
 }

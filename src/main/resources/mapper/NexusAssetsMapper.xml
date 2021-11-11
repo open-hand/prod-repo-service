@@ -10,4 +10,12 @@
         </foreach>
     </delete>
 
+    <select id="selectAssetsByRepositoryIds" resultType="org.hrds.rdupm.nexus.domain.entity.NexusAssets">
+        select * from rdupm_nexus_assets
+        where  repository_id IN
+        <foreach collection="repositoryIds" item="repositoryId" index="index" open="(" separator="," close=")">
+            #{repositoryId}
+        </foreach>
+    </select>
+
 </mapper>
