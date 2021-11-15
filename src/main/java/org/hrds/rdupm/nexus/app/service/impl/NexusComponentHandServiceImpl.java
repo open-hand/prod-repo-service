@@ -27,6 +27,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.AssertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.nexus.repository.storage.Asset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.scheduling.annotation.Async;
@@ -132,7 +133,11 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
                     nexusServerConfig.getUserName(),
                     DESEncryptUtil.decode(nexusServerConfig.getPassword()));
             nexusClient.setNexusServerInfo(nexusServer);
-            NexusServerAsset asset = nexusComponentsApi.findAsset(nexusRepository.getNeRepositoryName(), path);
+            List<NexusServerAsset> nexusComponentsApiAssets = nexusComponentsApi.findAssets(nexusRepository.getNeRepositoryName(), path);
+            if (CollectionUtils.isEmpty(nexusComponentsApiAssets)) {
+                return;
+            }
+            NexusServerAsset asset = nexusComponentsApiAssets.get(0);
             if (asset != null) {
                 NexusAssets assets = new NexusAssets();
                 assets.setName(asset.getPath());
