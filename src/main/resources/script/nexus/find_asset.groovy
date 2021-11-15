@@ -4,10 +4,14 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.storage.Asset
+import org.sonatype.nexus.repository.storage.Component
+import org.sonatype.nexus.repository.storage.Query
 import org.sonatype.nexus.repository.storage.StorageFacet
 
 
-AssetItem assetItem = new AssetItem()
+//AssetItem assetItem = new AssetItem()
+
+List<AssetItem> assets = new ArrayList<>()
 
 def param = new JsonSlurper().parseText(args)
 if (param.path == null) {
@@ -24,22 +28,29 @@ def tx = repo.facet(StorageFacet).txSupplier().get()
 
 try {
     tx.begin()
-    Asset asset = tx.findAssetWithProperty("name", param.path)
+    List<Repository> repoList = new ArrayList<>()
+    repoList.add(repo)
+    Iterable<Asset> reAsset = tx.findAssets(Query.builder().where('name').eq(param.path).build(), repoList)
 
-    assetItem.id = asset.getEntityMetadata().getId() == null ? null : asset.getEntityMetadata().getId().value
-    assetItem.path = asset.name()
-    assetItem.lastUpdateDate = asset.lastUpdated() == null ? null : asset.lastUpdated().toDate().format(format)
-    assetItem.format = asset.format()
-    assetItem.componentId = asset.componentId() == null ? null : asset.componentId().value
-    assetItem.lastDownloadDate = asset.lastDownloaded() == null ? null : asset.lastDownloaded().toDate().format(format)
-    assetItem.createdBy = asset.createdBy()
-    assetItem.createdByIp = asset.createdByIp()
-    assetItem.size=asset.size()
+    reAsset.collect { assetIt ->
+        AssetItem assetItem = new AssetItem()
+        assetItem.repository = param.repositoryName
+        assetItem.id = assetIt.getEntityMetadata().getId() == null ? null : assetIt.getEntityMetadata().getId().value
+        assetItem.path = assetIt.name()
+        assetItem.lastUpdateDate = assetIt.lastUpdated() == null ? null : assetIt.lastUpdated().toDate().format(format)
+        assetItem.format = assetIt.format()
+        assetItem.componentId = assetIt.componentId() == null ? null : assetIt.componentId().value
+        assetItem.lastDownloadDate = assetIt.lastDownloaded() == null ? null : assetIt.lastDownloaded().toDate().format(format)
+        assetItem.createdBy = assetIt.createdBy()
+        assetItem.createdByIp = assetIt.createdByIp()
+        assetItem.size=assetIt.size()
+        assets.add(assetItem)
+    }
     tx.commit()
 } finally {
     tx.close()
 }
-return JsonOutput.toJson(assetItem)
+return JsonOutput.toJson(assets)
 
 
 
