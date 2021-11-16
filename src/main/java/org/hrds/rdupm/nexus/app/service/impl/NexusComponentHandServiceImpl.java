@@ -132,7 +132,11 @@ public class NexusComponentHandServiceImpl implements NexusComponentHandService 
                     nexusServerConfig.getUserName(),
                     DESEncryptUtil.decode(nexusServerConfig.getPassword()));
             nexusClient.setNexusServerInfo(nexusServer);
-            NexusServerAsset asset = nexusComponentsApi.findAsset(nexusRepository.getNeRepositoryName(), path);
+            List<NexusServerAsset> nexusComponentsApiAssets = nexusComponentsApi.findAssets(nexusRepository.getNeRepositoryName(), path);
+            if (CollectionUtils.isEmpty(nexusComponentsApiAssets)) {
+                return;
+            }
+            NexusServerAsset asset = nexusComponentsApiAssets.get(0);
             if (asset != null) {
                 NexusAssets assets = new NexusAssets();
                 assets.setName(asset.getPath());

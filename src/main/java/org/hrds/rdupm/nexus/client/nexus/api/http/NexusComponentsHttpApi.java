@@ -166,14 +166,15 @@ public class NexusComponentsHttpApi implements NexusComponentsApi {
     }
 
     @Override
-    public NexusServerAsset findAsset(String repositoryName, String path) {
+    public List<NexusServerAsset> findAssets(String repositoryName, String path) {
         AssetQuery assetQuery = new AssetQuery();
         assetQuery.setPath(path);
         assetQuery.setRepositoryName(repositoryName);
         NexusScriptResult nexusScriptResult = nexusScriptApi.runScript(NexusApiConstants.ScriptName.FIND_ASSET, JSONObject.toJSONString(assetQuery));
         String result = nexusScriptResult.getResult();
-        NexusServerAsset nexusServerAsset = JSON.parseObject(result, NexusServerAsset.class);
-        return nexusServerAsset;
+        List<NexusServerAsset> nexusServerAssets = JSONObject.parseArray(result, NexusServerAsset.class);
+
+        return nexusServerAssets;
     }
 
     private void componentExceptHandler(Map<String, Object> paramMap, MultiValueMap<String, Object> body, NexusServer currentNexusServer) {
