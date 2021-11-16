@@ -97,7 +97,7 @@ public class ResourceServiceImpl implements ResourceService {
                         } else if (count < ONE_GB_TO_B && count > 0) {
                             resourceVO.setCurrentNexusCapacity(String.format("%.2f", count / new BigDecimal(1024).pow(2).doubleValue()) + "MB");
                         } else if (count >= ONE_GB_TO_B) {
-                            resourceVO.setCurrentNexusCapacity(String.format("%.2f", count / new BigDecimal(1024).pow(3).longValue()) + "GB");
+                            resourceVO.setCurrentNexusCapacity(String.format("%.2f", count / new BigDecimal(1024).pow(3).doubleValue()) + "GB");
                         }
                     } else {
                         resourceVO.setCurrentNexusCapacity(String.valueOf(0));
