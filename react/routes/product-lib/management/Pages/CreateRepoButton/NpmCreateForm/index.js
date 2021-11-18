@@ -5,7 +5,9 @@
 * @copyright 2020 ® HAND
 */
 import React, { useEffect, useCallback } from 'react';
-import { Form, TextField, Select, SelectBox, Button } from 'choerodon-ui/pro';
+import {
+  Form, TextField, Select, SelectBox, Button,
+} from 'choerodon-ui/pro';
 import { message } from 'choerodon-ui';
 import { observer, useComputed } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
@@ -18,8 +20,9 @@ const intlPrefix = 'infra.prod.lib';
 
 const { Option } = Select;
 
-
-const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal, init }) => {
+const NpmCreateForm = ({
+  formatMessage, npmCreateDs, enableAnonymousFlag, modal, init,
+}) => {
   const { repoList, createdRepoList, setCreatedRepoList } = useRepoList();
   useEffect(() => {
     npmCreateDs.create({
@@ -34,9 +37,8 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
     const mavenType = npmCreateDs.current.get('type');
     if (mavenType === 'hosted') {
       return '-source';
-    } else {
-      return `-${mavenType.toLowerCase()}`;
     }
+    return `-${mavenType.toLowerCase()}`;
   }, [npmCreateDs.current]);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
           const submitData = npmCreateDs.current.toData();
           submitData.name = `${submitData.name}${mavenNameSuffix}`;
           if (submitData.type === 'group') {
-            const repoMemberList = createdRepoList.map(o => o.name).filter(Boolean);
+            const repoMemberList = createdRepoList.map((o) => o.name).filter(Boolean);
             if (repoMemberList.length === 0) {
               message.error(formatMessage({ id: `${intlPrefix}.view.chooseGroupPlease`, defaultMessage: '请选择仓库' }));
               return false;
@@ -56,7 +58,7 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
             submitData.repoMemberList = repoMemberList;
           }
           await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo`, submitData);
-          await new Promise(resolve => setTimeout(() => resolve(), 1000));
+          await new Promise((resolve) => setTimeout(() => resolve(), 1000));
           init();
           return true;
         } catch (error) {
@@ -75,7 +77,7 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
   }, [createdRepoList]);
 
   const handleAddCreatedRepo = useCallback(() => {
-    setCreatedRepoList(prevList => prevList.concat([{ _id: uuidv4() }]));
+    setCreatedRepoList((prevList) => prevList.concat([{ _id: uuidv4() }]));
   }, []);
 
   const handleDelete = useCallback((id) => {
@@ -99,9 +101,12 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
           dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}
         >
           {
-            repoList.map(o => (
-              <Option key={o.name} value={o.name}>{o.name}</Option>
-            ))
+            repoList.map((o) => {
+              const hasData = createdRepoList.some((value) => o.name === value.name);
+              return (
+                <Option disabled={hasData} key={o.name} value={o.name}>{o.name}</Option>
+              );
+            })
           }
         </Select>
         <Button
@@ -120,16 +125,15 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
     <Form dataSet={npmCreateDs} columns={1}>
       <SelectBox name="type" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')} />
       <TextField name="name" addonAfter={mavenNameSuffix} />
-      {type === 'hosted' &&
-        [
+      {type === 'hosted'
+        && [
           <Select
             key="writePolicy"
             name="writePolicy"
           />,
-        ]
-      }
-      {type === 'proxy' &&
-        [
+        ]}
+      {type === 'proxy'
+        && [
           <TextField key="remoteUrl" name="remoteUrl" />,
           <TextField key="remoteUsername" name="remoteUsername" />,
           <TextField
@@ -137,9 +141,9 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
             name="remotePassword"
             renderer={({ text }) => text.replace(/./g, '•')}
           />,
-        ]
-      }
-      {type === 'group' &&
+        ]}
+      {type === 'group'
+        && (
         <div className="product-lib-pages-createtrpo-select-list">
           {renderSelectList()}
           <Button
@@ -152,13 +156,14 @@ const NpmCreateForm = ({ formatMessage, npmCreateDs, enableAnonymousFlag, modal,
             {formatMessage({ id: `${intlPrefix}.view.addGroup`, defaultMessage: '添加组仓库成员' })}
           </Button>
         </div>
-      }
-      {enableAnonymousFlag === 1 &&
+        )}
+      {enableAnonymousFlag === 1
+      && (
       <SelectBox name="allowAnonymous" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')}>
         <Option value={1}>{formatMessage({ id: 'yes', defaultMessage: '是' })}</Option>
         <Option value={0}>{formatMessage({ id: 'no', defaultMessage: '否' })}</Option>
       </SelectBox>
-      }
+      )}
     </Form>
   );
 };

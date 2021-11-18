@@ -5,7 +5,8 @@ package org.hrds.rdupm.nexus.infra.enums;
  */
 public enum NexusRepoType {
 
-    HOSTED("hosted");
+    HOSTED("hosted"),
+    PROXY("proxy");
     private String value;
 
     NexusRepoType(String value) {

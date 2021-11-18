@@ -141,9 +141,9 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         if (Objects.isNull(externalTenantVO)) {
             throw new CommonException("tenant not exists");
         }
+        nexusRepositoryDTO.setInternalUrl(nexusRepositoryDTO.getUrl());
         if (isRegister(externalTenantVO) || isSaas(externalTenantVO)) {
             if (serverConfig.getDefaultFlag() == BaseConstants.Flag.YES) {
-                nexusRepositoryDTO.setInternalUrl(nexusRepositoryDTO.getUrl());
                 nexusRepositoryDTO.setUrl(null);
             }
         }
