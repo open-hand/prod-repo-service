@@ -139,8 +139,8 @@ public class NexusCapacityTask {
         List<ExtdirectResponseData> allNexusRepo = new ArrayList<>();
         if (extdirectResponseVO != null && extdirectResponseVO.getResult() != null && !CollectionUtils.isEmpty(extdirectResponseVO.getResult().getData())) {
             allNexusRepo = extdirectResponseVO.getResult().getData();
-            //筛选出所有的hosted类型的仓库
-            hostedRepo = allNexusRepo.stream().filter(nexusRepo -> StringUtils.equalsIgnoreCase(nexusRepo.getType(), NexusRepoType.HOSTED.getValue())).collect(Collectors.toList());
+            //筛选出所有的hosted,proxy类型的仓库
+            hostedRepo = allNexusRepo.stream().filter(nexusRepo -> StringUtils.equalsIgnoreCase(nexusRepo.getType(), NexusRepoType.HOSTED.getValue()) || StringUtils.equalsIgnoreCase(nexusRepo.getType(), NexusRepoType.PROXY.getValue())).collect(Collectors.toList());
         }
 
         return hostedRepo;
