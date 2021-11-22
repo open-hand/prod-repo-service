@@ -261,8 +261,7 @@ public class HarborUtil {
         String str;
         do {
             str = getPassString();
-        } while (testExistLowerCase(str) && testExistUpperCase(str) && isContainNumber(str));
-        str = getPassString();
+        } while (!testExistLowerCase(str) || !testExistUpperCase(str) || !isContainNumber(str));
         return str;
     }
 
