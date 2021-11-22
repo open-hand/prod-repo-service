@@ -209,6 +209,7 @@ nexus:
     servicesGatewayUrl: ${SERVICES_GATEWAY_URL:http://api.example.com}
     # 网关路由
     serviceRoute: ${SERVICE_ROUTE:/rdupm}
+    urlDisplay: ${URL_DISPLAY:true}
   filter:
     mavenRepo: ${MARKET_MAVEN:market-repo}
   choerodon:
