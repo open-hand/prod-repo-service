@@ -25,6 +25,18 @@ public class NexusProxyConfigProperties {
 
     private String serviceRoute;
 
+    /**
+     * 配置信息是否展示代理地址
+     */
+    private Boolean urlDisplay;
+
+    public Boolean getUrlDisplay() {
+        return urlDisplay;
+    }
+
+    public void setUrlDisplay(Boolean urlDisplay) {
+        this.urlDisplay = urlDisplay;
+    }
 
     public String getServiceRoute() {
         return serviceRoute;

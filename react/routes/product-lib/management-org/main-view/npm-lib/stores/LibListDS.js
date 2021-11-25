@@ -57,7 +57,7 @@ export default ((intlPrefix, formatMessage, organizationId, userId, repoListDs) 
   queryFields: [
     {
       name: 'projectId',
-      type: 'number',
+      type: 'string',
       label: formatMessage({ id: 'infra.codelib.audit.model.projectName' }),
       lookupUrl: `/iam/choerodon/v1/organizations/${organizationId}/users/${userId}/projects?enabled=true&category=N_DEVOPS`,
       textField: 'name',
