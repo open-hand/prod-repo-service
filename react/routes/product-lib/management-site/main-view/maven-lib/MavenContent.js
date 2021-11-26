@@ -18,7 +18,7 @@ const MavenContent = observer(() => {
   } = useProdStore();
 
   return (
-    <React.Fragment>
+    <>
       <Content
         title={formatMessage({ id: `${intlPrefix}.view.mavenLib`, defaultMessage: 'Maven制品库' })}
         className="product-lib-org-management-tab-page-content"
@@ -27,7 +27,7 @@ const MavenContent = observer(() => {
           <LibList />
         </Suspense>
       </Content>
-    </React.Fragment>
+    </>
   );
 });
 
