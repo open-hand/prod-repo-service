@@ -5,7 +5,9 @@ import './index.less';
 
 const intlPrefix = 'infra.prod.lib';
 
-const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoType }) => {
+const AssignRepo = ({
+  formatMessage, name, libListDs, repositoryId, item, repoType,
+}) => {
   const assignDs = React.useRef(new DataSet({
     fields: [
       {
@@ -30,7 +32,7 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
         textField: 'name',
         cascadeMap: { organizationId: 'organizationId' },
         dynamicProps: {
-          lookupUrl: ({ record }) => `/iam/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all`,
+          lookupUrl: ({ record }) => `/iam/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all?enabled=false&category=N_DEVOPS`,
         },
         required: true,
       },
@@ -79,15 +81,15 @@ const AssignRepo = ({ formatMessage, name, libListDs, repositoryId, item, repoTy
   }, []);
 
   return (
-    <React.Fragment>
+    <>
       {repositoryId
         ? <span className="header-title">{name}</span>
         : (
-          <span className="product-lib-site-management-lib-list-list-card-header-title c7ncd-prolib-clickText" onClick={openModal}>
+          <span role="none" className="product-lib-site-management-lib-list-list-card-header-title c7ncd-prolib-clickText" onClick={openModal}>
             {name}
           </span>
         )}
-    </React.Fragment>
+    </>
   );
 };
 

@@ -6,14 +6,16 @@
 */
 import React, { useEffect, useState } from 'react';
 import { Icon, Row, Col } from 'choerodon-ui';
-import { Pagination, Spin, Form, TextField, Select, Stores, Button } from 'choerodon-ui/pro';
+import {
+  Pagination,
+  Spin, Form, TextField, Select, Stores, Button,
+} from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
 import { useMavenStore } from '../stores';
 import { useProdStore } from '../../../stores';
 import AssignRepo from '../../assign-repo';
 import './index.less';
-
 
 const MirrorLib = () => {
   const { prodStore: { getSelectedMenu } } = useProdStore();
@@ -22,7 +24,6 @@ const MirrorLib = () => {
     intl: { formatMessage },
     libListDs,
   } = useMavenStore();
-
 
   const [typeList, setTypeList] = useState([]);
 
@@ -69,8 +70,8 @@ const MirrorLib = () => {
             type="reset"
             style={{ color: '#3F51B5' }}
             onClick={() => {
-                libListDs.queryDataSet.current.reset();
-                libListDs.query();
+              libListDs.queryDataSet.current.reset();
+              libListDs.query();
             }}
           >
             {formatMessage({ id: 'reset' })}
@@ -81,15 +82,25 @@ const MirrorLib = () => {
   }
 
   const getTypeName = (code) => {
-    const item = typeList.find(o => o.value === code);
+    const item = typeList.find((o) => o.value === code);
     return item && item.meaning;
   };
   function renderData() {
     return listData ? (
       <ul>
         {
-          listData.map(item => {
-            const { repositoryId, projectName, creatorLoginName, creatorRealName, creationDate, name, projectImgUrl, type, versionPolicy } = item;
+          listData.map((item) => {
+            const {
+              repositoryId,
+              projectName,
+              creatorLoginName,
+              creatorRealName,
+              creationDate,
+              name,
+              projectImgUrl,
+              type,
+              versionPolicy,
+            } = item;
             return (
               <li key={repositoryId + name}>
                 <div className="product-lib-site-management-lib-list-list-card">
@@ -117,23 +128,35 @@ const MirrorLib = () => {
                   <Row className="product-lib-site-management-lib-list-list-card-footer">
                     <Col span={7}>
                       <Icon type="account_circle-o" />
-                      <span>{formatMessage({ id: `${intlPrefix}.model.createdBy` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.createdBy` })}
+                        ：
+                      </span>
                       <span className="product-lib-site-management-lib-list-list-card-footer-text">{creatorRealName ? `${creatorRealName} (${creatorLoginName})` : ''}</span>
                     </Col>
                     <Col span={6} className="product-lib-site-management-lib-list-list-card-header-project">
                       <Icon type="date_range" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.creationDate` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.creationDate` })}
+                        ：
+                      </span>
                       <span className="product-lib-site-management-lib-list-list-card-footer-text">{creationDate}</span>
                     </Col>
                     <Col span={5} className="product-lib-site-management-lib-list-list-card-header-project">
                       <Icon type="category-o" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.type` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.type` })}
+                        ：
+                      </span>
                       <span className="product-lib-site-management-lib-list-list-card-footer-text">{getTypeName(type)}</span>
                     </Col>
                     {type !== 'group' ? (
                       <Col span={5} className="product-lib-site-management-lib-list-list-card-header-project">
                         <Icon type="list" />
-                        <span >{formatMessage({ id: `${intlPrefix}.model.versionPolicy` })}：</span>
+                        <span>
+                          {formatMessage({ id: `${intlPrefix}.model.versionPolicy` })}
+                          ：
+                        </span>
                         <span className="product-lib-site-management-lib-list-list-card-footer-text">{versionPolicy}</span>
                       </Col>
                     ) : (<Col span={5} />)}
@@ -154,20 +177,20 @@ const MirrorLib = () => {
           {renderFilterForm()}
           {
             listData && listData.length > 0 ? (
-              <React.Fragment>
+              <>
                 <div className="product-lib-site-management-lib-list-list-body">
                   {renderData()}
                 </div>
                 <div className="product-lib-site-management-lib-list-pagination">
                   <Pagination dataSet={libListDs} />
                 </div>
-              </React.Fragment>
+              </>
             ) : (
                 // eslint-disable-next-line react/jsx-indent
                 <div className="product-lib-site-management-lib-list-list-no-content">
                   {formatMessage({ id: `${intlPrefix}.view.noContent` })}
                 </div>
-              )
+            )
           }
         </div>
       </Spin>
