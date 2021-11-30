@@ -1,7 +1,9 @@
+/* eslint-disable */
 import React, { useCallback, useMemo } from 'react';
 // import {  } from 'choerodon-ui';
 import { Modal, Button } from 'choerodon-ui/pro';
 import { Permission, axios, stores } from '@choerodon/boot';
+import { useFormatMessage } from '@choerodon/master';
 import { useLocalStore, observer, Observer } from 'mobx-react-lite';
 import { reaction, when } from 'mobx';
 import CreateRepoModal from './CreateRepoModal';
@@ -131,6 +133,8 @@ const CreateRepoButton = ({
     npmAssociateDs,
   });
 
+  const format = useFormatMessage('c7ncd.productLib');
+
   return (
     <Permission
       service={[
@@ -143,7 +147,7 @@ const CreateRepoButton = ({
         icon="playlist_add"
         onClick={openModal}
       >
-        {formatMessage({ id: `${intlPrefix}.view.createProdlib`, defaultMessage: '创建制品库' })}
+        {format({ id: 'CreateRepository' })}
       </Button>
     </Permission>
   );
