@@ -233,3 +233,4 @@ const enUS = {
 
 };
 export { enUS };
+export * from './product-lib';
