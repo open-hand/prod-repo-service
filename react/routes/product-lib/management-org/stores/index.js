@@ -3,6 +3,7 @@ import { inject } from 'mobx-react';
 import { observer } from 'mobx-react-lite';
 import { withRouter } from 'react-router-dom';
 import { injectIntl } from 'react-intl';
+import { useFormatCommon, useFormatMessage } from '@choerodon/master';
 import { itemTypeMappings } from './mappings';
 import useStore from './useStore';
 
@@ -22,6 +23,10 @@ export const StoreProvider = withRouter(injectIntl(inject('AppState')(observer((
   const { formatMessage } = intl;
   const intlPrefix = 'infra.prod.lib';
 
+  const intlPrefixNew = 'c7ncd.product-lib-org';
+  const formatCommon = useFormatCommon();
+  const formatClient = useFormatMessage(intlPrefixNew);
+
   const itemTypes = useMemo(() => itemTypeMappings, []);
   const prodStore = useStore(itemTypes.DOCKER);
 
@@ -38,6 +43,8 @@ export const StoreProvider = withRouter(injectIntl(inject('AppState')(observer((
     prodStore,
     formatMessage,
     organizationId,
+    formatCommon,
+    formatClient,
   };
   return (
     <Store.Provider value={value}>
@@ -45,4 +52,3 @@ export const StoreProvider = withRouter(injectIntl(inject('AppState')(observer((
     </Store.Provider>
   );
 }))));
-

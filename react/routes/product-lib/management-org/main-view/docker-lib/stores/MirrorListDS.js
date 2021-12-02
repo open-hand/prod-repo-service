@@ -1,4 +1,4 @@
-export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
+export default ((intlPrefix, formatMessage, organizationId, repoListDs, formatClient) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -49,7 +49,7 @@ export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
     {
       name: 'code',
       type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.mirrorLibName` }),
+      label: formatClient({ id: 'docker.mirrorList.imageRepositoryName' }),
       textField: 'name',
       valueField: 'code',
       options: repoListDs,
@@ -67,7 +67,7 @@ export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
     {
       name: 'imageName',
       type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.imageName` }),
+      label: formatClient({ id: 'docker.mirrorList.imageRepositoryName' }),
     },
   ],
 }));
