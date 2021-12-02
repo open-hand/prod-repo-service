@@ -1,4 +1,4 @@
-export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
+export default ((intlPrefix, formatMessage, organizationId, repoListDs, formatClient) => ({
   autoQuery: false,
   selection: false,
   pageSize: 10,
@@ -59,7 +59,7 @@ export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
     {
       name: 'code',
       type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.mirrorLibName` }),
+      label: formatClient({ id: 'docker.mirrorWarehouse.imageRepositoryName' }),
       textField: 'name',
       valueField: 'code',
       options: repoListDs,
@@ -68,7 +68,7 @@ export default ((intlPrefix, formatMessage, organizationId, repoListDs) => ({
     {
       name: 'publicFlag',
       type: 'string',
-      label: formatMessage({ id: `${intlPrefix}.model.publicFlag` }),
+      label: formatClient({ id: 'docker.mirrorWarehouse.accessLevel' }),
     },
   ],
 }));

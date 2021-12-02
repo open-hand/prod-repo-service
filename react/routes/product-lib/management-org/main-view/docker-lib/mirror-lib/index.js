@@ -16,14 +16,18 @@ import { Choerodon, Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
 import { useDockerStore } from '../stores';
-import { useProdStore } from '../../../stores';
+import { useProdStore } from '@/routes/product-lib/management-org/stores/index';
 import ResourceConfig from '../modals/resource-config';
 import './index.less';
 
 const { Option } = Select;
 
 const MirrorLib = () => {
-  const { prodStore: { setDockerRepoInfo, getSelectedMenu } } = useProdStore();
+  const {
+    prodStore: { setDockerRepoInfo, getSelectedMenu },
+    formatClient,
+    // formatCommon,
+  } = useProdStore();
   const {
     tabs: {
       MIRROR_TAB,
@@ -36,9 +40,9 @@ const MirrorLib = () => {
   } = useDockerStore();
   const { setTabKey, getTabKey, updateAuth } = dockerStore;
 
-  function refresh() {
+  const refresh = () => {
     mirrorLibDs.query();
-  }
+  };
   useEffect(() => {
     if (getTabKey === MIRROR_TAB) {
       refresh();
@@ -128,7 +132,7 @@ const MirrorLib = () => {
         </Select>
         <div colSpan={5} style={{ width: '0.46rem', float: 'right' }}>
           <Button funcType="raised" type="reset" className="product-lib-org-management-mirror-lib-filter-form-btn">
-            {formatMessage({ id: 'reset' })}
+            {formatClient({ id: 'docker.mirrorWarehouse.reset' })}
           </Button>
         </div>
       </Form>
@@ -256,7 +260,7 @@ const MirrorLib = () => {
             ) : (
                 // eslint-disable-next-line react/jsx-indent
                 <div className="product-lib-org-management-mirror-lib-list-no-content">
-                  {formatMessage({ id: `${intlPrefix}.view.noContent` })}
+                  {formatClient({ id: 'docker.mirrorWarehouse.noData' })}
                 </div>
             )
           }
