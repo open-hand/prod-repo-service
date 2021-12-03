@@ -1,7 +1,9 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { useRouteMatch } from 'react-router';
-import { asyncRouter, asyncLocaleProvider, nomatch, useCurrentLanguage } from '@choerodon/master';
+import {
+  asyncRouter, asyncLocaleProvider, nomatch, useCurrentLanguage,
+} from '@choerodon/master';
 import { ModalContainer } from 'choerodon-ui/pro';
 
 import './index.less';

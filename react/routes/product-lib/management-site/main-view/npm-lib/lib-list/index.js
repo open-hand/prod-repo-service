@@ -6,7 +6,9 @@
 */
 import React, { useEffect, useState } from 'react';
 import { Icon, Row, Col } from 'choerodon-ui';
-import { Stores, Pagination, Spin, Form, Select, Button, TextField } from 'choerodon-ui/pro';
+import {
+  Stores, Pagination, Spin, Form, Select, Button, TextField,
+} from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
 import { useNpmStore } from '../stores';
@@ -20,6 +22,8 @@ const LibList = () => {
     intlPrefix,
     intl: { formatMessage },
     libListDs,
+    formatCommon,
+    format,
   } = useNpmStore();
 
   const [typeList, setTypeList] = useState([]);
@@ -28,9 +32,9 @@ const LibList = () => {
     setTypeList(lookupData);
   }
 
-  function handleSearch() {
+  const handleSearch = () => {
     libListDs.query();
-  }
+  };
   useEffect(() => {
     getTypeList();
     handleSearch();
@@ -61,16 +65,16 @@ const LibList = () => {
           </Form>
         </div>
         <div style={{ width: '0.46rem', flexShrink: 0, margin: '18px 0 0 65px' }}>
-          <Button 
-            funcType="raised" 
-            type="reset" 
+          <Button
+            funcType="raised"
+            type="reset"
             style={{ color: '#3F51B5' }}
             onClick={() => {
-                libListDs.queryDataSet.current.reset();
-                libListDs.query();
-              }}
+              libListDs.queryDataSet.current.reset();
+              libListDs.query();
+            }}
           >
-            {formatMessage({ id: 'reset' })}
+            {formatCommon({ id: 'reset' })}
           </Button>
         </div>
       </div>
@@ -78,7 +82,7 @@ const LibList = () => {
   }
 
   const getTypeName = (code) => {
-    const item = typeList.find(o => o.value === code);
+    const item = typeList.find((o) => o.value === code);
     return item && item.meaning;
   };
 
@@ -86,8 +90,13 @@ const LibList = () => {
     return listData ? (
       <ul>
         {
-          listData.map(item => {
-            const { id, name, projectImgUrl, creatorLoginName, creatorRealName, creationDate, type, projectName, repositoryId } = item;
+          listData.map((item) => {
+            const {
+              id,
+              name,
+              projectImgUrl,
+              creatorLoginName, creatorRealName, creationDate, type, projectName, repositoryId,
+            } = item;
             return (
               <li key={id + name}>
                 <div className="product-lib-site-management-lib-list-list-card">
@@ -115,17 +124,26 @@ const LibList = () => {
                   <Row className="product-lib-site-management-lib-list-list-card-footer">
                     <Col span={9}>
                       <Icon type="account_circle-o" />
-                      <span>{formatMessage({ id: `${intlPrefix}.model.createdBy` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.createdBy` })}
+                        ：
+                      </span>
                       <span className="product-lib-site-management-lib-list-list-card-footer-text">{creatorRealName ? `${creatorRealName} (${creatorLoginName})` : ''}</span>
                     </Col>
                     <Col span={9} className="product-lib-site-management-lib-list-list-card-header-project">
                       <Icon type="date_range" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.creationDate` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.creationDate` })}
+                        ：
+                      </span>
                       <span className="product-lib-site-management-lib-list-list-card-footer-text">{creationDate}</span>
                     </Col>
                     <Col span={5} className="product-lib-site-management-lib-list-list-card-header-project">
                       <Icon type="category-o" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.type` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.type` })}
+                        ：
+                      </span>
                       <span className="product-lib-site-management-lib-list-list-card-footer-text">{getTypeName(type)}</span>
                     </Col>
                   </Row>
@@ -138,7 +156,6 @@ const LibList = () => {
     ) : null;
   }
 
-
   return (
     <div className="product-lib-site-management-lib-list">
       <Spin dataSet={libListDs}>
@@ -146,20 +163,20 @@ const LibList = () => {
           {renderFilterForm()}
           {
             listData && listData.length > 0 ? (
-              <React.Fragment>
+              <>
                 <div className="product-lib-site-management-lib-list-list-body">
                   {renderData()}
                 </div>
                 <div className="product-lib-site-management-lib-list-pagination">
                   <Pagination dataSet={libListDs} />
                 </div>
-              </React.Fragment>
+              </>
             ) : (
                 // eslint-disable-next-line react/jsx-indent
                 <div className="product-lib-site-management-lib-list-list-no-content">
                   {formatMessage({ id: `${intlPrefix}.view.noContent` })}
                 </div>
-              )
+            )
           }
         </div>
       </Spin>

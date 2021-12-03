@@ -5,18 +5,21 @@
 * @copyright 2020 ® HAND
 */
 import React, { useEffect, useCallback } from 'react';
-import { Form, TextField, Select, Button, Password } from 'choerodon-ui/pro';
+import {
+  Form, TextField, Select, Button, Password,
+} from 'choerodon-ui/pro';
 import { message } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid';
 import useRepoList from './useRepoList';
-import { intlPrefix } from '../../../index';
 import './index.less';
 
 const { Option } = Select;
-
-const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
+const intlPrefix = 'infra.prod.lib';
+const NpmAssociateForm = ({
+  formatMessage, npmAssociateDs, modal, init,
+}) => {
   const { repoList, createdRepoList, setCreatedRepoList } = useRepoList();
 
   useEffect(() => {
@@ -30,14 +33,14 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
         const { currentMenuType: { projectId, organizationId } } = stores.AppState;
         try {
           const submitData = npmAssociateDs.current.toData();
-          const repositoryList = createdRepoList.map(o => o.name).filter(Boolean);
+          const repositoryList = createdRepoList.map((o) => o.name).filter(Boolean);
           if (repositoryList.length === 0) {
             message.error(formatMessage({ id: `${intlPrefix}.view.chooseGroupPlease`, defaultMessage: '请选择仓库' }));
             return false;
           }
           submitData.repositoryList = repositoryList;
           await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/npm/repo/related`, submitData);
-          await new Promise(resolve => setTimeout(() => resolve(), 1000));
+          await new Promise((resolve) => setTimeout(() => resolve(), 1000));
           init();
           return true;
         } catch (error) {
@@ -56,7 +59,7 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
   }, [createdRepoList]);
 
   const handleAddCreatedRepo = useCallback(() => {
-    setCreatedRepoList(prevList => prevList.concat([{ _id: uuidv4() }]));
+    setCreatedRepoList((prevList) => prevList.concat([{ _id: uuidv4() }]));
   }, []);
 
   const handleDelete = useCallback((id) => {
@@ -80,7 +83,7 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
           dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}
         >
           {
-            repoList.map(o => (
+            repoList.map((o) => (
               <Option key={o.name} value={o.name}>{o.name}</Option>
             ))
           }
@@ -96,7 +99,7 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
   ), [createdRepoList, repoList]);
 
   return (
-    <React.Fragment>
+    <>
       <input name="username" type="text" style={{ display: 'none' }} />
       <input name="password" type="password" style={{ display: 'none' }} />
       <Form dataSet={npmAssociateDs} columns={1}>
@@ -119,7 +122,7 @@ const NpmAssociateForm = ({ formatMessage, npmAssociateDs, modal, init }) => {
         <TextField name="userName" autoComplete="off" />
         <Password name="password" autoComplete="off" />
       </Form>
-    </React.Fragment>
+    </>
   );
 };
 

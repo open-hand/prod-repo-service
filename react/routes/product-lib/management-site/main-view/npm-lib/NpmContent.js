@@ -18,7 +18,7 @@ const NpmContent = observer(() => {
   } = useProdStore();
 
   return (
-    <React.Fragment>
+    <>
       <Content
         title={formatMessage({ id: `${intlPrefix}.view.npmLib`, defaultMessage: 'Npm制品库' })}
         className="product-lib-org-management-tab-page-content"
@@ -27,7 +27,7 @@ const NpmContent = observer(() => {
           <LibList />
         </Suspense>
       </Content>
-    </React.Fragment>
+    </>
   );
 });
 
