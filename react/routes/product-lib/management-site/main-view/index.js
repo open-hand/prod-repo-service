@@ -1,8 +1,8 @@
 import React, { lazy, Suspense, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
-import Loading from '@/components/loading';
 import { Icon } from 'choerodon-ui';
 import { Page, Breadcrumb, Content } from '@choerodon/boot';
+import Loading from '@/components/loading';
 import { useProdStore } from '../stores';
 
 import './index.less';
@@ -21,7 +21,6 @@ const MainView = observer(() => {
 
   const { getSelectedMenu, setSelectedMenu } = prodStore;
 
-
   const content = useMemo(() => {
     if (!setSelectedMenu) return <Loading display />;
 
@@ -33,27 +32,27 @@ const MainView = observer(() => {
   }, [getSelectedMenu]);
 
   return (
-    <Page >
+    <Page>
       <Breadcrumb />
       <Content className="product-lib-org-management">
         <div className="product-lib-org-management-lib-type-list">
           <div
             className={getSelectedMenu !== MAVEN ? 'product-lib-org-management-lib-type-list-item' : 'product-lib-org-management-lib-type-list-item-selected'}
             onClick={() => setSelectedMenu(MAVEN)}
+            role="none"
           >
             <div className="product-lib-org-management-lib-type-list-item-maven" />
-            {getSelectedMenu === MAVEN &&
-              <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />
-            }
+            {getSelectedMenu === MAVEN
+              && <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />}
           </div>
           <div
             className={getSelectedMenu !== NPM ? 'product-lib-org-management-lib-type-list-item' : 'product-lib-org-management-lib-type-list-item-selected'}
             onClick={() => setSelectedMenu(NPM)}
+            role="none"
           >
             <div className="product-lib-org-management-lib-type-list-item-npm" />
-            {getSelectedMenu === NPM &&
-              <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />
-            }
+            {getSelectedMenu === NPM
+              && <Icon type="check_circle" className="product-lib-org-management-lib-type-list-item-selector-icon" />}
           </div>
         </div>
         {content}

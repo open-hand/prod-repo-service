@@ -12,7 +12,7 @@ import { observer, useComputed } from 'mobx-react-lite';
 import { message } from 'choerodon-ui';
 import { axios, stores } from '@choerodon/boot';
 import classnames from 'classnames';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid';
 import useRepoList from './useRepoList';
 import './index.less';
 
@@ -119,7 +119,8 @@ const MavenCreateForm = ({
     ))
   ), [createdRepoList, repoList]);
 
-  const type = useComputed(() => mavenCreateDs.current && mavenCreateDs.current.data.type, [mavenCreateDs.current]);
+  const type = useComputed(() => mavenCreateDs.current
+  && mavenCreateDs.current.data.type, [mavenCreateDs.current]);
 
   return (
     <Form dataSet={mavenCreateDs} columns={1}>

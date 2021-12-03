@@ -11,7 +11,7 @@ import {
 import { observer, useComputed } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
 import classnames from 'classnames';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid';
 import useRepoList from './useRepoList';
 import { intlPrefix } from '../../../index';
 
@@ -120,7 +120,8 @@ const NpmEditModal = ({
     ))
   ), [createdRepoList, repoList]);
 
-  const type = useComputed(() => npmCreateDs.current && npmCreateDs.current.data.type, [npmCreateDs.current]);
+  const type = useComputed(() => npmCreateDs.current
+  && npmCreateDs.current.data.type, [npmCreateDs.current]);
 
   return (
     <Form dataSet={npmCreateDs} columns={1}>

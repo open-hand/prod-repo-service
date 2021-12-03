@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid';
 import moment from 'moment';
 import { Icon, Button } from 'choerodon-ui';
 import { Spin } from 'choerodon-ui/pro';
