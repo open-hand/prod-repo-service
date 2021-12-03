@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Icon, Button } from 'choerodon-ui';
 import { Spin } from 'choerodon-ui/pro';
-import uuidv4 from 'uuid/v4';
+import {  v4 as uuidv4 }from 'uuid';
 import moment from 'moment';
 
 const TimeLine = ({

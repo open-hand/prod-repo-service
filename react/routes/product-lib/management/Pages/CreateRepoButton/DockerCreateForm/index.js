@@ -9,7 +9,7 @@ import { Icon, Tooltip } from 'choerodon-ui';
 import { Form, TextField, SelectBox, Select, NumberField, CheckBox, DateTimePicker, Button } from 'choerodon-ui/pro';
 import { observer, useComputed } from 'mobx-react-lite';
 import classnames from 'classnames';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4} from 'uuid';
 import { axios, stores } from '@choerodon/boot';
 import moment from 'moment';
 import './index.less';

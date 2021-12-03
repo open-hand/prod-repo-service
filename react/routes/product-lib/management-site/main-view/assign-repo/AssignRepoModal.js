@@ -10,7 +10,7 @@ import {
 } from 'choerodon-ui/pro';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import { axios } from '@choerodon/boot';
-import uuidv4 from 'uuid/v4';
+import {  v4 as uuidv4 }from 'uuid';
 import { reaction } from 'mobx';
 // import debounce from 'lodash/debounce';
 import './index.less';
