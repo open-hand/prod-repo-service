@@ -43,7 +43,7 @@
     "@babel/plugin-proposal-decorators": "^7.12.1",
     "@babel/plugin-proposal-export-default-from": "^7.12.1",
     "@babel/preset-react": "^7.12.10",
-    "@choerodon/boot": "0.0.0-webpack5",
+    "@choerodon/boot": "1.2.0",
     "@choerodon/master": "1.2.0",
     "@types/react": "^16.9.44",
     "@types/react-router": "^5.1.8",
