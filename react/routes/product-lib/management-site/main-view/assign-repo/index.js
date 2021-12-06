@@ -32,7 +32,7 @@ const AssignRepo = ({
         textField: 'name',
         cascadeMap: { organizationId: 'organizationId' },
         dynamicProps: {
-          lookupUrl: ({ record }) => `/iam/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all?enabled=false&category=N_DEVOPS`,
+          lookupUrl: ({ record }) => `/iam/v1/prod/organizations/${record.get('organizationId') || 0}/projects/all?enabled=true&category=N_DEVOPS`,
         },
         required: true,
       },
