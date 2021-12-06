@@ -1,7 +1,6 @@
 package org.hrds.rdupm.nexus.app.service.impl;
 
-import groovy.sql.Sql;
-import io.choerodon.core.exception.CommonException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.nexus.api.dto.C7nNexusComponentDTO;
 import org.hrds.rdupm.nexus.api.dto.C7nNexusRepoDTO;
@@ -16,7 +15,6 @@ import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
 import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
-import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
@@ -206,7 +204,8 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
         return result;
     }
 
-    private List<NexusServerComponent> listComponentList(String neRepositoryName, String groupId, String artifactId) {
+    @Override
+    public List<NexusServerComponent> listComponentList(String neRepositoryName, String groupId, String artifactId) {
         NexusComponentQuery componentQuery = new NexusComponentQuery();
         componentQuery.setRepositoryName(neRepositoryName);
         if (groupId != null) {
@@ -218,7 +217,8 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
         return nexusClient.getComponentsApi().searchComponentScript(componentQuery);
     }
 
-    private NexusRepository validExist(Long organizationId, Long projectId, Long repositoryId) {
+    @Override
+    public NexusRepository validExist(Long organizationId, Long projectId, Long repositoryId) {
         // 数据库表查询
         Sqls sqls = Sqls.custom().andEqualTo(NexusRepository.FIELD_PROJECT_ID, projectId)
                 .andEqualTo(NexusRepository.FIELD_ORGANIZATION_ID, organizationId)

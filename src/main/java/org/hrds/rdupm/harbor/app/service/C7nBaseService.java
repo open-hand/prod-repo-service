@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
@@ -40,4 +41,13 @@ public interface C7nBaseService {
 	List<UserDTO> listProjectOwnerUsers(Long projectId);
 
 	AppServiceDTO queryAppServiceById(Long projectId, Long appServiceId);
+
+	List<ExternalTenantVO> querySaasTenants(List<String> saasLevels);
+
+
+	List<ProjectDTO> queryProjectByOrgId(Long tenantId);
+
+	List<ExternalTenantVO> queryRegisterTenant();
+
+	ExternalTenantVO queryTenantByIdWithExternalInfo(Long organizationId);
 }

@@ -11,7 +11,9 @@ import { observer } from 'mobx-react-lite';
 import { TabKeyEnum } from '../../MavenTabContainer';
 import './index.less';
 
-const OverView = ({ repositoryId, overViewDs, formatMessage, activeTabKey }) => {
+const OverView = ({
+  repositoryId, overViewDs, formatMessage, activeTabKey,
+}) => {
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.OVERVIEW) {
       overViewDs.repositoryId = repositoryId;
@@ -28,24 +30,18 @@ const OverView = ({ repositoryId, overViewDs, formatMessage, activeTabKey }) => 
           <Output name="versionPolicy" />
           <Output
             name="online"
-            renderer={({ value }) =>
-              (value ? formatMessage({ id: 'yes', defaultMessage: '是' }) : formatMessage({ id: 'no', defaultMessage: '否' }))
-            }
+            renderer={({ value }) => (value ? formatMessage({ id: 'yes', defaultMessage: '是' }) : formatMessage({ id: 'no', defaultMessage: '否' }))}
           />
           <Output name="writePolicy" />
           <Output
             name="allowAnonymous"
-            renderer={({ value }) =>
-              (value ? formatMessage({ id: 'yes', defaultMessage: '是' }) : formatMessage({ id: 'no', defaultMessage: '否' }))
-            }
+            renderer={({ value }) => (value ? formatMessage({ id: 'yes', defaultMessage: '是' }) : formatMessage({ id: 'no', defaultMessage: '否' }))}
           />
-          <Output name="url" renderer={({ value }) => <a href={value}>{value}</a>} />
-          {overViewDs.current && overViewDs.current.get('type') === 'proxy' &&
-            <Output name="remoteUrl" renderer={({ value }) => <a href={value}>{value}</a>} />
-          }
-          {overViewDs.current && overViewDs.current.get('type') === 'group' &&
-            <Output name="repoMemberList" />
-          }
+          {overViewDs.current?.get('url') && <Output name="url" renderer={({ value }) => <a href={value}>{value}</a>} />}
+          {overViewDs.current && overViewDs.current.get('type') === 'proxy'
+            && <Output name="remoteUrl" renderer={({ value }) => <a href={value}>{value}</a>} />}
+          {overViewDs.current && overViewDs.current.get('type') === 'group'
+            && <Output name="repoMemberList" />}
         </Form>
       </Spin>
     </div>

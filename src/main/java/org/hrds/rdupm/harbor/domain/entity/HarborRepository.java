@@ -10,9 +10,11 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.constraints.NotBlank;
+
 import io.choerodon.mybatis.domain.AuditDomain;
 import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -59,53 +61,46 @@ public class HarborRepository extends AuditDomain {
     @ApiModelProperty("主键")
     @Id
     @GeneratedValue
-	@Encrypt
+    @Encrypt
     private Long id;
-    @ApiModelProperty(value = "猪齿鱼项目ID",required = true)
-    @NotNull
+    @ApiModelProperty(value = "猪齿鱼项目ID", required = true)
     private Long projectId;
-    @ApiModelProperty(value = "项目编码",required = true)
+    @ApiModelProperty(value = "项目编码", required = true)
     @NotBlank
     private String code;
-    @ApiModelProperty(value = "项目名称",required = true)
+    @ApiModelProperty(value = "项目名称", required = true)
     @NotBlank
     private String name;
-   @ApiModelProperty(value = "是否公开访问，默认false")    
+    @ApiModelProperty(value = "是否公开访问，默认false")
     private String publicFlag;
 
-    @ApiModelProperty(value = "harbor项目ID",required = true)
-    @NotNull
-	@Encrypt
+    @ApiModelProperty(value = "harbor项目ID", required = true)
+    @Encrypt
     private Long harborId;
-    @ApiModelProperty(value = "组织ID",required = true)
-    @NotNull
+    @ApiModelProperty(value = "组织ID", required = true)
     private Long organizationId;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
+    @ApiModelProperty(value = "", required = true)
     private Date creationDate;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
+    @ApiModelProperty(value = "", required = true)
     private Long createdBy;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
+    @ApiModelProperty(value = "", required = true)
     private Long lastUpdatedBy;
-    @ApiModelProperty(value = "",required = true)
-    @NotNull
+    @ApiModelProperty(value = "", required = true)
     private Date lastUpdateDate;
-   @ApiModelProperty(value = "")    
+    @ApiModelProperty(value = "")
     private Long lastUpdateLogin;
 
-   @Transient
-   private Integer repoCount;
+    @Transient
+    private Integer repoCount;
 
-   @Transient
-   private String creatorImageUrl;
+    @Transient
+    private String creatorImageUrl;
 
-   @Transient
-   private String creatorLoginName;
+    @Transient
+    private String creatorLoginName;
 
-   @Transient
-   private String creatorRealName;
+    @Transient
+    private String creatorRealName;
 
     @Transient
     @ApiModelProperty(value = "仓库包的拉取总次数")
@@ -115,22 +110,23 @@ public class HarborRepository extends AuditDomain {
     @ApiModelProperty(value = "仓库拉取包的人数")
     private Long personTimes;
 
-	public HarborRepository(){
+    public HarborRepository() {
 
-	}
-	public HarborRepository(@NotNull Long projectId, @NotBlank String code, @NotBlank String name, String publicFlag, @NotNull Long harborId, @NotNull Long organizationId) {
-		this.projectId = projectId;
-		this.code = code;
-		this.name = name;
-		this.publicFlag = publicFlag;
-		this.harborId = harborId;
-		this.organizationId = organizationId;
-	}
+    }
 
-	public HarborRepository(@NotBlank String code, @NotBlank String name, String publicFlag, @NotNull Long organizationId) {
-		this.code = code;
-		this.name = name;
-		this.publicFlag = publicFlag;
-		this.organizationId = organizationId;
-	}
+    public HarborRepository(@NotNull Long projectId, @NotBlank String code, @NotBlank String name, String publicFlag, @NotNull Long harborId, @NotNull Long organizationId) {
+        this.projectId = projectId;
+        this.code = code;
+        this.name = name;
+        this.publicFlag = publicFlag;
+        this.harborId = harborId;
+        this.organizationId = organizationId;
+    }
+
+    public HarborRepository(@NotBlank String code, @NotBlank String name, String publicFlag, @NotNull Long organizationId) {
+        this.code = code;
+        this.name = name;
+        this.publicFlag = publicFlag;
+        this.organizationId = organizationId;
+    }
 }

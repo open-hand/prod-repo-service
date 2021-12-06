@@ -5,12 +5,14 @@
 * @copyright 2020 ® HAND
 */
 import React, { useEffect, useCallback } from 'react';
-import { Form, TextField, Select, SelectBox, Button } from 'choerodon-ui/pro';
+import {
+  Form, TextField, Select, SelectBox, Button,
+} from 'choerodon-ui/pro';
 import { observer, useComputed } from 'mobx-react-lite';
 import { message } from 'choerodon-ui';
 import { axios, stores } from '@choerodon/boot';
 import classnames from 'classnames';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid';
 import useRepoList from './useRepoList';
 import './index.less';
 
@@ -18,8 +20,9 @@ const intlPrefix = 'infra.prod.lib';
 
 const { Option } = Select;
 
-
-const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, modal, init }) => {
+const MavenCreateForm = ({
+  formatMessage, mavenCreateDs, enableAnonymousFlag, modal, init,
+}) => {
   const { repoList, createdRepoList, setCreatedRepoList } = useRepoList();
   useEffect(() => {
     mavenCreateDs.create({
@@ -34,9 +37,8 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
     const mavenType = mavenCreateDs.current.get('type');
     if (mavenType === 'hosted') {
       return `-${mavenCreateDs.current.get('versionPolicy') || ''}`.toLowerCase();
-    } else {
-      return `-${mavenType.toLowerCase()}`;
     }
+    return `-${mavenType.toLowerCase()}`;
   }, [mavenCreateDs.current]);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
           const submitData = mavenCreateDs.current.toData();
           submitData.name = `${submitData.name}${mavenNameSuffix}`;
           if (submitData.type === 'group') {
-            const repoMemberList = createdRepoList.map(o => o.name).filter(Boolean);
+            const repoMemberList = createdRepoList.map((o) => o.name).filter(Boolean);
             if (repoMemberList.length === 0) {
               message.error(formatMessage({ id: `${intlPrefix}.view.chooseGroupPlease`, defaultMessage: '请选择仓库' }));
               return false;
@@ -56,7 +58,7 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
             submitData.repoMemberList = repoMemberList;
           }
           await axios.post(`/rdupm/v1/nexus-repositorys/${organizationId}/project/${projectId}/maven/repo`, submitData);
-          await new Promise(resolve => setTimeout(() => resolve(), 1000));
+          await new Promise((resolve) => setTimeout(() => resolve(), 1000));
           init();
           return true;
         } catch (error) {
@@ -75,7 +77,7 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
   }, [createdRepoList]);
 
   const handleAddCreatedRepo = useCallback(() => {
-    setCreatedRepoList(prevList => prevList.concat([{ _id: uuidv4() }]));
+    setCreatedRepoList((prevList) => prevList.concat([{ _id: uuidv4() }]));
   }, []);
 
   const handleDelete = useCallback((id) => {
@@ -99,9 +101,12 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
           dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}
         >
           {
-            repoList.map(o => (
-              <Option key={o.name} value={o.name}>{o.name}</Option>
-            ))
+            repoList.map((o) => {
+              const hasData = createdRepoList.some((value) => o.name === value.name);
+              return (
+                <Option disabled={hasData} key={o.name} value={o.name}>{o.name}</Option>
+              );
+            })
           }
         </Select>
         <Button
@@ -114,20 +119,22 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
     ))
   ), [createdRepoList, repoList]);
 
-  const type = useComputed(() => mavenCreateDs.current && mavenCreateDs.current.data.type, [mavenCreateDs.current]);
+  const type = useComputed(() => mavenCreateDs.current
+  && mavenCreateDs.current.data.type, [mavenCreateDs.current]);
 
   return (
     <Form dataSet={mavenCreateDs} columns={1}>
       <SelectBox name="type" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')} />
-      {['hosted', 'proxy'].includes(type) &&
+      {['hosted', 'proxy'].includes(type)
+        && (
         <Select
           name="versionPolicy"
           onChange={() => mavenCreateDs.current.set('writePolicy', undefined)}
         />
-      }
+        )}
       <TextField name="name" addonAfter={mavenNameSuffix} />
-      {type === 'hosted' &&
-        [
+      {type === 'hosted'
+        && [
           <Select
             key="writePolicy"
             name="writePolicy"
@@ -138,10 +145,9 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
               return true;
             }}
           />,
-        ]
-      }
-      {type === 'proxy' &&
-        [
+        ]}
+      {type === 'proxy'
+        && [
           <TextField key="remoteUrl" name="remoteUrl" />,
           <TextField key="remoteUsername" name="remoteUsername" />,
           <TextField
@@ -149,9 +155,9 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
             name="remotePassword"
             renderer={({ text }) => text.replace(/./g, '•')}
           />,
-        ]
-      }
-      {type === 'group' &&
+        ]}
+      {type === 'group'
+        && (
         <div className="product-lib-pages-createtrpo-select-list">
           {renderSelectList()}
           <Button
@@ -164,13 +170,14 @@ const MavenCreateForm = ({ formatMessage, mavenCreateDs, enableAnonymousFlag, mo
             {formatMessage({ id: `${intlPrefix}.view.addGroup`, defaultMessage: '添加组仓库成员' })}
           </Button>
         </div>
-      }
-      {enableAnonymousFlag === 1 &&
+        )}
+      {enableAnonymousFlag === 1
+      && (
       <SelectBox name="allowAnonymous" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')}>
         <Option value={1}>{formatMessage({ id: 'yes', defaultMessage: '是' })}</Option>
         <Option value={0}>{formatMessage({ id: 'no', defaultMessage: '否' })}</Option>
       </SelectBox>
-      }
+      )}
     </Form>
   );
 };

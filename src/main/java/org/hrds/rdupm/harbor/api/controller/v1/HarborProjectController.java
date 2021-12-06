@@ -110,7 +110,7 @@ public class HarborProjectController extends BaseController {
 	@GetMapping(value = "/check/name/{projectId}")
 	public ResponseEntity<Boolean> checkName(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 											 @RequestParam(value = "repositoryName") String repositoryName) {
-		return Results.success(harborRepositoryRepository.checkName(projectId,repositoryName));
+		return Results.success(harborProjectService.checkName(projectId,repositoryName));
 	}
 
 

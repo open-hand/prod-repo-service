@@ -60,6 +60,7 @@ init-local-database-dev.sh
 /yarn-lock.json
 /yarn.json
 /package-lock.json
+yarn.lock
 
 # folder
 /dist

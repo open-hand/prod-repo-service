@@ -66,4 +66,10 @@ public interface NexusClient {
 	 * @return NexusScriptApi
 	 */
 	NexusScriptApi getNexusScriptApi();
+
+	/**
+	 * 获取查询仓库的Api类
+	 * @return
+	 */
+	NexusExtdirectApi getNexusExtdirectApi();
 }

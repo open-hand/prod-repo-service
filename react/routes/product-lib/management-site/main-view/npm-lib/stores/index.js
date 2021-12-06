@@ -16,6 +16,8 @@ export const StoreProvider = injectIntl(observer((props) => {
   const {
     AppState: { currentMenuType: { organizationId } },
     intlPrefix,
+    format,
+    formatCommon,
   } = useProdStore();
 
   const libListDs = useMemo(() => new DataSet(LibListDS(intlPrefix, formatMessage)), []);
@@ -26,6 +28,8 @@ export const StoreProvider = injectIntl(observer((props) => {
     intlPrefix,
     formatMessage,
     libListDs,
+    format,
+    formatCommon,
   };
   return (
     <Store.Provider value={value}>

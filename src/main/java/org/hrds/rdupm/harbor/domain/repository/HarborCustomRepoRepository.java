@@ -9,5 +9,6 @@ import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
  * @author mofei.li@hand-china.com 2020-06-02 09:51:58
  */
 public interface HarborCustomRepoRepository extends BaseRepository<HarborCustomRepo> {
-    
+
+    Boolean checkName(Long projectId, String repositoryName);
 }

@@ -3,6 +3,7 @@ package org.hrds.rdupm.nexus.app.service;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.nexus.api.dto.*;
+import org.hrds.rdupm.nexus.api.vo.NexusRepositoryVO;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerBlobStore;
 import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
@@ -172,4 +173,9 @@ public interface NexusRepositoryService {
 	 */
 	void selfRelatedMavenRepo(Long organizationId, Long projectId, String repoType, String repositoryName, NexusServerConfig serverConfig);
 
+	NexusRepositoryVO queryNexusRepositoryByName(Long nexusServiceConfigId, String repositoryName);
+
+	Long queryNexusProjectCapacity(Long repositoryId);
+
+	NexusServerConfig getDefaultMavenRepo(Long organizationId);
 }

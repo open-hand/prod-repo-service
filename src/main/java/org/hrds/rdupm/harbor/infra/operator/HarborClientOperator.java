@@ -99,8 +99,10 @@ public class HarborClientOperator {
                 logListResult = logListResult.stream().map(t -> {
                     if (t.getResource().contains(":")) {
                         String[] strings = t.getResource().split(":");
-                        t.setRepoName(strings[0]);
-                        t.setTagName(strings[1]);
+                        if (strings != null && strings.length >= 2) {
+                            t.setRepoName(strings[0]);
+                            t.setTagName(strings[1]);
+                        }
                     }
                     return t;
                 }).collect(Collectors.toList());
@@ -146,6 +148,16 @@ public class HarborClientOperator {
                 logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
                 //2.0的日志增加了资源的类型，操作类型去掉了project
+                if (logListResult != null) {
+                    logListResult = logListResult.stream().map(t -> {
+                        if (t.getResource().contains(":")) {
+                            String[] strings = t.getResource().split(":");
+                            t.setRepoName(strings[0]);
+                            t.setTagName(strings[1]);
+                        }
+                        return t;
+                    }).collect(Collectors.toList());
+                }
             } else {
                 paramMap.put("page", 0);
                 paramMap.put("page_size", 0);

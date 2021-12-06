@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "nexus.proxy")
 public class NexusProxyConfigProperties {
+    /**
+     * 代理服务的地址
+     */
+    private String url;
 
     /**
      * uri前缀

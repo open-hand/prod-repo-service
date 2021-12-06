@@ -28,37 +28,14 @@ const NpmContent = observer(() => {
   } = useNpmStore();
   const {
     intlPrefix,
-    // prodStore,
-    // itemTypes: {
-    //   MAVEN,
-    //   NPM,
-    // },
   } = useProdStore();
-  // const { getSelectedMenu } = prodStore;
 
   function handleChange(key) {
     npmStore.setTabKey(key);
   }
 
-  // function getTitle() {
-  //   let title = formatMessage({ id: `${intlPrefix}.view.dockerLib`, defaultMessage: 'Docker制品库' });
-  //   switch (getSelectedMenu) {
-  //     case MAVEN: {
-  //       title = formatMessage({ id: `${intlPrefix}.view.mavenLib`, defaultMessage: 'Maven制品库' });
-  //       break;
-  //     }
-  //     case NPM:
-  //       title = formatMessage({ id: `${intlPrefix}.view.npmLib`, defaultMessage: 'Npm制品库' });
-  //       break;
-  //     default:
-  //       title = formatMessage({ id: `${intlPrefix}.view.dockerLib`, defaultMessage: 'Docker制品库' });
-  //       break;
-  //   }
-  //   return <span>{title}</span>;
-  // }
-
   return (
-    <React.Fragment>
+    <>
       <Content
         title={formatMessage({ id: `${intlPrefix}.view.npmLib`, defaultMessage: 'npm制品库' })}
         className="product-lib-org-management-tab-page-content"
@@ -104,7 +81,7 @@ const NpmContent = observer(() => {
         </Tabs>
       </Content>
       <Modals />
-    </React.Fragment>
+    </>
   );
 });
 

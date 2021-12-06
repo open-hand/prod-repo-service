@@ -15,11 +15,17 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.infra.annotation.OperateLog;
+import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.enums.SaasLevelEnum;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.util.HarborUtil;
+import org.hrds.rdupm.init.config.NexusDefaultInitConfiguration;
 import org.hrds.rdupm.init.config.NexusProxyConfigProperties;
 import org.hrds.rdupm.nexus.api.dto.*;
+import org.hrds.rdupm.nexus.api.vo.NexusRepositoryVO;
 import org.hrds.rdupm.nexus.app.eventhandler.constants.NexusSagaConstants;
 import org.hrds.rdupm.nexus.app.eventhandler.payload.NexusRepositoryDeletePayload;
 import org.hrds.rdupm.nexus.app.service.NexusAuthService;
@@ -34,7 +40,9 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.constant.NexusMessageConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
+import org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper;
 import org.hrds.rdupm.nexus.infra.mapper.NexusLogMapper;
+import org.hrds.rdupm.nexus.infra.mapper.NexusServerConfigMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
@@ -93,6 +101,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     private NexusLogMapper nexusLogMapper;
     @Value("${nexus.filter.mavenRepo:market-repo}")
     private String marketMavenRepo;
+    @Autowired
+    private NexusServerConfigMapper nexusServerConfigMapper;
+    @Autowired
+    private NexusAssetsMapper nexusAssetsMapper;
+
+    @Autowired
+    private NexusDefaultInitConfiguration nexusDefaultInitConfiguration;
 
     @Override
     public NexusRepositoryDTO getRepo(Long organizationId, Long projectId, Long repositoryId) {
@@ -121,8 +136,28 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         nexusRepository.setEnableAnonymousFlag(serverConfig.getEnableAnonymousFlag());
         NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
         nexusRepositoryDTO.convert(nexusRepository, nexusServerRepository);
+        //Saas组织 默认仓库 注册组织默认仓库  则不展示URL
+        ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+        if (Objects.isNull(externalTenantVO)) {
+            throw new CommonException("tenant not exists");
+        }
+        nexusRepositoryDTO.setInternalUrl(nexusRepositoryDTO.getUrl());
+        if (isRegister(externalTenantVO) || isSaas(externalTenantVO)) {
+            if (serverConfig.getDefaultFlag() == BaseConstants.Flag.YES) {
+                nexusRepositoryDTO.setUrl(null);
+            }
+        }
+
         nexusClient.removeNexusServerInfo();
         return nexusRepositoryDTO;
+    }
+
+    private boolean isRegister(ExternalTenantVO externalTenantVO) {
+        return externalTenantVO.getRegister() != null && externalTenantVO.getRegister();
+    }
+
+    private boolean isSaas(ExternalTenantVO externalTenantVO) {
+        return externalTenantVO.getSaasLevel() != null;
     }
 
     @Override
@@ -964,7 +999,17 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
             if (nexusServerRepositoryMapAll.containsKey(key)) {
                 NexusServerRepository nexusServerRepository = nexusServerRepositoryMapAll.get(key);
                 nexusRepoDTO.setType(nexusServerRepository.getType());
-                nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
+                //如果是默认仓库，并且组织属于注册或者试用组织 则返回回代理的地址
+                NexusServerConfig nexusServerConfig = nexusServerConfigMapper.selectByPrimaryKey(nexusRepoDTO.getConfigId());
+                ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
+                if (Objects.isNull(externalTenantVO)) {
+                    throw new CommonException("tenant not exists");
+                }
+                if (nexusServerConfig.getDefaultFlag().equals(BaseConstants.Flag.YES) && isRegisterOrSaasOrganization(externalTenantVO)) {
+                    nexusRepoDTO.setUrl(nexusServerRepository.getUrl().replace(nexusDefaultInitConfiguration.getServerUrl(), nexusProxyConfigProperties.getUrl() + nexusProxyConfigProperties.getUriPrefix() + BaseConstants.Symbol.SLASH + nexusServerConfig.getConfigId()));
+                } else {
+                    nexusRepoDTO.setUrl(nexusServerRepository.getUrl());
+                }
                 nexusRepoDTO.setVersionPolicy(nexusServerRepository.getVersionPolicy());
                 if (nexusRepoDTO.getNeUserPassword() != null) {
                     nexusRepoDTO.setNeUserPassword(DESEncryptUtil.decode(nexusRepoDTO.getNeUserPassword()));
@@ -977,6 +1022,13 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         });
         nexusClient.removeNexusServerInfo();
         return result;
+    }
+
+    private Boolean isRegisterOrSaasOrganization(ExternalTenantVO externalTenantVO) {
+        if (externalTenantVO.getRegister() == null && externalTenantVO.getSaasLevel() == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -1066,5 +1118,39 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
                             .withRefId(String.valueOf(nexusRepository.getRepositoryId()))
                             .withSourceId(projectId);
                 });
+    }
+
+    @Override
+    public NexusRepositoryVO queryNexusRepositoryByName(Long nexusServiceConfigId, String repositoryName) {
+        NexusRepository nexusRepository = new NexusRepository();
+        nexusRepository.setNeRepositoryName(repositoryName);
+        nexusRepository.setConfigId(nexusServiceConfigId);
+        NexusRepository repository = nexusRepositoryRepository.selectOne(nexusRepository);
+        NexusRepositoryVO nexusRepositoryVO = new NexusRepositoryVO();
+        BeanUtils.copyProperties(repository, nexusRepositoryVO);
+        return nexusRepositoryVO;
+    }
+
+    @Override
+    public Long queryNexusProjectCapacity(Long repositoryId) {
+        NexusRepository nexusRepository = nexusRepositoryRepository.selectByPrimaryKey(repositoryId);
+        if (nexusRepository == null) {
+            return Long.valueOf(BaseConstants.Digital.NEGATIVE_ONE);
+        }
+        NexusAssets record = new NexusAssets();
+        record.setProjectId(nexusRepository.getProjectId());
+        List<NexusAssets> nexusAssets = nexusAssetsMapper.select(record);
+        if (CollectionUtils.isEmpty(nexusAssets)) {
+            return Long.valueOf(BaseConstants.Digital.ZERO);
+        } else {
+            return nexusAssets.stream().map(NexusAssets::getSize).reduce((aLong, aLong2) -> aLong + aLong2).orElseGet(() -> 0L);
+        }
+    }
+
+    @Override
+    public NexusServerConfig getDefaultMavenRepo(Long organizationId) {
+        NexusServerConfig nexusServerConfig = new NexusServerConfig();
+        nexusServerConfig.setDefaultFlag(BaseConstants.Flag.YES);
+        return nexusServerConfigMapper.selectOne(nexusServerConfig);
     }
 }

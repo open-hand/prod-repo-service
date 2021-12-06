@@ -259,9 +259,10 @@ public class HarborUtil {
 
     public static String getPassword() {
         String str;
-        do {
-            str = getPassString();
-        } while (!testExistLowerCase(str) || !testExistUpperCase(str) || !isContainNumber(str));
+//        do {
+//            str = getPassString();
+//        } while (testExistLowerCase(str) && testExistUpperCase(str) && isContainNumber(str));
+        str = getPassString();
         return str;
     }
 

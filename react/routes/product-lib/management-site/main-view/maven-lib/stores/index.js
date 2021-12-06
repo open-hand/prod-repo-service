@@ -13,16 +13,20 @@ export function useMavenStore() {
 
 export const StoreProvider = injectIntl(observer((props) => {
   const { children, intl: { formatMessage } } = props;
-  const { intlPrefix } = useProdStore();
+  const {
+    intlPrefix, format,
+    formatCommon,
+  } = useProdStore();
 
   const libListDs = useMemo(() => new DataSet(LibListDS(intlPrefix, formatMessage)), []);
-
 
   const value = {
     ...props,
     intlPrefix,
     formatMessage,
     libListDs,
+    format,
+    formatCommon,
   };
   return (
     <Store.Provider value={value}>

@@ -32,7 +32,7 @@ public interface HarborConstants {
 
     String TB = "TB";
 
-    String DEFAULT_PASSWORD = "Abcd1234";
+    String DEFAULT_PSW = "Abcd1234";
 
     String ASSIGN_AUTH = "assign";
 
@@ -107,11 +107,11 @@ public interface HarborConstants {
 
         String CREATE_AUTH_DB = "rdupm-docker-auth-create.db";
 
-        String UPDATE_PWD = "rdupm-docker-user-update";
+        String UPDATE_PSW = "rdupm-docker-user-update";
 
-        String UPDATE_PWD_HARBOR = "rdupm-docker-user-update.harbor";
+        String UPDATE_PSW_HARBOR = "rdupm-docker-user-update.harbor";
 
-        String UPDATE_PWD_NEXUS = "rdupm-docker-user-update.nexus";
+        String UPDATE_PSW_NEXUS = "rdupm-docker-user-update.nexus";
 
         /**
          * 创建自定义镜像仓库
@@ -247,7 +247,12 @@ public interface HarborConstants {
         /**
          * 获取项目下可用扫描器状态
          */
-        IMAGE_QUERY_SCANNER_STATUS("", HttpMethod.GET, "", "/api/v2.0/projects/%s/scanner", "harbor项目Id");
+        IMAGE_QUERY_SCANNER_STATUS("", HttpMethod.GET, "", "/api/v2.0/projects/%s/scanner", "harbor项目Id"),
+
+        //修改资源定额 /api/v2.0/quotas/908
+        UPDATE_QUOTAS("/api/quotas/%s", HttpMethod.PUT, "修改仓库资源定额", "/api/v2.0/quotas/%s", "修改仓库资源定额"),
+        LIST_QUOTAS("/api/quotas", HttpMethod.GET, "查询项目定额列表", "/api/v2.0/quotas", "查询项目定额列表");
+
 
         /**
          * v2.0接口
@@ -268,33 +273,21 @@ public interface HarborConstants {
             return apiUrl;
         }
 
-        public void setApiUrl(String apiUrl) {
-            this.apiUrl = apiUrl;
-        }
 
         public HttpMethod getHttpMethod() {
             return httpMethod;
         }
 
-        public void setHttpMethod(HttpMethod httpMethod) {
-            this.httpMethod = httpMethod;
-        }
 
         public String getApiDesc() {
             return apiDesc;
         }
 
-        public void setApiDesc(String apiDesc) {
-            this.apiDesc = apiDesc;
-        }
 
         public String getApiUrlV2() {
             return apiUrlV2;
         }
 
-        public void setApiUrlV2(String apiUrlV2) {
-            this.apiUrlV2 = apiUrlV2;
-        }
 
         HarborApiEnum(String apiUrl, HttpMethod method, String apiDesc) {
             this.apiUrl = apiUrl;
@@ -347,25 +340,16 @@ public interface HarborConstants {
             return roleId;
         }
 
-        public void setRoleId(Long roleId) {
-            this.roleId = roleId;
-        }
 
         public String getRoleValue() {
             return roleValue;
         }
 
-        public void setRoleValue(String roleValue) {
-            this.roleValue = roleValue;
-        }
 
         public String getRoleName() {
             return roleName;
         }
 
-        public void setRoleName(String roleName) {
-            this.roleName = roleName;
-        }
 
         HarborRoleEnum(Long roleId, String roleValue, String roleName) {
             this.roleId = roleId;
@@ -413,8 +397,7 @@ public interface HarborConstants {
     enum HarborImageOperateEnum {
         DELETE("delete", "删除"),
         PULL("pull", "拉取"),
-        PUSH("push", "推送"),
-        CREATE("create", "推送");
+        PUSH("push", "推送");
 
         String operateType;
 
@@ -424,16 +407,9 @@ public interface HarborConstants {
             return operateType;
         }
 
-        public void setOperateType(String operateType) {
-            this.operateType = operateType;
-        }
 
         public String getOperateName() {
             return operateName;
-        }
-
-        public void setOperateName(String operateName) {
-            this.operateName = operateName;
         }
 
         HarborImageOperateEnum(String operateType, String operateName) {

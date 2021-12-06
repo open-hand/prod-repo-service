@@ -52,7 +52,7 @@ public class NexusRepositoryRelatedDTO {
 				throw new CommonException(NexusMessageConstants.NEXUS_USER_NOT_PERMISSIONS);
 			}
 			if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-				throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PASSWORD_ERROR);
+				throw new CommonException(NexusMessageConstants.NEXUS_USER_AND_PSW_ERROR);
 			}
 			throw e;
 		}

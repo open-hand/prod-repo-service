@@ -37,8 +37,8 @@ public class ProdUser extends AuditDomain {
     public static final String FIELD_ID = "id";
     public static final String FIELD_USER_ID = "userId";
     public static final String FIELD_LOGIN_NAME = "loginName";
-    public static final String FIELD_PASSWORD = "password";
-    public static final String FIELD_PWD_UPDATE_FLAG = "pwdUpdateFlag";
+    public static final String FIELD_PSW = "password";
+    public static final String FIELD_PSW_UPDATE_FLAG = "pwdUpdateFlag";
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_CREATED_BY = "createdBy";
     public static final String FIELD_LAST_UPDATED_BY = "lastUpdatedBy";
@@ -84,11 +84,13 @@ public class ProdUser extends AuditDomain {
 	@ApiModelProperty(value = "确认密码")
 	private String rePassword;
 
-	public ProdUser(){
+    /**
+     * 这里的构造方法不能省略,Repository里面会newInstance来创建实例 少了构造方法会报错
+     */
+    public ProdUser() {
+    }
 
-	}
-
-	public ProdUser(@NotNull Long userId, @NotBlank String loginName, @NotBlank String password, @NotNull Integer pwdUpdateFlag) {
+    public ProdUser(@NotNull Long userId, @NotBlank String loginName, @NotBlank String password, @NotNull Integer pwdUpdateFlag) {
 		this.userId = userId;
 		this.loginName = loginName;
 		this.password = password;

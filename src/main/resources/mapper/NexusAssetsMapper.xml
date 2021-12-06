@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper">
+
+    <delete id="batchDelete">
+        delete from rdupm_nexus_assets
+        where  assets_id IN
+        <foreach collection="componentIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="selectAssetsByRepositoryIds" resultType="org.hrds.rdupm.nexus.domain.entity.NexusAssets">
+        select * from rdupm_nexus_assets
+        where  repository_id IN
+        <foreach collection="repositoryIds" item="repositoryId" index="index" open="(" separator="," close=")">
+            #{repositoryId}
+        </foreach>
+    </select>
+
+</mapper>

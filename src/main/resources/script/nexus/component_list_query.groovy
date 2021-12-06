@@ -150,4 +150,5 @@ class AssetItem {
   String lastDownloadDate
   String createdBy
   String createdByIp
+  Long size
 }

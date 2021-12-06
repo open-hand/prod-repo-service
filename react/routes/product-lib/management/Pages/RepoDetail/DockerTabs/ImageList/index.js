@@ -41,8 +41,6 @@ const ImageList = ({
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: 'infra.prod.lib.view.deleteImage', defaultMessage: `确认删除镜像${imageName}?若删除镜像，则该镜像下所有版本将被删除` }, { imageName }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         try {
           await axios.delete('/rdupm/v1/harbor-image/delete', { data });

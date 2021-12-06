@@ -28,6 +28,8 @@ const DockerContent = observer(() => {
   } = useDockerStore();
   const {
     intlPrefix,
+    // formatCommon,
+    formatClient,
   } = useProdStore();
 
   function handleChange(key) {
@@ -35,7 +37,7 @@ const DockerContent = observer(() => {
   }
 
   return (
-    <React.Fragment>
+    <>
       <Content
         title={formatMessage({ id: `${intlPrefix}.view.dockerLib`, defaultMessage: 'Docker制品库' })}
         className="product-lib-org-management-tab-page-content"
@@ -44,11 +46,12 @@ const DockerContent = observer(() => {
           className="product-lib-org-management-tabs"
           animated={false}
           activeKey={dockerStore.getTabKey}
+          // eslint-disable-next-line react/jsx-no-bind
           onChange={handleChange}
         >
           <TabPane
             key={MIRROR_TAB}
-            tab={formatMessage({ id: `${intlPrefix}.view.mirrorLib`, defaultMessage: '镜像仓库' })}
+            tab={formatClient({ id: 'docker.mirrorWarehouse.mirrorWarehouse' })}
           >
             <Suspense fallback={<Spin />}>
               <MirrorLib />
@@ -56,7 +59,7 @@ const DockerContent = observer(() => {
           </TabPane>
           <TabPane
             key={LIST_TAB}
-            tab={formatMessage({ id: `${intlPrefix}.view.mirrorList`, defaultMessage: '镜像列表' })}
+            tab={formatClient({ id: 'docker.mirrorList.mirrorList' })}
           >
             <Suspense fallback={<Spin />}>
               <MirrorList />
@@ -64,7 +67,7 @@ const DockerContent = observer(() => {
           </TabPane>
           <TabPane
             key={AUTH_TAB}
-            tab={formatMessage({ id: `${intlPrefix}.view.userAuth`, defaultMessage: '用户权限' })}
+            tab={formatClient({ id: 'docker.permission.permission' })}
           >
             <Suspense fallback={<Spin />}>
               <AuthList />
@@ -72,7 +75,7 @@ const DockerContent = observer(() => {
           </TabPane>
           <TabPane
             key={LOG_TAB}
-            tab={formatMessage({ id: `${intlPrefix}.view.operationLog`, defaultMessage: '操作日志' })}
+            tab={formatClient({ id: 'docker.log.log' })}
           >
             <Suspense fallback={<Spin />}>
               <LogList />
@@ -81,7 +84,7 @@ const DockerContent = observer(() => {
         </Tabs>
       </Content>
       <Modals />
-    </React.Fragment>
+    </>
   );
 });
 

@@ -40,8 +40,6 @@ const PackageList = ({
       title: formatMessage({ id: 'confirm.delete' }),
       children: formatMessage({ id: 'infra.prod.lib.view.deleteNpm', defaultMessage: `确认删除包${name}?若删除包，则该包下所有版本将被删除` }, { name }),
       okText: formatMessage({ id: 'delete' }),
-      okProps: { color: 'red' },
-      cancelProps: { color: 'dark' },
       onOk: async () => {
         try {
           await axios.delete(`/rdupm/v1/nexus-components/${organizationId}/project/${projectId}/npm?repositoryId=${repositoryId}&&repositoryName=${repository}`, { data: componentIds });
