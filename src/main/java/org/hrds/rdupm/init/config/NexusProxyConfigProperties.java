@@ -81,4 +81,12 @@ public class NexusProxyConfigProperties {
     public void setServletUri(String servletUri) {
         this.servletUri = servletUri;
     }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }
