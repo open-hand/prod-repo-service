@@ -41,13 +41,6 @@ public class NexusProxyConfigProperties {
     public void setUrlDisplay(Boolean urlDisplay) {
         this.urlDisplay = urlDisplay;
     }
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
 
     public String getServiceRoute() {
         return serviceRoute;

@@ -6,6 +6,7 @@ import { useDockerStore } from '../stores';
 import ResourceConfig from './resource-config';
 import ExportAuthority from './export-authority';
 import './index.less';
+import { useProdStore } from '@/routes/product-lib/management-org/stores/index';
 
 const modalKey = Modal.key();
 const modalStyle = {
@@ -13,6 +14,11 @@ const modalStyle = {
 };
 
 const AppModals = observer(() => {
+  const {
+    formatCommon,
+    formatClient,
+  } = useProdStore();
+
   const {
     intlPrefix,
     formatMessage,
@@ -94,13 +100,13 @@ const AppModals = observer(() => {
   function getButtons() {
     const result = [
       {
-        name: formatMessage({ id: `${intlPrefix}.view.globalResource` }),
+        name: formatClient({ id: 'docker.mirrorList.globalResourceAllocation' }),
         icon: 'settings_applications',
         handler: openConfigModal,
         display: currentTab === MIRROR_TAB || currentTab === LIST_TAB,
       },
       {
-        name: formatMessage({ id: 'exportAuth' }),
+        name: formatClient({ id: 'docker.permission.permissiontoexport' }),
         icon: 'get_app',
         handler: () => openExportModal(),
         display: currentTab === AUTH_TAB,

@@ -4,9 +4,12 @@ import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.sonatype.nexus.repository.Repository
 import org.sonatype.nexus.repository.storage.Asset
+import org.sonatype.nexus.repository.storage.Component
 import org.sonatype.nexus.repository.storage.Query
 import org.sonatype.nexus.repository.storage.StorageFacet
 
+
+//AssetItem assetItem = new AssetItem()
 
 List<AssetItem> assets = new ArrayList<>()
 
@@ -48,3 +51,7 @@ try {
     tx.close()
 }
 return JsonOutput.toJson(assets)
+
+
+
+

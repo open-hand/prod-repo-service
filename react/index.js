@@ -1,7 +1,9 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { inject } from 'mobx-react';
-import { asyncRouter, asyncLocaleProvider, nomatch } from '@choerodon/boot';
+import { useRouteMatch } from 'react-router';
+import {
+  asyncRouter, asyncLocaleProvider, nomatch, useCurrentLanguage,
+} from '@choerodon/master';
 import { ModalContainer } from 'choerodon-ui/pro';
 
 import './index.less';
@@ -11,8 +13,9 @@ const productManagement = asyncRouter(() => import('./routes/product-lib/managem
 const productManagementOrg = asyncRouter(() => import('./routes/product-lib/management-org'));
 const productManagementSite = asyncRouter(() => import('./routes/product-lib/management-site'));
 
-
-function RDUPMIndex({ match, AppState: { currentLanguage: language } }) {
+function RDUPMIndex() {
+  const language = useCurrentLanguage();
+  const match = useRouteMatch();
   const IntlProviderAsync = asyncLocaleProvider(language, () => import(`./locale/${language}`));
   return (
     <IntlProviderAsync>
@@ -29,4 +32,4 @@ function RDUPMIndex({ match, AppState: { currentLanguage: language } }) {
   );
 }
 
-export default inject('AppState')(RDUPMIndex);
+export default RDUPMIndex;

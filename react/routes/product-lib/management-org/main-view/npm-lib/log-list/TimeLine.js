@@ -6,7 +6,9 @@ import { Icon, Button } from 'choerodon-ui';
 import { Spin } from 'choerodon-ui/pro';
 import UserAvatar from '@/components/user-avatar';
 
-const TimeLine = ({ formatMessage, isMore, opEventTypeLookupData, loadData, logListDs }) => {
+const TimeLine = ({
+  formatMessage, isMore, opEventTypeLookupData, loadData, logListDs,
+}) => {
   const record = logListDs.current && logListDs.toData();
 
   const getOpEventTypeMeaning = useCallback((code) => {
@@ -39,20 +41,19 @@ const TimeLine = ({ formatMessage, isMore, opEventTypeLookupData, loadData, logL
       default:
         icon = 'account_circle';
     }
-    return { ...opEventTypeLookupData.find(o => o.value === code), icon, style };
+    return { ...opEventTypeLookupData.find((o) => o.value === code), icon, style };
   }, [opEventTypeLookupData]);
 
   // 更多操作
-  function loadMoreOptsRecord() {
+  const loadMoreOptsRecord = () => {
     loadData(logListDs.currentPage + 1);
-  }
+  };
 
   const getUserIcon = (imageUrl, name = '') => {
     if (imageUrl) {
       return <img src={imageUrl} alt="" />;
-    } else {
-      return <div className="product-lib-org-management-log-timeLine-card-content-text-div-icon">{name[0]}</div>;
     }
+    return <div className="product-lib-org-management-log-timeLine-card-content-text-div-icon">{name[0]}</div>;
   };
 
   function renderData() {
@@ -60,14 +61,20 @@ const TimeLine = ({ formatMessage, isMore, opEventTypeLookupData, loadData, logL
       <ul>
         {
           record.map((item, index) => {
-            const { projectImageUrl, projectCode, projectName, repoName, operateType, userImageUrl, content, operateTime } = item;
+            const {
+              projectImageUrl,
+              projectCode, projectName, repoName, operateType, userImageUrl, content, operateTime,
+            } = item;
             const [date, time] = moment(operateTime).format('YYYY-MM-DD HH:mm:ss').split(' ');
             return (
               <li key={uuidv4()}>
                 <div className="product-lib-org-management-log-timeLine-card">
                   <div className="product-lib-org-management-log-timeLine-card-header">
                     <div className="product-lib-org-management-log-timeLine-card-header-icon">
-                      <Icon type={getOpEventTypeMeaning(operateType).icon} style={getOpEventTypeMeaning(operateType).style} />
+                      <Icon
+                        type={getOpEventTypeMeaning(operateType).icon}
+                        style={getOpEventTypeMeaning(operateType).style}
+                      />
                       <span className="product-lib-org-management-log-timeLine-card-header-title">{getOpEventTypeMeaning(operateType).meaning}</span>
                       <div style={{ display: 'inline-flex', marginLeft: '0.32rem', color: 'var(--text-color3) !important' }}>
                         <UserAvatar
@@ -94,7 +101,10 @@ const TimeLine = ({ formatMessage, isMore, opEventTypeLookupData, loadData, logL
                       {getUserIcon(userImageUrl, content)}
                       <p>{content}</p>
                     </div>
-                    <div className="product-lib-org-management-log-timeLine-card-content-time"><Icon type="av_timer" /><span style={{ marginLeft: '0.15rem' }}>{time}</span></div>
+                    <div className="product-lib-org-management-log-timeLine-card-content-time">
+                      <Icon type="av_timer" />
+                      <span style={{ marginLeft: '0.15rem' }}>{time}</span>
+                    </div>
                   </div>
                   {index !== record.length - 1 && <div className="product-lib-org-management-log-timeLine-card-line" />}
                 </div>
@@ -122,7 +132,7 @@ const TimeLine = ({ formatMessage, isMore, opEventTypeLookupData, loadData, logL
                   {formatMessage({ id: 'infra.docManage.message.noOperationLog' })}
                 </div>
               </div>
-            )
+          )
         }
         {isMore && <Button type="primary" onClick={loadMoreOptsRecord}>{formatMessage({ id: 'infra.codelib.audit.view.loadMore' })}</Button>}
       </div>

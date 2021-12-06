@@ -6,17 +6,21 @@
 */
 import React, { useEffect, useState } from 'react';
 import { Icon, Tooltip } from 'choerodon-ui';
-import { Form, TextField, SelectBox, Select, NumberField, CheckBox, DateTimePicker, Button, Spin } from 'choerodon-ui/pro';
+import {
+  Form, TextField, SelectBox, Select, NumberField, CheckBox, DateTimePicker, Button, Spin,
+} from 'choerodon-ui/pro';
 import { observer, useComputed } from 'mobx-react-lite';
 import classnames from 'classnames';
-import {  v4 as uuidv4 }from 'uuid';
+import { v4 as uuidv4} from 'uuid';
 import { axios, stores } from '@choerodon/boot';
 import moment from 'moment';
 import './index.less';
 
 const { Option } = Select;
 
-const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListDs, harborId }) => {
+const DockerCreateForm = ({
+  formatMessage, dockerCreateBasicDs, modal, repoListDs, harborId,
+}) => {
   const [CVEIDList, setCVEIDList] = useState([{ _id: uuidv4() }]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,7 +39,7 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
         dockerCreateBasicDs.create({
           ...res,
         });
-        const originList = res.cveNoList.map(o => ({
+        const originList = res.cveNoList.map((o) => ({
           name: o,
           _id: uuidv4(),
         }));
@@ -54,7 +58,7 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
         const { currentMenuType: { projectId } } = stores.AppState;
         try {
           const submitData = dockerCreateBasicDs.current.toData();
-          const cveNoList = CVEIDList.map(o => o.name).filter(Boolean);
+          const cveNoList = CVEIDList.map((o) => o.name).filter(Boolean);
           if (cveNoList.length > 0) {
             submitData.cveNoList = cveNoList;
           }
@@ -71,7 +75,7 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
   }, [dockerCreateBasicDs, modal, CVEIDList]);
 
   const handleAdd = () => {
-    setCVEIDList(prevList => prevList.concat([{ _id: uuidv4() }]));
+    setCVEIDList((prevList) => prevList.concat([{ _id: uuidv4() }]));
   };
 
   const handleDelete = (id) => {
@@ -80,7 +84,6 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
       setCVEIDList(prevList => prevList.filter(o => o._id !== id));
     }
   };
-
 
   const handleCVEIDChange = (val, id) => {
     // eslint-disable-next-line
@@ -111,7 +114,8 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
     ))
   );
 
-  const cve = useComputed(() => dockerCreateBasicDs.current && dockerCreateBasicDs.current.data.cve, [dockerCreateBasicDs.current]);
+  const cve = useComputed(() => dockerCreateBasicDs.current
+  && dockerCreateBasicDs.current.data.cve, [dockerCreateBasicDs.current]);
 
   return (
     <Spin spinning={loading}>
@@ -149,12 +153,13 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
       </Form>
       <div className="c7n-pro-field-help" style={{ position: 'relative', top: '-15px' }}>如果对数量无限制，则输入-1</div>
       <div className="product-lib-pages-docker-edit-divider" />
-      <div className="product-lib-pages-docker-edit-second-title" onClick={() => setShowAdvanced(pre => !pre)}>
+      <div className="product-lib-pages-docker-edit-second-title" onClick={() => setShowAdvanced((pre) => !pre)} role="none">
         {formatMessage({ id: 'infra.prod.lib.view.advancedConf', defaultMessage: '高级配置' })}
         {showAdvanced ? <Icon type="expand_less" /> : <Icon type="expand_more" />}
       </div>
-      {showAdvanced &&
-        <React.Fragment>
+      {showAdvanced
+        && (
+        <>
           <div className="product-lib-edit-docker-form-label">
             {formatMessage({ id: 'infra.prod.lib.view.DockerRepoConf', defaultMessage: 'Docker仓库配置' })}
           </div>
@@ -222,8 +227,8 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
               </Option>
             </SelectBox>
 
-            {cve === 'useProjectCveFlag' &&
-              [
+            {cve === 'useProjectCveFlag'
+              && [
                 <DateTimePicker name="endDate" min={moment()} />,
 
                 <div className="product-lib-pages-createtrpo-select-list">
@@ -238,12 +243,11 @@ const DockerCreateForm = ({ formatMessage, dockerCreateBasicDs, modal, repoListD
                     {formatMessage({ id: 'infra.prod.lib.view.addCVE-ID', defaultMessage: '添加CVE-ID' })}
                   </Button>
                 </div>,
-              ]
-            }
+              ]}
           </Form>
-        </React.Fragment>
-      }
-    </Spin >
+        </>
+        )}
+    </Spin>
   );
 };
 

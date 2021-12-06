@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useMemo, useEffect } from 'react';
+import React, {
+  createContext, useContext, useMemo, useEffect,
+} from 'react';
 import { DataSet } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { injectIntl } from 'react-intl';
@@ -26,7 +28,8 @@ export const StoreProvider = injectIntl(observer((props) => {
   const { children, intl: { formatMessage } } = props;
   const {
     AppState: { currentMenuType: { organizationId }, getCurrentTheme },
-    intlPrefix,
+    intlPrefix, formatCommon,
+    formatClient,
   } = useProdStore();
 
   const tabs = useMemo(() => ({
@@ -40,11 +43,25 @@ export const StoreProvider = injectIntl(observer((props) => {
 
   const repoListDs = useMemo(() => new DataSet(RepoListDS({ organizationId })), [organizationId]);
 
-  const mirrorLibDs = useMemo(() => new DataSet(MirrorLibDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
-  const mirrorListDS = useMemo(() => new DataSet(MirrorListDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
-  const authListDs = useMemo(() => new DataSet(AuthListDS(intlPrefix, formatMessage, organizationId, repoListDs)), [organizationId]);
-  const logListDs = useMemo(() => new DataSet(LogListDS(formatMessage, organizationId, logTabKey, repoListDs)), [organizationId, logTabKey]);
-  const scanDetailDs = useMemo(() => new DataSet(ScanDetailDS({ organizationId })), [organizationId]);
+  const mirrorLibDs = useMemo(() => new DataSet(MirrorLibDS(
+    intlPrefix, formatMessage, organizationId, repoListDs, formatClient,
+  )), [organizationId]);
+
+  const mirrorListDS = useMemo(() => new DataSet(MirrorListDS(
+    intlPrefix, formatMessage, organizationId, repoListDs, formatClient,
+  )), [organizationId]);
+
+  const authListDs = useMemo(() => new DataSet(AuthListDS(
+    intlPrefix, formatMessage, organizationId, repoListDs, formatClient,
+  )), [organizationId]);
+
+  const logListDs = useMemo(() => new DataSet(LogListDS(
+    formatMessage, organizationId, logTabKey, repoListDs, formatClient,
+  )), [organizationId, logTabKey]);
+
+  const scanDetailDs = useMemo(() => new DataSet(
+    ScanDetailDS({ organizationId }),
+  ), [organizationId]);
 
   const baseInfoDs = useMemo(() => new DataSet(BaseInfoDS()), []);
 

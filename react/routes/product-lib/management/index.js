@@ -40,7 +40,6 @@ export default injectIntl(inject('AppState')((props) => {
   } = props;
   const { organizationId, projectId } = AppState.currentMenuType;
   const { formatMessage } = intl;
-
   const repoListDs = useMemo(() => new DataSet(repoListDataSet(intlPrefix, formatMessage, projectId)), [organizationId, projectId]);
   const overViewDs = useMemo(() => new DataSet(overViewDataSet(intlPrefix, formatMessage, organizationId, projectId)), [organizationId, projectId]);
   const mavenCreateDs = useMemo(() => new DataSet(mavenCreateDataSet(intlPrefix, formatMessage, organizationId, projectId)), [organizationId, projectId]);

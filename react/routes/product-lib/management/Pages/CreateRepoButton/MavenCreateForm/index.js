@@ -119,7 +119,8 @@ const MavenCreateForm = ({
     ))
   ), [createdRepoList, repoList]);
 
-  const type = useComputed(() => mavenCreateDs.current && mavenCreateDs.current.data.type, [mavenCreateDs.current]);
+  const type = useComputed(() => mavenCreateDs.current
+  && mavenCreateDs.current.data.type, [mavenCreateDs.current]);
 
   return (
     <Form dataSet={mavenCreateDs} columns={1}>

@@ -27,6 +27,7 @@ import org.hzero.core.base.BaseConstants;
 import org.hzero.core.util.AssertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.nexus.repository.storage.Asset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.scheduling.annotation.Async;

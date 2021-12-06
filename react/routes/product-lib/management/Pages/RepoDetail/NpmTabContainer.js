@@ -77,8 +77,6 @@ const NpmTabContainer = (props) => {
     }
   };
 
-  debugger
-
   return (
     <>
       <Header>

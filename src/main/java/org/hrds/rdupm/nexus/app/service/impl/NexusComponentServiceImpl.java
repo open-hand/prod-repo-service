@@ -36,6 +36,7 @@ import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.nexus.infra.feign.vo.ProjectVO;
 import org.hrds.rdupm.nexus.infra.mapper.NexusAssetsMapper;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
+import org.hrds.rdupm.util.JsonHelper;
 import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.slf4j.Logger;
@@ -127,6 +128,7 @@ public class NexusComponentServiceImpl implements NexusComponentService {
             NexusRepository query = new NexusRepository();
             query.setOrganizationId(organizationId);
             query.setRepoType(componentQuery.getRepoType());
+            query.setProjectId(projectId);
 
             List<NexusRepository> repositoryList = nexusRepositoryRepository.listRepositoryByProject(query, serverConfig.getConfigId());
             Map<String, NexusRepository> repositoryMap = repositoryList.stream().collect(Collectors.toMap(NexusRepository::getNeRepositoryName, k -> k));

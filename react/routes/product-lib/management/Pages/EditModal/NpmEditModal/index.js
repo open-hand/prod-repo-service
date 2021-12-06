@@ -120,7 +120,8 @@ const NpmEditModal = ({
     ))
   ), [createdRepoList, repoList]);
 
-  const type = useComputed(() => npmCreateDs.current && npmCreateDs.current.data.type, [npmCreateDs.current]);
+  const type = useComputed(() => npmCreateDs.current
+  && npmCreateDs.current.data.type, [npmCreateDs.current]);
 
   return (
     <Form dataSet={npmCreateDs} columns={1}>

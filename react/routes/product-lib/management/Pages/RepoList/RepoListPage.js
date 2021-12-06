@@ -8,6 +8,7 @@
 import React, { useMemo, useEffect, useState } from 'react';
 // import { Content } from '@choerodon/boot';
 import { Modal, Spin, Stores, Button } from 'choerodon-ui/pro';
+import { useFormatMessage } from "@choerodon/master";
 import { Icon, message, Tooltip } from 'choerodon-ui';
 import { observer, useLocalStore, Observer } from 'mobx-react-lite';
 import { axios, stores, Action } from '@choerodon/boot';
@@ -34,6 +35,8 @@ const RepoList = ({ setActiveRepository }) => {
   const [VERSION_POLICY, setVersionPolicy] = useState([]);
   const [REPOSITORY_TYPE, setRepositoryType] = useState([]);
   const currentRole = React.useContext(CurrentRoleContext).currentRole;
+
+  const format = useFormatMessage('c7ncd.productLib');
 
   useEffect(() => {
     async function init() {
@@ -382,7 +385,7 @@ const RepoList = ({ setActiveRepository }) => {
                     <div className={`${subfixCls}-bottom-field`}>
                       <div className={`${subfixCls}-bottom-field-label`}>
                         <Icon type="account_circle-o" />
-                        {`${formatMessage({ id: 'createdByName', defaultMessage: '创建人' })}：`}
+                        {`${format({ id: 'Creator' })}：`}
                       </div>
                       <div className={`${subfixCls}-bottom-field-value`}>
                         <Tooltip title={`${creatorRealName}(${creatorLoginName})`}>
@@ -394,7 +397,7 @@ const RepoList = ({ setActiveRepository }) => {
                     <div className={`${subfixCls}-bottom-field`}>
                       <div className={`${subfixCls}-bottom-field-label`}>
                         <Icon type="date_range-o" />
-                        {`${formatMessage({ id: 'creationDate', defaultMessage: '创建时间' })}：`}
+                        {`${format({ id: 'CreationTime' })}：`}
                       </div>
                       <div className={`${subfixCls}-bottom-field-value`}>
                         {creationDate}
@@ -404,7 +407,7 @@ const RepoList = ({ setActiveRepository }) => {
                       <div className={`${subfixCls}-bottom-field`}>
                         <div className={`${subfixCls}-bottom-field-label`}>
                           <Icon type="dns-o" />
-                          {`${formatMessage({ id: 'infra.prod.lib.model.repoCount', defaultMessage: '镜像数' })}：`}
+                          {`${format({ id: 'MirrorImages' })}：`}
                         </div>
                         <div className={`${subfixCls}-bottom-field-value`}>
                           {repoCount}
@@ -418,7 +421,7 @@ const RepoList = ({ setActiveRepository }) => {
                           <div className={`${subfixCls}-bottom-field`} style={{ width: '18%' }}>
                             <div className={`${subfixCls}-bottom-field-label`}>
                               <Icon type="category-o" />
-                              {`${formatMessage({ id: 'infra.prod.lib.model.type', defaultMessage: '仓库类型' })}：`}
+                              {`${format({ id: 'RepositoryType' })}：`}
                             </div>
                             <div className={`${subfixCls}-bottom-field-value`}>
                               {(REPOSITORY_TYPE.find(o => o.value === type) || {}).meaning}
@@ -429,7 +432,7 @@ const RepoList = ({ setActiveRepository }) => {
                           <div className={`${subfixCls}-bottom-field`} style={{ width: '18%' }}>
                             <div className={`${subfixCls}-bottom-field-label`}>
                               <Icon type="list" />
-                              {`${formatMessage({ id: 'infra.prod.lib.model.versionPolicy', defaultMessage: '仓库策略' })}：`}
+                              {`${format({ id: 'Strategy' })}：`}
                             </div>
                             <div className={`${subfixCls}-bottom-field-value`}>
                               {(VERSION_POLICY.find(o => o.value === versionPolicy) || {}).meaning}
@@ -452,7 +455,7 @@ const RepoList = ({ setActiveRepository }) => {
                         'choerodon.code.project.infra.product-lib.ps.project-member-npm',
                         'choerodon.code.project.infra.product-lib.ps.project-owner-npm',
                       ],
-                      text: formatMessage({ id: 'infra.prod.lib.view.detail', defaultMessage: '查看详情' }),
+                      text: format({ id: 'ViewDetails' }),
                       action: () => setActiveRepository(data),
                     }];
 
@@ -462,7 +465,7 @@ const RepoList = ({ setActiveRepository }) => {
                         'choerodon.code.project.infra.product-lib.ps.project-owner-harbor',
                         'choerodon.code.project.infra.product-lib.ps.project-owner-npm',
                       ],
-                      text: formatMessage({ id: 'infra.prod.lib.view.changeConf', defaultMessage: '修改配置' }),
+                      text: format({ id: 'ModifyConfiguration' }),
                       action: () => handleEdit(data),
                     };
 

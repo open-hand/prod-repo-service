@@ -82,5 +82,5 @@ public interface NexusComponentsApi {
      */
     void createNpmComponent(String repositoryName, InputStreamResource streamResource, NexusServer nexusServer);
 
-    List<NexusServerAsset> findAssets(String neRepositoryName, String path);
+    List<NexusServerAsset>  findAssets(String repositoryName, String path);
 }

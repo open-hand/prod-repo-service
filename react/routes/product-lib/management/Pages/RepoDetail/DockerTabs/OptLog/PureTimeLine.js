@@ -42,9 +42,9 @@ const TimeLine = ({
   }, [operateTypeLookupData]);
 
   // 更多操作
-  function loadMoreOptsRecord() {
+  const loadMoreOptsRecord = () => {
     loadData(optLogDs.currentPage + 1);
-  }
+  };
 
   const getUserIcon = (imageUrl, name = '') => {
     if (imageUrl) {
@@ -68,7 +68,10 @@ const TimeLine = ({
                   <div className="product-lib-timeLine-card-header">
                     <div className="product-lib-timeLine-card-header-icon">
                       <div style={{ display: 'flex' }}>
-                        <Icon type={getOperateTypeMeaning(operateType).icon} style={getOperateTypeMeaning(operateType).style} />
+                        <Icon
+                          type={getOperateTypeMeaning(operateType).icon}
+                          style={getOperateTypeMeaning(operateType).style}
+                        />
                         <span className="product-lib-timeLine-card-header-title">{getOperateTypeMeaning(operateType).meaning}</span>
                       </div>
                     </div>
