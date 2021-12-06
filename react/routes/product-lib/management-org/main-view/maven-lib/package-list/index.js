@@ -149,7 +149,7 @@ const PackageList = () => {
         <Column name="version" renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })} />
         <Column name="group" />
         <Column name="name" />
-        <Column name="creatorRealName" renderer={renderUserName1} width={200} />
+        <Column name="creatorRealName" renderer={renderUserName1} width={150} />
         <Column name="creationDate" renderer={renderTime1} />
       </Table>
     </div>

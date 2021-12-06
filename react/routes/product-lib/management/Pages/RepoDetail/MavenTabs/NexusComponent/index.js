@@ -4,28 +4,23 @@
 * @creationDate 2020/4/3
 * @copyright 2020 ® HAND
 */
-import React, { useEffect, useMemo } from 'react';
-import { Table, Modal } from 'choerodon-ui/pro';
-import { message } from 'choerodon-ui';
-import { axios, stores, Action } from '@choerodon/boot';
+import React, { useEffect } from 'react';
+import { Table, Button, Modal } from 'choerodon-ui/pro';
+import { Menu, Dropdown, message } from 'choerodon-ui';
+import { axios, stores } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
-import moment from 'moment';
 import UserAvatar from '@/components/user-avatar';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
+import moment from 'moment';
 import { useUserAuth } from '../../../index';
 import GuideButton from './GuideButton';
 import { TabKeyEnum } from '../../MavenTabContainer';
 import './index.less';
 
-const { Column } = Table;
-const NexusComponent = ({
-  formatMessage, nexusComponentDs, activeTabKey, repositoryId, repositoryName, enableFlag,
-}) => {
-  const userAuth = useUserAuth();
 
-  const hasPermission = useMemo(() => (
-    (userAuth.includes('projectAdmin') || userAuth.includes('developer')) && enableFlag === 'Y'
-  ), [userAuth, enableFlag]);
+const { Column } = Table;
+const NexusComponent = ({ formatMessage, nexusComponentDs, activeTabKey, repositoryId, repositoryName, enableFlag }) => {
+  const userAuth = useUserAuth();
 
   useEffect(() => {
     if (activeTabKey === TabKeyEnum.NEXUS_COMPONENT) {
@@ -35,38 +30,85 @@ const NexusComponent = ({
     }
   }, [activeTabKey, repositoryName, repositoryId]);
 
-  async function handleDeleteVerison(record) {
-    const { repository, componentIds } = record.toData();
-    const { currentMenuType: { projectId, organizationId } } = stores.AppState;
-    try {
-      await axios.delete(`/rdupm/v1/nexus-components/${organizationId}/project/${projectId}?repositoryId=${repositoryId}&repositoryName=${repository}`, { data: componentIds });
-      message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
-      nexusComponentDs.query();
-    } catch (error) {
-      // message.error(error);
-    }
-  }
-
   const handleDelete = async (record) => {
-    Modal.open({
-      title: '删除包版本',
-      children: (
+    const { repository, componentIds } = record;
+    const { currentMenuType: { projectId, organizationId } } = stores.AppState;
+    const button = await Modal.confirm({
+      title: (
         <div>
-          <p>确认要删除包版本吗？</p>
+          <p>{formatMessage({ id: 'confirm.delete', defaultMessage: '确认删除？' })}</p>
         </div>
       ),
-      onOk: () => handleDeleteVerison(record),
     });
+    if (button !== 'cancel') {
+      try {
+        await axios.delete(`/rdupm/v1/nexus-components/${organizationId}/project/${projectId}?repositoryId=${repositoryId}&&repositoryName=${repository}`, { data: componentIds });
+        message.success(formatMessage({ id: 'success.delete', defaultMessage: '删除成功' }));
+        nexusComponentDs.query();
+      } catch (error) {
+        // message.error(error);
+      }
+    }
   };
 
-  const rendererDropDown = ({ text, record }) => (
-    <GuideButton
-      text={text}
-      record={record}
-      formatMessage={formatMessage}
-      repositoryId={repositoryId}
-    />
-  );
+  const rendererDropDown = ({ text, record }) => {
+    const menu = (
+      <Menu>
+        <Menu.Item key="0">
+          <a onClick={() => handleDelete(record)}>{formatMessage({ id: 'delete', defaultMessage: '删除' })}</a>
+        </Menu.Item>
+      </Menu>
+    );
+    return (
+      <div className="product-lib-management-selfrepo-render-dropdown-column">
+        <GuideButton text={text} record={record} formatMessage={formatMessage} repositoryId={repositoryId} />
+        {(userAuth.includes('projectAdmin') || userAuth.includes('developer')) && enableFlag === 'Y' &&
+          <Dropdown overlay={menu} trigger={['click']}>
+            <Button shape="circle" icon="more_vert" style={{ flexShrink: 0, float: 'right' }} />
+          </Dropdown>
+        }
+      </div>
+    );
+  };
+
+
+  const expandedRowRenderer = ({ record }) => {
+    const { components } = record.toData();
+    return (
+      <table style={{ width: '100%' }}>
+        <tbody>
+          {
+            components.map(o => (
+              <tr key={o.id}>
+                <td style={{ paddingLeft: '10px' }}>
+                  {rendererDropDown({
+                    text: o.version,
+                    record: o,
+                  })}
+                </td>
+                <td style={{ paddingLeft: '10px' }}>{o.group}</td>
+                <td style={{ paddingLeft: '20px' }}>{o.name}</td>
+                <td style={{ paddingLeft: '20px' }}>
+                  <div style={{ display: 'inline-flex' }}>
+                    <UserAvatar
+                      user={{
+                        loginName: o.creatorLoginName,
+                        realName: o.creatorRealName,
+                        imageUrl: o.creatorImageUrl,
+                      }}
+                    />
+                  </div>
+                </td>
+                <td style={{ paddingLeft: '20px' }}>
+                  {o.creationDate && <Timeago date={moment(o.creationDate).format('YYYY-MM-DD HH:mm:ss')} />}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    );
+  };
 
   function renderName({ record }) {
     const avatar = (
@@ -83,31 +125,12 @@ const NexusComponent = ({
     return avatar;
   }
 
-  const renderAction = ({ record }) => {
-    const actionData = [{
-      text: formatMessage({ id: 'delete', defaultMessage: '删除' }),
-      action: () => handleDelete(record),
-    }];
-    return <Action data={actionData} />;
-  };
-
   return (
     <Table
       dataSet={nexusComponentDs}
-      mode="tree"
-      expandIconColumnIndex={hasPermission ? 1 : 0}
-      className="product-lib-nexusComponent-table"
+      expandedRowRenderer={expandedRowRenderer}
     >
-      {hasPermission ? <Column name="isChecked" editor width={50} /> : null}
-      <Column
-        name="version"
-        renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })}
-        tooltip="overflow"
-        className={hasPermission ? '' : 'product-lib-nexusComponent-table-version'}
-      />
-      {/* {hasPermission ? ( */}
-      <Column renderer={renderAction} width={60} />
-      {/* ) : null} */}
+      <Column name="version" renderer={({ text, record }) => rendererDropDown({ text, record: record.toData() })} />
       <Column name="group" />
       <Column name="name" />
       <Column name="creatorRealName" renderer={renderName} width={200} />

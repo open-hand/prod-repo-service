@@ -82,7 +82,7 @@ const TagModal = ({ userAuth, npmOverViewDs, repositoryId, formatMessage, reposi
   const handleDelete = async (data) => {
     const { repository, componentIds } = data;
     const button = await Modal.confirm({
-      children: (
+      title: (
         <div>
           <p>{formatMessage({ id: 'confirm.delete', defaultMessage: '确认删除？' })}</p>
         </div>

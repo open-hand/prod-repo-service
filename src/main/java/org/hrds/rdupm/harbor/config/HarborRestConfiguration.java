@@ -6,6 +6,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -33,7 +35,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Configuration
 
-public class  HarborRestConfiguration {
+public class HarborRestConfiguration {
 
     private static final int MAK_TIMEOUT = 601000;
 
@@ -68,8 +70,13 @@ public class  HarborRestConfiguration {
         PoolingHttpClientConnectionManager pollingConnectionManager = new PoolingHttpClientConnectionManager(sfr);
         pollingConnectionManager.setMaxTotal(200);
         pollingConnectionManager.setDefaultMaxPerRoute(40);
-
-        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).setConnectionManager(pollingConnectionManager).build();
+        //设置CookieSpecs.STANDARD的cookie解析模式
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(csf)
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .setConnectionManager(pollingConnectionManager)
+                .build();
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
         factory.setHttpClient(httpClient);
         factory.setConnectTimeout(MAK_TIMEOUT);

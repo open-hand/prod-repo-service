@@ -329,7 +329,9 @@ const TagList = observer(({ mirrorListDS, getCurrentTheme, scanDetailDs, dataSet
                 <td>
                   <div className="product-lib-docker-taglist-subTable-dot"><span /><span />
                   </div>
-                  {get(item, 'name')}
+                  <Tooltip title={get(item, 'name')}>
+                    {get(item, 'name')}
+                  </Tooltip>
                 </td>
                 <td><TimePopover content={get(item, 'pushTime')} /></td>
                 <td><TimePopover content={get(item, 'pullTime')} /></td>

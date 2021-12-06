@@ -29,12 +29,17 @@ public class NexusProxyConfigProperties {
 
     private String serviceRoute;
 
-    public String getUrl() {
-        return url;
+    /**
+     * 配置信息是否展示代理地址
+     */
+    private Boolean urlDisplay;
+
+    public Boolean getUrlDisplay() {
+        return urlDisplay;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUrlDisplay(Boolean urlDisplay) {
+        this.urlDisplay = urlDisplay;
     }
 
     public String getServiceRoute() {

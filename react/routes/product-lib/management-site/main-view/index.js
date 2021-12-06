@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
+
 import { Icon } from 'choerodon-ui';
 import { Page, Breadcrumb, Content } from '@choerodon/boot';
 import Loading from '@/components/loading';

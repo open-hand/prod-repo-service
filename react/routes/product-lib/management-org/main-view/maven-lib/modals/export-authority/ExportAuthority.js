@@ -16,7 +16,6 @@ class ExportAuthority extends Component {
     };
   }
 
-
   /**
    * 输出 excel
    */
@@ -66,7 +65,8 @@ class ExportAuthority extends Component {
           {' '}
           <span style={{ fontWeight: 500 }}>{title}</span>
           {' '}
-          {formatMessage({ id: 'infra.permission' })}？
+          {formatMessage({ id: 'infra.permission' })}
+          ？
         </div>
       </Modal>
     );

@@ -142,9 +142,12 @@ public class HarborClientOperator {
             }
         } else {
             if (!Objects.isNull(paramMap.get("page")) && !Objects.isNull(paramMap.get("page_size"))) {
+                //v2.0加入查询的参数resource_type代表资源的类型  operation代表操作  create表示推送
+                paramMap.put("q","resource_type=artifact");
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
                 logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
+                //2.0的日志增加了资源的类型，操作类型去掉了project
                 if (logListResult != null) {
                     logListResult = logListResult.stream().map(t -> {
                         if (t.getResource().contains(":")) {
@@ -161,16 +164,16 @@ public class HarborClientOperator {
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
                 logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
-                if (logListResult != null) {
-                    logListResult = logListResult.stream().map(t -> {
-                        if (t.getResource().contains(":")) {
-                            String[] strings = t.getResource().split(":");
-                            t.setRepoName(strings[0]);
-                            t.setTagName(strings[1]);
-                        }
-                        return t;
-                    }).collect(Collectors.toList());
-                }
+            }
+            if (logListResult != null) {
+                logListResult = logListResult.stream().map(t -> {
+                    if (t.getResource().contains(":")) {
+                        String[] strings = t.getResource().split(":");
+                        t.setRepoName(strings[0]);
+                        t.setTagName(strings[1]);
+                    }
+                    return t;
+                }).collect(Collectors.toList());
             }
         }
         return logListResult;

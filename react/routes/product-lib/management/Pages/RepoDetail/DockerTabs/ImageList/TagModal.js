@@ -6,14 +6,16 @@
 */
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { message } from 'choerodon-ui';
-import { Table, Modal, Form, TextField, Icon, Tooltip } from 'choerodon-ui/pro';
+import {
+  Table, Modal, Form, TextField, Icon, Tooltip,
+} from 'choerodon-ui/pro';
 import { Action, axios } from '@choerodon/boot';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import Timeago from '@/components/date-time-ago/DateTimeAgo';
 import moment from 'moment';
 import { get, map, forEach } from 'lodash';
-import { TimePopover } from '@choerodon/components';
-import { StatusTag } from '@choerodon/components';
+import { TimePopover, StatusTag } from '@choerodon/components';
+
 import PullGuideModal from './PullGuideModal';
 import BuildLogModal from './BuildLogModal';
 import ScanReprot from './ScanReportModal';
@@ -45,7 +47,9 @@ const iconStyle = {
   justifyContent: 'center',
 };
 
-const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, repoName, imageName, userAuth, modal, projectId }) => {
+const TagModal = ({
+  dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, repoName, imageName, userAuth, modal, projectId,
+}) => {
   async function init() {
     try {
       dockerImageTagDs.setQueryParameter('repoName', repoName);
@@ -100,19 +104,32 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
     const tooltitle = (
       <div>
         <p>
-          漏洞严重度：{get(statusMap.get(upperCode), 'name')}
-        </p>
-        <p>危急漏洞：{get(summary, 'critical') || '-'} </p>
-        <p>严重漏洞：{get(summary, 'high') || '-'}</p>
-        <p>中等漏洞：{get(summary, 'medium') || '-'}</p>
-        <p>
-          较低漏洞：{get(summary, 'low') || '-'}
+          漏洞严重度：
+          {get(statusMap.get(upperCode), 'name')}
         </p>
         <p>
-          可忽略漏洞：{get(summary, 'negligible') || '-'}
+          危急漏洞：
+          {get(summary, 'critical') || '-'}
         </p>
         <p>
-          未知漏洞：{get(summary, 'unknown') || '-'}
+          严重漏洞：
+          {get(summary, 'high') || '-'}
+        </p>
+        <p>
+          中等漏洞：
+          {get(summary, 'medium') || '-'}
+        </p>
+        <p>
+          较低漏洞：
+          {get(summary, 'low') || '-'}
+        </p>
+        <p>
+          可忽略漏洞：
+          {get(summary, 'negligible') || '-'}
+        </p>
+        <p>
+          未知漏洞：
+          {get(summary, 'unknown') || '-'}
         </p>
       </div>
     );
@@ -278,7 +295,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         service: [],
         text: formatMessage({ id: `${intlPrefix}.view.scanningReport`, defaultMessage: '漏洞扫描详情' }),
         action: () => handleScanReport({ digest, tagName }),
-      }); 
+      });
     }
     if (scanStatus === 'FAILED') {
       actionData.push({
@@ -332,18 +349,23 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
             versions.map((item) => (
               <tr>
                 <td>
-                  <div className="product-lib-docker-taglist-subTable-dot"><span /><span />
+                  <div className="product-lib-docker-taglist-subTable-dot">
+                    <span />
+                    <span />
                   </div>
-                  {get(item, 'name')}
+                  <Tooltip title={get(item, 'name')}>
+                    {get(item, 'name')}
+                  </Tooltip>
                 </td>
-                <td><Action data={
+                <td>
+                  <Action data={
                   [{
                     service: [],
                     text: '版本拉取',
                     action: () => handleOpenGuideModal({ tagName: get(item, 'name'), type: 'version' }),
                   }]
                 }
-                />
+                  />
                 </td>
                 <td><TimePopover content={get(item, 'pushTime')} /></td>
                 <td><TimePopover content={get(item, 'pullTime')} /></td>
@@ -474,17 +496,20 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
   modal.handleOk(handletest);
 
   return (
-    <React.Fragment>
+    <>
       <div
         className="product-lib-docker-taglist-search"
-        onKeyDown={(event) => {
-          if (event.keyCode === 13) {
-            dockerImageTagDs.query();
-          }
-        }}
       >
         <Form dataSet={dockerImageTagDs.queryDataSet}>
-          <TextField name="tagName" />
+          <TextField
+            name="tagName"
+            onChange={() => dockerImageTagDs.query()}
+            onKeyUp={(e) => {
+              if (!e.target.value) {
+                dockerImageTagDs.query();
+              }
+            }}
+          />
         </Form>
         <div style={{
           background: 'rgba(41, 190, 206, 0.08)',
@@ -499,7 +524,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         }}
         >
           <Icon
-            type="info" 
+            type="info"
             style={{
               fontSize: '14px',
               marginRight: '4px',
@@ -509,7 +534,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         </div>
       </div>
       <Table
-        dataSet={dockerImageTagDs} 
+        dataSet={dockerImageTagDs}
         queryBar="none"
         mode="tree"
         className="product-lib-docker-taglist-table"
@@ -542,7 +567,7 @@ const TagModal = ({ dockerImageTagDs, dockerImageScanDetailsDs, formatMessage, r
         />
         <Column name="pullTime" renderer={({ value }) => value && <Timeago date={moment(value).format('YYYY-MM-DD HH:mm:ss')} />} />
       </Table>
-    </React.Fragment>
+    </>
   );
 };
 

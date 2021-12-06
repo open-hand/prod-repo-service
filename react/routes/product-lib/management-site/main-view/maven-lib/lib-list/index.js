@@ -95,7 +95,12 @@ const MirrorLib = () => {
               repositoryId,
               projectName,
               creatorLoginName,
-              creatorRealName, creationDate, name, projectImgUrl, type, versionPolicy,
+              creatorRealName,
+              creationDate,
+              name,
+              projectImgUrl,
+              type,
+              versionPolicy,
             } = item;
             return (
               <li key={repositoryId + name}>
