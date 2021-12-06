@@ -11,7 +11,7 @@ import {
 } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
-import uuidv4 from 'uuid';
+import { v4 as uuidv4} from 'uuid';
 import useRepoList from './useRepoList';
 // eslint-disable-next-line import/no-cycle
 import { intlPrefix } from '../../../index';

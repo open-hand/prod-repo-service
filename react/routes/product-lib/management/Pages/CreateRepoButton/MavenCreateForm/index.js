@@ -12,7 +12,7 @@ import { observer, useComputed } from 'mobx-react-lite';
 import { message } from 'choerodon-ui';
 import { axios, stores } from '@choerodon/boot';
 import classnames from 'classnames';
-import uuidv4 from 'uuid';
+import {  v4 as uuidv4 }from 'uuid';
 import useRepoList from './useRepoList';
 import './index.less';
 

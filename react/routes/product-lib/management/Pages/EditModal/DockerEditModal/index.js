@@ -11,7 +11,7 @@ import {
 } from 'choerodon-ui/pro';
 import { observer, useComputed } from 'mobx-react-lite';
 import classnames from 'classnames';
-import uuidv4 from 'uuid';
+import { v4 as uuidv4} from 'uuid';
 import { axios, stores } from '@choerodon/boot';
 import moment from 'moment';
 import './index.less';
