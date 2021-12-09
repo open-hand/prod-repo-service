@@ -686,10 +686,11 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         this.setUserInfo(nexusRepositoryList);
         nexusRepositoryList.forEach(repository -> {
             NexusServerRepository nexusServerRepository = nexusServerRepositoryMap.get(repository.getNeRepositoryName());
-            NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
-            nexusRepositoryDTO.convert(repository, nexusServerRepository);
-            resultAll.add(nexusRepositoryDTO);
-
+            if (nexusServerRepository != null) {
+                NexusRepositoryDTO nexusRepositoryDTO = new NexusRepositoryDTO();
+                nexusRepositoryDTO.convert(repository, nexusServerRepository);
+                resultAll.add(nexusRepositoryDTO);
+            }
         });
     }
 
