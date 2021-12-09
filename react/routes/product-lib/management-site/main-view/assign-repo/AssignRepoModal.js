@@ -10,7 +10,7 @@ import {
 } from 'choerodon-ui/pro';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import { axios } from '@choerodon/boot';
-import {  v4 as uuidv4 }from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { reaction } from 'mobx';
 // import debounce from 'lodash/debounce';
 import './index.less';
@@ -155,9 +155,9 @@ const AssignRepoModal = ({
   }, []);
 
   const handleOrganizationChange = (value) => {
-    assignDs.getField('projectId').fetchLookup(true);
+    // console.log(assignDs.current.getField('projectId'));
+    assignDs.current.getField('projectId').fetchLookup(true);
   };
-  console.log(666);
 
   return (
     <Form dataSet={assignDs} columns={1}>
