@@ -329,6 +329,9 @@ public class NexusComponentServiceImpl implements NexusComponentService {
     }
 
     private void checkRepositoryCapacityLimit(Long organizationId, Long repositoryId, String filePath) {
+        if (StringUtils.isEmpty(filePath)) {
+            return;
+        }
         ExternalTenantVO externalTenantVO = c7nBaseService.queryTenantByIdWithExternalInfo(organizationId);
         if (Objects.isNull(externalTenantVO)) {
             throw new CommonException("tenant not exists");
