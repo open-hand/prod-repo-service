@@ -113,7 +113,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
             dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
             dto.setRealName(userDTO == null ? null : userDTO.getRealName());
             if (harborAuthMap.get(dto.getUserId()) != null) {
-                throw new CommonException("error.harbor.auth.already.exist", dto.getRealName());
+                throw new CommonException("error.harbor.auth.already.exist");
             }
 
             dto.setProjectId(projectId);
