@@ -132,7 +132,7 @@ const RepoList = ({ setActiveRepository }) => {
     Modal.open({
       key: deleteKey,
       title: formatMessage({ id: 'confirm.delete' }),
-      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMaven` }),
       okText: formatMessage({ id: 'delete' }),
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
@@ -157,7 +157,7 @@ const RepoList = ({ setActiveRepository }) => {
     Modal.open({
       key: deleteKey,
       title: formatMessage({ id: 'confirm.delete' }),
-      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteNpm` }),
       okText: formatMessage({ id: 'delete' }),
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
