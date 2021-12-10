@@ -156,6 +156,7 @@ const AssignRepoModal = ({
 
   const handleOrganizationChange = (value) => {
     // console.log(assignDs.current.getField('projectId'));
+    assignDs.current.set('projectId', null);
     assignDs.current.getField('projectId').fetchLookup(true);
   };
 
