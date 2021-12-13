@@ -17,6 +17,7 @@ import { intlPrefix } from '../../index';
 import { CurrentRoleContext } from '../index';
 import { MavenEditModal, DockerEditModal, NpmEditModal, DockerCustomEditModal } from '../EditModal';
 import { useStore } from '../../index';
+import { StatusTag  } from '@choerodon/components'
 import './index.less';
 
 const stopKey = Modal.key();
@@ -132,7 +133,7 @@ const RepoList = ({ setActiveRepository }) => {
     Modal.open({
       key: deleteKey,
       title: formatMessage({ id: 'confirm.delete' }),
-      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMaven` }),
       okText: formatMessage({ id: 'delete' }),
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
@@ -157,7 +158,7 @@ const RepoList = ({ setActiveRepository }) => {
     Modal.open({
       key: deleteKey,
       title: formatMessage({ id: 'confirm.delete' }),
-      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
+      children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteNpm` }),
       okText: formatMessage({ id: 'delete' }),
       onOk: async () => {
         const { currentMenuType: { organizationId, projectId } } = stores.AppState;
@@ -342,6 +343,12 @@ const RepoList = ({ setActiveRepository }) => {
   };
 
   const repoLostData = repoListDs.toData();
+  function renderEnabeldTag(productType, enableFlag){
+    if(['MAVEN','NPM'].includes(productType)){
+      return <StatusTag style={{marginLeft:'10px'}} colorCode={enableFlag === 'Y'? 'success': 'failed'} name={enableFlag === 'Y' ?'开启':'失效'}/>
+    }
+  }
+
 
   return (
     <ul className="product-lib-repolist">
@@ -361,6 +368,7 @@ const RepoList = ({ setActiveRepository }) => {
             sourceRepositoryId,
             projectId,
             repoName,
+            enableFlag,
           } = data;
           const subfixCls = 'product-lib-repolist-card-record-content';
           return (
@@ -377,6 +385,9 @@ const RepoList = ({ setActiveRepository }) => {
                       {publicFlag === 'false' && <Icon type="lock" style={{ color: 'rgba(104,135,232,1)', marginLeft: '6px', fontSize: 14 }} />}
                       {productType === 'DOCKER' && <span className={`${subfixCls}-top-reponame-custom-harbor`}>默认仓库</span>}
                       {productType === 'DOCKER_CUSTOM' && <span className={`${subfixCls}-top-reponame-custom-harbor`}>自定义仓库</span>}
+                      {
+                        renderEnabeldTag(productType, enableFlag)
+                      }
                     </span>
 
                   </div>

@@ -32,7 +32,7 @@ public class NexusProxyConfigProperties {
     /**
      * 配置信息是否展示代理地址
      */
-    private Boolean urlDisplay;
+    private Boolean urlDisplay = true;
 
     public Boolean getUrlDisplay() {
         return urlDisplay;
