@@ -1,25 +1,13 @@
 package org.hrds.rdupm.init.service;
 
-import java.util.List;
 import java.util.Map;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import io.choerodon.asgard.schedule.QuartzDefinition;
 import io.choerodon.asgard.schedule.annotation.JobTask;
 import io.choerodon.asgard.schedule.annotation.TimedTask;
-import org.apache.commons.collections.CollectionUtils;
-import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
-import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
-import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
-import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
-import org.hrds.rdupm.init.config.HarborInitConfiguration;
-import org.hrds.rdupm.init.dto.DevopsConfigDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
