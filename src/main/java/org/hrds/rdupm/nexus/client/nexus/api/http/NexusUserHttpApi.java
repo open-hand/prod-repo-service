@@ -27,8 +27,6 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
-import static org.codehaus.groovy.runtime.DefaultGroovyMethods.tr;
 
 /**
  * @author weisen.yang@hand-china.com 2020/3/18
