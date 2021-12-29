@@ -46,7 +46,12 @@ public class NexusGuideDTO extends NexusBaseGuideDTO {
         Map<String, Object> map = new HashMap<>(16);
         map.put("versionPolicy", nexusServerRepository.getVersionPolicy());
         map.put("repositoryName", nexusServerRepository.getName());
-        map.put("url", getProxyUrl(nexusServerRepository.getUrl(), nexusServerConfig, nexusProxyConfigProperties));
+        //配置是否显示代理地址
+        if (nexusProxyConfigProperties.getUrlDisplay()) {
+            map.put("url", getProxyUrl(nexusServerRepository.getUrl(), nexusServerConfig, nexusProxyConfigProperties));
+        } else {
+            map.put("url", nexusServerRepository.getUrl());
+        }
         map.put("type", nexusServerRepository.getType());
 
         // 发布信息
