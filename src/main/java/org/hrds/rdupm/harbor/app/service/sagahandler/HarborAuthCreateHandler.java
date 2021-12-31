@@ -90,6 +90,10 @@ public class HarborAuthCreateHandler {
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
 				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
 			}
+			HarborAuth harborAuth = repository.selectByPrimaryKey(dto.getAuthId());
+			if (harborAuth != null) {
+				dto.setObjectVersionNumber(harborAuth.getObjectVersionNumber());
+			}
 		});
 		repository.batchUpdateOptional(dtoList,HarborAuth.FIELD_HARBOR_AUTH_ID);
 	}
