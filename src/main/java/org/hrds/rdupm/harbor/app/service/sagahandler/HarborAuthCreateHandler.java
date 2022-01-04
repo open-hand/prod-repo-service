@@ -49,7 +49,7 @@ public class HarborAuthCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_USER,description = "分配权限：插入用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
-	private String insertUser(String message){
+	public String insertUser(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
 		Set<Long> userIdSet = dtoList.stream().map(dto->dto.getUserId()).collect(Collectors.toSet());
 		Map<Long,UserDTO> userDtoMap = c7nBaseService.listUsersByIds(userIdSet);
@@ -64,7 +64,7 @@ public class HarborAuthCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_AUTH,description = "分配权限：保存权限到Harbor",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 2,maxRetryCount = 3,outputSchemaClass = List.class)
-	private List<HarborAuth> insertToHarbor(String message){
+	public List<HarborAuth> insertToHarbor(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
 		for(HarborAuth dto : dtoList){
 			Map<String,Object> bodyMap = new HashMap<>(2);
@@ -79,7 +79,7 @@ public class HarborAuthCreateHandler {
 
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_DB,description = "分配权限：更新harbor_auth_id到数据库",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 3,maxRetryCount = 3)
-	private void updateToDb(String message){
+	public void updateToDb(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
 		Long harborId = dtoList.get(0).getHarborId();
 
@@ -89,6 +89,10 @@ public class HarborAuthCreateHandler {
 		dtoList.stream().forEach(dto->{
 			if(harborAuthVoMap.get(dto.getLoginName()) != null){
 				dto.setHarborAuthId(harborAuthVoMap.get(dto.getLoginName()).getHarborAuthId());
+			}
+			HarborAuth harborAuth = repository.selectByPrimaryKey(dto.getAuthId());
+			if (harborAuth != null) {
+				dto.setObjectVersionNumber(harborAuth.getObjectVersionNumber());
 			}
 		});
 		repository.batchUpdateOptional(dtoList,HarborAuth.FIELD_HARBOR_AUTH_ID);

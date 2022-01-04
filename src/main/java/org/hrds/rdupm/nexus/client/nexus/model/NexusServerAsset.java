@@ -22,6 +22,7 @@ public class NexusServerAsset {
 	private String lastDownloadDate;
 	private String createdBy;
 	private String createdByIp;
+	private Long size;
 
 
 	public class CheckSum {

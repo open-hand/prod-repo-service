@@ -41,6 +41,7 @@ public class SAXHandler extends DefaultHandler {
     private static final String ARTIFACT_ID_TAG = "artifactId";
     private static final String VERSION_TAG = "version";
     private static final String PROJECT_TAG = "project";
+    private static final String PARENT = "parent";
 
     @Override
     public void startElement(String uri, String localName,
@@ -49,13 +50,13 @@ public class SAXHandler extends DefaultHandler {
         if (StringUtils.equals(parent, PROJECT_TAG)) {
             switch (qName) {
                 case GROUP_ID_TAG:
-                    groupIdCount ++;
+                    groupIdCount++;
                     break;
                 case ARTIFACT_ID_TAG:
-                    artifactIdCount ++;
+                    artifactIdCount++;
                     break;
                 case VERSION_TAG:
-                    versionCount ++;
+                    versionCount++;
                     break;
                 default:
             }
@@ -64,7 +65,7 @@ public class SAXHandler extends DefaultHandler {
     }
 
     @Override
-    public void characters (char[] ch, int start, int length) throws SAXException {
+    public void characters(char[] ch, int start, int length) throws SAXException {
         String content = new String(ch, start, length).trim();
         String currentNode = this.stack.empty() ? null : this.stack.pop();
         if (StringUtils.isEmpty(currentNode)) {
@@ -81,10 +82,14 @@ public class SAXHandler extends DefaultHandler {
     }
 
     @Override
-    public void endElement (String uri, String localName, String qName) throws SAXException{
+    public void endElement(String uri, String localName, String qName) throws SAXException {
         String poppedElement = this.stack.empty() ? null : this.stack.pop();
         if (!StringUtils.equals(qName, poppedElement)) {
             throw new SAXException();
+        }
+
+        if (this.stack.search(PARENT) >= 1 && StringUtils.equalsIgnoreCase(qName, GROUP_ID_TAG)) {
+            groupIdCount++;
         }
 
         String parent = this.stack.empty() ? null : this.stack.peek();

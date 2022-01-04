@@ -164,18 +164,20 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             // 统计下载的次数与人数
             //自定义仓库没有存仓库id 所以这里需要查询
             getHarborProjectId(harborCustomRepo);
-            List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
-
-            Long personTimes = 0L;
-            Long downloadTimes = 0L;
-            if (!CollectionUtils.isEmpty(dataList)) {
-                downloadTimes = Long.valueOf(dataList.size());
-                Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
-                personTimes = Long.valueOf(stringListMap.keySet().size());
-            }
-            harborCustomRepo.setDownloadTimes(downloadTimes);
-            harborCustomRepo.setPersonTimes(personTimes);
-
+//            try {
+//                List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
+//                Long personTimes = 0L;
+//                Long downloadTimes = 0L;
+//                if (!CollectionUtils.isEmpty(dataList)) {
+//                    downloadTimes = Long.valueOf(dataList.size());
+//                    Map<String, List<HarborImageLog>> stringListMap = dataList.stream().collect(Collectors.groupingBy(HarborImageLog::getLoginName));
+//                    personTimes = Long.valueOf(stringListMap.keySet().size());
+//                }
+//                harborCustomRepo.setDownloadTimes(downloadTimes);
+//                harborCustomRepo.setPersonTimes(personTimes);
+//            } catch (Exception e) {
+//                LOGGER.error("query.custom.image.list", e);
+//            }
             harborCustomRepoDTOList.add(new HarborCustomRepoDTO(harborCustomRepo));
         });
         return harborCustomRepoDTOList;
@@ -251,7 +253,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createByProject(Long projectId, HarborCustomRepo harborCustomRepo) {
-        if (!harborRepositoryRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
+        if (!harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
         checkCustomRepo(harborCustomRepo);
@@ -625,9 +627,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (repoId == null || HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
             return getDefaultHarborConfig(projectId, repoId, null);
         } else if (HarborRepoDTO.CUSTOM_REPO.equals(repoType)) {
-            Set<Long> ids = new HashSet<Long>() {{
-                add(repoId);
-            }};
+            Set<Long> ids = new HashSet<>();
+            ids.add(repoId);
             return getCustomHarborConfig(projectId, ids, null, null);
         }
         return null;
@@ -825,6 +826,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void batchSaveRelationByServiceIds(Long projectId, Long repoId, String repoType, List<Long> appServiceIds) {
         if (CollectionUtils.isEmpty(appServiceIds)) {
             if (HarborRepoDTO.DEFAULT_REPO.equals(repoType)) {
@@ -847,5 +849,14 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
                 appServiceIds.forEach(appServiceId -> saveRelationByService(projectId, appServiceId, repoId));
             }
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteAllRelationByService(Long projectId, Long appServiceId) {
+        HarborRepoService harborRepoService = new HarborRepoService();
+        harborRepoService.setProjectId(projectId);
+        harborRepoService.setAppServiceId(appServiceId);
+        harborRepoServiceRepository.delete(harborRepoService);
     }
 }

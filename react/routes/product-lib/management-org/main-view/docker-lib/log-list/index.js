@@ -4,7 +4,9 @@
 * @creationDate 2020/05/6
 * @copyright 2020 ® HAND
 */
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, {
+  useEffect, useMemo, useState, useCallback,
+} from 'react';
 import { Stores, Select, TextField } from 'choerodon-ui/pro';
 import { DatePicker, Radio } from 'choerodon-ui';
 import { observer } from 'mobx-react-lite';
@@ -21,7 +23,10 @@ const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const ListView = observer(() => {
-  const { prodStore: { getSelectedMenu } } = useProdStore();
+  const {
+    prodStore: { getSelectedMenu }, formatCommon,
+    formatClient,
+  } = useProdStore();
   const {
     organizationId,
     formatMessage,
@@ -31,7 +36,9 @@ const ListView = observer(() => {
     dockerStore,
     logListDs,
   } = useDockerStore();
-  const { getTabKey, setOpeLoading, getLoadMoreBtn, setLogTabKey, getLogTabKey } = dockerStore;
+  const {
+    getTabKey, setOpeLoading, getLoadMoreBtn, setLogTabKey, getLogTabKey,
+  } = dockerStore;
 
   const [opEventTypeLookupData, setOpEventTypeLookupData] = useState([]);
   const [opMirrorLibLookupData, setOpMirrorLibLookupData] = useState([]);
@@ -55,15 +62,14 @@ const ListView = observer(() => {
       dockerStore.setLoadMoreBtn(res.hasNextPage);
       setOpeLoading(false);
       return res;
-    } else {
-      setOpeLoading(false);
-      return false;
     }
+    setOpeLoading(false);
+    return false;
   }, [logListDs]);
 
   async function getOpMirrorLibLookup() {
     const lookupData = await Stores.LookupCodeStore.fetchLookupData(`/rdupm/v1/harbor-project/all/${organizationId}`);
-    const dataList = lookupData.map(i => ({ value: i.code, meaning: i.name, id: i.id }));
+    const dataList = lookupData.map((i) => ({ value: i.code, meaning: i.name, id: i.id }));
     logListDs.queryDataSet.records[0].set('projectCode', dataList.length > 0 ? dataList[0].value : undefined);
     setDefaultMirror(dataList.length > 0 ? dataList[0].value : undefined);
     loadData();
@@ -96,7 +102,7 @@ const ListView = observer(() => {
   }, [getTabKey, getSelectedMenu, getLogTabKey]);
 
   const handleSearch = (params) => {
-    Object.entries(params).forEach(o => {
+    Object.entries(params).forEach((o) => {
       if (o[0] === 'projectCode') {
         setDefaultMirror(o[1]);
       }
@@ -106,25 +112,27 @@ const ListView = observer(() => {
     loadData();
   };
 
-  const timeLineProps = useMemo(() => ({ formatMessage, isMore: getLoadMoreBtn, opEventTypeLookupData, loadData, logListDs }), [getLoadMoreBtn, opEventTypeLookupData, loadData, logListDs]);
+  const timeLineProps = useMemo(() => ({
+    formatMessage, isMore: getLoadMoreBtn, opEventTypeLookupData, loadData, logListDs,
+  }), [getLoadMoreBtn, opEventTypeLookupData, loadData, logListDs]);
 
   const renderHeaderTool = () => (
-    <React.Fragment>
+    <>
       <Radio.Group
         value={getLogTabKey}
         onChange={handleTabChange}
         className="product-lib-org-management-log-search-radio"
       >
         <Radio.Button value="AuthLog">
-          {formatMessage({ id: 'infra.prod.lib.view.authLog', defaultMessage: '权限操作记录' })}
+          {formatClient({ id: 'docker.log.permissionOperationRecord' })}
         </Radio.Button>
         <Radio.Button value="ImgLog">
-          {formatMessage({ id: 'infra.prod.lib.view.imgLog', defaultMessage: '镜像操作记录' })}
+          {formatClient({ id: 'docker.log.imageOperationRecord' })}
         </Radio.Button>
       </Radio.Group>
       <div className="product-lib-org-management-log-search">
         {getLogTabKey === 'ImgLog' && (
-          <React.Fragment>
+          <>
             <Select
               searchable
               clearButton
@@ -134,7 +142,7 @@ const ListView = observer(() => {
               style={{ marginRight: '0.12rem', width: '3.35rem' }}
             >
               {
-                (opMirrorLibLookupData || []).map(o => (
+                (opMirrorLibLookupData || []).map((o) => (
                   <Option key={o.value} value={o.value}>
                     {`${o.meaning}(${o.value})`}
                   </Option>
@@ -154,16 +162,16 @@ const ListView = observer(() => {
               style={{ marginLeft: '0.12rem', width: '2.2rem' }}
             >
               {
-                (opEventTypeLookupData || []).map(o => (
+                (opEventTypeLookupData || []).map((o) => (
                   <Option key={o.value} value={o.value}>{o.meaning}</Option>
                 ))
               }
             </Select>
-          </React.Fragment>
+          </>
         )}
         {getLogTabKey === 'AuthLog' && (
-          <React.Fragment>
-            <TextField placeholder={formatMessage({ id: 'userName' })} onChange={(value) => handleSearch({ loginName: value })} style={{ marginRight: '0.12rem', width: '1.6rem' }} />
+          <>
+            <TextField placeholder={formatClient({ id: 'docker.log.userName' })} onChange={(value) => handleSearch({ loginName: value })} style={{ marginRight: '0.12rem', width: '1.6rem' }} />
             <RangePicker
               onChange={(_, dateString) => handleSearch({ startDate: dateString[0] ? `${dateString[0]} 00:00:00` : undefined, endDate: dateString[1] ? `${dateString[1]} 23:59:59` : undefined })}
               style={{ width: '2.46rem' }}
@@ -171,20 +179,20 @@ const ListView = observer(() => {
             <Select
               searchable
               clearButton
-              placeholder={formatMessage({ id: 'infra.codelib.audit.model.opType' })}
+              placeholder={formatClient({ id: 'docker.log.operationType' })}
               onChange={(value) => handleSearch({ operateType: value })}
               style={{ marginLeft: '0.12rem', width: '2.2rem' }}
             >
               {
-                (opEventTypeLookupData || []).map(o => (
+                (opEventTypeLookupData || []).map((o) => (
                   <Option key={o.value} value={o.value}>{o.meaning}</Option>
                 ))
               }
             </Select>
-          </React.Fragment>
+          </>
         )}
       </div>
-    </React.Fragment>
+    </>
   );
 
   return (
@@ -199,10 +207,10 @@ const ListView = observer(() => {
     //   </Content>
     // ) :
     //   (
-    <div className="product-lib-org-management-log-page" >
+    <div className="product-lib-org-management-log-page">
       {renderHeaderTool()}
       <TimeLine {...timeLineProps} />
-    </div >
+    </div>
     // )
   );
 });

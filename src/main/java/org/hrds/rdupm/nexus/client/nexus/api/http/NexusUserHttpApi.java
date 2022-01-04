@@ -27,8 +27,6 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
-import static org.codehaus.groovy.runtime.DefaultGroovyMethods.tr;
 
 /**
  * @author weisen.yang@hand-china.com 2020/3/18
@@ -93,7 +91,7 @@ public class NexusUserHttpApi implements NexusUserApi{
 
 	@Override
 	public void changePassword(String userId, String newPassword) {
-		String url = NexusUrlConstants.User.CHANGE_PASSWORD.replace("{userId}", userId);
+		String url = NexusUrlConstants.User.CHANGE_PSW.replace("{userId}", userId);
 		ResponseEntity<String> responseEntity = nexusRequest.exchange(url, HttpMethod.PUT, null, newPassword, MediaType.TEXT_PLAIN_VALUE);
 	}
 

@@ -3,7 +3,6 @@ package org.hrds.rdupm.harbor.infra.feign.fallback;
 import java.util.List;
 import java.util.Set;
 
-import feign.hystrix.FallbackFactory;
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;

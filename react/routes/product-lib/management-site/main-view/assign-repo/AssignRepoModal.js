@@ -5,10 +5,12 @@
 * @copyright 2020 ® HAND
 */
 import React, { useEffect } from 'react';
-import { Form, TextField, Select, SelectBox } from 'choerodon-ui/pro';
+import {
+  Form, TextField, Select, SelectBox,
+} from 'choerodon-ui/pro';
 import { observer, useLocalStore } from 'mobx-react-lite';
 import { axios } from '@choerodon/boot';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { reaction } from 'mobx';
 // import debounce from 'lodash/debounce';
 import './index.less';
@@ -17,7 +19,9 @@ import './index.less';
 
 const { Option } = Select;
 
-const AssignRepoModal = ({ formatMessage, assignDs, modal, name, libListDs, item, repoType }) => {
+const AssignRepoModal = ({
+  formatMessage, assignDs, modal, name, libListDs, item, repoType,
+}) => {
   const uuid = React.useRef(uuidv4()).current;
   const ulEl = React.useRef();
   const loadingEl = React.useRef(document.createElement('div')).current;
@@ -128,7 +132,7 @@ const AssignRepoModal = ({ formatMessage, assignDs, modal, name, libListDs, item
   }, []);
 
   const onPopupHiddenChange = React.useCallback(async (hidden) => {
-    await new Promise(resolve => setTimeout(() => resolve(), 500));
+    await new Promise((resolve) => setTimeout(() => resolve(), 500));
     const drwpDownEl = window.document.getElementsByClassName(uuid)[0].getElementsByTagName('ul')[0];
     ulEl.current = drwpDownEl;
     if (hidden) {
@@ -138,15 +142,23 @@ const AssignRepoModal = ({ formatMessage, assignDs, modal, name, libListDs, item
     }
   }, []);
 
-  const onInput = React.useCallback(e => {
+  const onInput = React.useCallback((e) => {
     e.persist();
     // orgStore.fetchOrgWithPara({ page: 0, tenantName: e.target.value });
-    localState.debounce(() => orgStore.fetchOrgWithPara({ page: 1, tenantName: e.target.value }), 1000);
+    localState.debounce(() => orgStore.fetchOrgWithPara(
+      { page: 1, tenantName: e.target.value },
+    ), 1000);
   }, [localState]);
 
   const onClear = React.useCallback(() => {
     orgStore.initOrg();
   }, []);
+
+  const handleOrganizationChange = (value) => {
+    // console.log(assignDs.current.getField('projectId'));
+    assignDs.current.set('projectId', null);
+    assignDs.current.getField('projectId').fetchLookup(true);
+  };
 
   return (
     <Form dataSet={assignDs} columns={1}>
@@ -158,9 +170,10 @@ const AssignRepoModal = ({ formatMessage, assignDs, modal, name, libListDs, item
         onPopupHiddenChange={onPopupHiddenChange}
         onInput={onInput}
         onClear={onClear}
+        onChange={handleOrganizationChange}
       >
         {
-          orgStore.orgList.map(o => (
+          orgStore.orgList.map((o) => (
             <Option key={o.tenantId} value={o.tenantId}>{o.tenantName}</Option>
           ))
         }
@@ -169,7 +182,6 @@ const AssignRepoModal = ({ formatMessage, assignDs, modal, name, libListDs, item
         name="projectId"
         searchable
         onClear={() => {
-          // eslint-disable-next-line
           assignDs.current && assignDs.current.set('distributeRepoAdminId', undefined);
         }}
       />

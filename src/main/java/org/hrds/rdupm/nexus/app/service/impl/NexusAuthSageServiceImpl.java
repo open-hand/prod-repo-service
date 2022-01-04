@@ -29,6 +29,7 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.AopProxy;
 import org.hzero.core.base.BaseConstants;
+import org.hzero.core.util.AssertUtils;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,6 +182,7 @@ public class NexusAuthSageServiceImpl implements NexusAuthSageService, AopProxy<
 
 
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, nexusAuth.getUserId()).stream().findFirst().orElse(null);
+        AssertUtils.notNull(prodUser, "error.prod.user.not.exist");
         String password = null;
         if (prodUser.getPwdUpdateFlag() == 1) {
             password = DESEncryptUtil.decode(prodUser.getPassword());

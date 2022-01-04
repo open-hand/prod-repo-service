@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
 * 制品库自建或关联仓库查询
 * @author LZY <zhuyan.luo@hand-china.com>
@@ -5,20 +6,28 @@
 * @copyright 2020 ® HAND
 */
 import React, { useEffect } from 'react';
-import { Icon, Row, Col, message, Tooltip } from 'choerodon-ui';
-import { Pagination, Spin, Modal, Form, Select, Button } from 'choerodon-ui/pro';
+import {
+  Icon, Row, Col, message, Tooltip,
+} from 'choerodon-ui';
+import {
+  Pagination, Spin, Modal, Form, Select, Button,
+} from 'choerodon-ui/pro';
 import { Choerodon, Action } from '@choerodon/boot';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
 import { useDockerStore } from '../stores';
-import { useProdStore } from '../../../stores';
+import { useProdStore } from '@/routes/product-lib/management-org/stores/index';
 import ResourceConfig from '../modals/resource-config';
 import './index.less';
 
 const { Option } = Select;
 
 const MirrorLib = () => {
-  const { prodStore: { setDockerRepoInfo, getSelectedMenu } } = useProdStore();
+  const {
+    prodStore: { setDockerRepoInfo, getSelectedMenu },
+    formatClient,
+    // formatCommon,
+  } = useProdStore();
   const {
     tabs: {
       MIRROR_TAB,
@@ -31,9 +40,9 @@ const MirrorLib = () => {
   } = useDockerStore();
   const { setTabKey, getTabKey, updateAuth } = dockerStore;
 
-  function refresh() {
+  const refresh = () => {
     mirrorLibDs.query();
-  }
+  };
   useEffect(() => {
     if (getTabKey === MIRROR_TAB) {
       refresh();
@@ -45,7 +54,7 @@ const MirrorLib = () => {
     const flag = publicFlag === 'true' ? 'false' : 'true';
     try {
       await updateAuth(item, flag)
-        .then(res => {
+        .then((res) => {
           if (res.failed) {
             throw res.message;
           } else {
@@ -57,41 +66,7 @@ const MirrorLib = () => {
       message.error(error);
     }
   }
-  // async function handleDeleteMirror(item) {
-  //   const result = await deleteMirror(item)
-  //     .then((res) => {
-  //       if (res.failed) {
-  //         message.error(res.message);
-  //         return false;
-  //       } else {
-  //         Choerodon.prompt(formatMessage({ id: 'success.delete' }));
-  //         mirrorLibDs.query();
-  //         return true;
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       Choerodon.handleResponseError(error);
-  //       return false;
-  //     });
-  //   return result;
-  // }
-  // const openDelete = (item) => {
-  //   Modal.open({
-  //     key: deleteKey,
-  //     title: formatMessage({ id: 'confirm.delete' }),
-  //     children: formatMessage({ id: `${intlPrefix}.view.confirm.deleteMirror` }),
-  //     okText: formatMessage({ id: 'delete' }),
-  //     okProps: { color: 'red' },
-  //     cancelProps: { color: 'dark' },
-  //     onOk: () => handleDeleteMirror(item),
-  //     footer: ((okBtn, cancelBtn) => (
-  //       <React.Fragment>
-  //         {cancelBtn}{okBtn}
-  //       </React.Fragment>
-  //     )),
-  //     movable: false,
-  //   });
-  // };
+
   const openConfigModal = (code, projectId) => {
     const key = Modal.key();
     Modal.open({
@@ -117,7 +92,9 @@ const MirrorLib = () => {
 
   const renderer = ({ text, record }) => (
     <div style={{ width: '100%' }}>
-      {text} {text && `(${record.get('code')})`}
+      {text}
+      {' '}
+      {text && `(${record.get('code')})`}
     </div>
   );
 
@@ -155,7 +132,7 @@ const MirrorLib = () => {
         </Select>
         <div colSpan={5} style={{ width: '0.46rem', float: 'right' }}>
           <Button funcType="raised" type="reset" className="product-lib-org-management-mirror-lib-filter-form-btn">
-            {formatMessage({ id: 'reset' })}
+            {formatClient({ id: 'docker.mirrorWarehouse.reset' })}
           </Button>
         </div>
       </Form>
@@ -186,13 +163,14 @@ const MirrorLib = () => {
     );
   };
 
-
   function renderData() {
     return listData ? (
       <ul>
         {
-          listData.map(item => {
-            const { id, code, creatorLoginName, creatorRealName, creationDate, name, publicFlag, repoCount } = item;
+          listData.map((item) => {
+            const {
+              id, code, creatorLoginName, creatorRealName, creationDate, name, publicFlag, repoCount,
+            } = item;
             return (
               <li key={id + code}>
                 <div className="product-lib-org-management-mirror-lib-list-card">
@@ -200,12 +178,13 @@ const MirrorLib = () => {
                     <Col span={9} className="product-lib-org-management-mirror-lib-list-card-header-icon">
                       {/* {rendererOnlineStatus(online)} */}
                       <span
+                        role="none"
                         className="product-lib-org-management-mirror-lib-list-card-header-title c7ncd-prolib-clickText"
                         onClick={() => handleToPackage(item)}
                       >
                         {code}
                       </span>
-                      <Tooltip title={publicFlag === 'true' ? formatMessage({ id: `${intlPrefix}.view.public` }) : formatMessage({ id: `${intlPrefix}.view.private` })} >
+                      <Tooltip title={publicFlag === 'true' ? formatMessage({ id: `${intlPrefix}.view.public` }) : formatMessage({ id: `${intlPrefix}.view.private` })}>
                         <Icon type={publicFlag === 'true' ? 'unlock' : 'lock'} onClick={() => handleUpdateAuth({ item, publicFlag })} />
                       </Tooltip>
                     </Col>
@@ -224,29 +203,30 @@ const MirrorLib = () => {
                       </div>
                       <span className="product-lib-org-management-mirror-lib-list-card-header-project-name">{name}</span>
                     </Col>
-                    {/* <Col span={4} className="product-lib-org-management-mirror-lib-list-card-header-btn">
-                      <div
-                        onClick={() => openConfigModal(code)}
-                        className="product-lib-org-management-mirror-lib-list-card-header-btn-guide"
-                      >
-                        {formatMessage({ id: `${intlPrefix}.view.resourceConfig` })}
-                      </div>
-                    </Col> */}
                   </Row>
                   <Row className="product-lib-org-management-mirror-lib-list-card-footer">
                     <Col span={9}>
                       <Icon type="account_circle-o" />
-                      <span>{formatMessage({ id: `${intlPrefix}.model.createdBy` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.createdBy` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-mirror-lib-list-card-footer-text">{creatorRealName ? `${creatorRealName} (${creatorLoginName})` : ''}</span>
                     </Col>
                     <Col span={9} className="product-lib-org-management-mirror-lib-list-card-header-project">
                       <Icon type="date_range" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.creationDate` })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.creationDate` })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-mirror-lib-list-card-footer-text">{creationDate}</span>
                     </Col>
                     <Col span={5} className="product-lib-org-management-mirror-lib-list-card-header-project">
                       <Icon type="dns-o" />
-                      <span >{formatMessage({ id: `${intlPrefix}.model.repoCount`, defaultMessage: '镜像数' })}：</span>
+                      <span>
+                        {formatMessage({ id: `${intlPrefix}.model.repoCount`, defaultMessage: '镜像数' })}
+                        ：
+                      </span>
                       <span className="product-lib-org-management-mirror-lib-list-card-footer-text">{repoCount}</span>
                     </Col>
                     <Col span={1} className="product-lib-org-management-mirror-lib-list-card-footer-action">
@@ -262,7 +242,6 @@ const MirrorLib = () => {
     ) : null;
   }
 
-
   return (
     <div className="product-lib-org-management-mirror-lib">
       <Spin dataSet={mirrorLibDs}>
@@ -270,20 +249,20 @@ const MirrorLib = () => {
           {renderFilterForm()}
           {
             listData && listData.length > 0 ? (
-              <React.Fragment>
+              <>
                 <div className="product-lib-org-management-mirror-lib-list-body">
                   {renderData()}
                 </div>
                 <div className="product-lib-org-management-mirror-lib-pagination">
                   <Pagination dataSet={mirrorLibDs} />
                 </div>
-              </React.Fragment>
+              </>
             ) : (
                 // eslint-disable-next-line react/jsx-indent
                 <div className="product-lib-org-management-mirror-lib-list-no-content">
-                  {formatMessage({ id: `${intlPrefix}.view.noContent` })}
+                  {formatClient({ id: 'docker.mirrorWarehouse.noData' })}
                 </div>
-              )
+            )
           }
         </div>
       </Spin>

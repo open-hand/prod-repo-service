@@ -38,6 +38,10 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 @Component
 public class HarborClientOperator {
     private static Gson gson = new Gson();
+
+    private static final Integer HARBOR_BEING_PAGE = 1;
+    private static final Integer HARBOR_MAX_PAGE_SIZE = 100;
+
     @Autowired
     private HarborHttpClient harborHttpClient;
     @Autowired
@@ -61,98 +65,97 @@ public class HarborClientOperator {
         return listImageLogs(paramMap, harborRepository.getHarborId(), harborRepository.getCode(), adminAccountFlag);
     }
 
-    public List<HarborImageLog> listCustomImageLogs(HarborCustomRepo harborCustomRepo) {
-        //自定harbor仓库日志
-        return listCustomImageLogs(harborCustomRepo.getHarborProjectId(), harborCustomRepo.getRepoName());
-    }
+    /**
+     * 自定义仓库不展示日志 不查询
+     *
+     * @param harborCustomRepo
+     * @return
+     */
+//    public List<HarborImageLog> listCustomImageLogs(HarborCustomRepo harborCustomRepo) {
+//        //自定harbor仓库日志
+//        return listCustomImageLogs(harborCustomRepo.getHarborProjectId(), harborCustomRepo.getRepoName());
+//    }
 
-    private List<HarborImageLog> listCustomImageLogs(Integer harborProjectId, String harborProjectCode) {
-        ResponseEntity<String> responseEntity;
-        List<HarborImageLog> logListResult = new ArrayList<>();
-        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
-            int page = 1;
-            int pageSize = 200;
-            List<HarborImageLog> harborImageLogs = new ArrayList<>();
-            do {
-                Map<String, Object> paramMap = new HashMap<>();
-                paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
-                paramMap.put("page", page);
-                paramMap.put("page_size", pageSize);
-                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectId);
-                harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-                }.getType());
-                page++;
-                pageSize = +10;
-                if (!CollectionUtils.isEmpty(harborImageLogs)) {
-                    logListResult.addAll(harborImageLogs);
-                }
-            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
-        } else {
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
-            paramMap.put("page", 0);
-            paramMap.put("page_size", 0);
-            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectCode);
-            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-            }.getType());
-            if (logListResult != null) {
-                logListResult = logListResult.stream().map(t -> {
-                    if (t.getResource().contains(":")) {
-                        String[] strings = t.getResource().split(":");
-                        t.setRepoName(strings[0]);
-                        t.setTagName(strings[1]);
-                    }
-                    return t;
-                }).collect(Collectors.toList());
-            }
-        }
-        return logListResult;
-    }
-
-
+//    private List<HarborImageLog> listCustomImageLogs(Integer harborProjectId, String harborProjectCode) {
+//        ResponseEntity<String> responseEntity;
+//        List<HarborImageLog> logListResult = new ArrayList<>();
+//        if (HarborUtil.isApiVersion1(harborHttpClient.getHarborCustomConfiguration())) {
+//            int page = 1;
+//            int pageSize = 200;
+//            List<HarborImageLog> harborImageLogs = new ArrayList<>();
+//            do {
+//                Map<String, Object> paramMap = new HashMap<>();
+//                paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
+//                paramMap.put("page", page);
+//                paramMap.put("page_size", pageSize);
+//                responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectId);
+//                harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+//                }.getType());
+//                page++;
+//                pageSize = +10;
+//                if (!CollectionUtils.isEmpty(harborImageLogs)) {
+//                    logListResult.addAll(harborImageLogs);
+//                }
+//            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
+//        } else {
+//            Map<String, Object> paramMap = new HashMap<>();
+//            paramMap.put("operation", HarborConstants.HarborImageOperateEnum.PULL.getOperateType());
+//            paramMap.put("page", 0);
+//            paramMap.put("page_size", 0);
+//            responseEntity = harborHttpClient.customExchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, harborProjectCode);
+//            logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+//            }.getType());
+//            if (logListResult != null) {
+//                logListResult = logListResult.stream().map(t -> {
+//                    if (t.getResource().contains(":")) {
+//                        String[] strings = t.getResource().split(":");
+//                        if (strings != null && strings.length >= 2) {
+//                            t.setRepoName(strings[0]);
+//                            t.setTagName(strings[1]);
+//                        }
+//                    }
+//                    return t;
+//                }).collect(Collectors.toList());
+//            }
+//        }
+//        return logListResult;
+//    }
     public List<HarborImageLog> listImageLogs(Map<String, Object> paramMap, Long harborProjectId, String harborProjectCode, Boolean adminAccountFlag) {
         ResponseEntity<String> responseEntity;
         List<HarborImageLog> logListResult = new ArrayList<>();
         if (HarborUtil.isApiVersion1(harborHttpClient.getHarborInfo())) {
             List<HarborImageLog> harborImageLogs = new ArrayList<>();
-            //分页查询：
-            if (!Objects.isNull(paramMap.get("page")) && !Objects.isNull(paramMap.get("page_size"))) {
+            //统一取两百条
+            int page = HARBOR_BEING_PAGE;
+            int pageSize = HARBOR_MAX_PAGE_SIZE;
+            do {
+                paramMap.put("page", page);
+                paramMap.put("page_size", pageSize);
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectId);
                 harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
-                logListResult.addAll(harborImageLogs);
-            } else {
-                int page = 1;
-                int pageSize = 100;
-                do {
-                    paramMap.put("page", page);
-                    paramMap.put("page_size", pageSize);
-                    responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectId);
-                    harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-                    }.getType());
-                    page++;
-                    pageSize = +10;
-                    if (!CollectionUtils.isEmpty(harborImageLogs)) {
-                        logListResult.addAll(harborImageLogs);
-                    }
-                    //v1.0没有一次性查询所有日志的接口，所以只统计最近200条  不然接口会超时
-                } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
-            }
+                page++;
+                if (!CollectionUtils.isEmpty(harborImageLogs)) {
+                    logListResult.addAll(harborImageLogs);
+                }
+                //v1.0没有一次性查询所有日志的接口，所以只统计最近200条  不然接口会超时
+            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
         } else {
-            if (!Objects.isNull(paramMap.get("page")) && !Objects.isNull(paramMap.get("page_size"))) {
-                //v2.0加入查询的参数resource_type代表资源的类型  operation代表操作  create表示推送
-                paramMap.put("q","resource_type=artifact");
+            List<HarborImageLog> harborImageLogs = new ArrayList<>();
+            //统一取两百条 开始是1
+            int page = HARBOR_BEING_PAGE;
+            int pageSize = HARBOR_MAX_PAGE_SIZE;
+            do {
+                paramMap.put("page", page);
+                paramMap.put("page_size", pageSize);
                 responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
-                logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
+                harborImageLogs = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
                 }.getType());
-                //2.0的日志增加了资源的类型，操作类型去掉了project
-            } else {
-                paramMap.put("page", 0);
-                paramMap.put("page_size", 0);
-                responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_LOGS_PROJECT, paramMap, null, adminAccountFlag, harborProjectCode);
-                logListResult = gson.fromJson(responseEntity.getBody(), new TypeToken<List<HarborImageLog>>() {
-                }.getType());
-            }
+                page++;
+                if (!CollectionUtils.isEmpty(harborImageLogs)) {
+                    logListResult.addAll(harborImageLogs);
+                }
+            } while (!CollectionUtils.isEmpty(harborImageLogs) && page <= 2);
             if (logListResult != null) {
                 logListResult = logListResult.stream().map(t -> {
                     if (t.getResource().contains(":")) {

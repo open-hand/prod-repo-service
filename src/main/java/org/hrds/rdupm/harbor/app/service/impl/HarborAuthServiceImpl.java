@@ -47,6 +47,8 @@ import org.hzero.export.annotation.ExcelExport;
 import org.hzero.export.vo.ExportParam;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -59,6 +61,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class HarborAuthServiceImpl implements HarborAuthService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HarborAuthServiceImpl.class);
 
     @Autowired
     private HarborRepositoryRepository harborRepositoryRepository;
@@ -109,7 +113,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
             dto.setLoginName(userDTO == null ? null : userDTO.getLoginName());
             dto.setRealName(userDTO == null ? null : userDTO.getRealName());
             if (harborAuthMap.get(dto.getUserId()) != null) {
-                throw new CommonException("error.harbor.auth.already.exist", dto.getRealName());
+                throw new CommonException("error.harbor.auth.already.exist");
             }
 
             dto.setProjectId(projectId);
@@ -236,8 +240,10 @@ public class HarborAuthServiceImpl implements HarborAuthService {
                     .andEqualTo(HarborAuth.FIELD_PROJECT_ID, harborAuth.getProjectId())
                     .andEqualTo(HarborAuth.FIELD_AUTH_ID, harborAuth.getAuthId())
             ).build()).stream().findFirst().orElse(null);
-            harborAuth.setObjectVersionNumber(dbAuth.getObjectVersionNumber());
-            harborAuth.setHarborAuthId(dbAuth.getHarborAuthId());
+            if (!Objects.isNull(dbAuth)) {
+                harborAuth.setObjectVersionNumber(dbAuth.getObjectVersionNumber());
+                harborAuth.setHarborAuthId(dbAuth.getHarborAuthId());
+            }
         }
     }
 
@@ -277,7 +283,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         memberMap.put("username", dto.getLoginName());
         bodyMap.put("role_id", dto.getHarborRoleId());
         bodyMap.put("member_user", memberMap);
-        harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH, null, bodyMap, false, harborId);
+        harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH, null, bodyMap, true, harborId);
 
         ResponseEntity<String> responseEntity = harborHttpClient.exchange(HarborConstants.HarborApiEnum.LIST_AUTH, null, null, true, harborId);
         List<HarborAuthVo> harborAuthVoList = new Gson().fromJson(responseEntity.getBody(), new TypeToken<List<HarborAuthVo>>() {
@@ -325,6 +331,9 @@ public class HarborAuthServiceImpl implements HarborAuthService {
                 .andEqualTo(HarborAuth.FIELD_ORGANIZATION_ID, DetailsHelper.getUserDetails().getTenantId())
                 .andEqualTo(HarborAuth.FIELD_AUTH_ID, harborAuth.getAuthId())
         ).build()).stream().findFirst().orElse(null);
+        if (Objects.isNull(dbAuth)) {
+            return;
+        }
         //非仓库管理员角色更新删除，通过
         if (!HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleId().equals(dbAuth.getHarborRoleId())) {
             return;
@@ -360,7 +369,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         if (HarborConstants.ADMIN.equals(loginName)) {
             loginName = harborInfoConfiguration.getUsername();
         }
-
         //数据库插入制品库用户
         String password = HarborUtil.getPassword();
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
@@ -369,7 +377,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         ProdUser prodUser = new ProdUser(userId, loginName, password, 0);
         ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
         String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
-
         //若为管理员用户，则不创建
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             return;
@@ -380,7 +387,6 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME, paramMap, null, true);
         List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
         Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto -> dto));
-
         //Harbor中新建用户
         if (userMap.get(loginName) == null) {
             User user = new User(loginName, email, newPassword, realName);
@@ -392,7 +398,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
             try {
                 harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD, null, bodyMap, true, userMap.get(loginName).getUserId());
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("error.change.psw", e);
             }
         }
     }

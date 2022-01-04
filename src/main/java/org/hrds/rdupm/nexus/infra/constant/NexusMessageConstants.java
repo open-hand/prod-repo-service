@@ -52,7 +52,7 @@ public interface NexusMessageConstants {
 	/**
 	 * 填写了远程仓库账号，必须填写账号密码
 	 */
-	String NEXUS_REMOTE_USER_PASSWORD_NOT_EMPTY = "error.nexus.remote.user.password.not.empty";
+	String NEXUS_REMOTE_USER_PSW_NOT_EMPTY = "error.nexus.remote.user.password.not.empty";
 	/**
 	 * 仓库组成员不能为空
 	 */
@@ -76,7 +76,7 @@ public interface NexusMessageConstants {
 	/**
 	 * 用户名或密码错误
 	 */
-	String NEXUS_USER_AND_PASSWORD_ERROR = "error.nexus.user.and.password.error";
+	String NEXUS_USER_AND_PSW_ERROR = "error.nexus.user.and.password.error";
 	/**
 	 * 关联仓库不存在：{0}
 	 */
@@ -109,19 +109,19 @@ public interface NexusMessageConstants {
 	/**
 	 * 新密码不能为空
 	 */
-	String NEXUS_NEW_PASSWORD_NOT_NULL = "error.nexus.new.password.not.null";
+	String NEXUS_NEW_PSW_NOT_NULL = "error.nexus.new.password.not.null";
 	/**
 	 * 旧密码不能为空
 	 */
-	String NEXUS_OLD_PASSWORD_NOT_NULL = "error.nexus.old.password.not.null";
+	String NEXUS_OLD_PSW_NOT_NULL = "error.nexus.old.password.not.null";
 	/**
 	 * 不能更改其它仓库管理用户密码
 	 */
-	String NEXUS_NOT_CHANGE_OTHER_REPO_PWD = "error.nexus.not.change.other.repo.password";
+	String NEXUS_NOT_CHANGE_OTHER_REPO_PSW = "error.nexus.not.change.other.repo.password";
 	/**
 	 * 原密码填写错误
 	 */
-	String NEXUS_OLD_PASSWORD_ERROR = "error.nexus.old.password.error";
+	String NEXUS_OLD_PSW_ERROR = "error.nexus.old.password.error";
 	/**
 	 * {0}仓库对应关联角色不存在
 	 */
@@ -200,7 +200,7 @@ public interface NexusMessageConstants {
 	/**
 	 * 新密码输入错误
 	 */
-	String NEXUS_NEW_PASSWORD_ERROR = "error.nexus.new.password";
+	String NEXUS_NEW_PSW_ERROR = "error.nexus.new.password";
 	/**
 	 * 当前项目，启用的nexus服务，未开启匿名访问控制。不能设置为：不允许匿名访问。(请在自定义nexus服务中查看)
 	 */

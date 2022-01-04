@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, { useCallback, useMemo } from 'react';
 import { Tooltip, Icon } from 'choerodon-ui';
+import { useFormatMessage } from "@choerodon/master";
 import { Modal, Button } from 'choerodon-ui/pro';
 import { Permission } from '@choerodon/boot';
 import NexusAssociateModal from './NexusAssociateModal';
@@ -9,6 +10,8 @@ const intlPrefix = 'infra.prod.lib';
 
 const NexusAssociateBtn = ({ formatMessage, init }) => {
   const nexusAssociateModalProps = useMemo(() => ({ init, formatMessage }), [init, formatMessage]);
+
+  const format = useFormatMessage('c7ncd.productLib');
 
   const title =
     (
@@ -47,7 +50,7 @@ const NexusAssociateBtn = ({ formatMessage, init }) => {
         onClick={openModal}
         color="primary"
       >
-        {formatMessage({ id: `${intlPrefix}.view.customNexus`, defaultMessage: '自定义nexus服务' })}
+        {format({ id: 'CustomizeService' })}
       </Button>
     </Permission>
   );

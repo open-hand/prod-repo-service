@@ -5,6 +5,7 @@ import java.util.Set;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
 import org.hrds.rdupm.harbor.domain.entity.HarborAllRepoDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
@@ -29,8 +30,8 @@ public interface HarborCustomRepoService {
      * 判断是否存在共享仓库
      *
      * @param projectId
-     * @author mofei.li@hand-china.com 2020-06-12 11:24
      * @return
+     * @author mofei.li@hand-china.com 2020-06-12 11:24
      */
     Boolean existProjectShareCustomRepo(Long projectId);
 
@@ -38,8 +39,8 @@ public interface HarborCustomRepoService {
      * 项目层-查询自定义仓库列表（制品库管理页面）
      *
      * @param projectId
-     * @author mofei.li@hand-china.com 2020-06-05 14:30
      * @return List<HarborCustomRepoDTO>
+     * @author mofei.li@hand-china.com 2020-06-05 14:30
      */
     List<HarborCustomRepoDTO> listByProjectId(Long projectId);
 
@@ -48,8 +49,8 @@ public interface HarborCustomRepoService {
      *
      * @param harborCustomRepo
      * @param pageRequest
-     * @author mofei.li@hand-china.com 2020-06-08 13:45
      * @return Page<HarborCustomRepo>
+     * @author mofei.li@hand-china.com 2020-06-08 13:45
      */
     Page<HarborCustomRepo> listByOrg(HarborCustomRepo harborCustomRepo, PageRequest pageRequest);
 
@@ -57,8 +58,8 @@ public interface HarborCustomRepoService {
      * 根据自定义仓库ID查询详情
      *
      * @param repoId
-     * @author mofei.li@hand-china.com 2020-06-05 14:30
      * @return HarborCustomRepo
+     * @author mofei.li@hand-china.com 2020-06-05 14:30
      */
     HarborCustomRepo detailByRepoId(Long repoId);
 
@@ -101,8 +102,8 @@ public interface HarborCustomRepoService {
      * 查询当前自定义仓库未关联的应用服务
      *
      * @param repoId
-     * @author mofei.li@hand-china.com 2020-06-05 15:06
      * @return List<AppServiceDTO>
+     * @author mofei.li@hand-china.com 2020-06-05 15:06
      */
     List<AppServiceDTO> getNoRelatedAppService(Long repoId);
 
@@ -115,14 +116,15 @@ public interface HarborCustomRepoService {
      * @param pageRequest
      * @return Page<AppServiceDTO>
      */
-    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, Long  customRepoId, String appServiceName, String appServiceCode, PageRequest pageRequest);
+    Page<AppServiceDTO> pageRelatedServiceByProject(Long projectId, Long customRepoId, String appServiceName, String appServiceCode, PageRequest pageRequest);
 
     /**
      * 项目层-删除自定义仓库-应用服务关联关系
-     * @param appServiceId 应用服务ID
+     *
+     * @param appServiceId     应用服务ID
      * @param harborCustomRepo 自定义仓库
-     * @author mofei.li@hand-china.com 2020-06-09 17:47
      * @return
+     * @author mofei.li@hand-china.com 2020-06-09 17:47
      */
     void deleteRelation(Long appServiceId, HarborCustomRepo harborCustomRepo);
 
@@ -137,54 +139,55 @@ public interface HarborCustomRepoService {
 
 
     //--------------------------------------  提供给猪齿鱼应用服务调用   -------------------------------------//
+
     /**
      * 应用服务-查询项目下所有猪齿鱼应用服务
      *
      * @param projectId 猪齿鱼项目ID
-     * @author mofei.li@hand-china.com 2020-06-08 16:49
      * @return List<HarborCustomRepo>
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
      */
     List<HarborCustomRepo> listAllCustomRepoByProject(Long projectId);
 
     /**
      * 应用服务-查询已关联的自定义仓库
      *
-     * @param projectId 猪齿鱼项目ID
+     * @param projectId    猪齿鱼项目ID
      * @param appServiceId 应用服务ID
-     * @author mofei.li@hand-china.com 2020-06-08 16:49
      * @return HarborCustomRepo
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
      */
     HarborCustomRepo listRelatedCustomRepoOrDefaultByService(Long projectId, Long appServiceId);
 
     /**
      * 应用服务-保存关联关系
      *
-     * @param projectId 猪齿鱼项目ID
+     * @param projectId    猪齿鱼项目ID
      * @param appServiceId 应用服务ID
      * @param customRepoId 自定义仓库ID
-     * @author mofei.li@hand-china.com 2020-06-08 16:49
      * @return
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
      */
     void saveRelationByService(Long projectId, Long appServiceId, Long customRepoId);
 
     /**
      * 应用服务-删除关联关系
      *
-     * @param projectId 猪齿鱼项目ID
+     * @param projectId    猪齿鱼项目ID
      * @param appServiceId 应用服务ID
      * @param customRepoId 自定义仓库ID
-     * @author mofei.li@hand-china.com 2020-06-08 16:49
      * @return
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
      */
     void deleteRelationByService(Long projectId, Long appServiceId, Long customRepoId);
 
     /**
      * 流水线-查询Harbor仓库配置接口
      *
-     * @param projectId 猪齿鱼项目ID
+     * @param projectId    猪齿鱼项目ID
      * @param appServiceId 应用服务ID
-     * @author mofei.li@hand-china.com 2020-06-08 16:49
      * @return
+     * @author mofei.li@hand-china.com 2020-06-08 16:49
      */
     HarborRepoDTO getHarborRepoConfig(Long projectId, Long appServiceId);
 
@@ -192,8 +195,8 @@ public interface HarborCustomRepoService {
      * 根据harbor仓库ID查询仓库配置
      *
      * @param projectId 猪齿鱼项目ID
-     * @param repoId 仓库ID
-     * @param repoType 仓库类型
+     * @param repoId    仓库ID
+     * @param repoType  仓库类型
      * @return
      */
     HarborRepoDTO getHarborRepoConfigByRepoId(Long projectId, Long repoId, String repoType);
@@ -224,4 +227,6 @@ public interface HarborCustomRepoService {
      * @param appServiceIds
      */
     void batchSaveRelationByServiceIds(Long projectId, Long repoId, String repoType, List<Long> appServiceIds);
+
+    void deleteAllRelationByService(Long projectId, Long appServiceId);
 }

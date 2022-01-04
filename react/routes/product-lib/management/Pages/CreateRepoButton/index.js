@@ -1,13 +1,14 @@
+/* eslint-disable */
 import React, { useCallback, useMemo } from 'react';
 // import {  } from 'choerodon-ui';
 import { Modal, Button } from 'choerodon-ui/pro';
 import { Permission, axios, stores } from '@choerodon/boot';
+import { useFormatMessage } from '@choerodon/master';
 import { useLocalStore, observer, Observer } from 'mobx-react-lite';
 import { reaction, when } from 'mobx';
 import CreateRepoModal from './CreateRepoModal';
 import { intlPrefix } from '../../index';
 import './index.less';
-
 
 export const useOpenModal = ({
   init,
@@ -77,10 +78,10 @@ export const useOpenModal = ({
 
   const openModal = useCallback(async () => {
     const key = Modal.key();
-    
+
     const { currentMenuType: { projectId, organizationId } } = stores.AppState;
     const res = await axios.get(`/rdupm/v1/${organizationId}/nexus-server-configs/project/${projectId}/list`);
-    const enableFlagItem = res.find(o => o.enableFlag === 1);
+    const enableFlagItem = res.find((o) => o.enableFlag === 1);
     const { enableAnonymousFlag } = enableFlagItem;
 
     modal.current = Modal.open({
@@ -99,10 +100,10 @@ export const useOpenModal = ({
       footer: (okBtn, cancelBtn) => (
         <Observer>
           {() => (
-            <React.Fragment>
+            <>
+              {[cancelBtn, okBtn]}
               {testBtnStore.isShow && <Button color="primary" funcType="raised" onClick={validateConnect}>测试连接</Button>}
-              {[okBtn, cancelBtn]}
-            </React.Fragment>
+            </>
           )}
         </Observer>
       ),
@@ -132,6 +133,8 @@ const CreateRepoButton = ({
     npmAssociateDs,
   });
 
+  const format = useFormatMessage('c7ncd.productLib');
+
   return (
     <Permission
       service={[
@@ -144,7 +147,7 @@ const CreateRepoButton = ({
         icon="playlist_add"
         onClick={openModal}
       >
-        {formatMessage({ id: `${intlPrefix}.view.createProdlib`, defaultMessage: '创建制品库' })}
+        {format({ id: 'CreateRepository' })}
       </Button>
     </Permission>
   );

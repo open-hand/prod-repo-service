@@ -7,8 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { Icon, Row, Col } from 'choerodon-ui';
 import {
-  Pagination,
-  Spin, Form, TextField, Select, Stores, Button,
+  Pagination, Spin, Form, TextField, Select, Stores, Button,
 } from 'choerodon-ui/pro';
 import { observer } from 'mobx-react-lite';
 import UserAvatar from '@/components/user-avatar';
@@ -23,6 +22,8 @@ const MirrorLib = () => {
     intlPrefix,
     intl: { formatMessage },
     libListDs,
+    formatCommon,
+    format,
   } = useMavenStore();
 
   const [typeList, setTypeList] = useState([]);
@@ -74,7 +75,7 @@ const MirrorLib = () => {
               libListDs.query();
             }}
           >
-            {formatMessage({ id: 'reset' })}
+            {formatCommon({ id: 'reset' })}
           </Button>
         </div>
       </div>

@@ -6,12 +6,12 @@
     <parent>
         <groupId>io.choerodon</groupId>
         <artifactId>choerodon-framework-parent</artifactId>
-        <version>1.0.0.RELEASE</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.hrds.rdupm</groupId>
     <artifactId>prod-repo-service</artifactId>
-    <version>1.0.2.RELEASE</version>
+    <version>1.2.0-SNAPSHOT</version>
     <name>rdupm</name>
 
     <properties>
@@ -144,10 +144,6 @@
             <artifactId>choerodon-starter-asgard</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
-        </dependency>
 
         <!-- velocity -->
         <dependency>
@@ -193,12 +189,6 @@
             <artifactId>lombok</artifactId>
             <version>1.16.10</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>2.6.1</version>
         </dependency>
 
         <!-- gson -->

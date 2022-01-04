@@ -5,17 +5,21 @@
 * @copyright 2020 ® HAND
 */
 import React, { useState, useEffect, useCallback } from 'react';
-import { Form, TextField, Select, Password, SelectBox, Stores, Button, message } from 'choerodon-ui/pro';
+import {
+  Form, TextField, Select, Password, SelectBox, Stores, Button, message,
+} from 'choerodon-ui/pro';
 import { observer, useComputed } from 'mobx-react-lite';
 import { axios, stores } from '@choerodon/boot';
 import classnames from 'classnames';
-import uuidv4 from 'uuid/v4';
+import {  v4 as uuidv4 }from 'uuid';
 import useRepoList from './useRepoList';
 import { intlPrefix } from '../../../index';
 
 const { Option } = Select;
 
-const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originData, enableAnonymousFlag }) => {
+const NpmEditModal = ({
+  formatMessage, npmCreateDs, modal, repoListDs, originData, enableAnonymousFlag,
+}) => {
   const [typeLookupData, setTypeLookupData] = useState([]);
 
   const { repoList, createdRepoList, setCreatedRepoList } = useRepoList();
@@ -23,7 +27,7 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
   useEffect(() => {
     npmCreateDs.data = [originData];
     if (originData.type === 'group') {
-      const originRepoList = originData.repoMemberList.map(o => ({
+      const originRepoList = originData.repoMemberList.map((o) => ({
         name: o,
         _id: uuidv4(),
       }));
@@ -47,7 +51,7 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
         try {
           const submitData = npmCreateDs.current.toData();
           if (submitData.type === 'group') {
-            const repoMemberList = createdRepoList.map(o => o.name).filter(Boolean);
+            const repoMemberList = createdRepoList.map((o) => o.name).filter(Boolean);
             if (repoMemberList.length === 0) {
               message.error(formatMessage({ id: `${intlPrefix}.view.chooseGroupPlease`, defaultMessage: '请选择仓库' }));
               return false;
@@ -73,7 +77,7 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
   }, [createdRepoList]);
 
   const handleAddCreatedRepo = useCallback(() => {
-    setCreatedRepoList(prevList => prevList.concat([{ _id: uuidv4() }]));
+    setCreatedRepoList((prevList) => prevList.concat([{ _id: uuidv4() }]));
   }, []);
 
   const handleDelete = useCallback((id) => {
@@ -98,9 +102,12 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
           dropdownMenuStyle={{ maxHeight: '200px', overflowY: 'scroll' }}
         >
           {
-            repoList.map(o => (
-              <Option key={o.name} value={o.name}>{o.name}</Option>
-            ))
+            repoList.map((o) => {
+              const hasData = createdRepoList.some((value) => o.name === value.name);
+              return (
+                <Option disabled={hasData} key={o.name} value={o.name}>{o.name}</Option>
+              );
+            })
           }
         </Select>
         <Button
@@ -113,32 +120,32 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
     ))
   ), [createdRepoList, repoList]);
 
-  const type = useComputed(() => npmCreateDs.current && npmCreateDs.current.data.type, [npmCreateDs.current]);
+  const type = useComputed(() => npmCreateDs.current
+  && npmCreateDs.current.data.type, [npmCreateDs.current]);
 
   return (
     <Form dataSet={npmCreateDs} columns={1}>
       <SelectBox disabled name="type" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')}>
-        {typeLookupData.map(o => (
+        {typeLookupData.map((o) => (
           <Option key={o.value} value={o.value}>{o.meaning}</Option>
         ))}
       </SelectBox>
       <TextField name="name" disabled />
-      {type === 'hosted' &&
-        [
+      {type === 'hosted'
+        && [
           <Select
             key="writePolicy"
             name="writePolicy"
           />,
-        ]
-      }
-      {type === 'proxy' &&
-        [
+        ]}
+      {type === 'proxy'
+        && [
           <TextField key="remoteUrl" name="remoteUrl" />,
           <TextField key="remoteUsername" name="remoteUsername" />,
           <Password key="remotePassword" name="remotePassword" />,
-        ]
-      }
-      {type === 'group' &&
+        ]}
+      {type === 'group'
+        && (
         <div className="product-lib-pages-createtrpo-select-list">
           {renderSelectList()}
           <Button
@@ -151,13 +158,14 @@ const NpmEditModal = ({ formatMessage, npmCreateDs, modal, repoListDs, originDat
             {formatMessage({ id: `${intlPrefix}.view.addGroup`, defaultMessage: '添加组仓库成员' })}
           </Button>
         </div>
-      }
-      {enableAnonymousFlag === 1 &&
+        )}
+      {enableAnonymousFlag === 1
+      && (
       <SelectBox name="allowAnonymous" className={classnames('product-lib-createrepo-selectbox', 'product-lib-createrepo-selectbox-type')}>
         <Option value={1}>{formatMessage({ id: 'yes', defaultMessage: '是' })}</Option>
         <Option value={0}>{formatMessage({ id: 'no', defaultMessage: '否' })}</Option>
       </SelectBox>
-      }
+      )}
     </Form>
   );
 };

@@ -13,9 +13,21 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface NexusComponentHandService {
 
-    void uploadJar(NexusClient nexusClient, File filePath, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer, InputStream inputStream);
+    void uploadJar(Long repositoryId, NexusClient nexusClient, File filePath, NexusServerComponentUpload nexusServerComponentUpload, NexusServer currentNexusServer, InputStream inputStream);
 
 
-    void uploadNPM(NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
+    void uploadNPM(Long repositoryId, NexusClient nexusClient, NexusRepository nexusRepository, File filePath, NexusServer currentNexusServer);
 
+    /**
+     * 根据包路径 同步包信息到仓库
+     * @param repositoryId
+     * @param path
+     */
+    void syncAssetsToDB(Long repositoryId, String path);
+
+    /**
+     * 根据仓库Id仓库下所有的包信息到仓库
+     * @param repositoryId
+     */
+    void syncAssetsToDB(Long repositoryId);
 }

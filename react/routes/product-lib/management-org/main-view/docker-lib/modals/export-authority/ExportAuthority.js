@@ -10,7 +10,6 @@ class ExportAuthority extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // mode: 'all',
       loading: false,
     };
   }
@@ -38,7 +37,7 @@ class ExportAuthority extends Component {
     forEach(params, (value, key) => {
       urlParam = `${urlParam}&${key}=${value}`;
     });
-    axios.get(`/rdupm/v1/nexus-auths/${organizationId}/export/organization?exportType=DATA${urlParam}&repoType=NPM`, { responseType: 'blob' })
+    axios.get(`/rdupm/v1/harbor-auths/export/organization/${organizationId}?exportType=DATA${urlParam}`, { responseType: 'blob' })
       .then((blob) => {
         const fileName = '权限记录.xlsx';
         FileSaver.saveAs(blob, fileName);
