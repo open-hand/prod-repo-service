@@ -39,7 +39,7 @@ public class NexusRepositorySiteController extends BaseController {
     }
 
     @ApiOperation(value = "平台层-nexus仓库分配")
-    @Permission(level = ResourceLevel.ORGANIZATION)
+    @Permission(level = ResourceLevel.SITE)
     @PostMapping("/repo-distribute")
     public ResponseEntity<NexusRepositoryCreateDTO> repoDistribute(@RequestBody NexusRepositoryCreateDTO nexusRepoCreateDTO) {
         validObject(nexusRepoCreateDTO);

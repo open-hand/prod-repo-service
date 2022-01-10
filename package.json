@@ -1,7 +1,7 @@
 {
   "name": "@choerodon/prod-repo",
   "routeName": "rdupm",
-  "version": "1.2.0",
+  "version": "1.2.0-alpha.2",
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "lint-staged": "lint-staged",
     "lint-staged:es": "eslint",
     "compile": "choerodon-front-boot compile",
-    "clean": "rm -rf node_modules && rm package-lock.json"
+    "clean-install": "rm -rf node_modules && rm -fr package-lock.json && npm i --registry https://nexus.choerodon.com.cn/repository/choerodon-npm && chmod -R u+x node_modules"
   },
   "contributors": [
     "choerodon"
@@ -44,7 +44,7 @@
     "@babel/plugin-proposal-export-default-from": "^7.12.1",
     "@babel/preset-react": "^7.12.10",
     "@choerodon/boot": "1.2.0-alpha.1",
-    "@choerodon/master": "1.2.0-alpha.1",
+    "@choerodon/master": "1.2.0-alpha.9",
     "@types/react": "^16.9.44",
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.5",
