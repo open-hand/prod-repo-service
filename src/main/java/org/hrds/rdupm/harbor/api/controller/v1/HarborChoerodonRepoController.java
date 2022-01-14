@@ -1,6 +1,5 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
-import java.util.Collections;
 import java.util.List;
 
 import io.choerodon.core.iam.ResourceLevel;
@@ -8,7 +7,6 @@ import io.choerodon.swagger.annotation.Permission;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.collections.CollectionUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
 import org.hrds.rdupm.harbor.app.service.HarborC7nRepoService;
@@ -79,7 +77,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @Permission(level = ResourceLevel.ORGANIZATION, permissionWithin = true)
     @DeleteMapping("/project/{projectId}/{appServiceId}/delete_all_relation")
     public ResponseEntity deleteAllRelationByService(@ApiParam(value = "猪齿鱼项目ID", required = true) @PathVariable("projectId") Long projectId,
-                                                  @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId) {
+                                                     @ApiParam(value = "应用服务ID", required = true) @PathVariable("appServiceId") Long appServiceId) {
         harborCustomRepoService.deleteAllRelationByService(projectId, appServiceId);
         return Results.success();
     }
@@ -171,6 +169,14 @@ public class HarborChoerodonRepoController extends BaseController {
                                                         @ApiParam(value = "仓库类型", required = true) @RequestParam String repoType,
                                                         @ApiParam(value = "应用服务ID列表", required = false) @RequestBody(required = false) List<Long> appServiceIds) {
         harborCustomRepoService.batchSaveRelationByServiceIds(projectId, repoId, repoType, appServiceIds);
+        return Results.success();
+    }
+
+    @ApiOperation(value = "应用服务-批量保存关联关系")
+    @Permission(permissionWithin = true)
+    @PostMapping("/harbor_repo_config/by_ids")
+    public ResponseEntity<List<HarborRepoDTO>> queryHarborReposByIds(@ApiParam(value = "仓库ids", required = false) @RequestBody(required = false) List<Long> harborConfigIds) {
+        harborC7nRepoService.queryHarborReposByIds(harborConfigIds);
         return Results.success();
     }
 

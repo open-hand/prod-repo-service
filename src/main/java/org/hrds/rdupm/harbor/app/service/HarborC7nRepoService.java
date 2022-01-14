@@ -7,6 +7,7 @@ import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoImageTagVo;
 import org.hrds.rdupm.harbor.api.vo.HarborC7nRepoVo;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepoDTO;
 
 /**
  * 制品库-猪齿鱼Harbor仓库应用服务
@@ -49,5 +50,7 @@ public interface HarborC7nRepoService {
 	 * @return
 	 */
 	HarborC7nRepoImageTagVo listImageTagByAppServiceId(Long projectId, Long appServiceId);
+
+	List<HarborRepoDTO> queryHarborReposByIds(List<Long> harborConfigIds);
 
 }
