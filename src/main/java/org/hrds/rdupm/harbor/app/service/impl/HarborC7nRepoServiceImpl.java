@@ -207,7 +207,7 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
     @Override
     public List<HarborRepoDTO> queryHarborReposByIds(List<Long> harborConfigIds) {
         List<HarborRepository> harborRepositories = harborRepositoryMapper.selectByIds(Joiner.on(BaseConstants.Symbol.COMMA).join(harborConfigIds));
-        if (CollectionUtils.isEmpty(harborConfigIds)) {
+        if (CollectionUtils.isEmpty(harborRepositories)) {
             return Collections.EMPTY_LIST;
         }
         List<HarborRepoDTO> harborRepoDTOS = ConvertUtil.convertList(harborRepositories, harborRepository -> {
