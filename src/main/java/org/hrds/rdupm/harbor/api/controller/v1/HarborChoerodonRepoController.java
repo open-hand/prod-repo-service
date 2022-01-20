@@ -176,8 +176,7 @@ public class HarborChoerodonRepoController extends BaseController {
     @Permission(permissionWithin = true)
     @PostMapping("/harbor_repo_config/by_ids")
     public ResponseEntity<List<HarborRepoDTO>> queryHarborReposByIds(@ApiParam(value = "仓库ids", required = false) @RequestBody(required = false) List<Long> harborConfigIds) {
-        harborC7nRepoService.queryHarborReposByIds(harborConfigIds);
-        return Results.success();
+        return Results.success(harborC7nRepoService.queryHarborReposByIds(harborConfigIds));
     }
 
 }
