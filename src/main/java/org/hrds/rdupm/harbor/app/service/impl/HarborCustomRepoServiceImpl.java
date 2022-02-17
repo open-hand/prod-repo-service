@@ -163,7 +163,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             harborCustomRepo.setProjectCode(projectDTO.getCode());
             // 统计下载的次数与人数
             //自定义仓库没有存仓库id 所以这里需要查询
-            getHarborProjectId(harborCustomRepo);
+//            getHarborProjectId(harborCustomRepo);
 //            try {
 //                List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
 //                Long personTimes = 0L;
