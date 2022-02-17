@@ -256,7 +256,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (!harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
-        checkCustomRepo(harborCustomRepo);
+//        checkCustomRepo(harborCustomRepo);
         if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
             throw new CommonException("error.harbor.custom.repo.share.exist");
         }

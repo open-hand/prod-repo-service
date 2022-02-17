@@ -48,4 +48,7 @@ databaseChangeLog(logicalFilePath: 'script/db/rdupm_harbor_custom_repo.groovy') 
             column(name: 'api_version', type: "varchar(10)", remarks: 'harbor API版本', defaultValue: "v1", afterColumn: 'repo_url')
         }
     }
+    changeSet(author: 'wanghao', id: '2022-02-16-drop-not-null') {
+        dropNotNullConstraint(tableName: 'rdupm_harbor_custom_repo', columnName: 'email', columnDataType: 'varchar(100)')
+    }
 }
