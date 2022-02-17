@@ -104,9 +104,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             throw new CommonException("error.parse.repo.response", e);
         }
         //校验用户邮箱
-        if (StringUtils.isNotEmpty(currentUser.getEmail()) && !currentUser.getEmail().equals(harborCustomRepo.getEmail())) {
-            throw new CommonException("error.harbor.custom.repo.email.not.equal");
-        }
+//        if (StringUtils.isNotEmpty(currentUser.getEmail()) && !currentUser.getEmail().equals(harborCustomRepo.getEmail())) {
+//            throw new CommonException("error.harbor.custom.repo.email.not.equal");
+//        }
 
         //校验harbor项目
         if (StringUtils.isNotBlank(harborCustomRepo.getRepoName())) {
