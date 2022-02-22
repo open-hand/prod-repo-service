@@ -1,7 +1,6 @@
 package org.hrds.rdupm.harbor.api.controller.v1;
 
 import java.util.List;
-import java.util.Set;
 
 import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
@@ -37,9 +36,6 @@ import springfox.documentation.annotations.ApiIgnore;
 public class HarborCustomRepoController extends BaseController {
     @Autowired
     private HarborCustomRepoService harborCustomRepoService;
-    @Autowired
-    private HarborCustomRepoRepository harborCustomRepoRepository;
-
 
     @ApiOperation(value = "校验自定义镜像仓库信息")
     @Permission(level = ResourceLevel.ORGANIZATION)
