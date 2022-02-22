@@ -15,6 +15,7 @@ import org.hrds.rdupm.harbor.config.DisableSSLCertificateCheck;
 import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
+import org.hrds.rdupm.harbor.infra.constant.DockerRegistryApiConstant;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.util.DESEncryptUtil;
@@ -411,7 +412,8 @@ public class HarborHttpClient {
     }
 
     public CheckInfoVO dockerApiVersionCheck(HarborCustomRepo harborCustomRepo) {
-        String url = harborCustomRepo.getRepoUrl();
+        String url = harborCustomRepo.getRepoUrl().endsWith("/") ? harborCustomRepo.getRepoUrl() + DockerRegistryApiConstant.API_VERSION_CHECK
+                : harborCustomRepo.getRepoUrl() + "/" + DockerRegistryApiConstant.API_VERSION_CHECK;
 
         String basicInfo = harborCustomRepo.getLoginName() + ":" + harborCustomRepo.getPassword();
         String token = AUTH_PRE + Base64.getEncoder().encodeToString(basicInfo.getBytes());

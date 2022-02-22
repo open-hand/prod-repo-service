@@ -8,5 +8,5 @@ package org.hrds.rdupm.harbor.infra.constant;
  * @since 2022/2/22 11:14
  */
 public interface DockerRegistryApiConstant {
-    String API_VERSION_CHECK = "/v2/";
+    String API_VERSION_CHECK = "v2/";
 }

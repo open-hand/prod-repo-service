@@ -2,29 +2,28 @@ package org.hrds.rdupm.harbor.api.controller.v1;
 
 import java.util.List;
 
-import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-import io.choerodon.mybatis.pagehelper.domain.Sort;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.api.vo.CheckInfoVO;
+import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
-import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
-import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
-import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
-import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
+import org.hzero.core.util.Results;
+import org.hzero.mybatis.helper.SecurityTokenHelper;
 import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.hzero.mybatis.helper.SecurityTokenHelper;
+import springfox.documentation.annotations.ApiIgnore;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
+import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.choerodon.swagger.annotation.Permission;
-import io.swagger.annotations.ApiOperation;
-import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * 制品库-harbor自定义镜像仓库表 管理 API
