@@ -3,33 +3,24 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import io.choerodon.core.domain.Page;
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.mybatis.pagehelper.PageHelper;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
+import org.hrds.rdupm.harbor.api.vo.CheckInfoVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
-import org.hrds.rdupm.harbor.app.service.HarborRobotService;
-import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
-import org.hrds.rdupm.harbor.domain.entity.*;
-import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
-import org.hrds.rdupm.harbor.infra.feign.DevopsServiceFeignClient;
-import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
+import org.hrds.rdupm.harbor.app.service.HarborRobotService;
 import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
+import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
+import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepoServiceRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.DevopsServiceFeignClient;
+import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
@@ -37,7 +28,6 @@ import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
-import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
@@ -46,6 +36,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * 制品库-harbor自定义镜像仓库表应用服务默认实现
@@ -83,6 +79,14 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     private static Gson gson = new Gson();
     @Autowired
     private HarborClientOperator harborClientOperator;
+    @Autowired
+    private RestTemplate restTemplate;
+
+
+    @Override
+    public CheckInfoVO dockerApiVersionCheck(HarborCustomRepo harborCustomRepo) {
+        return harborHttpClient.dockerApiVersionCheck(harborCustomRepo);
+    }
 
     @Override
     public Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo) {
@@ -256,7 +260,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (!harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
-//        checkCustomRepo(harborCustomRepo);
+        dockerApiVersionCheck(harborCustomRepo);
         if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
             throw new CommonException("error.harbor.custom.repo.share.exist");
         }

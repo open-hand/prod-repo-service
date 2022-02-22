@@ -7,6 +7,7 @@ import io.choerodon.mybatis.pagehelper.annotation.SortDefault;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import io.choerodon.mybatis.pagehelper.domain.Sort;
 import io.swagger.annotations.ApiParam;
+import org.hrds.rdupm.harbor.api.vo.CheckInfoVO;
 import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepoDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
@@ -43,9 +44,9 @@ public class HarborCustomRepoController extends BaseController {
     @ApiOperation(value = "校验自定义镜像仓库信息")
     @Permission(level = ResourceLevel.ORGANIZATION)
     @PostMapping("/check/custom-repo")
-    public ResponseEntity<?> checkCustomRepo(@ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
+    public ResponseEntity<CheckInfoVO> checkCustomRepo(@ApiParam(value = "自定义镜像仓库", required = true) @RequestBody HarborCustomRepo harborCustomRepo) {
         validObject(harborCustomRepo);
-        return Results.success(harborCustomRepoService.checkCustomRepo(harborCustomRepo));
+        return Results.success(harborCustomRepoService.dockerApiVersionCheck(harborCustomRepo));
     }
 
     @ApiOperation(value = "判断是否存在共享仓库")
