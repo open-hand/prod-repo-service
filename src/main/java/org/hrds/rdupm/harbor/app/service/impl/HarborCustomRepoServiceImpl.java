@@ -256,14 +256,15 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
         // 一个项目下只能存在一个共享仓库
-        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
-            throw new CommonException("error.harbor.custom.repo.share.exist");
-        }
+//        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
+//            throw new CommonException("error.harbor.custom.repo.share.exist");
+//        }
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
 
 //        if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
 //            harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
 //        }
+        harborCustomRepo.setProjectShare(HarborConstants.FALSE);
         harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
         harborCustomRepo.setEnabledFlag(HarborConstants.Y);
         harborCustomRepo.setProjectId(projectId);
