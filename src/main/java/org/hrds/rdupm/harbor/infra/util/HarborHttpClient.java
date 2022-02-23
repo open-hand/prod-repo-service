@@ -423,17 +423,15 @@ public class HarborHttpClient {
         HttpEntity<Object> httpEntity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+            restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         } catch (HttpClientErrorException e) {
             int statusCode = e.getStatusCode().value();
-            switch (statusCode) {
-                case 401:
-                    return new CheckInfoVO(false, "error.docker.registry.current.user");
-                case 500:
-                    return new CheckInfoVO(false, "error.docker.registry.exception");
-                default:
-                    return new CheckInfoVO(false, "error.check");
+            if (statusCode == 401) {
+                return new CheckInfoVO(false, "error.docker.registry.authentication.failed");
             }
+            return new CheckInfoVO(false, "error.docker.registry.not.available");
+        } catch (Exception e) {
+            return new CheckInfoVO(false, "error.docker.registry.not.available");
         }
         return new CheckInfoVO(true, null);
     }

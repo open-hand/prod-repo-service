@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import io.choerodon.core.domain.Page;
 import io.choerodon.core.exception.CommonException;
@@ -75,12 +74,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     @Autowired
     private HarborInfoConfiguration harborInfoConfiguration;
-
-    private static Gson gson = new Gson();
     @Autowired
     private HarborClientOperator harborClientOperator;
-    @Autowired
-    private RestTemplate restTemplate;
 
 
     @Override
@@ -309,7 +304,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
             harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
         }
-        checkCustomRepo(harborCustomRepo);
+//        checkCustomRepo(harborCustomRepo);
         if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && dbRepo.getProjectShare().equals(HarborConstants.FALSE)) {
             //失效原来的共享自定义仓库
             List<HarborCustomRepo> shareCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
