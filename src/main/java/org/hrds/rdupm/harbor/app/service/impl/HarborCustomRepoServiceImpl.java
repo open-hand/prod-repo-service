@@ -252,13 +252,13 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createByProject(Long projectId, HarborCustomRepo harborCustomRepo) {
-        if (!harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
+        if (Boolean.FALSE.equals(harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName()))) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
-//        dockerApiVersionCheck(harborCustomRepo);
-//        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
-//            throw new CommonException("error.harbor.custom.repo.share.exist");
-//        }
+        // 一个项目下只能存在一个共享仓库
+        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
+            throw new CommonException("error.harbor.custom.repo.share.exist");
+        }
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
 
 //        if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
