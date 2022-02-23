@@ -118,7 +118,6 @@ public class HarborCustomRepo extends AuditDomain {
     @ApiModelProperty(value = "是否公开访问，默认false")
     private String publicFlag;
     @ApiModelProperty(value = "是否项目下共享，默认false")
-    @NotBlank
     private String projectShare;
     @ApiModelProperty(value = "是否启用，默认Y")
     private String enabledFlag;

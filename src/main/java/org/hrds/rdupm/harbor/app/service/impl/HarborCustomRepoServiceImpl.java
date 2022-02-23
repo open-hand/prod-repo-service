@@ -298,27 +298,26 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
-        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
-            throw new CommonException("error.harbor.custom.repo.share.exist");
-        }
+//        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+//            throw new CommonException("error.harbor.custom.repo.share.exist");
+//        }
         if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
             harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
         }
-//        checkCustomRepo(harborCustomRepo);
-        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && dbRepo.getProjectShare().equals(HarborConstants.FALSE)) {
-            //失效原来的共享自定义仓库
-            List<HarborCustomRepo> shareCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
-                    .andWhere(Sqls.custom()
-                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
-                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE)
-                            .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
-                    .build());
-            if (CollectionUtils.isNotEmpty(shareCustomRepos)) {
-                HarborCustomRepo shareCustomRepo = shareCustomRepos.get(0);
-                shareCustomRepo.setEnabledFlag(HarborConstants.N);
-                harborCustomRepoRepository.updateOptional(shareCustomRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);
-            }
-        }
+//        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && dbRepo.getProjectShare().equals(HarborConstants.FALSE)) {
+//            //失效原来的共享自定义仓库
+//            List<HarborCustomRepo> shareCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+//                    .andWhere(Sqls.custom()
+//                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+//                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE)
+//                            .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
+//                    .build());
+//            if (CollectionUtils.isNotEmpty(shareCustomRepos)) {
+//                HarborCustomRepo shareCustomRepo = shareCustomRepos.get(0);
+//                shareCustomRepo.setEnabledFlag(HarborConstants.N);
+//                harborCustomRepoRepository.updateOptional(shareCustomRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);
+//            }
+//        }
         //原来的仓库设置为未启用
         dbRepo.setEnabledFlag(HarborConstants.N);
         harborCustomRepoRepository.updateOptional(dbRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);
