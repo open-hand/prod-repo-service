@@ -3,33 +3,24 @@ package org.hrds.rdupm.harbor.app.service.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import io.choerodon.core.domain.Page;
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.mybatis.pagehelper.PageHelper;
-import io.choerodon.mybatis.pagehelper.domain.PageRequest;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hrds.rdupm.harbor.api.vo.HarborImageLog;
+import org.hrds.rdupm.harbor.api.vo.CheckInfoVO;
 import org.hrds.rdupm.harbor.api.vo.HarborImageVo;
-import org.hrds.rdupm.harbor.app.service.HarborRobotService;
-import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
-import org.hrds.rdupm.harbor.domain.entity.*;
-import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
-import org.hrds.rdupm.harbor.infra.feign.DevopsServiceFeignClient;
-import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborCustomRepoService;
+import org.hrds.rdupm.harbor.app.service.HarborRobotService;
 import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
+import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
+import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepoServiceRepository;
+import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
+import org.hrds.rdupm.harbor.infra.feign.DevopsServiceFeignClient;
+import org.hrds.rdupm.harbor.infra.feign.dto.AppServiceDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
@@ -37,7 +28,6 @@ import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
 import org.hrds.rdupm.nexus.infra.util.PageConvertUtils;
 import org.hrds.rdupm.util.DESEncryptUtil;
-import org.hzero.core.base.BaseConstants;
 import org.hzero.mybatis.domian.Condition;
 import org.hzero.mybatis.util.Sqls;
 import org.slf4j.Logger;
@@ -46,6 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import io.choerodon.core.domain.Page;
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.mybatis.pagehelper.PageHelper;
+import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 
 /**
  * 制品库-harbor自定义镜像仓库表应用服务默认实现
@@ -79,10 +74,14 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     @Autowired
     private HarborInfoConfiguration harborInfoConfiguration;
-
-    private static Gson gson = new Gson();
     @Autowired
     private HarborClientOperator harborClientOperator;
+
+
+    @Override
+    public CheckInfoVO dockerApiVersionCheck(HarborCustomRepo harborCustomRepo) {
+        return harborHttpClient.dockerApiVersionCheck(harborCustomRepo);
+    }
 
     @Override
     public Boolean checkCustomRepo(HarborCustomRepo harborCustomRepo) {
@@ -104,9 +103,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             throw new CommonException("error.parse.repo.response", e);
         }
         //校验用户邮箱
-        if (StringUtils.isNotEmpty(currentUser.getEmail()) && !currentUser.getEmail().equals(harborCustomRepo.getEmail())) {
-            throw new CommonException("error.harbor.custom.repo.email.not.equal");
-        }
+//        if (StringUtils.isNotEmpty(currentUser.getEmail()) && !currentUser.getEmail().equals(harborCustomRepo.getEmail())) {
+//            throw new CommonException("error.harbor.custom.repo.email.not.equal");
+//        }
 
         //校验harbor项目
         if (StringUtils.isNotBlank(harborCustomRepo.getRepoName())) {
@@ -163,7 +162,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             harborCustomRepo.setProjectCode(projectDTO.getCode());
             // 统计下载的次数与人数
             //自定义仓库没有存仓库id 所以这里需要查询
-            getHarborProjectId(harborCustomRepo);
+//            getHarborProjectId(harborCustomRepo);
 //            try {
 //                List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
 //                Long personTimes = 0L;
@@ -253,17 +252,20 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createByProject(Long projectId, HarborCustomRepo harborCustomRepo) {
-        if (!harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName())) {
+        if (Boolean.FALSE.equals(harborCustomRepoRepository.checkName(projectId, harborCustomRepo.getRepoName()))) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
-        checkCustomRepo(harborCustomRepo);
-        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
-            throw new CommonException("error.harbor.custom.repo.share.exist");
-        }
+        // 一个项目下只能存在一个共享仓库
+//        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId)) {
+//            throw new CommonException("error.harbor.custom.repo.share.exist");
+//        }
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
-        if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
-            harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
-        }
+
+//        if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
+//            harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
+//        }
+        harborCustomRepo.setProjectShare(HarborConstants.FALSE);
+        harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
         harborCustomRepo.setEnabledFlag(HarborConstants.Y);
         harborCustomRepo.setProjectId(projectId);
         harborCustomRepo.setOrganizationId(projectDTO.getOrganizationId());
@@ -299,27 +301,26 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         if (dbRepo == null) {
             throw new CommonException("error.harbor.custom.repo.not.exist");
         }
-        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
-            throw new CommonException("error.harbor.custom.repo.share.exist");
-        }
+//        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
+//            throw new CommonException("error.harbor.custom.repo.share.exist");
+//        }
         if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
             harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
         }
-        checkCustomRepo(harborCustomRepo);
-        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && dbRepo.getProjectShare().equals(HarborConstants.FALSE)) {
-            //失效原来的共享自定义仓库
-            List<HarborCustomRepo> shareCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
-                    .andWhere(Sqls.custom()
-                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
-                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE)
-                            .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
-                    .build());
-            if (CollectionUtils.isNotEmpty(shareCustomRepos)) {
-                HarborCustomRepo shareCustomRepo = shareCustomRepos.get(0);
-                shareCustomRepo.setEnabledFlag(HarborConstants.N);
-                harborCustomRepoRepository.updateOptional(shareCustomRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);
-            }
-        }
+//        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && dbRepo.getProjectShare().equals(HarborConstants.FALSE)) {
+//            //失效原来的共享自定义仓库
+//            List<HarborCustomRepo> shareCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+//                    .andWhere(Sqls.custom()
+//                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+//                            .andEqualTo(HarborCustomRepo.FIELD_PROJECT_SHARE, HarborConstants.TRUE)
+//                            .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
+//                    .build());
+//            if (CollectionUtils.isNotEmpty(shareCustomRepos)) {
+//                HarborCustomRepo shareCustomRepo = shareCustomRepos.get(0);
+//                shareCustomRepo.setEnabledFlag(HarborConstants.N);
+//                harborCustomRepoRepository.updateOptional(shareCustomRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);
+//            }
+//        }
         //原来的仓库设置为未启用
         dbRepo.setEnabledFlag(HarborConstants.N);
         harborCustomRepoRepository.updateOptional(dbRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);

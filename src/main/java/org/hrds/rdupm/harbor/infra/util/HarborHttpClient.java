@@ -1,29 +1,25 @@
 package org.hrds.rdupm.harbor.infra.util;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-
-import io.choerodon.core.exception.CommonException;
-import io.choerodon.core.oauth.DetailsHelper;
-
-import java.util.Objects;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
+import org.hrds.rdupm.harbor.api.vo.CheckInfoVO;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.config.DisableSSLCertificateCheck;
 import org.hrds.rdupm.harbor.config.HarborCustomConfiguration;
 import org.hrds.rdupm.harbor.config.HarborInfoConfiguration;
+import org.hrds.rdupm.harbor.domain.entity.HarborCustomRepo;
+import org.hrds.rdupm.harbor.infra.constant.DockerRegistryApiConstant;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.base.BaseConstants;
-import org.omg.CORBA.UnknownUserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +30,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+
+import io.choerodon.core.exception.CommonException;
+import io.choerodon.core.oauth.DetailsHelper;
 
 /**
  * description
@@ -410,5 +409,30 @@ public class HarborHttpClient {
                 throw new CommonException(e.getMessage());
         }
 
+    }
+
+    public CheckInfoVO dockerApiVersionCheck(HarborCustomRepo harborCustomRepo) {
+        String url = harborCustomRepo.getRepoUrl().endsWith("/") ? harborCustomRepo.getRepoUrl() + DockerRegistryApiConstant.API_VERSION_CHECK
+                : harborCustomRepo.getRepoUrl() + "/" + DockerRegistryApiConstant.API_VERSION_CHECK;
+
+        String basicInfo = harborCustomRepo.getLoginName() + ":" + harborCustomRepo.getPassword();
+        String token = AUTH_PRE + Base64.getEncoder().encodeToString(basicInfo.getBytes());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(AUTH_HEADER, token);
+        HttpEntity<Object> httpEntity = new HttpEntity<>(headers);
+
+        try {
+            restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
+        } catch (HttpClientErrorException e) {
+            int statusCode = e.getStatusCode().value();
+            if (statusCode == 401) {
+                return new CheckInfoVO(false, "error.docker.registry.authentication.failed");
+            }
+            return new CheckInfoVO(false, "error.docker.registry.not.available");
+        } catch (Exception e) {
+            return new CheckInfoVO(false, "error.docker.registry.not.available");
+        }
+        return new CheckInfoVO(true, null);
     }
 }

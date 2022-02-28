@@ -111,15 +111,13 @@ public class HarborCustomRepo extends AuditDomain {
     @ApiModelProperty(value = "密码",required = true)
     @NotBlank
     private String password;
-    @ApiModelProperty(value = "邮箱",required = true)
-    @NotBlank
+    @ApiModelProperty(value = "邮箱")
     private String email;
    @ApiModelProperty(value = "描述")
     private String description;
     @ApiModelProperty(value = "是否公开访问，默认false")
     private String publicFlag;
     @ApiModelProperty(value = "是否项目下共享，默认false")
-    @NotBlank
     private String projectShare;
     @ApiModelProperty(value = "是否启用，默认Y")
     private String enabledFlag;
