@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 
 /**
  * 仓库列表查询DTO
@@ -27,4 +28,7 @@ public class NexusRepositoryQueryDTO {
 	private Long organizationId;
 	@ApiModelProperty(value = "制品库-类型", hidden = true)
 	private String repoType;
+	@ApiModelProperty(value = "项目Id")
+	@Encrypt
+	private Long configId;
 }
