@@ -4,7 +4,7 @@ import io.choerodon.core.exception.CommonException;
 import io.choerodon.core.oauth.DetailsHelper;
 
 import java.util.Date;
-import org.apache.commons.lang3.StringUtils;
+
 import org.hrds.rdupm.common.api.vo.UserNexusInfo;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
 import org.hrds.rdupm.common.domain.repository.ProdUserRepository;
@@ -17,10 +17,7 @@ import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRepository;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServerRole;
-import org.hrds.rdupm.nexus.domain.entity.NexusLog;
-import org.hrds.rdupm.nexus.domain.entity.NexusProjectService;
-import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
-import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
+import org.hrds.rdupm.nexus.domain.entity.*;
 import org.hrds.rdupm.nexus.domain.repository.NexusProjectServiceRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusRepositoryRepository;
 import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
@@ -323,6 +320,107 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
         userNexusInfo.getRepositoryName();
         NexusLog nexusLog = generateLog(userDTO, repository, userNexusInfo);
         nexusLogMapper.insert(nexusLog);
+    }
+
+    @Override
+    @Transactional
+    public NexusServerConfig createSiteServerConfig(NexusServerConfig nexusServerConfig) {
+        // 参数校验
+        nexusServerConfig.validParam(nexusClient);
+        nexusServerConfig.setDefaultFlag(BaseConstants.Flag.NO);
+        nexusServerConfig.setTenantId(BaseConstants.DEFAULT_TENANT_ID);
+        nexusServerConfig.setPassword(DESEncryptUtil.encode(nexusServerConfig.getPassword()));
+        nexusServerConfigRepository.insertSelective(nexusServerConfig);
+
+        // 初始化数据
+        nexusClient.initData();
+
+        nexusClient.removeNexusServerInfo();
+        return nexusServerConfig;
+    }
+
+    @Override
+    @Transactional
+    public NexusServerConfig updateSiteServerConfig(Long configId, NexusServerConfig nexusServerConfig) {
+        NexusServerConfig existConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
+        if (existConfig == null) {
+            throw new CommonException(BaseConstants.ErrorCode.DATA_NOT_EXISTS);
+        }
+
+        String newPassword = null;
+        if (!nexusServerConfig.getPassword().equals(existConfig.getPassword())) {
+            newPassword = nexusServerConfig.getPassword();
+        } else {
+            newPassword = DESEncryptUtil.decode(existConfig.getPassword());
+        }
+
+        nexusServerConfig.setPassword(newPassword);
+
+        nexusServerConfig.validParam(nexusClient);
+
+        // 只更新，密码
+        String encryptPassword = DESEncryptUtil.encode(newPassword);
+
+        nexusServerConfig.setPassword(encryptPassword);
+        nexusServerConfigRepository.updateOptional(nexusServerConfig, NexusServerConfig.FIELD_PSW,
+                NexusServerConfig.FIELD_ENABLE_ANONYMOUS_FLAG, NexusServerConfig.FIELD_ANONYMOUS, NexusServerConfig.FIELD_ANONYMOUS_ROLE);
+
+        if (nexusServerConfig.getEnableAnonymousFlag().equals(BaseConstants.Flag.YES)) {
+            // 开启匿名访问
+            List<String> addPrivileges = new ArrayList<>();
+            List<String> deletePrivileges = new ArrayList<>();
+            Condition condition = Condition.builder(NexusRepository.class).where(
+                    Sqls.custom().andEqualTo(NexusRepository.FIELD_CONFIG_ID, existConfig.getConfigId())).build();
+            List<NexusRepository> nexusRepositoryList = nexusRepositoryRepository.selectByCondition(condition);
+            nexusRepositoryList.forEach(nexusRepository -> {
+                NexusServerRepository nexusServerRepository = nexusClient.getRepositoryApi().getRepositoryByName(nexusRepository.getNeRepositoryName());
+                if (nexusServerRepository != null) {
+                    List<String> privilegeList = NexusServerRole.getAnonymousPrivileges(nexusRepository.getNeRepositoryName(), nexusServerRepository.getFormat());
+                    if (nexusRepository.getAllowAnonymous().equals(BaseConstants.Flag.YES)) {
+                        addPrivileges.addAll(privilegeList);
+                    } else {
+                        deletePrivileges.addAll(privilegeList);
+                    }
+                }
+            });
+            nexusApiService.updateRole(nexusServerConfig.getAnonymousRole(), addPrivileges, deletePrivileges);
+        }
+
+        // 初始化数据
+        nexusClient.initData();
+
+        nexusClient.removeNexusServerInfo();
+        return nexusServerConfig;
+    }
+
+    @Override
+    public List<NexusServerConfig> listSiteServerConfig() {
+        // 默认nexus服务信息查询
+        NexusServerConfig defaultQuery = new NexusServerConfig();
+        defaultQuery.setTenantId(BaseConstants.DEFAULT_TENANT_ID);
+        return nexusServerConfigRepository.select(defaultQuery);
+    }
+
+    @Override
+    @Transactional
+    public void updateDefaultServer(Long configId) {
+        // 查询项目下默认的nexus配置
+        NexusServerConfig defaultQuery = new NexusServerConfig();
+        defaultQuery.setDefaultFlag(BaseConstants.Flag.YES);
+        NexusServerConfig oldDefaultNexusServerConfig = nexusServerConfigRepository.selectOne(defaultQuery);
+
+        if (oldDefaultNexusServerConfig.getConfigId() == configId) {
+            return;
+        }
+        NexusServerConfig newDefaultNexusServerConfig = nexusServerConfigRepository.selectByPrimaryKey(configId);
+
+        oldDefaultNexusServerConfig.setDefaultFlag(BaseConstants.Flag.NO);
+        nexusServerConfigRepository.updateByPrimaryKeySelective(oldDefaultNexusServerConfig);
+
+        newDefaultNexusServerConfig.setDefaultFlag(BaseConstants.Flag.YES);
+        nexusServerConfigRepository.updateByPrimaryKey(newDefaultNexusServerConfig);
+
+
     }
 
 
