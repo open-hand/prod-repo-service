@@ -23,6 +23,8 @@ public interface NexusServerConfigMapper extends BaseMapper<NexusServerConfig> {
 
     NexusServerConfig queryEnableProjectServiceConfig(@Param("projectId") Long projectId);
 
+    NexusServerConfig queryEnableOrganizationServiceConfig(@Param("organizationId") Long organizationId);
+
     /**
      * 查询nexus服务配置信息，通过仓库Id
      * @param repositoryId 仓库Id

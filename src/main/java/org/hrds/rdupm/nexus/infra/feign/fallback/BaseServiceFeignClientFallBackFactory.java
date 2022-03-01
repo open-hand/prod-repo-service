@@ -27,6 +27,11 @@ public class BaseServiceFeignClientFallBackFactory implements FallbackFactory<Ba
 	public BaseServiceFeignClient create(Throwable throwable) {
 		return new BaseServiceFeignClient() {
 			@Override
+			public ResponseEntity<String> immutableProjectInfoById(Long id) {
+				throw new CommonException("error.query.project.info");
+			}
+
+			@Override
 			public List<UserDTO> listUsersByIds(@RequestBody Long[] ids, @RequestParam(value = "only_enabled", defaultValue = "true", required = false) Boolean onlyEnabled) {
 				return new ArrayList<>();
 			}
