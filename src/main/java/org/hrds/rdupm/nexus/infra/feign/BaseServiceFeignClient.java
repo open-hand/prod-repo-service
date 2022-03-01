@@ -22,7 +22,7 @@ public interface BaseServiceFeignClient {
      * @param id
      * @return
      */
-    @GetMapping(value = "/choerodon/v1/projects/{project_id}/immutable")
+    @GetMapping(value = "/v1/projects/{project_id}/immutable")
     ResponseEntity<String> immutableProjectInfoById(@PathVariable(name = "project_id") Long id);
 
     /***
