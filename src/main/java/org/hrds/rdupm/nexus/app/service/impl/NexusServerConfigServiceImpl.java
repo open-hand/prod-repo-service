@@ -432,6 +432,13 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
 
     }
 
+    @Override
+    public Boolean checkName(String serverName) {
+        NexusServerConfig nexusServerConfig = new NexusServerConfig();
+        nexusServerConfig.setServerName(serverName);
+        return nexusServerConfigRepository.selectCount(nexusServerConfig) == 0;
+    }
+
 
     private NexusLog generateLog(UserDTO userDTO, NexusRepository nexusRepository, UserNexusInfo userNexusInfo) {
         NexusLog nexusLog = new NexusLog();

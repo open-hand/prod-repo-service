@@ -102,4 +102,5 @@ public interface NexusServerConfigService {
 
 	void updateDefaultServer(Long configId);
 
+	Boolean checkName(String name);
 }
