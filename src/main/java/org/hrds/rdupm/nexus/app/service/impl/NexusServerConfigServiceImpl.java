@@ -327,7 +327,16 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
     public NexusServerConfig createSiteServerConfig(NexusServerConfig nexusServerConfig) {
         // 参数校验
         nexusServerConfig.validParam(nexusClient);
-        nexusServerConfig.setDefaultFlag(BaseConstants.Flag.NO);
+
+        if(BaseConstants.Flag.YES.equals(nexusServerConfig.getDefaultFlag())) {
+            NexusServerConfig defaultQuery = new NexusServerConfig();
+            defaultQuery.setDefaultFlag(BaseConstants.Flag.YES);
+            NexusServerConfig oldDefaultNexusServerConfig = nexusServerConfigRepository.selectOne(defaultQuery);
+
+            oldDefaultNexusServerConfig.setDefaultFlag(BaseConstants.Flag.NO);
+            nexusServerConfigRepository.updateByPrimaryKeySelective(oldDefaultNexusServerConfig);
+        }
+
         nexusServerConfig.setTenantId(BaseConstants.DEFAULT_TENANT_ID);
         nexusServerConfig.setPassword(DESEncryptUtil.encode(nexusServerConfig.getPassword()));
         nexusServerConfigRepository.insertSelective(nexusServerConfig);
@@ -421,6 +430,13 @@ public class NexusServerConfigServiceImpl implements NexusServerConfigService {
         nexusServerConfigRepository.updateByPrimaryKey(newDefaultNexusServerConfig);
 
 
+    }
+
+    @Override
+    public Boolean checkName(String serverName) {
+        NexusServerConfig nexusServerConfig = new NexusServerConfig();
+        nexusServerConfig.setServerName(serverName);
+        return nexusServerConfigRepository.selectCount(nexusServerConfig) == 0;
     }
 
 
