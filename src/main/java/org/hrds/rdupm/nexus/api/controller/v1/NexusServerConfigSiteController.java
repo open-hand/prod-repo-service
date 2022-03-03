@@ -32,7 +32,7 @@ public class NexusServerConfigSiteController extends BaseController {
     @GetMapping("/check_name")
     public ResponseEntity<Boolean> checkName(@RequestParam("serverName") String serverName) {
 
-        return Results.success(nexusServerConfigService.checkName("serverName"));
+        return Results.success(nexusServerConfigService.checkName(serverName));
     }
 
     @ApiOperation(value = "平台层-制品库-创建自定义nexus服务")
