@@ -563,6 +563,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
         Map<Long, ProjectVO> projectVOMap = projectVOList.stream().collect(Collectors.toMap(ProjectVO::getId, a -> a, (k1, k2) -> k1));
         resultAll.forEach(nexusRepositoryDTO -> {
+            nexusRepositoryDTO.setConfigId(nexusServerConfig.getConfigId());
             ProjectVO projectVO = projectVOMap.get(nexusRepositoryDTO.getProjectId());
             if (projectVO != null) {
                 nexusRepositoryDTO.setProjectName(projectVO.getName());
