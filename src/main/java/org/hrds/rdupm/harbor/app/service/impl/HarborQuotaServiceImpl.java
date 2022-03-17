@@ -8,10 +8,12 @@ import com.google.gson.Gson;
 
 import io.choerodon.core.exception.CommonException;
 
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.api.vo.HarborQuotaVo;
 import org.hrds.rdupm.harbor.api.vo.QuotasVO;
+import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
@@ -41,6 +43,12 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
 
     @Autowired
     private HarborHttpClient harborHttpClient;
+
+    @Autowired
+    private HarborQuotaService harborQuotaService;
+
+    @Autowired
+    private HarborProjectService harborProjectService;
 
     @Override
     public void updateProjectQuota(Long projectId, HarborProjectVo harborProjectVo) {
@@ -75,7 +83,23 @@ public class HarborQuotaServiceImpl implements HarborQuotaService {
         }
         hardObject.put("storage", storageLimit);
         qutoaObject.put("hard", hardObject);
-        harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA, null, qutoaObject, true, harborId);
+
+        HarborProjectVo projectVo = harborProjectService.detail(Long.valueOf(harborId));
+
+        //这里要把harborId转化为quotaId
+        List<QuotasVO> allHarborQuotas = harborQuotaService.getAllHarborQuotas();
+        Integer projectQuotasId = getProjectQuotasId(projectVo.getCode(), allHarborQuotas);
+        harborHttpClient.exchange(HarborConstants.HarborApiEnum.UPDATE_PROJECT_QUOTA, null, qutoaObject, true, projectQuotasId);
+    }
+
+    private Integer getProjectQuotasId(String code, List<QuotasVO> allHarborQuotas) {
+        List<QuotasVO> quotasVOS = allHarborQuotas.stream().filter(quotasVO -> quotasVO.getRef() != null
+                && StringUtils.equalsIgnoreCase(quotasVO.getRef().getName(), code)).collect(Collectors.toList());
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(quotasVOS)) {
+            return quotasVOS.get(0).getId();
+        } else {
+            return null;
+        }
     }
 
     @Override
