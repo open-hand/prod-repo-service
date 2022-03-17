@@ -7,6 +7,7 @@ import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class NexusServerConfigSiteController extends BaseController {
     @Permission(level = ResourceLevel.SITE)
     @PutMapping("/{config_id}")
     public ResponseEntity<NexusServerConfig> update(
-            @PathVariable(value = "config_id") Long configId,
+            @Encrypt @PathVariable(value = "config_id") Long configId,
             @RequestBody NexusServerConfig nexusProjectService) {
         validObject(nexusProjectService);
         return Results.success(nexusServerConfigService.updateSiteServerConfig(configId, nexusProjectService));
@@ -63,7 +64,7 @@ public class NexusServerConfigSiteController extends BaseController {
     @ApiOperation(value = "平台层-制品库-更新默认nexus配置")
     @Permission(level = ResourceLevel.SITE)
     @PutMapping("/{config_id}/default")
-    public ResponseEntity<Void> updateDefaultServer(@PathVariable(value = "config_id") Long configId) {
+    public ResponseEntity<Void> updateDefaultServer(@Encrypt @PathVariable(value = "config_id") Long configId) {
         nexusServerConfigService.updateDefaultServer(configId);
         return ResponseEntity.noContent().build();
     }
