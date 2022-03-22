@@ -66,16 +66,16 @@ public class NexusChoerodonServiceImpl implements NexusChoerodonService {
 
         NexusServerConfig nexusOrgServerConfig = nexusServerConfigMapper.queryEnableOrganizationServiceConfig(organizationId);
 
-
         List<C7nNexusServerDTO> result = new ArrayList<>();
         C7nNexusServerDTO c7nDefault = new C7nNexusServerDTO();
         BeanUtils.copyProperties(defaultConfig, c7nDefault);
-
-        C7nNexusServerDTO orgDefault = new C7nNexusServerDTO();
-        BeanUtils.copyProperties(nexusOrgServerConfig, orgDefault);
-
         result.add(c7nDefault);
-        result.add(orgDefault);
+
+        if (nexusOrgServerConfig != null) {
+            C7nNexusServerDTO orgDefault = new C7nNexusServerDTO();
+            BeanUtils.copyProperties(nexusOrgServerConfig, orgDefault);
+            result.add(orgDefault);
+        }
 
         nexusServerConfigList.forEach(serverConfig -> {
             C7nNexusServerDTO c7nNexusServerDTO = new C7nNexusServerDTO();

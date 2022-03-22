@@ -67,7 +67,7 @@ public class NexusRepositoryDTO implements SecurityToken, Comparator<NexusReposi
 			this.remoteUsername = nexusServerRepository.getRemoteUsername();
 		}
 	}
-
+	@Encrypt
 	private Long configId;
 	@Encrypt
 	private Long repositoryId;
