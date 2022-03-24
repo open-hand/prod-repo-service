@@ -860,4 +860,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         harborRepoService.setAppServiceId(appServiceId);
         harborRepoServiceRepository.delete(harborRepoService);
     }
+
+    @Override
+    public HarborCustomRepo queryById(Long projectId, Long repoId) {
+        return harborCustomRepoRepository.selectByPrimaryKey(repoId);
+    }
 }
