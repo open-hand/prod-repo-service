@@ -20,6 +20,7 @@ import io.choerodon.swagger.annotation.Permission;
  * @author mofei.li@hand-china.com 2020-06-02 09:51:58
  */
 @RequestMapping("/v1/projects/{project_id}/custom_repos")
+@RestController
 public class HarborCustomRepoProjectController extends BaseController {
     @Autowired
     private HarborCustomRepoService harborCustomRepoService;
