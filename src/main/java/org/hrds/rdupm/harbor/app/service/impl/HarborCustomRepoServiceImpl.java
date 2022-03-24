@@ -863,6 +863,8 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 
     @Override
     public HarborCustomRepo queryById(Long projectId, Long repoId) {
-        return harborCustomRepoRepository.selectByPrimaryKey(repoId);
+        HarborCustomRepo harborCustomRepo = harborCustomRepoRepository.selectByPrimaryKey(repoId);
+        harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
+        return harborCustomRepo;
     }
 }
