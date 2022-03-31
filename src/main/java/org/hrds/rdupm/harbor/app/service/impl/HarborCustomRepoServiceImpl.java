@@ -162,7 +162,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
             harborCustomRepo.setProjectCode(projectDTO.getCode());
             // 统计下载的次数与人数
             //自定义仓库没有存仓库id 所以这里需要查询
-//            getHarborProjectId(harborCustomRepo);
+            getHarborProjectId(harborCustomRepo);
 //            try {
 //                List<HarborImageLog> dataList = harborClientOperator.listCustomImageLogs(harborCustomRepo);
 //                Long personTimes = 0L;
@@ -264,12 +264,15 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 //        if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
 //            harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
 //        }
+        //拿到自定义仓库的apiVersion
+        String systemVersion = harborHttpClient.getSystemInfo(HarborConstants.HarborApiEnum.GET_SYSTEM_INFO, HarborConstants.API_VERSION_1);
         harborCustomRepo.setProjectShare(HarborConstants.FALSE);
         harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
         harborCustomRepo.setEnabledFlag(HarborConstants.Y);
         harborCustomRepo.setProjectId(projectId);
         harborCustomRepo.setOrganizationId(projectDTO.getOrganizationId());
         harborCustomRepo.setPassword(DESEncryptUtil.encode(harborCustomRepo.getPassword()));
+        harborCustomRepo.setApiVersion(systemVersion);
         harborCustomRepoRepository.insertSelective(harborCustomRepo);
         //创建时关联应用服务
         if (CollectionUtils.isNotEmpty(harborCustomRepo.getAppServiceIds())) {
