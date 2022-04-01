@@ -4,7 +4,6 @@ import org.hrds.rdupm.common.api.vo.UserNexusInfo;
 import org.hrds.rdupm.nexus.api.vo.NexusServerConfigVO;
 import org.hrds.rdupm.nexus.client.nexus.NexusClient;
 import org.hrds.rdupm.nexus.client.nexus.model.NexusServer;
-import org.hrds.rdupm.nexus.domain.entity.NexusRepository;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
 
 import java.util.List;
@@ -95,4 +94,13 @@ public interface NexusServerConfigService {
 
 	void auditNexusLog(UserNexusInfo userNexusInfo);
 
+	NexusServerConfig createSiteServerConfig(NexusServerConfig nexusProjectService);
+
+	NexusServerConfig updateSiteServerConfig(Long configId, NexusServerConfig nexusProjectService);
+
+	List<NexusServerConfig> listSiteServerConfig();
+
+	void updateDefaultServer(Long configId);
+
+	Boolean checkName(String name);
 }

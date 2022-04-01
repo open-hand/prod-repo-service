@@ -103,7 +103,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
         //获取猪齿鱼项目信息
         ProjectDTO projectDTO = c7nBaseService.queryProjectById(projectId);
         String code = (DetailsHelper.getUserDetails().getTenantNum().toLowerCase() + "-" + projectDTO.getCode()).toLowerCase();
-        if(!harborRepositoryRepository.checkName(projectId, code)){
+        if (!harborRepositoryRepository.checkName(projectId, code)) {
             throw new CommonException("error.repo.already.exists.under.the.project");
         }
         harborProjectVo.setCode(code);
@@ -213,7 +213,7 @@ public class HarborProjectServiceImpl implements HarborProjectService {
         sql.andNotEqualTo(HarborRepository.FIELD_HARBOR_ID, -1L);
         Condition condition = Condition.builder(HarborRepository.class).where(sql).build();
         Page<HarborRepository> page = PageHelper.doPageAndSort(pageRequest, () -> harborRepositoryRepository.selectByCondition(condition));
-        processHarborRepositoryList(page.getContent());
+        processOrgHarborRepositoryList(page.getContent());
         return page;
     }
 
@@ -278,6 +278,16 @@ public class HarborProjectServiceImpl implements HarborProjectService {
                 dto.setCreatorLoginName(userDTO.getLoginName());
                 dto.setCreatorRealName(userDTO.getRealName());
             }
+        });
+    }
+
+    private void processOrgHarborRepositoryList(List<HarborRepository> harborRepositoryList) {
+        if (CollectionUtils.isEmpty(harborRepositoryList)) {
+            return;
+        }
+        harborRepositoryList.forEach(dto -> {
+            //获得镜像数
+            dto.setRepoCount(harborClientOperator.getRepoCountByHarborId(dto.getHarborId()));
         });
     }
 

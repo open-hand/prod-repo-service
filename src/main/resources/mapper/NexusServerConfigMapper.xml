@@ -83,4 +83,27 @@
         WHERE
             nr.repository_id = #{repositoryId}
     </select>
+    <select id="queryEnableOrganizationServiceConfig"
+            resultType="org.hrds.rdupm.nexus.domain.entity.NexusServerConfig">
+        SELECT
+            nsc.config_id,
+            nsc.server_name,
+            nsc.server_url,
+            nsc.user_name,
+            nsc.password,
+            nsc.anonymous,
+            nsc.anonymous_role,
+            nsc.object_version_number,
+            nsc.default_flag,
+            nsc.enable_anonymous_flag,
+            rnos.organization_id,
+            rnos.enable_flag
+        FROM
+        rdupm_nexus_server_config nsc
+        INNER JOIN rdupm_nexus_organization_service rnos ON nsc.config_id = rnos.config_id
+        WHERE
+        rnos.organization_id = #{organizationId}
+        AND rnos.enable_flag = 1
+
+    </select>
 </mapper>

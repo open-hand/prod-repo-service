@@ -1,5 +1,8 @@
 package org.hrds.rdupm.nexus.infra.feign;
 
+import java.util.List;
+import java.util.Set;
+
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
 import org.hrds.rdupm.nexus.infra.feign.fallback.BaseServiceFeignClientFallBackFactory;
 import org.hrds.rdupm.nexus.infra.feign.vo.LookupVO;
@@ -8,14 +11,19 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Set;
-
 /**
  * @author weisen.yang@hand-china.com 2020/3/31
  */
 @FeignClient(value = "choerodon-iam", path = "/choerodon", fallbackFactory = BaseServiceFeignClientFallBackFactory.class)
 public interface BaseServiceFeignClient {
+
+    /**
+     *按照项目Id查询项目的不可变信息
+     * @param id
+     * @return
+     */
+    @GetMapping(value = "/v1/projects/{project_id}/immutable")
+    ResponseEntity<String> immutableProjectInfoById(@PathVariable(name = "project_id") Long id);
 
     /***
      * 根据id批量查询用户信息列表

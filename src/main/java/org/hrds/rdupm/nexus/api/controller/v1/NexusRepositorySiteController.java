@@ -7,6 +7,7 @@ import org.hrds.rdupm.nexus.api.dto.NexusRepositoryQueryDTO;
 import org.hrds.rdupm.nexus.app.service.NexusRepositoryService;
 import org.hzero.core.base.BaseController;
 import org.hzero.core.util.Results;
+import org.hzero.starter.keyencrypt.core.Encrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class NexusRepositorySiteController extends BaseController {
     @ApiOperation(value = "平台层-nexus仓库列表")
     @Permission(level = ResourceLevel.SITE)
     @GetMapping("/repo")
-    public ResponseEntity<Page<NexusRepositoryDTO>> listNexusRepo(NexusRepositoryQueryDTO queryDTO,
+    public ResponseEntity<Page<NexusRepositoryDTO>> listNexusRepo(@Encrypt NexusRepositoryQueryDTO queryDTO,
                                                                   @ApiIgnore PageRequest pageRequest) {
         return Results.success(nexusRepositoryService.listNexusRepo(pageRequest, queryDTO));
     }

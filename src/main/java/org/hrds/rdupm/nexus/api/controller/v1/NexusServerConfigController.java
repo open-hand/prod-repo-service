@@ -1,21 +1,19 @@
 package org.hrds.rdupm.nexus.api.controller.v1;
 
-import io.choerodon.swagger.annotation.Permission;
-import io.choerodon.core.iam.ResourceLevel;
+import java.util.List;
+
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.ibatis.annotations.Param;
 import org.hrds.rdupm.nexus.app.service.NexusServerConfigService;
 import org.hrds.rdupm.nexus.domain.entity.NexusServerConfig;
-import org.hzero.core.util.Results;
 import org.hzero.core.base.BaseController;
-import org.hrds.rdupm.nexus.domain.repository.NexusServerConfigRepository;
-import org.hzero.core.util.ValidUtils;
+import org.hzero.core.util.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.annotations.ApiOperation;
 
-import java.util.List;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.swagger.annotation.Permission;
 
 /**
  * 制品库_nexus服务信息配置表 管理 API

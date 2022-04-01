@@ -1,5 +1,6 @@
 package org.hrds.rdupm.harbor.api.vo;
 
+import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -112,6 +113,10 @@ public class HarborProjectVo {
 
 	private UserDTO userDTO;
 
+	@SerializedName("cve_allowlist")
+	private Map<String, Object> cveAllowList;
+
+
 	public HarborProjectVo(){}
 
 	public HarborProjectVo(HarborProjectDTO harborProjectDTO, Boolean isApiVersionV1) {
@@ -120,6 +125,7 @@ public class HarborProjectVo {
 		this.harborId = harborProjectDTO.getHarborId();
 		this.code = harborProjectDTO.getName();
 		this.repoCount = harborProjectDTO.getRepoCount();
+		this.cveAllowList = harborProjectDTO.getCveAllowList();
 
 		if(isApiVersionV1) {
 			if (!HarborConstants.TRUE.equals(harborMetadataDTO.getUseSysCveFlag())) {

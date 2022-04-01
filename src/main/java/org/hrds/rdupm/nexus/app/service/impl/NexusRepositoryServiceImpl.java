@@ -287,8 +287,8 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         // 参数校验
         nexusRepoCreateDTO.validParam(baseServiceFeignClient, true);
 
-        // 平台层分配，分配时, 应该是choerodon默认nexus服务的
-        NexusServerConfig defaultConfig = configService.setNexusDefaultInfo(nexusClient);
+        // （失效）平台层分配，分配时, 应该是choerodon默认nexus服务的
+        NexusServerConfig defaultConfig = configService.setNexusInfoByConfigId(nexusClient, nexusRepoCreateDTO.getConfigId());
 
         if (!nexusClient.getRepositoryApi().repositoryExists(nexusRepoCreateDTO.getName())) {
             throw new CommonException(NexusApiConstants.ErrorMessage.RESOURCE_NOT_EXIST);
@@ -523,7 +523,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
     @Override
     public Page<NexusRepositoryDTO> listNexusRepo(PageRequest pageRequest, NexusRepositoryQueryDTO queryDTO) {
         // 设置并返回当前nexus服务信息
-        NexusServerConfig nexusServerConfig = configService.setNexusDefaultInfo(nexusClient);
+        NexusServerConfig nexusServerConfig = configService.setNexusInfoByConfigId(nexusClient, queryDTO.getConfigId());
         Page<NexusRepositoryDTO> pageResult = this.queryNexusRepo(queryDTO, pageRequest, nexusServerConfig);
         // remove配置信息
         nexusClient.removeNexusServerInfo();
@@ -563,6 +563,7 @@ public class NexusRepositoryServiceImpl implements NexusRepositoryService, AopPr
         List<ProjectVO> projectVOList = baseServiceFeignClient.queryByIds(projectIdSet);
         Map<Long, ProjectVO> projectVOMap = projectVOList.stream().collect(Collectors.toMap(ProjectVO::getId, a -> a, (k1, k2) -> k1));
         resultAll.forEach(nexusRepositoryDTO -> {
+            nexusRepositoryDTO.setConfigId(nexusServerConfig.getConfigId());
             ProjectVO projectVO = projectVOMap.get(nexusRepositoryDTO.getProjectId());
             if (projectVO != null) {
                 nexusRepositoryDTO.setProjectName(projectVO.getName());

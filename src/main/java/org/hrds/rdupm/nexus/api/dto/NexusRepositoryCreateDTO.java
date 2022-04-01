@@ -228,6 +228,10 @@ public class NexusRepositoryCreateDTO {
     @ApiModelProperty(value = "组织Id", hidden = true)
     private Long organizationId;
 
+    @ApiModelProperty(value = "nexus服务Id")
+    @Encrypt
+    private Long configId;
+
     @ApiModelProperty(value = "用户权限信息", hidden = true)
     private List<NexusAuth> nexusAuthList;
 }
