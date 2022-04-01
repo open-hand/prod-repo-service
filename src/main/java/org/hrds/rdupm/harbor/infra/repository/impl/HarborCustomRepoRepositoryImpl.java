@@ -20,6 +20,7 @@ public class HarborCustomRepoRepositoryImpl extends BaseRepositoryImpl<HarborCus
     public Boolean checkName(Long projectId, String repositoryName) {
         HarborCustomRepo harborCustomRepo = this.selectByCondition(Condition.builder(HarborCustomRepo.class).where(Sqls.custom()
                 .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+                .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, "Y")
                 .andEqualTo(HarborCustomRepo.FIELD_REPO_NAME, repositoryName)
         ).build()).stream().findFirst().orElse(null);
         if (Objects.isNull(harborCustomRepo)) {
