@@ -264,6 +264,7 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 //        if (StringUtils.isBlank(harborCustomRepo.getPublicFlag()) || !StringUtils.equalsAny(harborCustomRepo.getPublicFlag(), HarborConstants.TRUE, HarborConstants.FALSE)) {
 //            harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
 //        }
+        //拿到自定义仓库的apiVersion
         harborCustomRepo.setProjectShare(HarborConstants.FALSE);
         harborCustomRepo.setPublicFlag(HarborConstants.FALSE);
         harborCustomRepo.setEnabledFlag(HarborConstants.Y);
@@ -858,5 +859,12 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
         harborRepoService.setProjectId(projectId);
         harborRepoService.setAppServiceId(appServiceId);
         harborRepoServiceRepository.delete(harborRepoService);
+    }
+
+    @Override
+    public HarborCustomRepo queryById(Long projectId, Long repoId) {
+        HarborCustomRepo harborCustomRepo = harborCustomRepoRepository.selectByPrimaryKey(repoId);
+        harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
+        return harborCustomRepo;
     }
 }
