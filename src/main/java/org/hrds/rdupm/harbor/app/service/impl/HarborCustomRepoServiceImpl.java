@@ -305,9 +305,9 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 //        if (!dbRepo.getProjectShare().equals(HarborConstants.TRUE) && this.existProjectShareCustomRepo(projectId) && harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE)) {
 //            throw new CommonException("error.harbor.custom.repo.share.exist");
 //        }
-        if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
-            harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
-        }
+//        if (dbRepo.getPassword().equals(harborCustomRepo.getPassword())) {
+//            harborCustomRepo.setPassword(DESEncryptUtil.decode(harborCustomRepo.getPassword()));
+//        }
 //        if (harborCustomRepo.getProjectShare().equals(HarborConstants.TRUE) && dbRepo.getProjectShare().equals(HarborConstants.FALSE)) {
 //            //失效原来的共享自定义仓库
 //            List<HarborCustomRepo> shareCustomRepos = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
@@ -323,27 +323,26 @@ public class HarborCustomRepoServiceImpl implements HarborCustomRepoService {
 //            }
 //        }
         //原来的仓库设置为未启用
-        dbRepo.setEnabledFlag(HarborConstants.N);
+        dbRepo.setRepoName(harborCustomRepo.getRepoName());
+        dbRepo.setRepoUrl(harborCustomRepo.getRepoUrl());
+        dbRepo.setLoginName(harborCustomRepo.getLoginName());
+        dbRepo.setPassword(harborCustomRepo.getPassword());
         harborCustomRepoRepository.updateOptional(dbRepo, HarborCustomRepo.FIELD_ENABLED_FLAG);
-        //插入更新的仓库
-        HarborUtil.resetDomain(harborCustomRepo);
-        harborCustomRepo.setEnabledFlag(HarborConstants.Y);
-        harborCustomRepo.setPassword(DESEncryptUtil.encode(harborCustomRepo.getPassword()));
-        harborCustomRepoRepository.insertSelective(harborCustomRepo);
-        //复制并插入仓库的关联关系
-        List<HarborRepoService> existRelation = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
-                .andWhere(Sqls.custom()
-                        .andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId())
-                        .andEqualTo(HarborRepoService.FIELD_PROJECT_ID, projectId)
-                        .andIsNotNull(HarborRepoService.FIELD_APP_SERVICE_ID))
-                .build());
-        if (CollectionUtils.isNotEmpty(existRelation)) {
-            existRelation.stream().forEach(harborRepoService -> {
-                harborRepoService.setCustomRepoId(harborCustomRepo.getId());
-                HarborUtil.resetDomain(harborRepoService);
-                harborRepoServiceRepository.insertSelective(harborRepoService);
-            });
-        }
+
+//        //复制并插入仓库的关联关系
+//        List<HarborRepoService> existRelation = harborRepoServiceRepository.selectByCondition(Condition.builder(HarborRepoService.class)
+//                .andWhere(Sqls.custom()
+//                        .andEqualTo(HarborRepoService.FIELD_CUSTOM_REPO_ID, dbRepo.getId())
+//                        .andEqualTo(HarborRepoService.FIELD_PROJECT_ID, projectId)
+//                        .andIsNotNull(HarborRepoService.FIELD_APP_SERVICE_ID))
+//                .build());
+//        if (CollectionUtils.isNotEmpty(existRelation)) {
+//            existRelation.stream().forEach(harborRepoService -> {
+//                harborRepoService.setCustomRepoId(harborCustomRepo.getId());
+//                HarborUtil.resetDomain(harborRepoService);
+//                harborRepoServiceRepository.insertSelective(harborRepoService);
+//            });
+//        }
     }
 
     @Override
