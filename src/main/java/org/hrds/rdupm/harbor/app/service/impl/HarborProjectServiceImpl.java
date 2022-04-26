@@ -28,10 +28,7 @@ import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
 import org.hrds.rdupm.harbor.app.service.HarborQuotaService;
-import org.hrds.rdupm.harbor.domain.entity.HarborAuth;
-import org.hrds.rdupm.harbor.domain.entity.HarborLog;
-import org.hrds.rdupm.harbor.domain.entity.HarborProjectDTO;
-import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
+import org.hrds.rdupm.harbor.domain.entity.*;
 import org.hrds.rdupm.harbor.domain.repository.HarborAuthRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborCustomRepoRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborLogRepository;
@@ -39,6 +36,7 @@ import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hrds.rdupm.harbor.infra.constant.HarborConstants;
 import org.hrds.rdupm.harbor.infra.feign.dto.ProjectDTO;
 import org.hrds.rdupm.harbor.infra.feign.dto.UserDTO;
+import org.hrds.rdupm.harbor.infra.mapper.HarborRepositoryMapper;
 import org.hrds.rdupm.harbor.infra.operator.HarborClientOperator;
 import org.hrds.rdupm.harbor.infra.util.HarborHttpClient;
 import org.hrds.rdupm.harbor.infra.util.HarborUtil;
@@ -89,6 +87,10 @@ public class HarborProjectServiceImpl implements HarborProjectService {
 
     @Autowired
     private HarborCustomRepoRepository harborCustomRepoRepository;
+
+    @Autowired
+    private HarborRepositoryMapper harborRepositoryMapper;
+
 
     @Override
     @Saga(code = HarborConstants.HarborSagaCode.CREATE_PROJECT, description = "创建Docker镜像仓库", inputSchemaClass = HarborProjectVo.class)
@@ -352,6 +354,11 @@ public class HarborProjectServiceImpl implements HarborProjectService {
         } else {
             return Boolean.TRUE;
         }
+    }
+
+    @Override
+    public List<HarborRepoConfigDTO> listReposByProjectId(Long projectId) {
+        return harborRepositoryMapper.listReposByProjectId(projectId);
     }
 
     private void checkParam(HarborProjectVo harborProjectVo) {
