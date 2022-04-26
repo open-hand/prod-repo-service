@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.HarborProjectService;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepoConfigDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 import org.hrds.rdupm.harbor.domain.repository.HarborRepositoryRepository;
 import org.hzero.core.base.BaseController;
@@ -111,6 +112,13 @@ public class HarborProjectController extends BaseController {
 	public ResponseEntity<Boolean> checkName(@PathVariable(value = "projectId") @ApiParam(value = "猪齿鱼项目ID") Long projectId,
 											 @RequestParam(value = "repositoryName") String repositoryName) {
 		return Results.success(harborProjectService.checkName(projectId,repositoryName));
+	}
+
+	@ApiOperation(value = "查询所有仓库列表，包括默认和自定义类型")
+	@Permission(level = ResourceLevel.ORGANIZATION)
+	@GetMapping(value = "/{project_id}/project_repos")
+	public ResponseEntity<List<HarborRepoConfigDTO>> listReposByProjectId(@PathVariable(value = "project_id") @ApiParam(value = "猪齿鱼项目ID") Long projectId) {
+		return Results.success(harborProjectService.listReposByProjectId(projectId));
 	}
 
 

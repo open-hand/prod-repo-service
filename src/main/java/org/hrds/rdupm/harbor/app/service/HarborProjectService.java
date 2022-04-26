@@ -5,6 +5,7 @@ import java.util.List;
 import io.choerodon.core.domain.Page;
 import io.choerodon.mybatis.pagehelper.domain.PageRequest;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
+import org.hrds.rdupm.harbor.domain.entity.HarborRepoConfigDTO;
 import org.hrds.rdupm.harbor.domain.entity.HarborRepository;
 
 /**
@@ -73,4 +74,10 @@ public interface HarborProjectService {
 
     Boolean checkName(Long projectId, String repositoryName);
 
+	/**
+	 * 查询所有仓库列表，包括默认和自定义类型
+	 * @param projectId
+	 * @return
+	 */
+	List<HarborRepoConfigDTO> listReposByProjectId(Long projectId);
 }

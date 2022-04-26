@@ -43,6 +43,17 @@ public class HarborRepoConfigDTO {
     @ApiModelProperty(value = "项目共享")
     private String projectShare;
 
+    @ApiModelProperty(value = "仓库的类型")
+    private String type;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public HarborRepoConfigDTO() {
     }
 
