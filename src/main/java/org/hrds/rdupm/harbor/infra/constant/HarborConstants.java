@@ -397,7 +397,8 @@ public interface HarborConstants {
     enum HarborImageOperateEnum {
         DELETE("delete", "删除"),
         PULL("pull", "拉取"),
-        PUSH("push", "推送");
+        PUSH("push", "推送"),
+        CREATE("create", "推送");
 
         String operateType;
 
