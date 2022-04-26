@@ -169,22 +169,22 @@ public class HarborC7nRepoServiceImpl implements HarborC7nRepoService {
     @Override
     public List<HarborC7nRepoVo> listImageRepo(Long projectId) {
         HarborRepository harborRepository = harborRepositoryRepository.select(HarborRepository.FIELD_PROJECT_ID, projectId).stream().findFirst().orElse(null);
-        List<HarborCustomRepo> harborCustomRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
-                .andWhere(Sqls.custom()
-                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
-                        .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
-                .build());
+//        List<HarborCustomRepo> harborCustomRepoList = harborCustomRepoRepository.selectByCondition(Condition.builder(HarborCustomRepo.class)
+//                .andWhere(Sqls.custom()
+//                        .andEqualTo(HarborCustomRepo.FIELD_PROJECT_ID, projectId)
+//                        .andEqualTo(HarborCustomRepo.FIELD_ENABLED_FLAG, HarborConstants.Y))
+//                .build());
         List<HarborC7nRepoVo> list = new ArrayList<>();
         if (harborRepository != null) {
             HarborC7nRepoVo harborC7nRepoVo = new HarborC7nRepoVo(harborRepository.getId(), harborRepository.getCode(), HarborRepoDTO.DEFAULT_REPO);
             list.add(harborC7nRepoVo);
         }
-        if (CollectionUtils.isNotEmpty(harborCustomRepoList)) {
-            for (HarborCustomRepo harborCustomRepo : harborCustomRepoList) {
-                HarborC7nRepoVo harborC7nRepoVo = new HarborC7nRepoVo(harborCustomRepo.getId(), harborCustomRepo.getRepoName(), HarborRepoDTO.CUSTOM_REPO);
-                list.add(harborC7nRepoVo);
-            }
-        }
+//        if (CollectionUtils.isNotEmpty(harborCustomRepoList)) {
+//            for (HarborCustomRepo harborCustomRepo : harborCustomRepoList) {
+//                HarborC7nRepoVo harborC7nRepoVo = new HarborC7nRepoVo(harborCustomRepo.getId(), harborCustomRepo.getRepoName(), HarborRepoDTO.CUSTOM_REPO);
+//                list.add(harborC7nRepoVo);
+//            }
+//        }
         return list;
     }
 
