@@ -42,15 +42,15 @@
         select
                rhr.id as repo_id,
                rhr.code as repo_name,
-               'CUSTOM_REPO' as type
+               'DEFAULT_REPO' as type
         from rdupm_harbor_repository rhr
         where rhr.project_id = #{projectId}
         union all
         select
             rhcr.id as repo_id,
             rhcr.repo_name as repo_name,
-            'DEFAULT_REPO' as type
+            'CUSTOM_REPO' as type
         from rdupm_harbor_custom_repo rhcr
-        where rhcr.project_id = #{projectId} and rhcr.enabled_flag = 1
+        where rhcr.project_id = #{projectId} and rhcr.enabled_flag = 'Y'
     </select>
 </mapper>
