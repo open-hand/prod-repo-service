@@ -6,13 +6,13 @@ dependencies:
   - name: common
     repository: https://openchart.choerodon.com.cn/choerodon/c7n
     version: 1.x.x
-description: Gateway of Choerodon.
+description: Product service of Choerodon.
 engine: gotpl
 home: https://github.com/open-hand/prod-repo-service/tree/master/chart/prod-repo-service
 icon: https://ui-avatars.com/api/?name=prod-repo-service
 keywords:
   - choerodon
-  - gateway
+  - product
 maintainers:
   - email: zhuchiyu@vip.hand-china.com
     name: choerodon

@@ -1,6 +1,6 @@
 # prod-repo-service
 
-Gateway of Choerodon.
+Product service of Choerodon.
 
 ## Installing the Chart
 
