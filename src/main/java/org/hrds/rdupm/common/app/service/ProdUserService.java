@@ -32,4 +32,7 @@ public interface ProdUserService {
 	void updatePwd(ProdUser prodUser);
 
 	Map<String, Map<Object, List<String>>> getUserRoleList(List<NexusRepository> nexusRepositories, Long projectId);
+
+	ProdUser selectUserInfo(Long userId);
+
 }
