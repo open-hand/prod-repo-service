@@ -133,7 +133,7 @@ public interface HarborConstants {
         CREATE_USER("/api/users", HttpMethod.POST, "创建用户", "/api/v2.0/users"),
 
         SELECT_USER_BY_USERNAME("/api/users/search", HttpMethod.GET, "根据用户名查询用户信息", "/api/v2.0/users/search"),
-        SELECT_USER_BY_EMAIL("/api/users", HttpMethod.GET, "根据邮箱名查询用户信息", "api/v2.0/users"),
+        SELECT_USER_BY_EMAIL("/api/users", HttpMethod.GET, "根据邮箱名查询用户信息", "/api/v2.0/users"),
 
         /**
          * 项目API
