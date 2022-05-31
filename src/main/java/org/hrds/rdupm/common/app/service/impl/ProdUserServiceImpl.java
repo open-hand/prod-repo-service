@@ -98,7 +98,8 @@ public class ProdUserServiceImpl implements ProdUserService {
             String password = HarborUtil.getPassword();
             prodUser.setPassword(password);
         }
-        List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME, prodUser.getLoginName());
+        //这里根据LoginName查询替换为根据userId查询，潍柴那里改了用户名会导致loginName不一致的情况
+        List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID, prodUser.getUserId());
         if (CollectionUtils.isEmpty(prodUserList)) {
             prodUserRepository.insertSelective(prodUser);
             return prodUser;
