@@ -390,7 +390,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         //这里根据userName查询换成根据email来查询，有得客户用户改loginName
         Map<String, Object> paramMap = new HashMap<>(1);
         paramMap.put("email", email);
-        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME, paramMap, null, true);
+        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_EMAIL, paramMap, null, true);
         List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
         Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getEmail, dto -> dto));
 
