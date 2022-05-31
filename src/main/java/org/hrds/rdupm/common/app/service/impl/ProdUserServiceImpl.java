@@ -205,14 +205,12 @@ public class ProdUserServiceImpl implements ProdUserService {
         ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_EMAIL, paramMap, null, true);
         List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
         Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getEmail, dto -> dto));
-        if (userMap.get(userDTO.getEmail()) == null) {
-            //再查询nexus
-//            nexusServerConfigService.setNexusDefaultInfo(nexusClient);
-//            NexusServerUser users = nexusClient.getNexusUserApi().getUsers(String.valueOf(userId));
-        } else {
+        if (userMap.get(userDTO.getEmail()) != null) {
             User user = userMap.get(userDTO.getEmail());
             prodUser.setLoginName(user.getUsername());
             return prodUser;
+        } else {
+            // TODO: 2022/5/31 当nexus上的loginName与数据库不一致的时候
         }
         return prodUser;
     }
