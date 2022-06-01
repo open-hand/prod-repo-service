@@ -14,6 +14,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.infra.mapper.ProdUserMapper;
 import org.hrds.rdupm.harbor.api.vo.HarborAuthVo;
 import org.hrds.rdupm.harbor.app.service.C7nBaseService;
 import org.hrds.rdupm.harbor.app.service.HarborAuthService;
@@ -47,6 +48,9 @@ public class HarborAuthCreateHandler {
 	@Autowired
 	private HarborAuthService harborAuthService;
 
+	@Autowired
+	private ProdUserMapper prodUserMapper;
+
 	@SagaTask(code = HarborConstants.HarborSagaCode.CREATE_AUTH_USER,description = "分配权限：插入用户",
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 1,maxRetryCount = 3,outputSchemaClass = String.class)
 	public String insertUser(String message){
@@ -67,9 +71,10 @@ public class HarborAuthCreateHandler {
 	public List<HarborAuth> insertToHarbor(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
 		for(HarborAuth dto : dtoList){
+			ProdUser prodUser = prodUserMapper.selectByPrimaryKey(dto.getUserId());
 			Map<String,Object> bodyMap = new HashMap<>(2);
 			Map<String,Object> memberMap = new HashMap<>(1);
-			memberMap.put("username",dto.getLoginName());
+			memberMap.put("username",prodUser.getLoginName());
 			bodyMap.put("role_id",dto.getHarborRoleId());
 			bodyMap.put("member_user",memberMap);
 			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,dto.getHarborId());

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hrds.rdupm.common.app.service.ProdUserService;
 import org.hrds.rdupm.common.domain.entity.ProdUser;
+import org.hrds.rdupm.common.infra.mapper.ProdUserMapper;
 import org.hrds.rdupm.harbor.api.vo.ExternalTenantVO;
 import org.hrds.rdupm.harbor.api.vo.HarborProjectVo;
 import org.hrds.rdupm.harbor.app.service.*;
@@ -94,6 +95,8 @@ public class HarborProjectCreateHandler {
     private HarborRepositoryRepository harborRepositoryRepository;
     @Autowired
     private C7nBaseService c7nBaseService;
+    @Autowired
+    private ProdUserMapper prodUserMapper;
 
     @SagaTask(code = HarborConstants.HarborSagaCode.CREATE_PROJECT_USER, description = "创建Docker镜像仓库：创建用户",
             sagaCode = HarborConstants.HarborSagaCode.CREATE_PROJECT, seq = 1, maxRetryCount = 3, outputSchemaClass = String.class)
@@ -211,7 +214,9 @@ public class HarborProjectCreateHandler {
         Long userId = userDTO.getId();
         String realName = userDTO.getRealName();
         ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
-
+        //可能有些客户改了loginName，为保证事务成功这里去制品的user表拿到loginName
+        ProdUser prodUser = prodUserMapper.selectByPrimaryKey(userId);
+        userName = prodUser.getLoginName();
         List<HarborAuth> authList = new ArrayList<>();
         HarborAuth harborAuth = new HarborAuth();
         harborAuth.setUserId(userId);
