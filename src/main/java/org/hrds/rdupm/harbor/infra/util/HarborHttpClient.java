@@ -130,6 +130,9 @@ public class HarborHttpClient {
             buildBasicAuth(harborInfo.getUsername(), harborInfo.getPassword());
         } else {
             ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_LOGIN_NAME, userName).stream().findFirst().orElse(null);
+            if (prodUser == null) {
+                prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, DetailsHelper.getUserDetails() == null ? 0L : DetailsHelper.getUserDetails().getUserId()).stream().findFirst().orElse(null);
+            }
             String passwd = prodUser == null ? null : (prodUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(prodUser.getPassword()) : prodUser.getPassword());
             buildBasicAuth(userName, passwd);
         }
