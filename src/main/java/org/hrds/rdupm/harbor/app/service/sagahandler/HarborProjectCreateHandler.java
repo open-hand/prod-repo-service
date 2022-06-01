@@ -215,7 +215,9 @@ public class HarborProjectCreateHandler {
         String realName = userDTO.getRealName();
         ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
         //可能有些客户改了loginName，为保证事务成功这里去制品的user表拿到loginName
-        ProdUser prodUser = prodUserMapper.selectByPrimaryKey(userId);
+        ProdUser record = new ProdUser();
+        record.setUserId(userId);
+        ProdUser prodUser = prodUserMapper.selectOne(record);
         userName = prodUser.getLoginName();
         List<HarborAuth> authList = new ArrayList<>();
         HarborAuth harborAuth = new HarborAuth();
