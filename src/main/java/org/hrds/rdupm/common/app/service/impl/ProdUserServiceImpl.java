@@ -2,6 +2,7 @@ package org.hrds.rdupm.common.app.service.impl;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,9 @@ import org.hrds.rdupm.nexus.infra.constant.NexusConstants;
 import org.hrds.rdupm.nexus.infra.feign.BaseServiceFeignClient;
 import org.hrds.rdupm.util.DESEncryptUtil;
 import org.hzero.core.util.AssertUtils;
+import org.hzero.core.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -50,6 +54,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProdUserServiceImpl implements ProdUserService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProdUserServiceImpl.class);
 
     @Autowired
     private ProdUserRepository prodUserRepository;
@@ -112,7 +117,10 @@ public class ProdUserServiceImpl implements ProdUserService {
             prodUser.setPassword(password);
         }
         //这里根据LoginName查询替换为根据userId查询，潍柴那里改了用户名会导致loginName不一致的情况
+        //根据id查询用户
+        LOGGER.info("user id :{}", prodUser.getUserId());
         List<ProdUser> prodUserList = prodUserRepository.select(ProdUser.FIELD_USER_ID, prodUser.getUserId());
+        LOGGER.info("user list:{}", JsonUtils.toJson(prodUserList));
         if (CollectionUtils.isEmpty(prodUserList)) {
             prodUserRepository.insertSelective(prodUser);
             return prodUser;

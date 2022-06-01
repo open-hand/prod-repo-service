@@ -210,7 +210,6 @@ public class HarborProjectCreateHandler {
             throw new CommonException(e);
         }
         UserDTO userDTO = harborProjectVo.getUserDTO();
-        String userName = userDTO.getLoginName();
         Long userId = userDTO.getId();
         String realName = userDTO.getRealName();
         ProjectDTO projectDTO = harborProjectVo.getProjectDTO();
@@ -218,7 +217,7 @@ public class HarborProjectCreateHandler {
         ProdUser record = new ProdUser();
         record.setUserId(userId);
         ProdUser prodUser = prodUserMapper.selectOne(record);
-        userName = prodUser.getLoginName();
+        String userName = prodUser.getLoginName();
         List<HarborAuth> authList = new ArrayList<>();
         HarborAuth harborAuth = new HarborAuth();
         harborAuth.setUserId(userId);
