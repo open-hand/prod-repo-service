@@ -70,14 +70,16 @@ public class HarborAuthCreateHandler {
 			sagaCode = HarborConstants.HarborSagaCode.CREATE_AUTH,seq = 2,maxRetryCount = 3,outputSchemaClass = List.class)
 	public List<HarborAuth> insertToHarbor(String message){
 		List<HarborAuth> dtoList = JSONObject.parseArray(message,HarborAuth.class);
-		for(HarborAuth dto : dtoList){
-			ProdUser prodUser = prodUserMapper.selectByPrimaryKey(dto.getUserId());
-			Map<String,Object> bodyMap = new HashMap<>(2);
-			Map<String,Object> memberMap = new HashMap<>(1);
-			memberMap.put("username",prodUser.getLoginName());
-			bodyMap.put("role_id",dto.getHarborRoleId());
-			bodyMap.put("member_user",memberMap);
-			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH,null,bodyMap,false,dto.getHarborId());
+		for (HarborAuth dto : dtoList) {
+			ProdUser record = new ProdUser();
+			record.setUserId(dto.getUserId());
+			ProdUser prodUser = prodUserMapper.selectOne(record);
+			Map<String, Object> bodyMap = new HashMap<>(2);
+			Map<String, Object> memberMap = new HashMap<>(1);
+			memberMap.put("username", prodUser.getLoginName());
+			bodyMap.put("role_id", dto.getHarborRoleId());
+			bodyMap.put("member_user", memberMap);
+			harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_ONE_AUTH, null, bodyMap, false, dto.getHarborId());
 		}
 		return dtoList;
 	}
