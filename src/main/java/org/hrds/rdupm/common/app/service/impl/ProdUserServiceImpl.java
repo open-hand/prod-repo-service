@@ -201,26 +201,27 @@ public class ProdUserServiceImpl implements ProdUserService {
     public ProdUser selectUserInfo(Long userId) {
         ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, userId).stream().findFirst().orElse(null);
         if (prodUser == null) {
-            return new ProdUser();
-        }
-        //先查询harbor,
-        UserDTO userDTO = c7nBaseService.listUserById(userId);
-        if (userDTO == null) {
-            return new ProdUser();
-        }
-        Map<String, Object> paramMap = new HashMap<>(1);
-        paramMap.put("email", userDTO.getEmail());
-        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_EMAIL, paramMap, null, true);
-        List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
-        Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getEmail, dto -> dto));
-        if (userMap.get(userDTO.getEmail()) != null) {
-            User user = userMap.get(userDTO.getEmail());
-            prodUser.setLoginName(user.getUsername());
-            return prodUser;
+            return null;
         } else {
-            // TODO: 2022/5/31 当nexus上的loginName与数据库不一致的时候
+            //先查询harbor,
+            UserDTO userDTO = c7nBaseService.listUserById(userId);
+            if (userDTO == null) {
+                return prodUser;
+            }
+            Map<String, Object> paramMap = new HashMap<>(1);
+            paramMap.put("email", userDTO.getEmail());
+            ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_EMAIL, paramMap, null, true);
+            List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
+            Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getEmail, dto -> dto));
+            if (userMap.get(userDTO.getEmail()) != null) {
+                User user = userMap.get(userDTO.getEmail());
+                prodUser.setLoginName(user.getUsername());
+                return prodUser;
+            } else {
+                // TODO: 2022/5/31 当nexus上的loginName与数据库不一致的时候
+            }
+            return prodUser;
         }
-        return prodUser;
     }
 
     private boolean isRoot(String loginName) {
