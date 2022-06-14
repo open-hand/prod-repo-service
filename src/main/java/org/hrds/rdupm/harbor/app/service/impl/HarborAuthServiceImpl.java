@@ -381,6 +381,7 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         }
         ProdUser prodUser = new ProdUser(userId, loginName, password, 0);
         ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
+        userDTO.setLoginName(dbProdUser.getLoginName());
         String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
         //若为管理员用户，则不创建
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
