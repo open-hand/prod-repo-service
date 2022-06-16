@@ -67,7 +67,7 @@ public class HarborImageTagServiceImpl implements HarborImageTagService {
         Page<HarborImageTagVo> pageInfo;
         if (StringUtils.isNotEmpty(tagName)) {
             harborImageTagVoList = harborImageTagVoList.stream().filter(dto -> {
-                Optional<HarborImageTagVo.Tag> optional = dto.getTags().stream().filter(tag -> tag.getName().contains(tagName)).findFirst();
+                Optional<HarborImageTagVo.Tag> optional = dto.getTags().stream().filter(tag -> tag.getName() != null && tag.getName().contains(tagName)).findFirst();
                 return optional.isPresent();
             }).collect(Collectors.toList());
         }
