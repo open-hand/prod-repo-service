@@ -252,7 +252,7 @@ public class IamSagaHandler {
 		List<HarborAuth> authList = new ArrayList<>();
 		HarborAuth harborAuth = new HarborAuth();
 		harborAuth.setUserId(userDTO.getId());
-		harborAuth.setLoginName(userDTO.getLoginName());
+//		harborAuth.setLoginName(userDTO.getLoginName());
 		harborAuth.setRealName(userDTO.getRealName());
 		harborAuth.setHarborRoleValue(HarborConstants.HarborRoleEnum.PROJECT_ADMIN.getRoleValue());
 		try {
@@ -260,11 +260,12 @@ public class IamSagaHandler {
 		} catch (ParseException e) {
 			LOGGER.error("error.format.date", e);
 		}
-		authList.add(harborAuth);
+
 
 		//创建账号
 		harborAuthService.saveHarborUser(userDTO);
-
+		harborAuth.setLoginName(userDTO.getLoginName());
+		authList.add(harborAuth);
 		//Harbor中创建权限
 		Map<String,Object> bodyMap = new HashMap<>(2);
 		Map<String,Object> memberMap = new HashMap<>(1);
