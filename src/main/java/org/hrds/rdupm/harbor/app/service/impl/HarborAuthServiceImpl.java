@@ -366,6 +366,8 @@ public class HarborAuthServiceImpl implements HarborAuthService {
 
     @Override
     public void saveHarborUser(UserDTO userDTO) {
+        //根据userId查询制品库的userName
+        correctLoginName(userDTO);
         String loginName = userDTO.getLoginName();
         Long userId = userDTO.getId();
         String email = userDTO.getEmail();
@@ -381,41 +383,41 @@ public class HarborAuthServiceImpl implements HarborAuthService {
         }
         ProdUser prodUser = new ProdUser(userId, loginName, password, 0);
         ProdUser dbProdUser = prodUserService.saveOneUser(prodUser);
-        userDTO.setLoginName(dbProdUser.getLoginName());
-        loginName = dbProdUser.getLoginName();
         String newPassword = dbProdUser.getPwdUpdateFlag() == 1 ? DESEncryptUtil.decode(dbProdUser.getPassword()) : dbProdUser.getPassword();
         //若为管理员用户，则不创建
         if (loginName.equals(harborInfoConfiguration.getUsername())) {
             return;
         }
         //判断harbor中是否存在当前用户
-        //这里根据userName查询换成根据email来查询，有得客户用户改loginName
         Map<String, Object> paramMap = new HashMap<>(1);
-        paramMap.put("email", email);
-        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_EMAIL, paramMap, null, true);
+        paramMap.put("username", loginName);
+        ResponseEntity<String> userResponse = harborHttpClient.exchange(HarborConstants.HarborApiEnum.SELECT_USER_BY_USERNAME, paramMap, null, true);
         List<User> userList = JSONObject.parseArray(userResponse.getBody(), User.class);
-        Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getEmail, dto -> dto));
-
+        Map<String, User> userMap = CollectionUtils.isEmpty(userList) ? new HashMap<>(16) : userList.stream().collect(Collectors.toMap(User::getUsername, dto -> dto));
         //Harbor中新建用户
-        if (userMap.get(email) == null) {
+        if (userMap.get(loginName) == null) {
             User user = new User(loginName, email, newPassword, realName);
             harborHttpClient.exchange(HarborConstants.HarborApiEnum.CREATE_USER, null, user, true);
         } else {
-            //当两边的用户loginName不一致的时，以harbor为准
-            User user = userMap.get(email);
-            if (!StringUtils.equalsIgnoreCase(user.getUsername(), dbProdUser.getLoginName())) {
-                dbProdUser.setLoginName(user.getUsername());
-                prodUserRepository.updateByPrimaryKey(dbProdUser);
-            }
-
             //更新Harbor中用户密码
             Map<String, Object> bodyMap = new HashMap<>(1);
             bodyMap.put("new_password", newPassword);
             try {
-                harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD, null, bodyMap, true, userMap.get(email).getUserId());
+                harborHttpClient.exchange(HarborConstants.HarborApiEnum.CHANGE_PASSWORD, null, bodyMap, true, userMap.get(loginName).getUserId());
             } catch (Exception e) {
                 LOGGER.error("error.change.psw", e);
             }
+
         }
+    }
+
+    private void correctLoginName(UserDTO userDTO) {
+        ProdUser record = new ProdUser();
+        record.setUserId(userDTO.getId());
+        ProdUser prodUser = prodUserRepository.selectOne(record);
+        if (prodUser == null) {
+            return;
+        }
+        userDTO.setLoginName(prodUser.getLoginName());
     }
 }

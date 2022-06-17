@@ -33,6 +33,5 @@ public interface ProdUserService {
 
 	Map<String, Map<Object, List<String>>> getUserRoleList(List<NexusRepository> nexusRepositories, Long projectId);
 
-	ProdUser selectUserInfo(Long userId);
 
 }

@@ -58,7 +58,7 @@ public class ProdUserController extends BaseController {
         if (!userId.equals(DetailsHelper.getUserDetails().getUserId())) {
             throw new CommonException("error.user.not.current.user");
         }
-        ProdUser prodUser= prodUserService.selectUserInfo(userId);
+        ProdUser prodUser = prodUserRepository.select(ProdUser.FIELD_USER_ID, userId).stream().findFirst().orElse(null);
         if (prodUser != null && prodUser.getPwdUpdateFlag().intValue() == 1) {
             prodUser.setPassword(null);
         }
