@@ -50,7 +50,7 @@ const AppModals = observer(() => {
     return false;
   }, [logListDs]);
 
-  function refresh() {
+  const refresh = () => {
     repoListDs.query();
     switch (currentTab) {
       case MIRROR_TAB:
@@ -67,7 +67,7 @@ const AppModals = observer(() => {
         break;
       default:
     }
-  }
+  };
 
   function openConfigModal() {
     Modal.open({
@@ -77,7 +77,7 @@ const AppModals = observer(() => {
       title: formatMessage({ id: `${intlPrefix}.view.globalResource.title` }),
       className: 'infra-prod-lib-org-modals',
       children: <ResourceConfig
-        refresh
+        refresh={refresh}
         intlPrefix={intlPrefix}
         repoName="全部仓库"
       />,
